@@ -8,15 +8,15 @@ inline int rnd( int q ){
 }
 */
 
-int rnd( int q, int min, int range ){
+int Util::rnd( int q, int min, int range ){
 	return q - min + rnd( range );
 }
 
-int rnd( int min, int max ){
+int Util::rnd( int min, int max ){
 	return rnd( max - min ) + min;
 }
 
-void blend_palette( int * pal, int mp, int sc, int ec ) {
+void Util::blend_palette( int * pal, int mp, int sc, int ec ) {
 
 	ASSERT( pal );
 	ASSERT( mp != 0 );
