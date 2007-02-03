@@ -20,4 +20,6 @@ protected:
 	FONT * my_font;
 };
 
+const Font getFont( int index );
+
 #endif

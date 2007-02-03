@@ -79,8 +79,9 @@ public:
 	void debugSelf() const;
 
 	void printf( int x, int y, int color, FONT * f, const char * str, ... ) const;
-	void printf( int x, int y, int color, Font * f, const char * str, ... ) const;
-	void printf( int x, int y, int color, Font * f, const string & str ) const;
+	void printf( int x, int y, int color, const Font * const f, const char * str, ... ) const;
+	void printf( int x, int y, int color, const Font * const f, const string & str ) const;
+	void printf( int x, int y, int color, const Font & f, const string & str ) const;
 	void printfNormal( int x, int y, int color, const char * str, ... ) const;
 	void printfNormal( int x, int y, int color, const string & str ) const;
 	void triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const;
