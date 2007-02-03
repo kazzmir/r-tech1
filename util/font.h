@@ -12,7 +12,7 @@ public:
 		return my_font;
 	}
 	
-	const int textLength( const char * text );
+	const int textLength( const char * text ) const;
 
 	const int getHeight() const;
 
@@ -21,5 +21,6 @@ protected:
 };
 
 const Font getFont( int index );
+const Font getDefaultFont();
 
 #endif
