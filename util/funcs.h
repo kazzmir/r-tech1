@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+namespace Util{
+
 // int rnd( int q );
 inline int rnd( int q ){
 	if ( q <= 0 ) return 0;
@@ -16,5 +18,7 @@ int rnd( int q, int min, int max );
 int rnd( int min, int max );
 
 void blend_palette( int * pal, int mp, int sc, int ec );
+
+}
 
 #endif
