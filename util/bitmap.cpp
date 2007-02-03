@@ -513,7 +513,7 @@ void Bitmap::printf( int x, int y, int color, FONT * f, const char * str, ... ) 
 	textout_ex( getBitmap(), f, buf, x, y, color, -1);
 }
 
-void Bitmap::printf( int x, int y, int color, Font * f, const char * str, ... ) const{
+void Bitmap::printf( int x, int y, int color, const Font * const f, const char * str, ... ) const{
 
 	char buf[512];
 	va_list ap;
@@ -525,8 +525,12 @@ void Bitmap::printf( int x, int y, int color, Font * f, const char * str, ... ) 
 	textout_ex( getBitmap(), f->getInternalFont(), buf, x, y, color, -1);
 }
 	
-void Bitmap::printf( int x, int y, int color, Font * f, const string & str ) const{
+void Bitmap::printf( int x, int y, int color, const Font * const f, const string & str ) const{
 	printf( x, y, color, f, str.c_str() );
+}
+
+void Bitmap::printf( int x, int y, int color, const Font & f, const string & str ) const{
+	printf( x, y, color, &f, str );
 }
 	
 void Bitmap::printfNormal( int x, int y, int color, const char * str, ... ) const{
