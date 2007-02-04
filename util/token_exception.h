@@ -6,7 +6,7 @@
 
 using namespace std;
 
-class TokenException : public exception{
+class TokenException : public exception {
 public:
 	TokenException();
 	TokenException( const string & reason );

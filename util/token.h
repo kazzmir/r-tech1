@@ -23,7 +23,10 @@ public:
 		return name;
 	}
 	*/
-	const string & getName();
+	const string & getName() const;
+	const Token * const getParent() const;
+
+	const string getLineage() const;
 
 	void print( const string & space );
 
@@ -65,11 +68,16 @@ protected:
 		return name;
 	}
 
+	virtual inline void setParent( const Token * const parent ){
+		this->parent = parent;
+	}
+
 	void lowerCase( string & s );
 	void finalize();
 
 	unsigned int num_token;
 	vector< Token * > tokens;
+	Token const * parent;
 	string name;
 };
 
