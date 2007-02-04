@@ -85,6 +85,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 				in_quote = false;
 				
 				Token * sub = new Token( cur_string, false );
+				sub->setParent( cur_token );
 				cur_token->addToken( sub );
 				cur_string = "";
 
@@ -100,6 +101,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 			} else if ( cur_string != "" && strchr( nonalpha, n ) != NULL ){
 				// cout<<"Made new token "<<cur_string<<endl;
 				Token * sub = new Token( cur_string, false );
+				sub->setParent( cur_token );
 				cur_token->addToken( sub );
 				cur_string = "";
 			}
@@ -112,6 +114,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 			continue;
 		} else if ( n == '(' ){
 			Token * another = new Token();
+			another->setParent( cur_token );
 			cur_token->addToken( another );
 			cur_token = another;
 			token_stack.push_back( cur_token );

@@ -8,13 +8,15 @@
 
 using namespace std;
 
-Token::Token(){
+Token::Token():
+parent( NULL ){
 	name = "HEAD";
 	num_token = 1;
 }
 
 Token::Token( string tok, bool parse ):
-num_token( 1 ){
+num_token( 1 ),
+parent( NULL ){
 
 	/* legacy code, not used much */
 	if ( !parse ){
@@ -34,7 +36,6 @@ void Token::print( const string & space ){
 		Token * x = getToken( i );
 		x->print( space + " |--" );
 	}
-
 }
 
 /* helper function */
@@ -71,12 +72,24 @@ Token * Token::getToken( unsigned int n ){
  * is the name of the first child token.
  * Otherwise, the name is this token's name
  */
-const string & Token::getName(){
+const string & Token::getName() const {
 	if ( numTokens() != -1 ){
 		return tokens[0]->_getName();
 	}
 	// cout<<"No tokens!!"<<endl;
 	return name;
+}
+
+const Token * const Token::getParent() const {
+	return this->parent;
+}
+
+const string Token::getLineage() const {
+	if ( getParent() != NULL ){
+		return getParent()->getLineage() + " -> " + getName();
+	}
+
+	return getName();
 }
 
 /* A token's identity is its name 
@@ -93,7 +106,7 @@ bool Token::operator!= ( const string & rhs ){
 Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
 	Token * x = readToken();
 	if ( x == NULL ){
-		throw TokenException("No more elements");
+		throw TokenException( string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
 	}
 	rhs = x;
 	return *this;
@@ -102,7 +115,7 @@ Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
 Token & Token::operator>>( string & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException("No more elements");
+		throw TokenException( string("Tried to read a string from ") + this->getLineage() + string(" but there no more elements") );
 	}
 	rhs = l->getName();
 
@@ -114,7 +127,7 @@ Token & Token::operator>>( string & rhs ) throw( TokenException ){
 Token & Token::operator>>( int & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException("No more elements");
+		throw TokenException(string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
 	}
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -124,7 +137,7 @@ Token & Token::operator>>( int & rhs ) throw( TokenException ){
 Token & Token::operator>>( double & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException("No more elements");
+		throw TokenException( string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
 	}
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -134,7 +147,7 @@ Token & Token::operator>>( double & rhs ) throw( TokenException ){
 Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException("No more elements");
+		throw TokenException( string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
 	}
 	istringstream is ( l->getName() );
 	is >> rhs;
