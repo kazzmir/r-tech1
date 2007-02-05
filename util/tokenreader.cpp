@@ -13,7 +13,7 @@ TokenReader::TokenReader( const char * file ){
 	ifile.open( file );
 	myfile = file;
 	ifile >> noskipws;
-	cout<<"Opened "<<file<<endl;
+	// cout<<"Opened "<<file<<endl;
 }
 
 TokenReader::~TokenReader(){
