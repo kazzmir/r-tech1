@@ -6,6 +6,11 @@
 
 using namespace std;
 
+Sound::Sound():
+my_sound( NULL ),
+own( NULL ){
+}
+
 Sound::Sound( const string & path ) throw( LoadException ):
 my_sound( NULL ),
 own( NULL ){
@@ -20,7 +25,6 @@ own( NULL ){
 
 	own = new int;
 	*own = 1;
-
 }
 
 Sound::Sound( const Sound & copy ):
@@ -33,18 +37,36 @@ own( NULL ){
 	my_sound = copy.my_sound;
 }
 
-void Sound::play(){
-	if ( my_sound )
-		play_sample( my_sound, 255, 128, 1000, false );
-}
-
-Sound::~Sound(){
+void Sound::destroy(){
 	if ( own ){
 		*own -= 1;
-
 		if ( *own == 0 ){
 			delete own;
 			destroy_sample( my_sound );
+			own = NULL;
 		}
 	}
+}
+
+Sound & Sound::operator=( const Sound & rhs ){
+	if ( own ){
+		destroy();
+	}
+	own = rhs.own;
+	if ( own ){
+		*own += 1;
+	}
+	my_sound = rhs.my_sound;
+
+	return *this;
+}
+
+void Sound::play(){
+	if ( my_sound ){
+		play_sample( my_sound, 255, 128, 1000, false );
+	}
+}
+
+Sound::~Sound(){
+	destroy();
 }

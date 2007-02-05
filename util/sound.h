@@ -11,8 +11,11 @@ using namespace std;
 /* a sound! */
 class Sound{
 public:
+	Sound();
 	Sound( const string & path ) throw( LoadException );
 	Sound( const Sound & copy );
+
+	Sound & operator=( const Sound & rhs );
 
 	void play();
 
@@ -20,7 +23,11 @@ public:
 
 protected:
 
+	void destroy();
+
 	SAMPLE * my_sound;
+
+	/* reference counting */
 	int * own;
 
 };
