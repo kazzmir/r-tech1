@@ -41,6 +41,8 @@ public:
 
 	Bitmap & operator=( const Bitmap & );
 
+	virtual void load( const string & str );
+
 	const int getWidth() const;
 	const int getHeight() const;
 

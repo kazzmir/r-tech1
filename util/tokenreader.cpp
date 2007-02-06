@@ -16,6 +16,12 @@ TokenReader::TokenReader( const char * file ){
 	// cout<<"Opened "<<file<<endl;
 }
 
+TokenReader::TokenReader( const string & file ){
+	ifile.open( file.c_str() );
+	myfile = file.c_str();
+	ifile >> noskipws;
+}
+
 TokenReader::~TokenReader(){
 	ifile.close();
 

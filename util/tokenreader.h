@@ -12,9 +12,9 @@ class Token;
 
 class TokenReader{
 public:
+	TokenReader( const string & s );
 	TokenReader( const char * filename );
 
-	// returns a token which YOU must delete
 	Token * readToken() throw( TokenException );
 
 	~TokenReader();
@@ -24,7 +24,6 @@ protected:
 	ifstream ifile;
 	string myfile;
 	vector< Token * > my_tokens;
-
 };
 
 #endif

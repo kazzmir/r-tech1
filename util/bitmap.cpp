@@ -240,12 +240,17 @@ error( false ){
 	*own = 1;
 }
 	
+void Bitmap::load( const string & str ){
+	releaseInternalBitmap();
+	internalLoadFile( str.c_str() );
+}
+	
 void Bitmap::internalLoadFile( const char * load_file ){
 	path = load_file;
 	setBitmap( load_bitmap( load_file, NULL ) );
 	if ( ! getBitmap() ){
 		cout<<"Could not load "<<load_file<<". Using default"<<endl;
-		setBitmap( create_bitmap( 100, 100 ) );
+		setBitmap( create_bitmap( 10, 10 ) );
 		if ( ! getBitmap() ){
 			cout<<"Out of memory or Allegro not initialized"<<endl;
 			error = true;
