@@ -506,6 +506,7 @@ void Bitmap::putPixel( int x, int y, int col ) const{
 		_putpixel16( getBitmap(), x, y, col );
 }
 	
+/*
 void Bitmap::printf( int x, int y, int color, FONT * f, const char * str, ... ) const{
 
 	char buf[512];
@@ -554,6 +555,7 @@ void Bitmap::printfNormal( int x, int y, int color, const char * str, ... ) cons
 void Bitmap::printfNormal( int x, int y, int color, const string & str ) const{
 	printfNormal( x, y, color, "%s", str.c_str() );
 }
+*/
 
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const{
 	::triangle( getBitmap(), x1, y1, x2, y2, x3, y3, color );
