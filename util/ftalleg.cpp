@@ -36,6 +36,8 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 
 namespace ftalleg{
 
+	typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
+
 	static int fixColor(const unsigned char *c,short grays){
 		// Safety checks
 		assert(c != 0);
@@ -72,7 +74,7 @@ namespace ftalleg{
 		return (width<fs.width || height<fs.height || italics<fs.italics);
 	}
 
-	int fontSize::createKey(){
+	const int fontSize::createKey() const {
 		return ((width+10) * (height+20) * (italics+250));
 	}
 
@@ -173,8 +175,21 @@ namespace ftalleg{
 		}
 	}
 
+	pixeler getPutPixel(){
+		switch( get_color_depth() ){
+			case 8 : return _putpixel;
+			case 15 : return _putpixel15;
+			case 16 : return _putpixel16;
+			case 24 : return _putpixel24;
+			case 32 : return _putpixel32;
+			default : return putpixel;
+		}
+	}
+
 	// Render a character from the lookup table
 	void freetype::drawCharacter(signed long unicode, int &x1, int &y1, BITMAP *bitmap, const int &color){
+
+		pixeler putter = getPutPixel();
 
 		std::map<int, std::map<signed long, character> >::iterator ft;
 		ft = fontTable.find(size.createKey());
@@ -183,7 +198,7 @@ namespace ftalleg{
 			p = (ft->second).find(unicode);
 			if(p!=(ft->second).end())
 			{
-				character tempChar = p->second;
+				const character & tempChar = p->second;
 
 				unsigned char *line = tempChar.line;
 				for (int y = 0; y < tempChar.rows; y++)
@@ -199,7 +214,13 @@ namespace ftalleg{
 						int blue = getb(col) * getb(color) / 255;
 
 						//col.alpha= col.alpha * color.alpha / 255;
-						putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
+						// putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
+						/* dangerous! putter is probably one of the _putpixel* routines so if x or y are off the bitmap
+						 * you will get a segfault
+						 */
+						// putter(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
+						putter = 0;
+						putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top + y + size.height, makecol(red,blue,green));
 					}
 					line += tempChar.pitch;
 				}
@@ -363,10 +384,8 @@ namespace ftalleg{
 			}
 			int previous = 0;
 			int next = 0;
-			for(unsigned int i = 0; i<fixedText.length();++i)
-			{
-				if(kerning && previous && next)
-				{
+			for(unsigned int i = 0; i<fixedText.length();++i){
+				if(kerning && previous && next){
 					next = FT_Get_Char_Index( face, fixedText[i] );
 					FT_Vector delta;
 					FT_Get_Kerning( face, previous, next, FT_KERNING_DEFAULT, &delta );
@@ -377,15 +396,67 @@ namespace ftalleg{
 			}
 		}
 	}
+			
+	int freetype::calculateMaximumHeight(){
+		std::map<int, std::map<signed long, character> >::iterator ft;
+		ft = fontTable.find(size.createKey());
+		int top = 0;
+		long code = 0;
+		if ( ft != fontTable.end() ){
+			std::map<signed long, character>::iterator p;
+			std::map< signed long, character > & map = ft->second;
+			for ( p = map.begin(); p != map.end(); p++ ){
+				const character & ch = p->second;
+				printf( "%c( %ld ). top = %d. rows = %d. total = %d\n", (char) ch.unicode, ch.unicode, ch.top, ch.rows, ch.top + ch.rows );
+				if ( ch.top + ch.rows > top ){
+					code = ch.unicode;
+					top = ch.top + ch.rows;
+				}
+			}
+		}
+		printf( "Largest letter = %ld\n", code );
+		return top;
+	}
+
+
+	const int freetype::height( long code ) const {
+		std::map<int, std::map<signed long, character> >::const_iterator ft;
+		ft = fontTable.find( size.createKey() );
+		if ( ft != fontTable.end() ){
+			std::map<signed long, character>::const_iterator p;
+			p = (ft->second).find( code );
+			if ( p != (ft->second).end() ){
+				const character & temp = p->second;
+				// printf( "%c top = %d rows = %d\n", (char) code, temp.top, temp.rows );
+				return temp.top + temp.rows;
+			}
+		}
+		return 0;
+	}
+
+	const int freetype::calculateHeight( const std::string & str ) const {
+		int max = 0;
+		for ( unsigned int i = 0; i < str.length(); i++ ){
+			int q = height( str[ i ] );
+			// printf( "Height of %c is %d\n", str[ i ], q );
+			if ( q > max ){
+				max = q;
+			}
+		}
+
+		return max;
+	}
 
 	//! Set size
-	void freetype::setSize(int w, int h)
-	{
-		if(internalFix)return;
-		if(w<=0 || h<=0)return;
-		size.width=w;
-		size.height=h;
-		createIndex();
+	void freetype::setSize( unsigned int w, unsigned int h){
+		if ( w != size.width && h != size.height ){
+			if(internalFix)return;
+			if(w<=0 || h<=0)return;
+			size.width=w;
+			size.height=h;
+			createIndex();
+			// maximumHeight = calculateMaximumHeight();
+		}
 	}
 
 	//! Set italics
@@ -399,15 +470,14 @@ namespace ftalleg{
 	}
 
 	//! Get Width
-	int freetype::getWidth()
-	{
+	int freetype::getWidth(){
 		return size.width;
 	}
 
 	//! Get Height
-	int freetype::getHeight()
-	{
-		return size.height;
+	int freetype::getHeight( const std::string & str ) const {
+		// return size.height;
+		return calculateHeight( str );
 	}
 
 	//! Get Italics
