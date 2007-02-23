@@ -22,6 +22,7 @@ public:
 	
 	virtual const int textLength( const char * text ) const = 0;
 
+	virtual const int getHeight( const string & str ) const = 0;
 	virtual const int getHeight() const = 0;
 
 	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const = 0;
@@ -40,6 +41,7 @@ public:
 	virtual ~AllegroFont();
 
 	virtual const int getHeight() const;
+	virtual const int getHeight( const string & str ) const;
 	virtual const int textLength( const char * text ) const;
 	
 	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const;
@@ -63,6 +65,7 @@ public:
 	virtual ~FreeTypeFont();
 
 	virtual const int getHeight() const;
+	virtual const int getHeight( const string & str ) const;
 	virtual const int textLength( const char * text ) const;
 	
 	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const;

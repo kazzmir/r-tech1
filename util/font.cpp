@@ -24,6 +24,10 @@ const int AllegroFont::textLength( const char * text ) const{
 	return text_length( getInternalFont(), text );
 }
 
+const int AllegroFont::getHeight( const string & str ) const {
+	return getHeight();
+}
+
 const int AllegroFont::getHeight() const {
 	return text_height( getInternalFont() );
 }
@@ -65,8 +69,12 @@ sizeY( 16 ){
 	this->font = new ftalleg::freetype( str, getSizeX(), getSizeY() );
 }
 
-const int FreeTypeFont::getHeight() const{
-	return this->font->getHeight();
+const int FreeTypeFont::getHeight( const string & str ) const {
+	return this->font->getHeight( str );
+}
+
+const int FreeTypeFont::getHeight() const {
+	return getHeight( "A" );
 }
 
 const int FreeTypeFont::textLength( const char * text ) const {

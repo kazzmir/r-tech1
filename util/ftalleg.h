@@ -105,7 +105,7 @@ namespace ftalleg
 			
 			bool operator<(const fontSize &fs) const;
 			
-			int createKey();
+			const int createKey() const;
 	};
 	
 	//!  Freetype based font system
@@ -129,6 +129,8 @@ namespace ftalleg
 			
 			//! for internal use disregard
 			bool internalFix;
+
+			int maximumHeight;
 			
 			//! Font size
 			fontSize size;
@@ -150,12 +152,18 @@ namespace ftalleg
 			
 			//! Extract glyph
 			character extractGlyph(signed long unicode);
+
+			int calculateMaximumHeight();
 			
 			//! Create single index
 			void createIndex();
 			
 			//! Render a character from the lookup table (utilizing the workBitmap)
 			void drawCharacter(signed long unicode, int &x1, int &y1, BITMAP *bitmap, const int & color);
+
+
+			const int height( long code ) const;
+			const int calculateHeight( const std::string & str ) const;
 			
 		public:
 			//! Constructor
@@ -185,7 +193,7 @@ namespace ftalleg
 			void render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, ...);
 			
 			//! Set size
-			void setSize(int w, int h);
+			void setSize( unsigned int w, unsigned int h);
 			
 			//! Set italics
 			void setItalics(int i);
@@ -194,13 +202,11 @@ namespace ftalleg
 			int getWidth();
 			
 			//! Get Height
-			int getHeight();
+			int getHeight( const std::string & str ) const;
 			
 			//! Get Italics
 			int getItalics();
 	};
-			
 }
-
 
 #endif /* FT_FONT_H */
