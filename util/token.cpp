@@ -106,16 +106,28 @@ bool Token::operator!= ( const string & rhs ){
 Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
 	Token * x = readToken();
 	if ( x == NULL ){
-		throw TokenException( string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
+		throw TokenException( getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
 	}
 	rhs = x;
 	return *this;
 }
 
+void Token::setFile( const string & s ){
+	filename = s;
+}
+
+const string Token::getFileName() const {
+	if ( parent ){
+		return parent->getFileName();
+	} else {
+		return filename;
+	}
+}
+
 Token & Token::operator>>( string & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( string("Tried to read a string from ") + this->getLineage() + string(" but there no more elements") );
+		throw TokenException( getFileName() + ":" + string("Tried to read a string from ") + this->getLineage() + string(" but there no more elements") );
 	}
 	rhs = l->getName();
 
@@ -127,7 +139,7 @@ Token & Token::operator>>( string & rhs ) throw( TokenException ){
 Token & Token::operator>>( int & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException(string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
+		throw TokenException( getFileName() + ": " + string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
 	}
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -137,7 +149,7 @@ Token & Token::operator>>( int & rhs ) throw( TokenException ){
 Token & Token::operator>>( double & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
+		throw TokenException( getFileName() + ": " + string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
 	}
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -147,7 +159,7 @@ Token & Token::operator>>( double & rhs ) throw( TokenException ){
 Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
+		throw TokenException( getFileName() + ": " + string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
 	}
 	istringstream is ( l->getName() );
 	is >> rhs;
