@@ -11,14 +11,14 @@ using namespace std;
 
 TokenReader::TokenReader( const char * file ){
 	ifile.open( file );
-	myfile = file;
+	myfile = string( file );
 	ifile >> noskipws;
 	// cout<<"Opened "<<file<<endl;
 }
 
 TokenReader::TokenReader( const string & file ){
 	ifile.open( file.c_str() );
-	myfile = file.c_str();
+	myfile = file;
 	ifile >> noskipws;
 }
 
@@ -46,6 +46,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 	// token_string += '(';
 
 	Token * cur_token = new Token();
+	cur_token->setFile( myfile );
 	my_tokens.push_back( cur_token );
 	Token * first = cur_token;
 	vector< Token * > token_stack;

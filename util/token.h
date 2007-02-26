@@ -26,6 +26,9 @@ public:
 	const string & getName() const;
 	const Token * const getParent() const;
 
+	void setFile( const string & s );
+	const string getFileName() const;
+
 	const string getLineage() const;
 
 	void print( const string & space );
@@ -77,6 +80,7 @@ protected:
 
 	unsigned int num_token;
 	vector< Token * > tokens;
+	string filename;
 	Token const * parent;
 	string name;
 };
