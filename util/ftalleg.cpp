@@ -81,10 +81,10 @@ namespace ftalleg{
 	//! Constructor
 	freetype::freetype( const std::string & str, const int x, const int y ){
 		//Load library
-		if(!ftLibrary){
+		if ( !ftLibrary ){
 			FT_Init_FreeType(&ftLibrary);
-			instances++;
 		}
+		instances++;
 		faceLoaded = kerning = false;
 		currentIndex=0;
 		currentFilename="";
@@ -101,11 +101,12 @@ namespace ftalleg{
 
 		//if(face!=NULL)FT_Done_Face(face);
 
-		if ( instances>0 ){
+		if ( instances > 0 ){
 			instances--;
 		}
-		if ( instances==0 ){
-			FT_Done_FreeType(ftLibrary);
+
+		if ( instances == 0 ){
+			FT_Done_FreeType( ftLibrary );
 		}
 
 		if ( currentChar ){
