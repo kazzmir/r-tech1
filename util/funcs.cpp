@@ -1,5 +1,9 @@
 #include "funcs.h"
 #include <allegro.h>
+#include <vector>
+#include <string>
+
+using namespace std;
 
 /*
 inline int rnd( int q ){
@@ -14,6 +18,22 @@ int Util::rnd( int q, int min, int range ){
 
 int Util::rnd( int min, int max ){
 	return rnd( max - min ) + min;
+}
+
+vector< string > Util::getFiles( string dataPath, string find ){
+	struct al_ffblk info;
+	vector< string > files;
+
+	if ( al_findfirst( (dataPath + find).c_str(), &info, FA_ALL ) != 0 ){
+		return files;
+	}
+	files.push_back( string( info.name ) );
+	while ( al_findnext( &info ) == 0 ){
+		files.push_back( dataPath + string( info.name ) );
+	}
+	al_findclose( &info );
+
+	return files;
 }
 
 void Util::blend_palette( int * pal, int mp, int sc, int ec ) {
