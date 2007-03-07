@@ -21,6 +21,7 @@ const int Bitmap::MaskColor = MASK_COLOR_16;
 
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
+const int Bitmap::MODE_LIT = 2;
 
 Bitmap * Bitmap::Screen;
 
@@ -446,6 +447,10 @@ void Bitmap::drawingMode( int mode ){
 			drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
 			break;
 		}
+		case MODE_LIT : {
+			drawing_mode( DRAW_MODE_LIT, NULL, 0, 0 );
+			break;
+		}
 	}
 }
 
@@ -617,11 +622,11 @@ void Bitmap::fill( int color ) const{
 	::clear_to_color( getBitmap(), color );
 }
 	
-void Bitmap::draw( const int x, const int y, const Bitmap & where ) const{
+void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	::draw_sprite( where.getBitmap(), getBitmap(), x, y );
 }
 	
-void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ){
+void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 	::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 	

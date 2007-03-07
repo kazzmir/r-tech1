@@ -89,39 +89,39 @@ public:
 	void printfNormal( int x, int y, int color, const string & str ) const;
 	*/
 
-	void triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const;
-	void ellipse( int x, int y, int rx, int ry, int color ) const;
-	void ellipseFill( int x, int y, int rx, int ry, int color ) const;
+	virtual void triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const;
+	virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
+	virtual void ellipseFill( int x, int y, int rx, int ry, int color ) const;
 
-	void rectangle( int x1, int y1, int x2, int y2, int color ) const;
-	void rectangleFill( int x1, int y1, int x2, int y2, int color ) const;
-	void circleFill( int x, int y, int radius, int color ) const;
-	void circle( int x, int y, int radius, int color ) const;
-	void line( const int x1, const int y1, const int x2, const int y2, const int color ) const;
+	virtual void rectangle( int x1, int y1, int x2, int y2, int color ) const;
+	virtual void rectangleFill( int x1, int y1, int x2, int y2, int color ) const;
+	virtual void circleFill( int x, int y, int radius, int color ) const;
+	virtual void circle( int x, int y, int radius, int color ) const;
+	virtual void line( const int x1, const int y1, const int x2, const int y2, const int color ) const;
 		
-	void horizontalLine( const int x1, const int y, const int x2, const int color ) const;
-	void hLine( const int x1, const int y, const int x2, const int color ) const;
-	void vLine( const int y1, const int x, const int y2, const int color ) const;
-	void polygon( const int * verts, const int nverts, const int color ) const;
+	virtual void horizontalLine( const int x1, const int y, const int x2, const int color ) const;
+	virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
+	virtual void vLine( const int y1, const int x, const int y2, const int color ) const;
+	virtual void polygon( const int * verts, const int nverts, const int color ) const;
 
-	void draw( const int x, const int y, const Bitmap & where ) const;
-	void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
-	void drawHFlip( const int x, const int y, const Bitmap & where );
-	void drawTrans( const int x, const int y, const Bitmap & where ) const;
-	void drawMask( const int x, const int y, const Bitmap & where );
-	void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who );
-	void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
+	virtual void draw( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
+	virtual void drawHFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawMask( const int x, const int y, const Bitmap & where );
+	virtual void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who );
+	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
 
-	void Stretch( const Bitmap & where );
-	void StretchBy2( const Bitmap & where );
-	void StretchBy4( const Bitmap & where );
-	void Blit( const string & xpath );
-	void Blit( const Bitmap & where );
-	void Blit( const int x, const int y, const Bitmap & where );
-	void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where );
-	void Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where );
-	void BlitToScreen();
-	void fill( int color ) const;
+	virtual void Stretch( const Bitmap & where );
+	virtual void StretchBy2( const Bitmap & where );
+	virtual void StretchBy4( const Bitmap & where );
+	virtual void Blit( const string & xpath );
+	virtual void Blit( const Bitmap & where );
+	virtual void Blit( const int x, const int y, const Bitmap & where );
+	virtual void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where );
+	virtual void Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where );
+	virtual void BlitToScreen();
+	virtual void fill( int color ) const;
 
 	inline void clear() const{
 		this->fill( 0 );
@@ -133,7 +133,7 @@ public:
 		return _my_bitmap;
 	}
 
-	void readLine( vector< int > & vec, int y );
+	virtual void readLine( vector< int > & vec, int y );
 	const int getPixel( const int x, const int y ) const;
 
 	void putPixel( int x, int y, int col ) const;
@@ -179,6 +179,7 @@ public:
 	// static const int MaskColor = MASK_COLOR_16;
 	static const int MaskColor;
 	static const int MODE_TRANS;
+	static const int MODE_LIT;
 	static const int MODE_SOLID;
 
 protected:
