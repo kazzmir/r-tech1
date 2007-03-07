@@ -179,7 +179,6 @@ public:
 	// static const int MaskColor = MASK_COLOR_16;
 	static const int MaskColor;
 	static const int MODE_TRANS;
-	static const int MODE_LIT;
 	static const int MODE_SOLID;
 
 protected:

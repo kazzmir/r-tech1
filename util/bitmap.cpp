@@ -21,7 +21,6 @@ const int Bitmap::MaskColor = MASK_COLOR_16;
 
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
-const int Bitmap::MODE_LIT = 2;
 
 Bitmap * Bitmap::Screen;
 
@@ -445,10 +444,6 @@ void Bitmap::drawingMode( int mode ){
 		}
 		case MODE_SOLID : {
 			drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
-			break;
-		}
-		case MODE_LIT : {
-			drawing_mode( DRAW_MODE_LIT, NULL, 0, 0 );
 			break;
 		}
 	}
