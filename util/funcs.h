@@ -23,6 +23,8 @@ int rnd( int min, int max );
 
 void blend_palette( int * pal, int mp, int sc, int ec );
 
+void rest( int x );
+
 }
 
 #endif
