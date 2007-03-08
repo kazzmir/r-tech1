@@ -221,7 +221,7 @@ namespace ftalleg{
 						 */
 						// putter(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
 						putter = 0;
-						putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top + y + size.height, makecol(red,blue,green));
+						putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top + y + size.height, makecol(red,green,blue));
 					}
 					line += tempChar.pitch;
 				}

@@ -20,6 +20,10 @@ int Util::rnd( int min, int max ){
 	return rnd( max - min ) + min;
 }
 
+void Util::rest( int x ){
+	::rest( x );
+}
+
 vector< string > Util::getFiles( string dataPath, string find ){
 	struct al_ffblk info;
 	vector< string > files;

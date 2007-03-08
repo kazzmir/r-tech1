@@ -46,6 +46,9 @@ public:
 	static const int Key_DOWN;
 	static const int Key_SPACE;
 
+	static const int Key_F12;
+	static const int Key_ESC;
+
 protected:
 
 	map<int,bool> my_keys;

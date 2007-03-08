@@ -19,6 +19,8 @@ const int Keyboard::Key_RIGHT = KEY_RIGHT;
 const int Keyboard::Key_UP = KEY_UP;
 const int Keyboard::Key_DOWN = KEY_DOWN;
 const int Keyboard::Key_SPACE = KEY_SPACE;
+const int Keyboard::Key_F12 = KEY_F12;
+const int Keyboard::Key_ESC = KEY_ESC;
 
 Keyboard::Keyboard(){
 }
