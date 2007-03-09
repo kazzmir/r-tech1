@@ -310,10 +310,13 @@ void Bitmap::resize( const int width, const int height ){
 		return;
 	}
 
+	BITMAP * b = create_bitmap( width, height );
+	::stretch_blit( getBitmap(), b, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, b->w, b->h );
+
 	releaseInternalBitmap();
 
 	own = new int;
-	setBitmap( create_bitmap( width, height ) );
+	setBitmap( b );
 	*own = 1;
 }
 
