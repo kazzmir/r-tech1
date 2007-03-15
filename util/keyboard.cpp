@@ -22,6 +22,9 @@ const int Keyboard::Key_ENTER = KEY_ENTER;
 const int Keyboard::Key_SPACE = KEY_SPACE;
 const int Keyboard::Key_F12 = KEY_F12;
 const int Keyboard::Key_ESC = KEY_ESC;
+	
+const int Keyboard::Key_MINUS_PAD = KEY_MINUS_PAD;
+const int Keyboard::Key_PLUS_PAD = KEY_PLUS_PAD;
 
 Keyboard::Keyboard(){
 }
