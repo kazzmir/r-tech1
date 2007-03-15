@@ -1,11 +1,14 @@
-/* ebox version 2:
+/* ebox version 3:
  * by Jon Rafkind
  */
 
-#ifndef _ebox_2_h
-#define _ebox_2_h
+#ifndef _ebox_3_h
+#define _ebox_3_h
 
 #include "bitmap.h"
+#include <vector>
+
+using namespace std;
 
 class EQuad{
 public:
@@ -45,6 +48,8 @@ public:
 		return min_y;
 	}
 
+	void gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & collides, bool xflipped, bool yflipped );
+
 	// bool collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last );
 	bool collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last, bool xflipped = false, bool yflipped = false );
 	// int collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last, int depth );
@@ -53,6 +58,9 @@ public:
 
 	void setMinX( int x );
 	void setMinY( int y );
+	
+	int getFullX1( bool xflipped = false );
+	int getFullY1( bool yflipped = false );
 
 	inline int getMinX() const{
 		return min_x;
@@ -67,6 +75,9 @@ public:
 	~EQuad();
 
 protected:
+
+	int getX1( bool xflipped = false );
+	int getY1( bool yflipped = false );
 
 	EQuad * const getQuad() const;
 	void detach( EQuad * const who );
@@ -109,7 +120,7 @@ public:
 	ECollide( const ECollide * e );
 	ECollide( int width, int height );
 
-	void draw( const Bitmap & work, int x, int y, bool flipped = false );
+	void draw( const Bitmap & work, int x, int y, int color, bool flipped = false );
 	void draw( const Bitmap & work, int x, int y, int color, EQuad * who );
 
 	bool Collision( ECollide * col, int mx, int my, int ax, int ay, bool my_xflipped = false, bool my_yflipped = false, bool him_xflipped = false, bool him_flipped = false );
@@ -120,6 +131,7 @@ public:
 	int getMaxHeight();
 	int getMinWidth();
 	int getMaxWidth();
+	
 
 	ECollide * copy();
 
@@ -128,6 +140,8 @@ public:
 	EQuad * getHead() const{
 		return head_quad;
 	}
+
+	void gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & e, bool xflipped, bool yflipped );
 
 	int calcSize();
 
@@ -147,11 +161,13 @@ private:
 	void initECollide( const Bitmap * who, int mask_pixel );
 	void initQuad( EQuad * const head );
 
+
 	static long long totalTime;
 
 protected:
 
 	bool collide( int mx, int my, int x1, int y1, int x2, int y2, bool xflipped = false, bool yflipped = false );
+	bool collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last, bool xflipped, bool yflipped );
 	// bool collide( int mx, int my, int x1, int y1 );
 
 	EQuad * head_quad;

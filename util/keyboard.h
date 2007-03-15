@@ -61,6 +61,9 @@ public:
 
 	static const int Key_F12;
 	static const int Key_ESC;
+			
+	static const int Key_MINUS_PAD;
+	static const int Key_PLUS_PAD;
 
 protected:
 

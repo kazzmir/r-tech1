@@ -1,12 +1,14 @@
-/* ebox version 2:
+/* ebox version 3:
  * by Jon Rafkind
  */
 
 #include "ebox.h"
 #include <stdio.h>
+#include "funcs.h"
 #include "bitmap.h"
 #include <iostream>
-#include "timedifference.h"
+
+extern "C" void rest( int i );
 
 // using namespace Ebox2;
 
@@ -18,6 +20,7 @@
 // #define MIN_SIZE 8
 const int MIN_SIZE = 8;
 
+/* copy constructor but with a pointer */
 EQuad::EQuad( EQuad * const head ):
 width( head->width ),
 height( head->height ),
@@ -131,18 +134,29 @@ parent( _parent ){
 	} else {
 		// printf("Size X:%d Y:%d\n", width, height );
 		int total = 0;
-		for ( int x = 0; x < who->getWidth(); x++ )
+		int denom = who->getWidth() * who->getHeight();
+		for ( int x = 0; x < who->getWidth(); x++ ){
 			for ( int y = 0; y < who->getHeight(); y++ ){
 				// int pixel = _getpixel16( who, x, y );
 				int pixel = who->getPixel( x, y );
-				if ( pixel != mask_pixel )
+				if ( pixel != mask_pixel ){
 					++total;
+				}
+				if ( total * 100 / denom > 50 ){
+					/* we're done already,
+					 * stop counting pixels
+					 */
+					goto short_circuit;
+				}
 			}
-
-		if ( total*100/(who->getWidth()*who->getHeight()) > 50 ){
-			full = true;
 		}
 
+		/* johnny 5 alive! */
+		short_circuit:
+
+		if ( total * 100 / denom > 50 ){
+			full = true;
+		}
 	}
 
 	for ( int i = 0; i < 4; i++ )
@@ -155,7 +169,6 @@ parent( _parent ){
 	if ( quad4 ) quads[i++] = quad4;
 	
 	num_quads = numQuads();
-
 }
 	
 bool EQuad::addQuad( EQuad * who ){
@@ -337,7 +350,7 @@ void EQuad::draw( const Bitmap & work, int x, int y, int color, EQuad * who ){
 
 }
 
-bool boxCollide( int zx1, int zy1, int zx2, int zy2, int zx3, int zy3, int zx4, int zy4 ){
+static bool boxCollide( int zx1, int zy1, int zx2, int zy2, int zx3, int zy3, int zx4, int zy4 ){
 
 	if ( zx1 < zx3 && zx1 < zx4 &&
 		zx2 < zx3 && zx2 < zx4 ) return false;
@@ -352,8 +365,82 @@ bool boxCollide( int zx1, int zy1, int zx2, int zy2, int zx3, int zy3, int zx4, 
 
 }
 
+/* sure this could be simplified, but thats no fun :p */
+int EQuad::getX1( bool xflipped ){
+	if ( parent ){
+		if ( xflipped ){
+			return parent->getWidth() - (getMinX() + getWidth());
+		} else {
+			return getMinX();
+		}
+	} else {
+		return getMinX();
+	}
+}
+
+int EQuad::getFullX1( bool xflipped ){
+	if ( parent ){
+		if ( xflipped ){
+			return parent->getFullX1( xflipped ) + parent->getWidth() - (getMinX() + getWidth());
+		} else {
+			return parent->getFullX1( xflipped ) + getMinX();
+		}
+	} else {
+		return getMinX();
+	}
+}
+
+int EQuad::getY1( bool yflipped ){
+	if ( parent ){
+		if ( yflipped ){
+			return parent->getHeight() - (getMinY() + getHeight());
+		} else {
+			return getMinY();
+		}
+	} else {
+		return getMinY();
+	}
+}
+
+int EQuad::getFullY1( bool yflipped ){
+	if ( parent ){
+		if ( yflipped ){
+			return parent->getFullY1( yflipped ) - (parent->getHeight() + getMinY() + getHeight());
+		} else {
+			return parent->getFullY1( yflipped ) + getMinY();
+		}
+	} else {
+		return getMinY();
+	}
+}
+
+void EQuad::gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & collides, bool xflipped, bool yflipped ){
+	/*
+	int rx = mx + getX1();
+	int ry = my + getY1();
+	*/
+	int rx = mx;
+	int ry = my;
+
+	int rx2 = rx + getWidth();
+	int ry2 = ry + getHeight();
+
+	if ( ! boxCollide( rx, ry, rx2, ry2, x1, y1, x2, y2 ) ){
+		return;
+	}
+
+	for ( int i = 0; i < numQuads(); i++ ){
+		quads[i]->gather( rx + quads[i]->getX1( xflipped ), ry + quads[i]->getY1( yflipped ), x1, y1, x2, y2, collides, xflipped, yflipped );
+	}
+	
+	if ( full ){
+		collides.push_back( this );
+	}
+}
+
 bool EQuad::collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last, bool xflipped, bool yflipped ){
 
+	/*
 	int rx = mx + getMinX();
 	int ry = my + getMinY();
 
@@ -365,6 +452,11 @@ bool EQuad::collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** la
 			ry = my + parent->getHeight() - (getMinY()+getHeight());
 		}
 	}
+	*/
+
+	int rx = mx + getX1( xflipped );
+	int ry = my + getY1( yflipped );
+
 	int rx2 = rx + getWidth();
 	int ry2 = ry + getHeight();
 
@@ -510,11 +602,16 @@ int ECollide::calcSize(){
 }
 	
 bool ECollide::collide( int mx, int my, int x1, int y1, int x2, int y2, bool xflipped, bool yflipped ){
-
 	last_collide = NULL;
+	return head_quad->collide(mx,my,x1,y1,x2,y2, &last_collide, xflipped, yflipped );
+}
 
-	return head_quad->collide(mx,my,x1,y1,x2,y2,&last_collide, xflipped, yflipped );
+bool ECollide::collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last, bool xflipped, bool yflipped ){
+	return head_quad->collide(mx,my,x1,y1,x2,y2, last, xflipped, yflipped );
+}
 
+void ECollide::gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & e, bool xflipped, bool yflipped ){
+	return head_quad->gather( mx, my, x1, y1, x2, y2, e, xflipped, yflipped );
 }
 	
 bool ECollide::Collision( int mx, int my, int ax, int ay, bool xflipped, bool ylfipped ){
@@ -540,8 +637,45 @@ bool ECollide::Collision( ECollide * col, int mx, int my, int ax, int ay, bool m
 	if ( x1 > x2 ) return false;
 	if ( y1 > y2 ) return false;
 
-	return ( collide(mx,my,x1,y1,x2,y2,my_xflipped,my_yflipped) && col->collide(ax,ay,x1,y1,x2,y2,him_xflipped,him_yflipped) );
+	vector< EQuad * > collides1;
+	gather( mx, my, x1, y1, x2, y2, collides1, my_xflipped, my_yflipped );
+	vector< EQuad * > collides2;
+	col->gather( ax, ay, x1, y1, x2, y2, collides2, him_xflipped, him_yflipped );	
+	for ( vector< EQuad * >::iterator it = collides1.begin(); it != collides1.end(); it++ ){
+		EQuad * e = *it;
+		int px1 = mx + e->getFullX1( my_xflipped );
+		int py1 = my + e->getFullY1( my_yflipped );
+		int px2 = px1 + e->getWidth();
+		int py2 = py1 + e->getHeight();
 
+		// Bitmap::Screen->rectangle( px1, py1, px2, py2, Bitmap::makeColor( 128, 128, 255 ) );
+
+		for ( vector< EQuad * >::iterator it2 = collides2.begin(); it2 != collides2.end(); it2++ ){
+			EQuad * e2 = *it2;
+			int zx1 = ax + e2->getFullX1( him_xflipped );
+			int zy1 = ay + e2->getFullY1( him_yflipped );
+
+			// printf( "Test %d,%d,%d,%d against %d,%d,%d,%d\n", px1, py1, px2, py2, zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight() );
+		
+			// Bitmap::Screen->rectangle( zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight(), Bitmap::makeColor( Util::rnd( 255 ), 255, 255 ) );
+
+			// if ( e2->collide( zx1, zy1, px1, py1, px2, py2, &last_collide, him_xflipped, him_yflipped ) ){
+			if ( boxCollide( px1, py1, px2, py2, zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight() ) ){
+				Bitmap::Screen->rectangle( zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight(), Bitmap::makeColor( 255, 255, 0 ) );
+				// cout << "Collided!" << endl;
+				// rest( 1000 );
+				return true;
+			}
+		}
+	}
+
+	// rest( 100 );
+
+	return false;
+
+	/*
+	return ( collide(mx,my,x1,y1,x2,y2,my_xflipped,my_yflipped) && col->collide(ax,ay,x1,y1,x2,y2,him_xflipped,him_yflipped) );
+	*/
 }
 
 /*
@@ -554,9 +688,9 @@ int ECollide::getHeight() const{
 }
 */
 	
-void ECollide::draw( const Bitmap & work, int x, int y, bool flipped ){
+void ECollide::draw( const Bitmap & work, int x, int y, int color, bool flipped ){
 
-	head_quad->draw( work, x, y, Bitmap::makeColor(255,255,255), flipped );
+	head_quad->draw( work, x, y, color, flipped );
 
 }
 	

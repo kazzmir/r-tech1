@@ -1,6 +1,5 @@
 #include <allegro.h>
 #include "bitmap.h"
-#include "font.h"
 #include <stdarg.h>
 #include <vector>
 #include <string>
