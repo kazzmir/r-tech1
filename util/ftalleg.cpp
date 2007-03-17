@@ -28,8 +28,12 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #ifndef FT_FONT_CPP
 #define FT_FONT_CPP
 
-#include "ftalleg.h"
 #include <allegro.h>
+#ifdef WINDOWS
+#include <winalleg.h>
+#endif
+
+#include "ftalleg.h"
 #include <iostream>
 #include <sstream>
 #include <cassert>

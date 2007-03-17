@@ -6,11 +6,11 @@
 
 #include <iostream>
 
-/*
 #ifdef WINDOWS
-#include <winalleg.h>
+#define BITMAP dummyBITMAP
+#include <windows.h>
+#undef BITMAP
 #endif
-*/
 
 struct BITMAP;
 struct FONT;
