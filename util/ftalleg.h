@@ -28,6 +28,12 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #ifndef FT_FONT_H
 #define FT_FONT_H
 
+#ifdef WINDOWS
+#define BITMAP dummyBITMAP
+#include <windows.h>
+#undef BITMAP
+#endif
+
 // #include <allegro.h>
 #include <map>
 #include <string>
@@ -38,7 +44,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #define GLYPH_PI	3.14159265358979323846
 #define GLYPH_SQRT2	1.41421356237309504880
 
-class BITMAP;
+struct BITMAP;
 namespace ftalleg
 {
 	//!  Internal class for freetype to use
