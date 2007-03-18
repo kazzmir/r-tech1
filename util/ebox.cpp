@@ -661,7 +661,7 @@ bool ECollide::Collision( ECollide * col, int mx, int my, int ax, int ay, bool m
 
 			// if ( e2->collide( zx1, zy1, px1, py1, px2, py2, &last_collide, him_xflipped, him_yflipped ) ){
 			if ( boxCollide( px1, py1, px2, py2, zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight() ) ){
-				Bitmap::Screen->rectangle( zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight(), Bitmap::makeColor( 255, 255, 0 ) );
+				// Bitmap::Screen->rectangle( zx1, zy1, zx1 + e2->getWidth(), zy1 + e2->getHeight(), Bitmap::makeColor( 255, 255, 0 ) );
 				// cout << "Collided!" << endl;
 				// rest( 1000 );
 				return true;
