@@ -73,7 +73,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 		ifile >> n;
 		
 		const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!";
-		const char * nonalpha = " ()#\"";
+		const char * nonalpha = " ;()#\"";
 		// cout<<"Alpha char: "<<n<<endl;
 
 		if ( escaped ){
@@ -114,7 +114,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 			}
 		}
 
-		if ( n == '#' ){
+		if ( n == '#' || n == ';' ){
 			while ( n != '\n' && !ifile.eof() ){
 				ifile >> n;
 			}
