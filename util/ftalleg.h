@@ -173,7 +173,7 @@ namespace ftalleg
 			
 		public:
 			//! Constructor
-			freetype::freetype( const std::string & str, const int x, const int y );
+			freetype( const std::string & str, const int x, const int y );
 			
 			//! Destructor
 			~freetype();
