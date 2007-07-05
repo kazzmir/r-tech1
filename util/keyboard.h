@@ -24,6 +24,7 @@ public:
 	 */
 	inline const bool operator[] ( const int i ){
 
+		/* if the key has been pressed for the first time return true */
 		if ( my_keys[ i ] < 0 ){
 			my_keys[ i ] = 1;
 			return true;
