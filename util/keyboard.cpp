@@ -37,6 +37,10 @@ void Keyboard::poll(){
 	for ( int q = 0; q < KEY_MAX; q++ ){
 		// my_keys[ q ] = key[ q ];
 		if ( key[ q ] ){
+			/* my_keys[ q ] becomes negative so that the key
+			 * can be pressed the first time without having
+			 * to wait for a delay
+			 */
 			if ( my_keys[ q ] <= 0 ){
 				my_keys[ q ] -= 1;
 			} else {
