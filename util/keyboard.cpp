@@ -20,6 +20,7 @@ const int Keyboard::Key_UP = KEY_UP;
 const int Keyboard::Key_DOWN = KEY_DOWN;
 const int Keyboard::Key_ENTER = KEY_ENTER;
 const int Keyboard::Key_SPACE = KEY_SPACE;
+const int Keyboard::Key_F1 = KEY_F1;
 const int Keyboard::Key_F12 = KEY_F12;
 const int Keyboard::Key_ESC = KEY_ESC;
 	
