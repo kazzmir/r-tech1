@@ -21,6 +21,16 @@ const int Keyboard::Key_DOWN = KEY_DOWN;
 const int Keyboard::Key_ENTER = KEY_ENTER;
 const int Keyboard::Key_SPACE = KEY_SPACE;
 const int Keyboard::Key_F1 = KEY_F1;
+const int Keyboard::Key_F2 = KEY_F2;
+const int Keyboard::Key_F3 = KEY_F3;
+const int Keyboard::Key_F4 = KEY_F4;
+const int Keyboard::Key_F5 = KEY_F5;
+const int Keyboard::Key_F6 = KEY_F6;
+const int Keyboard::Key_F7 = KEY_F7;
+const int Keyboard::Key_F8 = KEY_F8;
+const int Keyboard::Key_F9 = KEY_F9;
+const int Keyboard::Key_F10 = KEY_F10;
+const int Keyboard::Key_F11 = KEY_F11;
 const int Keyboard::Key_F12 = KEY_F12;
 const int Keyboard::Key_ESC = KEY_ESC;
 	
