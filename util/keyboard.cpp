@@ -26,6 +26,7 @@ const int Keyboard::Key_ESC = KEY_ESC;
 	
 const int Keyboard::Key_MINUS_PAD = KEY_MINUS_PAD;
 const int Keyboard::Key_PLUS_PAD = KEY_PLUS_PAD;
+const int Keyboard::Key_ENTER_PAD = KEY_ENTER_PAD;
 
 Keyboard::Keyboard(){
 }
