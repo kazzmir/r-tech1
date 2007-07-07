@@ -66,6 +66,7 @@ public:
 			
 	static const int Key_MINUS_PAD;
 	static const int Key_PLUS_PAD;
+	static const int Key_ENTER_PAD;
 
 protected:
 
