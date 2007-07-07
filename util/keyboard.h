@@ -61,6 +61,16 @@ public:
 	static const int Key_ENTER;
 
 	static const int Key_F1;
+	static const int Key_F2;
+	static const int Key_F3;
+	static const int Key_F4;
+	static const int Key_F5;
+	static const int Key_F6;
+	static const int Key_F7;
+	static const int Key_F8;
+	static const int Key_F9;
+	static const int Key_F10;
+	static const int Key_F11;
 	static const int Key_F12;
 	static const int Key_ESC;
 			
