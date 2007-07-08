@@ -13,6 +13,7 @@ using namespace std;
 const int Keyboard::Key_A = KEY_A;
 const int Keyboard::Key_S = KEY_S;
 const int Keyboard::Key_D = KEY_D;
+const int Keyboard::Key_P = KEY_P;
 
 const int Keyboard::Key_LEFT = KEY_LEFT;
 const int Keyboard::Key_RIGHT = KEY_RIGHT;

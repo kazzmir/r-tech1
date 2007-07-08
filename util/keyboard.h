@@ -52,6 +52,7 @@ public:
 	static const int Key_A;
 	static const int Key_S;
 	static const int Key_D;
+	static const int Key_P;
 
 	static const int Key_LEFT;
 	static const int Key_RIGHT;
