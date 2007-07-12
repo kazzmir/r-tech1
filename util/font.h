@@ -25,7 +25,7 @@ public:
 	virtual const int getHeight( const string & str ) const = 0;
 	virtual const int getHeight() const = 0;
 
-	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const = 0;
+	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const = 0;
 
 	static const Font & getDefaultFont();
 	static const Font & getFont( const string & name, const int x = 32, const int y = 32 );
@@ -44,7 +44,7 @@ public:
 	virtual const int getHeight( const string & str ) const;
 	virtual const int textLength( const char * text ) const;
 	
-	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const;
+	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
 	virtual const int getSizeX() const;
@@ -68,7 +68,7 @@ public:
 	virtual const int getHeight( const string & str ) const;
 	virtual const int textLength( const char * text ) const;
 	
-	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const;
+	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
 	virtual const int getSizeX() const;

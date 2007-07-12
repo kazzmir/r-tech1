@@ -196,7 +196,7 @@ namespace ftalleg
 			int getLength(const std::string & text);
 			
 			//! Render font to a bitmap
-			void render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, ...);
+			void render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, int marker, ...);
 			
 			//! Set size
 			void setSize( unsigned int w, unsigned int h);

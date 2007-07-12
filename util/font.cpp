@@ -43,11 +43,11 @@ const int AllegroFont::getSizeY() const {
 	return 0;
 }
 	
-void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const {
+void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
 	char buf[512];
 	va_list ap;
 
-	va_start(ap, str);
+	va_start(ap, marker);
 	uvszprintf(buf, sizeof(buf), str.c_str(), ap);
 	va_end(ap);
 
@@ -81,15 +81,15 @@ const int FreeTypeFont::textLength( const char * text ) const {
 	return this->font->getLength( string( text ) );
 }
 	
-void FreeTypeFont::printf( int x, int y, int color, const Bitmap & work, const string & str, ... ) const {
+void FreeTypeFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
 	char buf[512];
 	va_list ap;
 
-	va_start(ap, str);
+	va_start(ap, marker);
 	uvszprintf(buf, sizeof(buf), str.c_str(), ap);
 	va_end(ap);
 
-	this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ) );
+	this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
 }
 
 void FreeTypeFont::setSize( const int x, const int y ){
