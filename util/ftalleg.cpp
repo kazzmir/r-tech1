@@ -328,7 +328,7 @@ namespace ftalleg{
 	}
 
 	//! Render font to a bitmap
-	void freetype::render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, ...)
+	void freetype::render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, int marker ...)
 	{
 		if(faceLoaded)
 		{
@@ -338,7 +338,7 @@ namespace ftalleg{
 
 			// Get extra arguments
 			va_list ap;
-			va_start(ap,text);
+			va_start(ap,marker);
 			for(unsigned int i = 0; i<text.length();++i)
 			{
 				if(text[i]=='%')
