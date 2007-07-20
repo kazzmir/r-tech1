@@ -31,7 +31,7 @@ vector< string > Util::getFiles( string dataPath, string find ){
 	if ( al_findfirst( (dataPath + find).c_str(), &info, FA_ALL ) != 0 ){
 		return files;
 	}
-	files.push_back( string( info.name ) );
+	files.push_back( dataPath + string( info.name ) );
 	while ( al_findnext( &info ) == 0 ){
 		files.push_back( dataPath + string( info.name ) );
 	}
