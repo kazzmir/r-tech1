@@ -1,5 +1,6 @@
 #include <allegro.h>
 #include "bitmap.h"
+#include "lit_bitmap.h"
 #include <stdarg.h>
 #include <vector>
 #include <string>
@@ -16,10 +17,20 @@ using namespace std;
 #define debug cout<<"File: "<<__FILE__<<" Line: "<<__LINE__<<endl;
 #endif
 
+static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
+
 const int Bitmap::MaskColor = MASK_COLOR_16;
 
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
+	
+const int Bitmap::SPRITE_NO_FLIP = 0;
+const int Bitmap::SPRITE_V_FLIP = 1;
+const int Bitmap::SPRITE_H_FLIP = 2;
+	
+const int Bitmap::SPRITE_NORMAL = 1;
+const int Bitmap::SPRITE_LIT = 2;
+const int Bitmap::SPRITE_TRANS = 3;
 
 Bitmap * Bitmap::Screen;
 
@@ -620,11 +631,13 @@ void Bitmap::fill( int color ) const{
 }
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
-	::draw_sprite( where.getBitmap(), getBitmap(), x, y );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
+	// ::draw_sprite( where.getBitmap(), getBitmap(), x, y );
 }
 	
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-	::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
+	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 	
 void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & where ) const{
@@ -735,4 +748,180 @@ void Bitmap::Blit( const Bitmap & where ){
 
 void Bitmap::BlitToScreen(){
 	this->Blit( *Bitmap::Screen );
+}
+
+LitBitmap::LitBitmap( const Bitmap & b ):
+Bitmap( b ){
+}
+
+LitBitmap::LitBitmap():
+Bitmap(){
+}
+	
+LitBitmap::~LitBitmap(){
+}
+
+void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
+	// ::draw_sprite_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
+	// ::draw_sprite( where.getBitmap(), getBitmap(), x, y );
+	// Bitmap::draw( x, y, where );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP );
+}
+	
+void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
+	// ::draw_sprite_h_flip_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP );
+	// Bitmap::drawHFlip( x, y, where );
+	// ::draw_sprite_h_flip_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
+}
+
+/* this function should be in allegro but its not yet so just store it
+ * here for now
+ */
+#define PAINTOWN_DLS_BLENDER BLENDER_FUNC
+#define PAINTOWN_DTS_BLENDER BLENDER_FUNC
+#define PAINTOWN_MAKE_DLS_BLENDER(a) _blender_func16
+#define PAINTOWN_MAKE_DTS_BLENDER() _blender_func16
+#define PAINTOWN_PIXEL_PTR unsigned short*
+#define PAINTOWN_OFFSET_PIXEL_PTR(p,x) ((PAINTOWN_PIXEL_PTR) (p) + (x))
+#define PAINTOWN_INC_PIXEL_PTR(p) ((p)++)
+#define PAINTOWN_INC_PIXEL_PTR_EX(p,d)  ((p) += d)
+#define PAINTOWN_GET_MEMORY_PIXEL(p)    (*(p))
+#define PAINTOWN_IS_SPRITE_MASK(b,c)    ((unsigned long) (c) == (unsigned long) (b)->vtable->mask_color)
+#define PAINTOWN_DLSX_BLEND(b,n)       ((*(b))(_blender_col_16, (n), _blender_alpha))
+#define PAINTOWN_GET_PIXEL(p)           bmp_read16((uintptr_t) (p))
+#define PAINTOWN_DTS_BLEND(b,o,n)       ((*(b))((n), (o), _blender_alpha))
+#define PAINTOWN_PUT_PIXEL(p,c)         bmp_write16((uintptr_t) (p), (c))
+#define PAINTOWN_PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
+
+/* defined at allegro/include/internal/aintern.h:457 */
+extern BLENDER_FUNC _blender_func16;
+/* defined at allegro/include/internal/aintern.h:466 */
+extern int _blender_col_16;
+/* defined at allegro/include/internal/aintern.h:470 */
+extern int _blender_alpha;
+
+static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip ){
+   int x, y, w, h;
+   int x_dir = 1, y_dir = 1;
+   int dxbeg, dybeg;
+   int sxbeg, sybeg;
+   PAINTOWN_DLS_BLENDER lit_blender;
+   PAINTOWN_DTS_BLENDER trans_blender;
+
+   ASSERT(dst);
+   ASSERT(src);
+
+   if ( flip & Bitmap::SPRITE_V_FLIP ){
+   	y_dir = -1;
+   }
+   if ( flip & Bitmap::SPRITE_H_FLIP ){
+   	x_dir = -1;
+   }
+
+   if (dst->clip) {
+      int tmp;
+
+      tmp = dst->cl - dx;
+      sxbeg = ((tmp < 0) ? 0 : tmp);
+      dxbeg = sxbeg + dx;
+
+      tmp = dst->cr - dx;
+      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
+      if (w <= 0)
+	 return;
+
+      if ( flip & Bitmap::SPRITE_H_FLIP ){
+          /* use backward drawing onto dst */
+          sxbeg = src->w - (sxbeg + w);
+          dxbeg += w - 1;
+      }
+
+      tmp = dst->ct - dy;
+      sybeg = ((tmp < 0) ? 0 : tmp);
+      dybeg = sybeg + dy;
+
+      tmp = dst->cb - dy;
+      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
+      if (h <= 0)
+	 return;
+
+      if ( flip & Bitmap::SPRITE_V_FLIP ){
+          /* use backward drawing onto dst */
+          sybeg = src->h - (sybeg + h);
+          dybeg += h - 1;
+      }
+   } else {
+      w = src->w;
+      h = src->h;
+      sxbeg = 0;
+      sybeg = 0;
+      dxbeg = dx;
+      if ( flip & Bitmap::SPRITE_H_FLIP ){
+          dxbeg = dx + w - 1;
+      }
+      dybeg = dy;
+      if ( flip & Bitmap::SPRITE_V_FLIP ){
+          dybeg = dy + h - 1;
+      }
+   }
+
+   lit_blender = PAINTOWN_MAKE_DLS_BLENDER(0);
+   trans_blender = PAINTOWN_MAKE_DTS_BLENDER();
+
+   if (dst->id & (BMP_ID_VIDEO | BMP_ID_SYSTEM)) {
+      bmp_select(dst);
+
+      for (y = 0; y < h; y++) {
+	 PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
+
+	 /* flipped if y_dir is -1 */
+	 PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
+
+	 /* d is incremented by x_dir, -1 if flipped */
+	 for (x = w - 1; x >= 0; PAINTOWN_INC_PIXEL_PTR(s), PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), x--) {
+	    unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
+	    if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
+		    switch( mode ){
+			    case Bitmap::SPRITE_NORMAL : break;
+			    case Bitmap::SPRITE_LIT : {
+					c = PAINTOWN_DLSX_BLEND(lit_blender, c);
+					break;
+			    case Bitmap::SPRITE_TRANS : {
+			    		c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), c);
+					break;
+			    }
+			 }
+		    }
+	       PAINTOWN_PUT_PIXEL(d, c);
+	    }
+	 }
+      }
+
+      bmp_unwrite_line(dst);
+   }
+   else {
+      for (y = 0; y < h; y++) {
+	 PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
+	 PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
+
+	 for (x = w - 1; x >= 0; PAINTOWN_INC_PIXEL_PTR(s), PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), x--) {
+	    unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
+	    if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
+		    switch( mode ){
+			    case Bitmap::SPRITE_NORMAL : break;
+			    case Bitmap::SPRITE_LIT : {
+					c = PAINTOWN_DLSX_BLEND(lit_blender, c);
+					break;
+	                    case Bitmap::SPRITE_TRANS : {
+			    		c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), c);
+					break;
+			    }
+			 }
+		    }
+	       PAINTOWN_PUT_MEMORY_PIXEL(d, c);
+	    }
+	 }
+      }
+   }
 }
