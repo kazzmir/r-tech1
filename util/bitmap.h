@@ -181,6 +181,14 @@ public:
 	static const int MODE_TRANS;
 	static const int MODE_SOLID;
 
+	static const int SPRITE_NO_FLIP;
+	static const int SPRITE_V_FLIP;
+	static const int SPRITE_H_FLIP;
+
+	static const int SPRITE_NORMAL;
+	static const int SPRITE_LIT;
+	static const int SPRITE_TRANS;
+
 protected:
 
 	void releaseInternalBitmap();
