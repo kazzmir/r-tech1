@@ -5,6 +5,8 @@
 
 using namespace std;
 
+static string dataPath = "data/";
+
 /*
 inline int rnd( int q ){
 	if ( q <= 0 ) return 0;
@@ -22,6 +24,14 @@ int Util::rnd( int min, int max ){
 
 void Util::rest( int x ){
 	::rest( x );
+}
+
+void Util::setDataPath( const string & str ){
+	dataPath = str;	
+}
+
+string Util::getDataPath(){
+	return dataPath;
 }
 
 vector< string > Util::getFiles( string dataPath, string find ){

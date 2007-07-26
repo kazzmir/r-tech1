@@ -15,6 +15,9 @@ inline int rnd( int q ){
 
 std::vector< std::string > getFiles( std::string dataPath, std::string find );
 
+std::string getDataPath();
+void setDataPath( const std::string & str );
+
 /* return a random number + some range between min/max */
 int rnd( int q, int min, int max );
 
