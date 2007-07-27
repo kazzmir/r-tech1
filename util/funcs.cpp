@@ -5,7 +5,7 @@
 
 using namespace std;
 
-static string dataPath = "data/";
+static string dataPath = "data";
 
 /*
 inline int rnd( int q ){
@@ -31,7 +31,11 @@ void Util::setDataPath( const string & str ){
 }
 
 string Util::getDataPath(){
-	return dataPath;
+	return dataPath + "/";
+}
+
+bool Util::exists( const string & file ){
+	return ::exists( file.c_str() ) != 0;
 }
 
 vector< string > Util::getFiles( string dataPath, string find ){
