@@ -18,6 +18,8 @@ std::vector< std::string > getFiles( std::string dataPath, std::string find );
 std::string getDataPath();
 void setDataPath( const std::string & str );
 
+bool exists( const std::string & file );
+
 /* return a random number + some range between min/max */
 int rnd( int q, int min, int max );
 
