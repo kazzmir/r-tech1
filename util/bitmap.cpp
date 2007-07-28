@@ -663,7 +663,7 @@ void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
 	BITMAP * bmp = who.getBitmap();
-	::masked_stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, x,y, new_height, new_width );
+	::masked_stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, x,y, new_width, new_height );
 }
 
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
