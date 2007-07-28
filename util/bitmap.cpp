@@ -585,6 +585,14 @@ void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const{
 	::rect( getBitmap(), x1, y1, x2, y2, color );
 }
+	
+void Bitmap::border( int min, int max, int color ) const {
+	int w = getWidth();
+	int h = getHeight();
+	for ( int i = min; i < max; i++ ){
+		rectangle( i, i, w - 1 - i, h - 1 - i, color );
+	}
+}
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
 	::rectfill( getBitmap(), x1, y1, x2, y2, color );
