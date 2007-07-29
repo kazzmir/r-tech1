@@ -9,6 +9,9 @@
 
 #ifdef WINDOWS
 #include <winalleg.h>
+#define EXTERNAL_VARIABLE __declspec(dllimport)
+#else
+#define EXTERNAL_VARIABLE
 #endif
 
 using namespace std;
@@ -803,11 +806,11 @@ void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) cons
 #define PAINTOWN_PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
 
 /* defined at allegro/include/internal/aintern.h:457 */
-extern BLENDER_FUNC _blender_func16;
+extern EXTERNAL_VARIABLE BLENDER_FUNC _blender_func16;
 /* defined at allegro/include/internal/aintern.h:466 */
-extern int _blender_col_16;
+extern EXTERNAL_VARIABLE int _blender_col_16;
 /* defined at allegro/include/internal/aintern.h:470 */
-extern int _blender_alpha;
+extern EXTERNAL_VARIABLE int _blender_alpha;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip ){
    int x, y, w, h;
