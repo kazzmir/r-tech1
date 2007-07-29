@@ -49,6 +49,8 @@ public:
 
 	void setDelay( const int key, const int delay );
 
+	static const char * keyToName( int key );
+
 	static const int Key_A;
 	static const int Key_B;
 	static const int Key_C;
