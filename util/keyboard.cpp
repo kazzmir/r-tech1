@@ -176,6 +176,10 @@ void Keyboard::readKeys( vector< int > & all_keys ){
 	}
 }
 	
+const int Keyboard::readKey(){
+	return ::readkey() >> 8;
+}
+	
 void Keyboard::setDelay( const int key, const int delay ){
 	key_delay[ key ] = delay;	
 }
@@ -188,6 +192,11 @@ const bool Keyboard::keypressed(){
 		}
 	}
 	return false;
+}
+
+void Keyboard::clear(){
+	::clear_keybuf();
+	my_keys.clear();
 }
 
 const char * Keyboard::keyToName( int key ){
