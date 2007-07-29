@@ -46,6 +46,8 @@ public:
 	 * Store all pressed keys in a user supplied vector
 	 */
 	void readKeys( vector< int > & all_keys );
+	const int readKey();
+	void clear();
 
 	void setDelay( const int key, const int delay );
 
