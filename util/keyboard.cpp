@@ -1,5 +1,6 @@
 #include "keyboard.h"
 #include "allegro.h"
+#include "funcs.h"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -163,7 +164,6 @@ void Keyboard::poll(){
 			my_keys[ q ] = 0;
 		}
 	}
-
 }
 
 void Keyboard::readKeys( vector< int > & all_keys ){
@@ -182,6 +182,15 @@ const int Keyboard::readKey(){
 	
 void Keyboard::setDelay( const int key, const int delay ){
 	key_delay[ key ] = delay;	
+}
+
+void Keyboard::wait(){
+	clear();
+	poll();
+	while ( keypressed() ){
+		poll();
+		Util::rest( 1 );
+	}
 }
 
 const bool Keyboard::keypressed(){
