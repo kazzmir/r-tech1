@@ -19,6 +19,9 @@ public:
 	 */
 	void poll();
 
+	/* wait for all keys to be released */
+	void wait();
+
 	/* []:
 	 * Extract a boolean value given a key number
 	 */

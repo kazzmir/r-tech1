@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class LoadException: public exception{
+class LoadException: public exception {
 public:
 	LoadException();
 	LoadException( const string & reason );
@@ -19,7 +19,7 @@ public:
 		return reason;
 	}
 
-	~LoadException() throw();
+	virtual ~LoadException() throw();
 
 protected:
 	string reason;
