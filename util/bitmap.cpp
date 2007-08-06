@@ -465,6 +465,14 @@ void Bitmap::drawingMode( int mode ){
 	}
 }
 
+int Bitmap::setGraphicsMode( int mode, int width, int height ){
+	int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
+	if ( ok == 0 ){
+		Screen = new Bitmap( ::screen );
+	}
+	return ok;
+}
+
 /*
 const int Bitmap::getWidth() const{
 	return getBitmap()->w;
