@@ -70,6 +70,7 @@ public:
 
 	static void transBlender( int r, int g, int b, int a );
 	static void multiplyBlender( int r, int g, int b, int a );
+	static int setGraphicsMode( int mode, int width, int height );
 
 	static void drawingMode( int type );
 
