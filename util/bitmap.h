@@ -115,6 +115,7 @@ public:
 	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
 
 	virtual void Stretch( const Bitmap & where );
+	virtual void Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight );
 	virtual void StretchBy2( const Bitmap & where );
 	virtual void StretchBy4( const Bitmap & where );
 	virtual void Blit( const string & xpath ) const;

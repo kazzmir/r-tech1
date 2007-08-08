@@ -729,10 +729,18 @@ void Bitmap::StretchBy4( const Bitmap & where ){
 }
 
 void Bitmap::Stretch( const Bitmap & where ){
+	Stretch( where, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, where.getBitmap()->w, where.getBitmap()->h );
+	/*
 	BITMAP * bmp = where.getBitmap();
 	::stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, bmp->w, bmp->h );
+	*/
 }
 	
+void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ){
+	BITMAP * bmp = where.getBitmap();
+	::stretch_blit( getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
+}
+
 void Bitmap::Blit( const string & xpath ) const {
 	Bitmap duh( xpath );
 	duh.Blit( *this );
