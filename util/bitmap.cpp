@@ -733,12 +733,12 @@ void Bitmap::Stretch( const Bitmap & where ){
 	::stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, bmp->w, bmp->h );
 }
 	
-void Bitmap::Blit( const string & xpath ){
+void Bitmap::Blit( const string & xpath ) const {
 	Bitmap duh( xpath );
 	duh.Blit( *this );
 }
 
-void Bitmap::Blit( const int x, const int y, const Bitmap & where ){
+void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
 	BITMAP * bmp = where.getBitmap();
 	/*
 	acquire_bitmap( bmp );
@@ -751,21 +751,21 @@ void Bitmap::Blit( const int x, const int y, const Bitmap & where ){
 	*/
 }
 
-void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ){
+void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const {
 	BITMAP * bmp = where.getBitmap();
 	::blit( getBitmap(), bmp, mx, my, wx, wy, getBitmap()->w, getBitmap()->h );
 }
 
-void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where ){
+void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where ) const {
 	BITMAP * bmp = where.getBitmap();
 	::blit( getBitmap(), bmp, mx, my, wx, wy, width, height );
 }
 	
-void Bitmap::Blit( const Bitmap & where ){
+void Bitmap::Blit( const Bitmap & where ) const {
 	this->Blit( 0, 0, where );
 }
 
-void Bitmap::BlitToScreen(){
+void Bitmap::BlitToScreen() const {
 	this->Blit( *Bitmap::Screen );
 }
 

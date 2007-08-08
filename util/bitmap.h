@@ -117,12 +117,12 @@ public:
 	virtual void Stretch( const Bitmap & where );
 	virtual void StretchBy2( const Bitmap & where );
 	virtual void StretchBy4( const Bitmap & where );
-	virtual void Blit( const string & xpath );
-	virtual void Blit( const Bitmap & where );
-	virtual void Blit( const int x, const int y, const Bitmap & where );
-	virtual void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where );
-	virtual void Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where );
-	virtual void BlitToScreen();
+	virtual void Blit( const string & xpath ) const;
+	virtual void Blit( const Bitmap & where ) const;
+	virtual void Blit( const int x, const int y, const Bitmap & where ) const;
+	virtual void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const;
+	virtual void Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where ) const;
+	virtual void BlitToScreen() const;
 	virtual void fill( int color ) const;
 
 	inline void clear() const{
