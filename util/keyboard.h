@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-using namespace std;
+// using namespace std;
 
 /* handles allegro key[] array better than keypressed()
  * and readkey()
@@ -48,7 +48,7 @@ public:
 	/* readKeys:
 	 * Store all pressed keys in a user supplied vector
 	 */
-	void readKeys( vector< int > & all_keys );
+	void readKeys( std::vector< int > & all_keys );
 	const int readKey();
 	void clear();
 
@@ -186,8 +186,8 @@ public:
 
 protected:
 
-	map<int,int> my_keys;
-	map<int,int> key_delay;
+	std::map<int,int> my_keys;
+	std::map<int,int> key_delay;
 
 };
 
