@@ -515,6 +515,14 @@ int Bitmap::makeColor( int r, int g, int b ){
 	return ::makecol16( r, g, b );
 }
 	
+int Bitmap::darken( int color, double factor ){
+	int r = (int)((double)::getr16( color ) / factor);
+	int g = (int)((double)::getg16( color ) / factor);
+	int b = (int)((double)::getb16( color ) / factor);
+
+	return makeColor( r, g, b );
+}
+	
 void Bitmap::hsvToRGB( float h, float s, float v, int * r, int * g, int * b ){
 	::hsv_to_rgb( h, s, v, r, g, b );
 }
