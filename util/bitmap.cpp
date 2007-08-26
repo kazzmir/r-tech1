@@ -500,15 +500,15 @@ void Bitmap::readLine( vector< int > & vec, int y ){
 }
 
 int Bitmap::setGfxModeText(){
-	return ::set_gfx_mode( GFX_TEXT, 0, 0, 0, 0 );
+	return setGraphicsMode( GFX_TEXT, 0, 0 );
 }
 	
 int Bitmap::setGfxModeFullscreen( int x, int y ){
-	return ::set_gfx_mode( GFX_AUTODETECT_FULLSCREEN, x, y, 0, 0 );
+	return setGraphicsMode( GFX_AUTODETECT_FULLSCREEN, x, y );
 }
 
 int Bitmap::setGfxModeWindowed( int x, int y ){
-	return ::set_gfx_mode( GFX_AUTODETECT_WINDOWED, x, y, 0, 0 );
+	return setGraphicsMode( GFX_AUTODETECT_WINDOWED, x, y );
 }
 	
 int Bitmap::makeColor( int r, int g, int b ){
