@@ -163,6 +163,7 @@ public:
 	static int setGfxModeWindowed( int x, int y );
 
 	static int makeColor( int r, int g, int b );
+	static int darken( int color, double factor );
 	static void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
 
 	static int getRed( int x );
