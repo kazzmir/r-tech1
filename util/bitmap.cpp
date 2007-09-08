@@ -658,16 +658,13 @@ void Bitmap::fill( int color ) const{
 }
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
-	// paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
-	::draw_sprite( where.getBitmap(), getBitmap(), x, y );
-	if ( 2 < 10 ){
-		paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
-	}
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
+	// ::draw_sprite( where.getBitmap(), getBitmap(), x, y );
 }
 	
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-	// paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
-	::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
+	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 	
 void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & where ) const{
@@ -802,14 +799,14 @@ LitBitmap::~LitBitmap(){
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	// ::draw_sprite_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
 	// ::draw_sprite( where.getBitmap(), getBitmap(), x, y );
-	Bitmap::draw( x, y, where );
-	// paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP );
+	// Bitmap::draw( x, y, where );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP );
 }
 	
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 	// ::draw_sprite_h_flip_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
-	// paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP );
-	Bitmap::drawHFlip( x, y, where );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP );
+	// Bitmap::drawHFlip( x, y, where );
 	// ::draw_sprite_h_flip_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
 }
 
