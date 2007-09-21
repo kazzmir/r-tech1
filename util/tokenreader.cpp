@@ -33,7 +33,7 @@ TokenReader::~TokenReader(){
 
 Token * TokenReader::readToken() throw( TokenException ){
 
-	if ( !ifile ) throw TokenException("Could not load file");
+	if ( !ifile ) throw TokenException( string( "Could not open ") + myfile );
 	// Token * t;
 
 	// string token_string;
