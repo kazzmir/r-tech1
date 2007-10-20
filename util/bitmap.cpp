@@ -439,7 +439,7 @@ void Bitmap::circle( int x, int y, int radius, int color ) const{
 	
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const{
 
-	::line( getBitmap(), x1, y1, x2, y2, color );
+	::fastline( getBitmap(), x1, y1, x2, y2, color );
 	
 }
 	
