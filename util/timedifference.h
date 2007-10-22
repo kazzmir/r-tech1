@@ -26,8 +26,8 @@ public:
 
 	unsigned long long int getTime();
 
-	void printTime();
-	void printTime( const string & s );
+	const string printTime();
+	const string printTime( const string & s );
 
 	~TimeDifference();
 
