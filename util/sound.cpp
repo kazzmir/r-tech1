@@ -66,6 +66,12 @@ void Sound::play(){
 		play_sample( my_sound, 255, 128, 1000, false );
 	}
 }
+	
+void Sound::playLoop(){
+	if ( my_sound ){
+		play_sample( my_sound, 255, 128, 1000, true );
+	}
+}
 
 Sound::~Sound(){
 	destroy();

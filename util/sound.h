@@ -18,6 +18,7 @@ public:
 	Sound & operator=( const Sound & rhs );
 
 	void play();
+	void playLoop();
 
 	virtual ~Sound();
 
