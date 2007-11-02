@@ -136,10 +136,10 @@ Token * TokenReader::readToken() throw( TokenException ){
 				throw TokenException("Stack is empty");
 			}
 			token_stack.pop_back();
-			cur_token = token_stack.back();
-			
+			if ( ! token_stack.empty() ){
+				cur_token = token_stack.back();
+			}
 		}
-
 	}
 	
 	// first->print("");

@@ -38,6 +38,7 @@ const int Bitmap::SPRITE_TRANS = 3;
 Bitmap * Bitmap::Screen;
 
 Bitmap::Bitmap():
+own( NULL ),
 error( false ){
 	setBitmap( create_bitmap( 10, 10 ) );
 	if ( ! getBitmap() ){
@@ -51,6 +52,7 @@ error( false ){
 }
 
 Bitmap::Bitmap( int x, int y ):
+own( NULL ),
 error( false ){
 	if ( x < 1 ){
 		x = 1;
@@ -71,6 +73,7 @@ error( false ){
 
 /* If a BITMAP is given to us, we didnt make it so we dont own it */
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
+own( NULL ),
 error( false ){
 	
 	if ( deep_copy ){
@@ -86,6 +89,7 @@ error( false ){
 }
 	
 Bitmap::Bitmap( const char * load_file ):
+own( NULL ),
 error( false ){
 	internalLoadFile( load_file );
 	/*
@@ -101,11 +105,13 @@ error( false ){
 }
 
 Bitmap::Bitmap( const string & load_file ):
+own( NULL ),
 error( false ){
 	internalLoadFile( load_file.c_str() );
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
+own( NULL ),
 error( false ){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
@@ -126,6 +132,7 @@ error( false ){
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
+own( NULL ),
 error( false ){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
@@ -156,6 +163,7 @@ error( false ){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
+own( NULL ),
 error( false ){
 	path = copy.getPath();
 	BITMAP * temp = copy.getBitmap();
@@ -170,6 +178,7 @@ error( false ){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
+own( NULL ),
 error( false ){
 	path = copy.getPath();
 	BITMAP * temp = copy.getBitmap();
@@ -203,6 +212,7 @@ error( false ){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy ):
+own( NULL ),
 error( false ){
 
 	path = copy.getPath();
@@ -229,6 +239,7 @@ error( false ){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
+own( NULL ),
 error( false ){
 	path = copy.getPath();
 	BITMAP * his = copy.getBitmap();

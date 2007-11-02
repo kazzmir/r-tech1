@@ -64,7 +64,7 @@ namespace ftalleg{
 	}
 
 	character::~character() {
-		//if(line)delete [] line;
+		// if(line)delete [] line;
 	}
 
 	fontSize::fontSize() {
