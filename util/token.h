@@ -75,7 +75,7 @@ protected:
 		this->parent = parent;
 	}
 
-	void lowerCase( string & s );
+	string lowerCase( const string & s );
 	void finalize();
 
 	unsigned int num_token;

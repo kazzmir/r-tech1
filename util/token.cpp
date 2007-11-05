@@ -23,7 +23,7 @@ parent( NULL ){
 		name = tok;
 		while ( name.find(' ' ) == 0 )
 			name.erase( 0, 1 );
-		lowerCase( name );
+		// lowerCase( name );
 		return;
 	}
 	
@@ -39,11 +39,16 @@ void Token::print( const string & space ){
 }
 
 /* helper function */
-void Token::lowerCase( string & s ){
+string Token::lowerCase( const string & s ){
+	string ret;
 	for ( unsigned int q = 0; q < s.length(); q++ ){
-		if ( s[q] >= 'A' && s[q] <= 'Z' )
-			s[q] = s[q] - 'A' + 'a';
+		if ( s[q] >= 'A' && s[q] <= 'Z' ){
+			ret += s[q] - 'A' + 'a';
+		} else {
+			ret += s[q];
+		}
 	}
+	return ret;
 }
 	
 /* Return next token and increment the internal position
@@ -95,7 +100,7 @@ const string Token::getLineage() const {
 /* A token's identity is its name 
  */
 bool Token::operator== ( const string & rhs ){
-	return getName() == rhs;
+	return lowerCase( getName() )  == lowerCase( rhs );
 }
 
 bool Token::operator!= ( const string & rhs ){
