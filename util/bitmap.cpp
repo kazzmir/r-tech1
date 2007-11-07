@@ -461,6 +461,10 @@ void Bitmap::transBlender( int r, int g, int b, int a ){
 void Bitmap::multiplyBlender( int r, int g, int b, int a ){
 	set_multiply_blender( r, g, b, a );
 }
+	
+void Bitmap::dissolveBlender( int r, int g, int b, int a ){
+	set_dissolve_blender( r, g, b, a );
+}
 
 void Bitmap::drawingMode( int mode ){
 	// drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
