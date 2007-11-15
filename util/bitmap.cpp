@@ -79,6 +79,10 @@ error( false ){
 	if ( deep_copy ){
 		BITMAP * his = who;
 		setBitmap( create_bitmap( his->w, his->h ) );
+		if ( ! getBitmap() ){
+			cout << "Could not create bitmap" << endl;
+			error = true;
+		}
 		::blit( his, getBitmap(), 0, 0, 0, 0, his->w, his->h );
 		own = new int;
 		*own = 1;
@@ -118,11 +122,11 @@ error( false ){
 	// my_bitmap = load_bitmap( load_file, NULL );
 	setBitmap( create_bitmap( sx, sy ) );
 	// clear( my_bitmap );
-	clear();
-	if ( !temp ){
+	if ( !temp || ! getBitmap() ){
 		cout<<"Could not load "<<load_file<<endl;
 		error = true;
 	} else {
+		clear();
 		stretch_blit( temp, getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getBitmap()->w, getBitmap()->h );
 		destroy_bitmap( temp );
 	}
@@ -168,6 +172,10 @@ error( false ){
 	path = copy.getPath();
 	BITMAP * temp = copy.getBitmap();
 	setBitmap( create_bitmap( sx, sy ) );
+	if ( ! getBitmap() ){
+		error = true;
+		cout << "Could not copy bitmap" << endl;
+	}
 	// clear( my_bitmap );
 	clear();
 	stretch_blit( temp, getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getBitmap()->w, getBitmap()->h );
@@ -219,6 +227,10 @@ error( false ){
 	if ( deep_copy ){
 		BITMAP * his = copy.getBitmap();
 		setBitmap( create_bitmap( his->w, his->h ) );
+		if ( ! getBitmap() ){
+			cout << "Could not create bitmap" << endl;
+			error = true;
+		}
 		::blit( his, getBitmap(), 0, 0, 0, 0, his->w, his->h );
 		own = new int;
 		*own = 1;
