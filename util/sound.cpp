@@ -66,6 +66,24 @@ void Sound::play(){
 		play_sample( my_sound, 255, 128, 1000, false );
 	}
 }
+
+void Sound::play( int volume, int pan ){
+	if ( my_sound ){
+		int p = pan;
+		if ( p > 255 ){
+			p = 255;
+		} else if ( p < 0 ){
+			p = 0;
+		}
+		int v = volume;
+		if ( v < 0 ){
+			v = 0;
+		} else if ( v > 255 ){
+			v = 255;
+		}
+		play_sample( my_sound, v, p, 1000, false );
+	}
+}
 	
 void Sound::playLoop(){
 	if ( my_sound ){
