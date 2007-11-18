@@ -53,8 +53,10 @@ public:
 	void clear();
 
 	void setDelay( const int key, const int delay );
+	void setAllDelay( const int delay );
 
 	static const char * keyToName( int key );
+	static const bool isNumber( int key );
 
 	static const int Key_A;
 	static const int Key_B;
