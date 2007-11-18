@@ -1,15 +1,12 @@
 #include "keyboard.h"
 #include "allegro.h"
 #include "funcs.h"
+#include "globals.h"
 #include <iostream>
 #include <vector>
 #include <map>
 
 using namespace std;
-
-#ifndef debug
-#define debug cout<<"File: "<<__FILE__<<" Line: "<<__LINE__<<endl;
-#endif
 
 const int Keyboard::Key_A = ::KEY_A;
 const int Keyboard::Key_B = ::KEY_B;
@@ -170,8 +167,15 @@ void Keyboard::readKeys( vector< int > & all_keys ){
 	for ( map<int,int>::const_iterator it = my_keys.begin(); it != my_keys.end(); it++ ){
 		const int & key = it->first;
 		const int & delay = it->second;
-		if ( delay < 0 || delay > key_delay[ key ] ){
+		if ( delay != 0 ){
+			Global::debug( 6 ) << "Key " << key << " delay " << delay << " key_delay " << key_delay[ key ] << endl;
+		}
+		if ( delay < 0 ){
 			all_keys.push_back( key );
+			my_keys[ key ] = 1;
+		} else if ( delay > key_delay[ key ] ){
+			all_keys.push_back( key );
+			my_keys[ key ] = 1;
 		}
 	}
 }
@@ -182,6 +186,136 @@ const int Keyboard::readKey(){
 	
 void Keyboard::setDelay( const int key, const int delay ){
 	key_delay[ key ] = delay;	
+}
+	
+void Keyboard::setAllDelay( const int delay ){
+	setDelay( Key_A, delay );
+	setDelay( Key_B, delay );
+	setDelay( Key_C, delay );
+	setDelay( Key_D, delay );
+	setDelay( Key_E, delay );
+	setDelay( Key_F, delay );
+	setDelay( Key_G, delay );
+	setDelay( Key_H, delay );
+	setDelay( Key_I, delay );
+	setDelay( Key_J, delay );
+	setDelay( Key_K, delay );
+	setDelay( Key_L, delay );
+	setDelay( Key_M, delay );
+	setDelay( Key_N, delay );
+	setDelay( Key_O, delay );
+	setDelay( Key_P, delay );
+	setDelay( Key_Q, delay );
+	setDelay( Key_R, delay );
+	setDelay( Key_S, delay );
+	setDelay( Key_T, delay );
+	setDelay( Key_U, delay );
+	setDelay( Key_V, delay );
+	setDelay( Key_W, delay );
+	setDelay( Key_X, delay );
+	setDelay( Key_Y, delay );
+	setDelay( Key_Z, delay );
+	setDelay( Key_0, delay );
+	setDelay( Key_1, delay );
+	setDelay( Key_2, delay );
+	setDelay( Key_3, delay );
+	setDelay( Key_4, delay );
+	setDelay( Key_5, delay );
+	setDelay( Key_6, delay );
+	setDelay( Key_7, delay );
+	setDelay( Key_8, delay );
+	setDelay( Key_9, delay );
+	setDelay( Key_0_PAD, delay );
+	setDelay( Key_1_PAD, delay );
+	setDelay( Key_2_PAD, delay );
+	setDelay( Key_3_PAD, delay );
+	setDelay( Key_4_PAD, delay );
+	setDelay( Key_5_PAD, delay );
+	setDelay( Key_6_PAD, delay );
+	setDelay( Key_7_PAD, delay );
+	setDelay( Key_8_PAD, delay );
+	setDelay( Key_9_PAD, delay );
+	setDelay( Key_F1, delay );
+	setDelay( Key_F2, delay );
+	setDelay( Key_F3, delay );
+	setDelay( Key_F4, delay );
+	setDelay( Key_F5, delay );
+	setDelay( Key_F6, delay );
+	setDelay( Key_F7, delay );
+	setDelay( Key_F8, delay );
+	setDelay( Key_F9, delay );
+	setDelay( Key_F10, delay );
+	setDelay( Key_F11, delay );
+	setDelay( Key_F12, delay );
+	setDelay( Key_ESC, delay );
+	setDelay( Key_TILDE, delay );
+	setDelay( Key_MINUS, delay );
+	setDelay( Key_EQUALS, delay );
+	setDelay( Key_BACKSPACE, delay );
+	setDelay( Key_TAB, delay );
+	setDelay( Key_OPENBRACE, delay );
+	setDelay( Key_CLOSEBRACE, delay );
+	setDelay( Key_ENTER, delay );
+	setDelay( Key_COLON, delay );
+	setDelay( Key_QUOTE, delay );
+	setDelay( Key_BACKSLASH, delay );
+	setDelay( Key_BACKSLASH2, delay );
+	setDelay( Key_COMMA, delay );
+	setDelay( Key_STOP, delay );
+	setDelay( Key_SLASH, delay );
+	setDelay( Key_SPACE, delay );
+	setDelay( Key_INSERT, delay );
+	setDelay( Key_DEL, delay );
+	setDelay( Key_HOME, delay );
+	setDelay( Key_END, delay );
+	setDelay( Key_PGUP, delay );
+	setDelay( Key_PGDN, delay );
+	setDelay( Key_LEFT, delay );
+	setDelay( Key_RIGHT, delay );
+	setDelay( Key_UP, delay );
+	setDelay( Key_DOWN, delay );
+	setDelay( Key_SLASH_PAD, delay );
+	setDelay( Key_ASTERISK, delay );
+	setDelay( Key_MINUS_PAD, delay );
+	setDelay( Key_PLUS_PAD, delay );
+	setDelay( Key_DEL_PAD, delay );
+	setDelay( Key_ENTER_PAD, delay );
+	setDelay( Key_PRTSCR, delay );
+	setDelay( Key_PAUSE, delay );
+	setDelay( Key_ABNT_C1, delay );
+	setDelay( Key_YEN, delay );
+	setDelay( Key_KANA, delay );
+	setDelay( Key_CONVERT, delay );
+	setDelay( Key_NOCONVERT, delay );
+	setDelay( Key_AT, delay );
+	setDelay( Key_CIRCUMFLEX, delay );
+	setDelay( Key_COLON2, delay );
+	setDelay( Key_KANJI, delay );
+	setDelay( Key_EQUALS_PAD, delay );
+	setDelay( Key_BACKQUOTE, delay );
+	setDelay( Key_SEMICOLON, delay );
+	setDelay( Key_COMMAND, delay );
+	setDelay( Key_UNKNOWN1, delay );
+	setDelay( Key_UNKNOWN2, delay );
+	setDelay( Key_UNKNOWN3, delay );
+	setDelay( Key_UNKNOWN4, delay );
+	setDelay( Key_UNKNOWN5, delay );
+	setDelay( Key_UNKNOWN6, delay );
+	setDelay( Key_UNKNOWN7, delay );
+	setDelay( Key_UNKNOWN8, delay );
+	setDelay( Key_MODIFIERS, delay );
+	setDelay( Key_LSHIFT, delay );
+	setDelay( Key_RSHIFT, delay );
+	setDelay( Key_LCONTROL, delay );
+	setDelay( Key_RCONTROL, delay );
+	setDelay( Key_ALT, delay );
+	setDelay( Key_ALTGR, delay );
+	setDelay( Key_LWIN, delay );
+	setDelay( Key_RWIN, delay );
+	setDelay( Key_MENU, delay );
+	setDelay( Key_SCRLOCK, delay );
+	setDelay( Key_NUMLOCK, delay );
+	setDelay( Key_CAPSLOCK, delay );
 }
 
 void Keyboard::wait(){
@@ -201,6 +335,19 @@ const bool Keyboard::keypressed(){
 		}
 	}
 	return false;
+}
+	
+const bool Keyboard::isNumber( int key ){
+	return key == Key_0 ||
+	       key == Key_1 ||
+	       key == Key_2 ||
+	       key == Key_3 ||
+	       key == Key_4 ||
+	       key == Key_5 ||
+	       key == Key_6 ||
+	       key == Key_7 ||
+	       key == Key_8 ||
+	       key == Key_9;
 }
 
 void Keyboard::clear(){
