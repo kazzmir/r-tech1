@@ -350,6 +350,39 @@ const bool Keyboard::isNumber( int key ){
 	       key == Key_9;
 }
 
+const bool Keyboard::isChar( int key ){
+	return key == Key_A ||
+	       key == Key_B ||
+			 key == Key_C ||
+			 key == Key_D ||
+			 key == Key_E ||
+			 key == Key_F ||
+			 key == Key_G ||
+			 key == Key_H ||
+			 key == Key_I ||
+			 key == Key_J ||
+			 key == Key_K ||
+			 key == Key_L ||
+			 key == Key_M ||
+			 key == Key_N ||
+			 key == Key_O ||
+			 key == Key_P ||
+			 key == Key_Q ||
+			 key == Key_R ||
+			 key == Key_S ||
+			 key == Key_T ||
+			 key == Key_U ||
+			 key == Key_V ||
+			 key == Key_W ||
+			 key == Key_X ||
+			 key == Key_Y ||
+			 key == Key_Z;
+}
+
+const bool Keyboard::isAlpha( int key ){
+		  return isNumber( key ) || isChar( key );
+}
+
 void Keyboard::clear(){
 	::clear_keybuf();
 	my_keys.clear();
