@@ -57,6 +57,8 @@ public:
 
 	static const char * keyToName( int key );
 	static const bool isNumber( int key );
+	static const bool isChar( int key );
+	static const bool isAlpha( int key );
 
 	static const int Key_A;
 	static const int Key_B;
