@@ -462,7 +462,7 @@ const char * Keyboard::keyToName( int key ){
 		case Keyboard::Key_BACKSLASH : return "BACKSLASH";
 		case Keyboard::Key_BACKSLASH2 : return "BACKSLASH2";
 		case Keyboard::Key_COMMA : return "COMMA";
-		case Keyboard::Key_STOP : return "STOP";
+		case Keyboard::Key_STOP : return ".";
 		case Keyboard::Key_SLASH : return "SLASH";
 		case Keyboard::Key_SPACE : return "SPACE";
 		case Keyboard::Key_INSERT : return "INSERT";
