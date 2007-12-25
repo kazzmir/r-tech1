@@ -338,6 +338,11 @@ int Bitmap::getGreen( int x ){
 	return ::getb( x );
 }
 
+void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const
+{
+	::set_clip_rect( getBitmap(), x1, y1, x2, y2 );
+}
+
 /* resize the internal bitmap. not guaranteed to destroy the internal bitmap */
 void Bitmap::resize( const int width, const int height ){
 

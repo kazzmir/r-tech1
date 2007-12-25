@@ -154,6 +154,8 @@ public:
 			_putpixel16( my_bitmap, x, y, col );
 	}
 	*/
+	
+	void setClipRect( int x1, int y1, int x2, int y2 ) const;
 
 	inline const string & getPath() const{
 		return path;
