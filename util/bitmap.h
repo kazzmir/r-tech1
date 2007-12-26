@@ -106,6 +106,7 @@ public:
 	virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
 	virtual void vLine( const int y1, const int x, const int y2, const int color ) const;
 	virtual void polygon( const int * verts, const int nverts, const int color ) const;
+	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const;
 
 	virtual void draw( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;

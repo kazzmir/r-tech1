@@ -679,6 +679,10 @@ void Bitmap::polygon( const int * verts, const int nverts, const int color ) con
 	::polygon( getBitmap(), nverts, verts, color );
 }
 
+void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const{
+	::arc( getBitmap(), x, y, ::ftofix(ang1), ::ftofix(ang2), radius, color );
+}
+
 /*
 void Bitmap::clear(){
 	this->fill( 0 );
