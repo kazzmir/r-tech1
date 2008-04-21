@@ -471,6 +471,14 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 	
 }
 	
+void Bitmap::floodfill( const int x, const int y, const int color ) const {
+	::floodfill( getBitmap(), x, y, color );
+}
+	
+void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
+	::draw_character_ex( where.getBitmap(), getBitmap(), x, y, color, background );
+}
+	
 void Bitmap::transBlender( int r, int g, int b, int a ){
 	set_trans_blender( r, g, b, a );
 }
@@ -702,13 +710,23 @@ void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
+
+void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP );
+	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
+}
 	
 void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & where ) const{
 	::draw_lit_sprite( where.getBitmap(), getBitmap(), x, y, level );
 }
 
 void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const{
-	::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
+	// ::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP );
+}
+	
+void Bitmap::drawTransVFlip( const int x, const int y, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP );
 }
 
 void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){

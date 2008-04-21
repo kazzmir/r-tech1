@@ -102,6 +102,7 @@ public:
 	virtual void circle( int x, int y, int radius, int color ) const;
 	virtual void line( const int x1, const int y1, const int x2, const int y2, const int color ) const;
 		
+	virtual void floodfill( const int x, const int y, const int color ) const;
 	virtual void horizontalLine( const int x1, const int y, const int x2, const int color ) const;
 	virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
 	virtual void vLine( const int y1, const int x, const int y2, const int color ) const;
@@ -109,9 +110,12 @@ public:
 	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const;
 
 	virtual void draw( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const;
 	virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
 	virtual void drawHFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTransVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawMask( const int x, const int y, const Bitmap & where );
 	virtual void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who );
 	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
