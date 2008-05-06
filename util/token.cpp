@@ -39,15 +39,18 @@ void Token::print( const string & space ){
 }
 
 void Token::toString( ostream & stream, const string & space ){
-	stream << "(" << getName();
-	for ( signed int i = 0; i < numTokens(); i++ ){
-		Token * x = getToken( i );
-		if ( i == 0 ){
-			stream << endl;
+	if ( numTokens() == -1 ){
+		stream << getName();
+	} else {
+		stream << endl;
+		stream << space << "(" << getName();
+		for ( signed int i = 0; i < numTokens(); i++ ){
+			Token * x = getToken( i );
+			stream << " ";
+			x->toString( stream, space + "  " );
 		}
-		x->toString( stream, space + "  " );
+		stream << ")";
 	}
-	stream << ")";
 }
 
 /* helper function */
@@ -185,6 +188,18 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 
 void Token::addToken( Token * t ){
 	tokens.push_back( t );
+}
+	
+Token & Token::operator<<( const string & rhs ){
+	Token * n = new Token( rhs, false );
+	this->addToken( n );
+	return *this;
+}
+
+Token & Token::operator<<( const int rhs ){
+	ostringstream o;
+	o << rhs;
+	return *this << o.str();
 }
 
 /* Delete tokens that are commented.

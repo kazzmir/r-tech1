@@ -62,7 +62,6 @@ public:
 	Token & operator>>( Token * & rhs ) throw( TokenException );
 	Token & operator>>( bool & rhs ) throw( TokenException );
 
-
 protected:
 	/* Only TokenReader can create and destroy a Token */
 	Token();
@@ -70,6 +69,9 @@ protected:
 	virtual ~Token();
 	friend class TokenReader;
 	friend class Configuration;
+
+	Token & operator<<( const string & rhs );
+	Token & operator<<( const int rhs );
 
 	virtual inline const string & _getName(){
 		return name;
