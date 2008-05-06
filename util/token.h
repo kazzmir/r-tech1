@@ -3,9 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 #include "token_exception.h"
 
 class TokenReader;
+class Configuration;
 
 using namespace std;
 
@@ -32,6 +34,7 @@ public:
 	const string getLineage() const;
 
 	void print( const string & space );
+	void toString( ostream & stream, const string & space );
 
 	Token * getToken( unsigned int n );
 
@@ -66,6 +69,7 @@ protected:
 	Token( string tok, bool parse = true );
 	virtual ~Token();
 	friend class TokenReader;
+	friend class Configuration;
 
 	virtual inline const string & _getName(){
 		return name;
