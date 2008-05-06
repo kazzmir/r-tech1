@@ -2,9 +2,9 @@
 #include "token_exception.h"
 #include <string>
 #include <vector>
+#include <ostream>
 #include <sstream>
 #include <iostream>
-#include <sstream>
 
 using namespace std;
 
@@ -36,6 +36,18 @@ void Token::print( const string & space ){
 		Token * x = getToken( i );
 		x->print( space + " |--" );
 	}
+}
+
+void Token::toString( ostream & stream, const string & space ){
+	stream << "(" << getName();
+	for ( signed int i = 0; i < numTokens(); i++ ){
+		Token * x = getToken( i );
+		if ( i == 0 ){
+			stream << endl;
+		}
+		x->toString( stream, space + "  " );
+	}
+	stream << ")";
 }
 
 /* helper function */
