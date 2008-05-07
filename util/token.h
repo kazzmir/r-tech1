@@ -72,6 +72,7 @@ protected:
 
 	Token & operator<<( const string & rhs );
 	Token & operator<<( const int rhs );
+	Token & operator<<( const double rhs );
 
 	virtual inline const string & _getName(){
 		return name;
