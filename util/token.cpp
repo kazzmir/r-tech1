@@ -202,6 +202,12 @@ Token & Token::operator<<( const int rhs ){
 	return *this << o.str();
 }
 
+Token & Token::operator<<( const double rhs ){
+	ostringstream o;
+	o << rhs;
+	return *this << o.str();
+}
+
 /* Delete tokens that are commented.
  * A commented token has a '!' character as the first
  * character in the name, e.g:
