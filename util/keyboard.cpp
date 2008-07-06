@@ -137,6 +137,10 @@ const int Keyboard::Key_NUMLOCK = ::KEY_NUMLOCK;
 const int Keyboard::Key_CAPSLOCK = ::KEY_CAPSLOCK;
 
 Keyboard::Keyboard(){
+	for ( int q = 0; q < KEY_MAX; q++ ){
+		my_keys[ q ] = 0;
+	}
+	setAllDelay( 0 );
 }
 
 /* KEY_MAX is defined in allegro at
