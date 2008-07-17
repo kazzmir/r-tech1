@@ -5,6 +5,13 @@
 
 using namespace std;
 
+/*
+#ifndef DATA_PATH
+#define DATA_PATH "data"
+#endif
+
+static string dataPath = DATA_PATH;
+*/
 static string dataPath = "data";
 
 /*
