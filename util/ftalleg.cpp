@@ -155,7 +155,7 @@ namespace ftalleg{
 		tempChar.right = face->glyph->advance.x >> 6;
 		tempChar.unicode = unicode;
 
-		tempChar.length = (w + ew)+face->glyph->advance.x >> 6;
+		tempChar.length = ((w + ew)+face->glyph->advance.x) >> 6;
 
 		return tempChar;
 	}
