@@ -5,14 +5,13 @@
 
 using namespace std;
 
-/*
+/* remove this once cmake and scons properly set DATA_PATH */
 #ifndef DATA_PATH
 #define DATA_PATH "data"
 #endif
 
+/* the build system should define DATA_PATH */
 static string dataPath = DATA_PATH;
-*/
-static string dataPath = "data";
 
 /*
 inline int rnd( int q ){
