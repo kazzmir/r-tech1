@@ -20,6 +20,9 @@ using namespace std;
 #define debug cout<<"File: "<<__FILE__<<" Line: "<<__LINE__<<endl;
 #endif
 
+int Bitmap::SCALE_X;
+int Bitmap::SCALE_Y;
+
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
 
 const int Bitmap::MaskColor = MASK_COLOR_16;
@@ -35,7 +38,9 @@ const int Bitmap::SPRITE_NORMAL = 1;
 const int Bitmap::SPRITE_LIT = 2;
 const int Bitmap::SPRITE_TRANS = 3;
 
-Bitmap * Bitmap::Screen;
+Bitmap * Bitmap::Screen = NULL;
+Bitmap * Scaler = NULL;
+Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap():
 own( NULL ),
@@ -507,9 +512,22 @@ void Bitmap::drawingMode( int mode ){
 
 int Bitmap::setGraphicsMode( int mode, int width, int height ){
 	int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
+        if ( Screen != NULL ){
+            delete Screen;
+        }
+        if ( Scaler != NULL ){
+            delete Scaler;
+        }
+        if ( Buffer != NULL ){
+            delete Buffer;
+        }
 	if ( ok == 0 ){
 		Screen = new Bitmap( ::screen );
 	}
+        if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
+            Scaler = new Bitmap(width, height);
+            Buffer = new Bitmap(SCALE_X, SCALE_Y);
+        }
 	return ok;
 }
 
@@ -836,7 +854,22 @@ void Bitmap::Blit( const Bitmap & where ) const {
 }
 
 void Bitmap::BlitToScreen() const {
-	this->Blit( *Bitmap::Screen );
+	// this->Blit( *Bitmap::Screen );
+	this->BlitToScreen( 0, 0 );
+}
+	
+void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+    if ( Scaler == NULL ){
+        this->Blit( upper_left_x, upper_left_y, *Bitmap::Screen );
+    } else {
+        this->Blit( upper_left_x, upper_left_y, *Buffer );
+        Buffer->Stretch( *Scaler );
+        Scaler->Blit( 0, 0, 0, 0, *Screen );
+    }
+}
+	
+void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
+    /* TODO */
 }
 
 LitBitmap::LitBitmap( const Bitmap & b ):
