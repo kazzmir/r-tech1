@@ -19,9 +19,12 @@ class Font;
 using namespace std;
 
 class Bitmap{
+private:
+	static Bitmap * Screen;
 public:
 
-	static Bitmap * Screen;
+        static int SCALE_X;
+        static int SCALE_Y;
 	
 	/* default constructor makes 10x10 bitmap */
 	Bitmap();
@@ -130,6 +133,8 @@ public:
 	virtual void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const;
 	virtual void Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where ) const;
 	virtual void BlitToScreen() const;
+	virtual void BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const;
+	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
 	virtual void fill( int color ) const;
 
 	inline void clear() const{
