@@ -808,7 +808,7 @@ void Bitmap::StretchBy4( const Bitmap & where ){
 
 }
 
-void Bitmap::Stretch( const Bitmap & where ){
+void Bitmap::Stretch( const Bitmap & where ) const {
 	Stretch( where, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, where.getBitmap()->w, where.getBitmap()->h );
 	/*
 	BITMAP * bmp = where.getBitmap();
@@ -816,7 +816,7 @@ void Bitmap::Stretch( const Bitmap & where ){
 	*/
 }
 	
-void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ){
+void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 	BITMAP * bmp = where.getBitmap();
 	::stretch_blit( getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
 }
@@ -869,7 +869,27 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
 }
 	
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
-    /* TODO */
+
+    if ( Scaler != NULL ){
+        double mult_x = (double) Scaler->getWidth() / (double) SCALE_X;
+        double mult_y = (double) Scaler->getHeight() / (double) SCALE_Y;
+
+        int x = (int)(upper_left_x * mult_x);
+        int y = (int)(upper_left_y * mult_y);
+        int w = (int)(this->getWidth() * mult_x);
+        int h = (int)(this->getHeight() * mult_y);
+
+        // printf("ux %d uy %d uw %d uh %d. x %d y %d w %d h %d\n", upper_left_x, upper_left_y, getWidth(), getHeight(), x, y, w, h );
+
+        this->Stretch( *Scaler, 0, 0, this->getWidth(), this->getHeight(), x, y, w, h );
+
+        Bitmap tmp(*Scaler, x, y, w, h );
+        tmp.Blit( x, y, *Screen );
+
+        // Scaler->Blit( x, y, w, h, *Screen );
+    } else {
+        this->Blit( upper_left_x, upper_left_y, *Screen );
+    }
 }
 
 LitBitmap::LitBitmap( const Bitmap & b ):
