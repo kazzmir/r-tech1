@@ -123,8 +123,8 @@ public:
 	virtual void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who );
 	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
 
-	virtual void Stretch( const Bitmap & where );
-	virtual void Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight );
+	virtual void Stretch( const Bitmap & where ) const;
+	virtual void Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const;
 	virtual void StretchBy2( const Bitmap & where );
 	virtual void StretchBy4( const Bitmap & where );
 	virtual void Blit( const string & xpath ) const;
