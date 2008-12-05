@@ -7,7 +7,7 @@
 #include <iostream>
 // #include <fblend.h>
 
-#ifdef WINDOWS
+#ifdef _WIN32
 #include <winalleg.h>
 #define EXTERNAL_VARIABLE __declspec(dllimport)
 #else

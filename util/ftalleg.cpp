@@ -29,7 +29,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #define FT_FONT_CPP
 
 #include <allegro.h>
-#ifdef WINDOWS
+#ifdef _WIN32
 #include <winalleg.h>
 #endif
 
