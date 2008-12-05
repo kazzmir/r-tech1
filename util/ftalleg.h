@@ -28,7 +28,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #ifndef FT_FONT_H
 #define FT_FONT_H
 
-#ifdef WINDOWS
+#ifdef _WIN32
 #define BITMAP dummyBITMAP
 #include <windows.h>
 #undef BITMAP
