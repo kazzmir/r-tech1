@@ -524,11 +524,28 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
 	if ( ok == 0 ){
 		Screen = new Bitmap( ::screen );
 	}
-        if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
+        if ( width != 0 && height != 0 && (width != SCALE_X | height != SCALE_Y) ){
             Scaler = new Bitmap(width, height);
             Buffer = new Bitmap(SCALE_X, SCALE_Y);
         }
 	return ok;
+}
+
+double Bitmap::getScale(){
+    /* the game is pretty much hard coded to run at 320 scaled upto 640
+     * and then scaled to whatever the user wants, but as long as
+     * 320 and 640 remain this number will be 2.
+     * maybe calculate this at some point
+     */
+    return 2;
+    /*
+    if (Scaler != NULL && Buffer != NULL){
+        double x1 = Scaler->getWidth();
+        double x2 = Buffer->getWidth();
+        return x2 / x1;
+    }
+    return 1;
+    */
 }
 
 /*
