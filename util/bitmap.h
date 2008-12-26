@@ -171,6 +171,7 @@ public:
 		return path;
 	}
 
+        static double getScale();
 	static int setGfxModeText();
 	static int setGfxModeFullscreen( int x, int y );
 	static int setGfxModeWindowed( int x, int y );
