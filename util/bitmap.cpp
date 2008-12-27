@@ -524,7 +524,7 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
 	if ( ok == 0 ){
 		Screen = new Bitmap( ::screen );
 	}
-        if ( width != 0 && height != 0 && (width != SCALE_X | height != SCALE_Y) ){
+        if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
             Scaler = new Bitmap(width, height);
             Buffer = new Bitmap(SCALE_X, SCALE_Y);
         }
