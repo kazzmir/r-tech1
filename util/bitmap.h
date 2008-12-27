@@ -94,6 +94,9 @@ public:
 	void printfNormal( int x, int y, int color, const string & str ) const;
 	*/
 
+        /* convert to a grey scale version */
+        virtual Bitmap greyScale();
+
 	virtual void triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const;
 	virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
 	virtual void ellipseFill( int x, int y, int rx, int ry, int color ) const;
