@@ -404,7 +404,7 @@ Bitmap & Bitmap::operator=( const Bitmap & copy ){
 	// own = false;
 	own = copy.own;
 	if ( own )
-		*own++;
+		*own += 1;
 
 	return *this;
 }
