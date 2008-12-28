@@ -791,6 +791,17 @@ void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap
 	::fixed fang = itofix( (360 - angle) % 360 * 256 / 360 );
 	::rotate_sprite( where.getBitmap(), getBitmap(), x, y, fang ); 
 }
+	
+void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
+    ::fixed fang = ftofix( (double)((360 - angle) % 360) * 256.0 / 360.0 );
+    ::pivot_sprite( where.getBitmap(), getBitmap(), x, y, centerX, centerY, fang ); 
+}
+	
+void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
+    ::fixed fscale = ftofix(scale);
+    ::fixed fang = ftofix( (double)((360 - angle) % 360) * 256.0 / 360.0 );
+    ::pivot_scaled_sprite( where.getBitmap(), getBitmap(), x, y, centerX, centerY, fang, fscale ); 
+}
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
 	BITMAP * bmp = who.getBitmap();
