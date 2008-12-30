@@ -5,8 +5,8 @@ struct FONT;
 
 #include <string>
 #include <vector>
-#include "ftalleg.h"
 #include "bitmap.h"
+#include "ftalleg.h"
 
 using namespace std;
 
