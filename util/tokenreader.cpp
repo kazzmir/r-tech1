@@ -34,7 +34,9 @@ TokenReader::~TokenReader(){
 
 Token * TokenReader::readToken() throw( TokenException ){
 
-	if ( !ifile ) throw TokenException( string( "Could not open ") + myfile );
+	if ( !ifile ){
+            throw TokenException( string("Could not open ") + myfile );
+        }
 	// Token * t;
 
 	// string token_string;
