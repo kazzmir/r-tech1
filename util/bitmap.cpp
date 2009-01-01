@@ -452,7 +452,7 @@ Bitmap Bitmap::greyScale(){
     for (int x = 0; x < getWidth(); x++){
         for (int y = 0; y < getHeight(); y++){
 	    int pixel = getPixel(x, y);
-            int val = (0.299*getRed(pixel) + 0.587*getGreen(pixel) + 0.114*getBlue(pixel) + 0.5) + 16;
+            int val = (int)((0.299*getRed(pixel) + 0.587*getGreen(pixel) + 0.114*getBlue(pixel) + 0.5) + 16);
             if (val > 255){
                 val = 255;
             }
