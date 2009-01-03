@@ -9,14 +9,16 @@
 using namespace std;
 
 Token::Token():
-parent( NULL ){
+num_token(1),
+parent( NULL ),
+own(true){
 	name = "HEAD";
-	num_token = 1;
 }
 
 Token::Token( string tok, bool parse ):
 num_token( 1 ),
-parent( NULL ){
+parent( NULL ),
+own(true){
 
 	/* legacy code, not used much */
 	if ( !parse ){
@@ -27,6 +29,15 @@ parent( NULL ){
 		return;
 	}
 	
+}
+    
+Token::Token(Token const & copy):
+num_token(1),
+parent(copy.parent),
+own(false){
+    this->tokens = copy.tokens;
+    this->name = copy.name;
+    this->filename = copy.filename;
 }
 
 /* Dump token to the screen */
@@ -227,6 +238,9 @@ void Token::finalize(){
 }
 
 Token::~Token(){
-	for ( vector< Token * >::iterator it = tokens.begin(); it != tokens.end(); it++ )
-		delete *it;
+    if (own){
+        for ( vector< Token * >::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+            delete *it;
+        }
+    }
 }
