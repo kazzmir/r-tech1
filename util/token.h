@@ -21,7 +21,7 @@ public:
     Token(Token const & copy);
     virtual ~Token();
 
-	void addToken( Token * t );
+	void addToken( Token * t ) throw (TokenException);
 	
 	/*
 	inline const string & getName(){
@@ -66,7 +66,7 @@ public:
 	Token & operator>>( bool & rhs ) throw( TokenException );
 
 protected:
-	/* Only TokenReader can create and destroy a Token */
+	/* Only TokenReader and Configuration can create and destroy a Token */
 	Token();
 	Token( string tok, bool parse = true );
 	friend class TokenReader;
