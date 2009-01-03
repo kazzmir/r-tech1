@@ -18,6 +18,8 @@ using namespace std;
 class Token{
 public:
 
+    Token(Token const & copy);
+
 	void addToken( Token * t );
 	
 	/*
@@ -90,6 +92,7 @@ protected:
 	string filename;
 	Token const * parent;
 	string name;
+        bool own;
 };
 
 #endif
