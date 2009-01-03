@@ -87,9 +87,18 @@ Token * TokenReader::readToken() throw( TokenException ){
 		// cout<<"Alpha char: "<<n<<endl;
 
 		if ( escaped ){
-			cur_string += n;
-			escaped = false;
-			continue;
+                    switch (n){
+                        case 'n' : {
+                            cur_string += "\n";
+                            break;
+                        }
+                        default : {
+                            cur_string += n;
+                            break;
+                        }
+                    }
+                    escaped = false;
+                    continue;
 		}
 
 		if ( n == '\\' ){
