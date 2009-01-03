@@ -197,8 +197,11 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	return *this;
 }
 
-void Token::addToken( Token * t ){
-	tokens.push_back( t );
+void Token::addToken(Token * t) throw (TokenException){
+    if (!own){
+        throw TokenException("This token does not own its own tokens, so you cannot add tokens to it");
+    }
+    tokens.push_back( t );
 }
 	
 Token & Token::operator<<( const string & rhs ){
