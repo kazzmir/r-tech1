@@ -10,6 +10,13 @@
 
 using namespace std;
 
+/* tokenreader reads a file formatted with s-expressions. examples:
+ * (hello)
+ * (hello world)
+ * (hello "world")
+ * (hello (world))
+ * (hello (world hi))
+ */
 TokenReader::TokenReader( const char * file ){
 	ifile.open( file );
 	myfile = string( file );
