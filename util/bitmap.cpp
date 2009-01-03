@@ -537,12 +537,15 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
 	int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
         if ( Screen != NULL ){
             delete Screen;
+            Screen = NULL;
         }
         if ( Scaler != NULL ){
             delete Scaler;
+            Scaler = NULL;
         }
         if ( Buffer != NULL ){
             delete Buffer;
+            Buffer = NULL;
         }
 	if ( ok == 0 ){
 		Screen = new Bitmap( ::screen );
