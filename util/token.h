@@ -19,6 +19,7 @@ class Token{
 public:
 
     Token(Token const & copy);
+    virtual ~Token();
 
 	void addToken( Token * t );
 	
@@ -68,7 +69,6 @@ protected:
 	/* Only TokenReader can create and destroy a Token */
 	Token();
 	Token( string tok, bool parse = true );
-	virtual ~Token();
 	friend class TokenReader;
 	friend class Configuration;
 
