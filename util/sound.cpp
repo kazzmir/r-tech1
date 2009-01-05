@@ -62,9 +62,9 @@ Sound & Sound::operator=( const Sound & rhs ){
 }
 
 void Sound::play(){
-	if ( my_sound ){
-		play_sample( my_sound, 255, 128, 1000, false );
-	}
+    if ( my_sound ){
+        play_sample( my_sound, 255, 128, 1000, false );
+    }
 }
 
 void Sound::play( int volume, int pan ){
