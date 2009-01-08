@@ -534,7 +534,8 @@ void Bitmap::drawingMode( int mode ){
 }
 
 int Bitmap::setGraphicsMode( int mode, int width, int height ){
-	int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
+    int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
+    if ( ok == 0 ){
         if ( Screen != NULL ){
             delete Screen;
             Screen = NULL;
@@ -547,14 +548,13 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
             delete Buffer;
             Buffer = NULL;
         }
-	if ( ok == 0 ){
-		Screen = new Bitmap( ::screen );
-	}
+        Screen = new Bitmap( ::screen );
         if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
             Scaler = new Bitmap(width, height);
             Buffer = new Bitmap(SCALE_X, SCALE_Y);
         }
-	return ok;
+    }
+    return ok;
 }
 
 double Bitmap::getScale(){
