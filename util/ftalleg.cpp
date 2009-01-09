@@ -454,7 +454,7 @@ namespace ftalleg{
 
 	//! Set size
 	void freetype::setSize( unsigned int w, unsigned int h){
-		if ( w != size.width && h != size.height ){
+		if ( w != size.width || h != size.height ){
 			if(internalFix)return;
 			if(w<=0 || h<=0)return;
 			size.width=w;
