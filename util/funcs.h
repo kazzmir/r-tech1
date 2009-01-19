@@ -30,6 +30,8 @@ void blend_palette( int * pal, int mp, int sc, int ec );
 
 void rest( int x );
 
+std::string trim(const std::string & str);
+
 }
 
 #endif
