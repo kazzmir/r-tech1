@@ -311,6 +311,115 @@ void Bitmap::save( const string & str ){
 	save_bitmap( str.c_str(), getBitmap(), NULL );
 }
 
+namespace Memory{
+    struct memory{
+        memory(unsigned char * stream, int length):
+            stream(stream),
+            position(stream),
+            length(length){
+        }
+        /* points to the head */
+        unsigned char * stream;
+        /* points to the current position */
+        unsigned char * position;
+        int length;
+    };
+
+    int pf_fclose(void *userdata){
+        return 0;
+        /* nothing */
+    }
+
+    int pf_getc(void *userdata){
+        memory * m = (memory*) userdata;
+        if (m->position < m->stream + m->length){
+            unsigned char x = *m->position;
+            m->position += 1;
+            return x;
+        }
+        return EOF;
+    }
+
+    int pf_ungetc(int c, void *userdata){
+        memory * m = (memory*) userdata;
+        if (m->position > m->stream){
+            m->position -= 1;
+            return c;
+        } else {
+            return EOF;
+        }
+    }
+
+    long pf_fread(void *p, long n, void *userdata){
+        memory *m = (memory*) userdata;
+        unsigned char *cp = (unsigned char *)p;
+        long i;
+        int c;
+
+        for (i=0; i<n; i++) {
+            if ((c = pf_getc(m)) == EOF)
+                break;
+
+            *(cp++) = c;
+        }
+
+        return i;
+    }
+
+    int pf_putc(int c, void *userdata){
+        return EOF;
+    }
+
+    long pf_fwrite(const void *p, long n, void *userdata){
+        return EOF;
+    }
+
+    int pf_fseek(void *userdata, int offset){
+        memory * m = (memory*) userdata;
+        if (offset >= 0 && offset < m->length){
+            m->position = m->stream + offset;
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    int pf_feof(void *userdata){
+        memory * m = (memory*) userdata;
+        return m->position >= m->stream + m->length;
+    }
+
+    int pf_ferror(void *userdata){
+        memory * m = (memory*) userdata;
+        return m->position < m->stream || m->position >= m->stream + m->length;
+    }
+}
+
+Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length){
+    PACKFILE_VTABLE table;
+    table.pf_fclose = Memory::pf_fclose;
+    table.pf_getc = Memory::pf_getc;
+    table.pf_ungetc = Memory::pf_ungetc;
+    table.pf_fread = Memory::pf_fread;
+    table.pf_putc = Memory::pf_putc;
+    table.pf_fwrite = Memory::pf_fwrite;
+    table.pf_fseek = Memory::pf_fseek;
+    table.pf_feof = Memory::pf_feof;
+    table.pf_ferror = Memory::pf_ferror;
+
+    Memory::memory memory(data, length);
+
+    PACKFILE * pack = pack_fopen_vtable(&table, &memory);
+    /* need to supply a proper palette at some point */
+    RGB * palette = NULL;
+    BITMAP * pcx = load_pcx_pf(pack, palette);
+    Bitmap bitmap(pcx, true);
+    destroy_bitmap(pcx);
+    pack_fclose(pack);
+
+    return bitmap;
+}
+
 /* decrement bitmap reference counter and free memory if counter hits 0 */
 void Bitmap::releaseInternalBitmap(){
     const int MAGIC_DEBUG = 0xa5a5a5;
