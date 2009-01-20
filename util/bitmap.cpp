@@ -20,8 +20,8 @@ using namespace std;
 #define debug cout<<"File: "<<__FILE__<<" Line: "<<__LINE__<<endl;
 #endif
 
-int Bitmap::SCALE_X;
-int Bitmap::SCALE_Y;
+int Bitmap::SCALE_X = 0;
+int Bitmap::SCALE_Y = 0;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
 
@@ -413,6 +413,9 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length){
     /* need to supply a proper palette at some point */
     RGB * palette = NULL;
     BITMAP * pcx = load_pcx_pf(pack, palette);
+    if (!pcx){
+        cout <<"Could not load pcx from memory: " << (void*) data << " length " << length << endl;
+    }
     Bitmap bitmap(pcx, true);
     destroy_bitmap(pcx);
     pack_fclose(pack);
@@ -645,6 +648,12 @@ void Bitmap::drawingMode( int mode ){
 int Bitmap::setGraphicsMode( int mode, int width, int height ){
     int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
     if ( ok == 0 ){
+        if (SCALE_X == 0){
+            SCALE_X = width;
+        }
+        if (SCALE_Y == 0){
+            SCALE_Y = height;
+        }
         if ( Screen != NULL ){
             delete Screen;
             Screen = NULL;
