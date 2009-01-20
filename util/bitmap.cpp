@@ -325,12 +325,12 @@ namespace Memory{
         int length;
     };
 
-    int pf_fclose(void *userdata){
+    static int pf_fclose(void *userdata){
         return 0;
         /* nothing */
     }
 
-    int pf_getc(void *userdata){
+    static int pf_getc(void *userdata){
         memory * m = (memory*) userdata;
         if (m->position < m->stream + m->length){
             unsigned char x = *m->position;
@@ -340,7 +340,7 @@ namespace Memory{
         return EOF;
     }
 
-    int pf_ungetc(int c, void *userdata){
+    static int pf_ungetc(int c, void *userdata){
         memory * m = (memory*) userdata;
         if (m->position > m->stream){
             m->position -= 1;
@@ -350,7 +350,7 @@ namespace Memory{
         }
     }
 
-    long pf_fread(void *p, long n, void *userdata){
+    static long pf_fread(void *p, long n, void *userdata){
         memory *m = (memory*) userdata;
         unsigned char *cp = (unsigned char *)p;
         long i;
@@ -366,15 +366,15 @@ namespace Memory{
         return i;
     }
 
-    int pf_putc(int c, void *userdata){
+    static int pf_putc(int c, void *userdata){
         return EOF;
     }
 
-    long pf_fwrite(const void *p, long n, void *userdata){
+    static long pf_fwrite(const void *p, long n, void *userdata){
         return EOF;
     }
 
-    int pf_fseek(void *userdata, int offset){
+    static int pf_fseek(void *userdata, int offset){
         memory * m = (memory*) userdata;
         if (offset >= 0 && offset < m->length){
             m->position = m->stream + offset;
@@ -384,12 +384,12 @@ namespace Memory{
         }
     }
 
-    int pf_feof(void *userdata){
+    static int pf_feof(void *userdata){
         memory * m = (memory*) userdata;
         return m->position >= m->stream + m->length;
     }
 
-    int pf_ferror(void *userdata){
+    static int pf_ferror(void *userdata){
         memory * m = (memory*) userdata;
         return m->position < m->stream || m->position >= m->stream + m->length;
     }
