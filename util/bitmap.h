@@ -16,8 +16,6 @@ struct BITMAP;
 struct FONT;
 class Font;
 
-using namespace std;
-
 class Bitmap{
 private:
 	static Bitmap * Screen;
@@ -30,7 +28,7 @@ public:
 	Bitmap();
 	Bitmap( int x, int y );
 	Bitmap( const char * load_file );
-	Bitmap( const string & load_file );
+	Bitmap( const std::string & load_file );
 	Bitmap( const char * load_file, int sx, int sy );
 	Bitmap( const char * load_file, int sx, int sy, double accuracy );
 	Bitmap( BITMAP * who, bool deep_copy = false );
@@ -40,11 +38,11 @@ public:
 	Bitmap( const Bitmap & copy, int x, int y, int width, int height );
 	virtual ~Bitmap();
 
-	virtual void save( const string & str );
+	virtual void save( const std::string & str );
 
 	Bitmap & operator=( const Bitmap & );
 
-	virtual void load( const string & str );
+	virtual void load( const std::string & str );
 
 	const int getWidth() const;
 	const int getHeight() const;
@@ -68,6 +66,8 @@ public:
 		return my_bitmap->h;
 	}
 	*/
+
+        static Bitmap memoryPCX(unsigned char * const data, const int length);
 
 	void detach();
 
@@ -132,7 +132,7 @@ public:
 	virtual void Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const;
 	virtual void StretchBy2( const Bitmap & where );
 	virtual void StretchBy4( const Bitmap & where );
-	virtual void Blit( const string & xpath ) const;
+	virtual void Blit( const std::string & xpath ) const;
 	virtual void Blit( const Bitmap & where ) const;
 	virtual void Blit( const int x, const int y, const Bitmap & where ) const;
 	virtual void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const;
@@ -152,7 +152,7 @@ public:
 		return _my_bitmap;
 	}
 
-	virtual void readLine( vector< int > & vec, int y );
+	virtual void readLine( std::vector< int > & vec, int y );
 	const int getPixel( const int x, const int y ) const;
 
 	void putPixel( int x, int y, int col ) const;
@@ -172,7 +172,7 @@ public:
 	
 	void setClipRect( int x1, int y1, int x2, int y2 ) const;
 
-	inline const string & getPath() const{
+	inline const std::string & getPath() const{
 		return path;
 	}
 
@@ -216,12 +216,12 @@ protected:
 
 	void releaseInternalBitmap();
 
-	inline void setBitmap( BITMAP * bitmap ){
-		if ( bitmap == NULL ){
-			cout << "*FATAL* Setting null bitmap" << endl;
-		}
-		_my_bitmap = bitmap;
-	}
+        inline void setBitmap( BITMAP * bitmap ){
+            if ( bitmap == NULL ){
+                std::cout << "*FATAL* Setting null bitmap" << std::endl;
+            }
+            _my_bitmap = bitmap;
+        }
 
 	void internalLoadFile( const char * load_file );
 
@@ -229,7 +229,7 @@ protected:
 	int * own;
 	// bool own;
 	bool error;
-	string path;
+        std::string path;
 
 };
 
