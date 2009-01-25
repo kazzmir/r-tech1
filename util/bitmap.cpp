@@ -416,6 +416,28 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length){
     if (!pcx){
         cout <<"Could not load pcx from memory: " << (void*) data << " length " << length << endl;
     }
+
+    /* warning! 8-bit assumptions */
+    int colors = 256;
+    int maskR = (int)data[length - colors*3 + 0];
+    int maskG = (int)data[length - colors*3 + 1];
+    int maskB = (int)data[length - colors*3 + 2];
+    int mask = makeColor(maskR, maskG, maskB);
+
+    // printf("mask r %d g %d b %d = %d\n", maskR, maskG, maskB, mask);
+
+    if (mask != MaskColor){
+        for( int i = 0; i < pcx->h; ++i ){
+            for( int j = 0; j < pcx->w; ++j ){
+                /* use getPixel/putPixel? */
+                int pix = getpixel(pcx,j,i);
+                if (pix == mask){
+                    putpixel(pcx,j,i, MaskColor);
+                }
+            }
+        }
+    }
+
     Bitmap bitmap(pcx, true);
     destroy_bitmap(pcx);
     pack_fclose(pack);
