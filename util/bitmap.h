@@ -120,6 +120,7 @@ public:
 	virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
 	virtual void drawHFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTransVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawMask( const int x, const int y, const Bitmap & where );

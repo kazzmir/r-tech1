@@ -918,6 +918,10 @@ void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP );
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
+
+void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP );
+}
 	
 void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & where ) const{
 	::draw_lit_sprite( where.getBitmap(), getBitmap(), x, y, level );
