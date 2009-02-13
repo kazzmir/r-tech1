@@ -123,6 +123,7 @@ public:
 	virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTransVFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTransHVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawMask( const int x, const int y, const Bitmap & where );
 	virtual void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who );
 	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
