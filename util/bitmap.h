@@ -186,6 +186,18 @@ public:
 		return path;
 	}
 
+        /* produce a temporary bitmap that is not guaranteed to be preserved
+         * after your function returns. do *not* hold references to this bitmap
+         * and if you make a temporary bitmap, do *not* call functions that
+         * might also make temporary bitmaps.
+         */
+        static Bitmap temporaryBitmap(int w, int h);
+
+        /* call this method to delete all temporary bitmaps.
+         * don't call this unless you know what you are doing
+         */
+        static void cleanupTemporaryBitmaps();
+
         static double getScale();
 	static int setGfxModeText();
 	static int setGfxModeFullscreen( int x, int y );
@@ -241,6 +253,7 @@ protected:
 	bool error;
         std::string path;
 
+        static Bitmap * temporary_bitmap;
 };
 
 #endif

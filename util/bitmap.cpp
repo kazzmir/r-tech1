@@ -22,6 +22,7 @@ using namespace std;
 
 int Bitmap::SCALE_X = 0;
 int Bitmap::SCALE_Y = 0;
+Bitmap * Bitmap::temporary_bitmap = NULL;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
 
@@ -305,6 +306,29 @@ void Bitmap::internalLoadFile( const char * load_file ){
 	// own = true;
 	own = new int;
 	*own = 1;
+}
+        
+Bitmap Bitmap::temporaryBitmap(int w, int h){
+    if (temporary_bitmap == NULL){
+        temporary_bitmap = new Bitmap(w, h);
+    } else if (temporary_bitmap->getWidth() < w || temporary_bitmap->getHeight() < h){
+        int mw = MAX(temporary_bitmap->getWidth(), w);
+        int mh = MAX(temporary_bitmap->getHeight(), h);
+        // printf("Create temporary bitmap %d %d\n", mw, mh);
+        delete temporary_bitmap;
+        temporary_bitmap = new Bitmap(mw, mh);
+    }
+    if (temporary_bitmap == NULL){
+        printf("*bug* temporary bitmap is null\n");
+    }
+    return Bitmap(*temporary_bitmap, 0, 0, w, h);
+}
+        
+void Bitmap::cleanupTemporaryBitmaps(){
+    if (temporary_bitmap != NULL){
+        delete temporary_bitmap;
+        temporary_bitmap = NULL;
+    }
 }
 	
 void Bitmap::save( const string & str ){
