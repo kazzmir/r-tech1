@@ -653,6 +653,34 @@ void Bitmap::dissolveBlender( int r, int g, int b, int a ){
 	set_dissolve_blender( r, g, b, a );
 }
 
+void Bitmap::addBlender( int r, int g, int b, int a ){
+	set_add_blender( r, g, b, a );
+}
+
+void Bitmap::burnBlender( int r, int g, int b, int a ){
+	set_burn_blender( r, g, b, a );
+}
+
+void Bitmap::colorBlender( int r, int g, int b, int a ){
+	set_color_blender( r, g, b, a );
+}
+
+void Bitmap::differenceBlender( int r, int g, int b, int a ){
+	set_difference_blender( r, g, b, a );
+}
+
+void Bitmap::dodgeBlender( int r, int g, int b, int a ){
+	set_dodge_blender( r, g, b, a );
+}
+
+void Bitmap::hueBlender( int r, int g, int b, int a ){
+	set_hue_blender( r, g, b, a );
+}
+
+void Bitmap::luminanceBlender( int r, int g, int b, int a ){
+	set_luminance_blender( r, g, b, a );
+}
+
 void Bitmap::drawingMode( int mode ){
 	// drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
 	switch( mode ){
@@ -932,6 +960,10 @@ void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const{
 	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP );
 }
 	
+void Bitmap::drawTransHFlip( const int x, const int y, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP );
+}
+
 void Bitmap::drawTransVFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP );
 }

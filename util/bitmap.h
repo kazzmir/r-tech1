@@ -74,6 +74,13 @@ public:
 	static void transBlender( int r, int g, int b, int a );
 	static void multiplyBlender( int r, int g, int b, int a );
 	static void dissolveBlender( int r, int g, int b, int a );
+	static void addBlender( int r, int g, int b, int a );
+	static void burnBlender( int r, int g, int b, int a );
+	static void colorBlender( int r, int g, int b, int a );
+	static void differenceBlender( int r, int g, int b, int a );
+	static void dodgeBlender( int r, int g, int b, int a );
+	static void hueBlender( int r, int g, int b, int a );
+	static void luminanceBlender( int r, int g, int b, int a );
 	static int setGraphicsMode( int mode, int width, int height );
 
 	static void drawingMode( int type );
@@ -122,6 +129,7 @@ public:
 	virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTransHFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTransVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTransHVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawMask( const int x, const int y, const Bitmap & where );
