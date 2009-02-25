@@ -974,10 +974,12 @@ void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP );
 }
-	
+
+/*
 void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & where ) const{
 	::draw_lit_sprite( where.getBitmap(), getBitmap(), x, y, level );
 }
+*/
 
 void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const{
 	// ::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
@@ -1171,10 +1173,15 @@ void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
 }
 	
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-	// ::draw_sprite_h_flip_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
-	paintown_draw_sprite_ex16( where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP );
-	// Bitmap::drawHFlip( x, y, where );
-	// ::draw_sprite_h_flip_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
+	paintown_draw_sprite_ex16(where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP);
+}
+
+void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16(where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP);
+}
+
+void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16(where.getBitmap(), getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP);
 }
 
 /* this function should be in allegro but its not yet so just store it

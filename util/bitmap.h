@@ -124,7 +124,8 @@ public:
 
 	virtual void draw( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const;
-	virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
+        /* to draw lit use LitBitmap */
+	// virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
 	virtual void drawHFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
