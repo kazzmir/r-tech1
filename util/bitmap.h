@@ -208,6 +208,9 @@ public:
 	static int darken( int color, double factor );
 	static void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
 
+        /* convert cymk to rgb. values should be in the range 0-255 */
+        static void cymkToRGB(int c, int y, int m, int k, int * r, int * g, int * b);
+
 	static int getRed( int x );
 	static int getBlue( int x );
 	static int getGreen( int x );
