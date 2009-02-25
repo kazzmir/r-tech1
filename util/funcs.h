@@ -23,6 +23,9 @@ bool exists( const std::string & file );
 /* return a random number + some range between min/max */
 int rnd( int q, int min, int max );
 
+int max(int a, int b);
+int min(int a, int b);
+
 /* return a number between min/max */
 int rnd( int min, int max );
 

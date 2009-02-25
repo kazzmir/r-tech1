@@ -20,6 +20,20 @@ inline int rnd( int q ){
 }
 */
 
+int Util::max(int a, int b){
+    if (a>b){
+        return a;
+    }
+    return b;
+}
+
+int Util::min(int a, int b){
+    if (a<b){
+        return a;
+    }
+    return b;
+}
+
 int Util::rnd( int q, int min, int range ){
 	return q - min + rnd( range );
 }
