@@ -821,6 +821,10 @@ int Bitmap::darken( int color, double factor ){
 void Bitmap::hsvToRGB( float h, float s, float v, int * r, int * g, int * b ){
 	::hsv_to_rgb( h, s, v, r, g, b );
 }
+        
+void Bitmap::rgbToHSV(int r, int g, int b, float * h, float * s, float * v){
+    ::rgb_to_hsv(r, g, b, h, s, v);
+}
 
 /* taken from the color addon from allegro 4.9 */
 static void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow, float key, float *red, float *green, float *blue){

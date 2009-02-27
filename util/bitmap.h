@@ -208,6 +208,13 @@ public:
 	static int darken( int color, double factor );
 	static void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
 
+        /*
+         * Convert color values between the HSV and RGB color spaces. The RGB values
+         * range from 0 to 255, hue is from 0 to 360, and saturation and value are
+         * from 0 to 1.
+         */
+        static void rgbToHSV(int r, int g, int b, float * h, float * s, float * v);
+
         /* convert cymk to rgb. values should be in the range 0-255 */
         static void cymkToRGB(int c, int y, int m, int k, int * r, int * g, int * b);
 
