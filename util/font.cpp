@@ -86,7 +86,7 @@ void FreeTypeFont::printf( int x, int y, int color, const Bitmap & work, const s
 	va_list ap;
 
 	va_start(ap, marker);
-	uvszprintf(buf, sizeof(buf), str.c_str(), ap);
+	vsnprintf(buf, sizeof(buf), str.c_str(), ap);
 	va_end(ap);
 
 	this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
