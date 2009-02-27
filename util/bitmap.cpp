@@ -1127,7 +1127,7 @@ void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const
 	::blit( getBitmap(), bmp, mx, my, wx, wy, getBitmap()->w, getBitmap()->h );
 }
 
-void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, Bitmap & where ) const {
+void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
 	BITMAP * bmp = where.getBitmap();
 	::blit( getBitmap(), bmp, mx, my, wx, wy, width, height );
 }
