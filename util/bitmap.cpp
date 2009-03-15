@@ -419,7 +419,7 @@ namespace Memory{
     }
 }
 
-Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, bool mask){
+Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
     PACKFILE_VTABLE table;
     table.pf_fclose = Memory::pf_fclose;
     table.pf_getc = Memory::pf_getc;
