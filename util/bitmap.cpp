@@ -419,7 +419,7 @@ namespace Memory{
     }
 }
 
-Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length){
+Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, bool mask){
     PACKFILE_VTABLE table;
     table.pf_fclose = Memory::pf_fclose;
     table.pf_getc = Memory::pf_getc;
@@ -441,22 +441,25 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length){
         cout <<"Could not load pcx from memory: " << (void*) data << " length " << length << endl;
     }
 
-    /* warning! 8-bit assumptions */
-    int colors = 256;
-    int maskR = (int)data[length - colors*3 + 0];
-    int maskG = (int)data[length - colors*3 + 1];
-    int maskB = (int)data[length - colors*3 + 2];
-    int mask = makeColor(maskR, maskG, maskB);
+    /* converts 8-bit pcx mask to allegro's mask */
+    if (mask){
+        /* warning! 8-bit assumptions */
+        int colors = 256;
+        int maskR = (int)data[length - colors*3 + 0];
+        int maskG = (int)data[length - colors*3 + 1];
+        int maskB = (int)data[length - colors*3 + 2];
+        int mask = makeColor(maskR, maskG, maskB);
 
-    // printf("mask r %d g %d b %d = %d\n", maskR, maskG, maskB, mask);
+        // printf("mask r %d g %d b %d = %d\n", maskR, maskG, maskB, mask);
 
-    if (mask != MaskColor){
-        for( int i = 0; i < pcx->h; ++i ){
-            for( int j = 0; j < pcx->w; ++j ){
-                /* use getPixel/putPixel? */
-                int pix = getpixel(pcx,j,i);
-                if (pix == mask){
-                    putpixel(pcx,j,i, MaskColor);
+        if (mask != MaskColor){
+            for( int i = 0; i < pcx->h; ++i ){
+                for( int j = 0; j < pcx->w; ++j ){
+                    /* use getPixel/putPixel? */
+                    int pix = getpixel(pcx,j,i);
+                    if (pix == mask){
+                        putpixel(pcx,j,i, MaskColor);
+                    }
                 }
             }
         }
