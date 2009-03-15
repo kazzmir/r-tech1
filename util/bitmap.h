@@ -67,7 +67,7 @@ public:
 	}
 	*/
 
-        static Bitmap memoryPCX(unsigned char * const data, const int length, bool mask = true);
+        static Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask = true);
 
 	void detach();
 
