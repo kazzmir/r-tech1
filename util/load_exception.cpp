@@ -1,6 +1,8 @@
 #include <string>
 #include "load_exception.h"
 
+using namespace std;
+
 LoadException::LoadException():
 exception(){
 }
