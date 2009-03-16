@@ -8,21 +8,19 @@
 #include <exception>
 #include <string>
 
-using namespace std;
-
-class LoadException: public exception {
+class LoadException: public std::exception {
 public:
 	LoadException();
-	LoadException( const string & reason );
+	LoadException( const std::string & reason );
 
-	inline const string & getReason() const {
+	inline const std::string & getReason() const {
 		return reason;
 	}
 
 	virtual ~LoadException() throw();
 
 protected:
-	string reason;
+        std::string reason;
 };
 
 #endif
