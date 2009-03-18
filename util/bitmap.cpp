@@ -708,6 +708,14 @@ void Bitmap::luminanceBlender( int r, int g, int b, int a ){
 	set_luminance_blender( r, g, b, a );
 }
 
+void Bitmap::invertBlender( int r, int g, int b, int a ){
+	set_invert_blender( r, g, b, a );
+}
+
+void Bitmap::screenBlender( int r, int g, int b, int a ){
+	set_screen_blender( r, g, b, a );
+}
+
 void Bitmap::drawingMode( int mode ){
 	// drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
 	switch( mode ){
