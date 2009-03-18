@@ -81,6 +81,8 @@ public:
 	static void dodgeBlender( int r, int g, int b, int a );
 	static void hueBlender( int r, int g, int b, int a );
 	static void luminanceBlender( int r, int g, int b, int a );
+	static void invertBlender( int r, int g, int b, int a );
+	static void screenBlender( int r, int g, int b, int a );
 	static int setGraphicsMode( int mode, int width, int height );
 
 	static void drawingMode( int type );
