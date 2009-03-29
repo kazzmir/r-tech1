@@ -60,7 +60,12 @@ Token * TokenReader::readToken() throw( TokenException ){
 	my_tokens.push_back( cur_token );
 	Token * first = cur_token;
 	vector< Token * > token_stack;
+        /* tokens that were ignored using ;@, and should be deleted */
+        vector<Token*> ignore_list;
 	token_stack.push_back( cur_token );
+
+        /* when a ;@ is seen, read the next s-expression but throw it away */
+        bool do_ignore = false;
 
 	char n;
 	string cur_string = "";
@@ -112,7 +117,12 @@ Token * TokenReader::readToken() throw( TokenException ){
 				
 				Token * sub = new Token( cur_string, false );
 				sub->setParent( cur_token );
-				cur_token->addToken( sub );
+                                if (do_ignore){
+                                    ignore_list.push_back(sub);
+                                    do_ignore = false;
+                                } else {
+                                    cur_token->addToken( sub );
+                                }
 				cur_string = "";
 
 			} else
@@ -128,20 +138,37 @@ Token * TokenReader::readToken() throw( TokenException ){
 				// cout<<"Made new token "<<cur_string<<endl;
 				Token * sub = new Token( cur_string, false );
 				sub->setParent( cur_token );
-				cur_token->addToken( sub );
+                                if (do_ignore){
+                                    do_ignore = false;
+                                    ignore_list.push_back(sub);
+                                } else {
+                                    cur_token->addToken( sub );
+                                }
 				cur_string = "";
 			}
 		}
 
 		if ( n == '#' || n == ';' ){
+                    ifile >> n;
+                    if (n == '@'){
+                        do_ignore = true;
+                    } else {
 			while ( n != '\n' && !ifile.eof() ){
 				ifile >> n;
 			}
 			continue;
+                    }
 		} else if ( n == '(' ){
 			Token * another = new Token();
 			another->setParent( cur_token );
-			cur_token->addToken( another );
+
+                        if (do_ignore){
+                            ignore_list.push_back(another);
+                            do_ignore = false;
+                        } else {
+                            cur_token->addToken(another);
+                        }
+
 			cur_token = another;
 			token_stack.push_back( cur_token );
 			/*
@@ -155,11 +182,16 @@ Token * TokenReader::readToken() throw( TokenException ){
 				throw TokenException("Stack is empty");
 			}
 			token_stack.pop_back();
+
 			if ( ! token_stack.empty() ){
 				cur_token = token_stack.back();
 			}
 		}
 	}
+
+        for (vector<Token*>::iterator it = ignore_list.begin(); it != ignore_list.end(); it++){
+            delete (*it);
+        }
 	
 	// first->print("");
 	first->finalize();
