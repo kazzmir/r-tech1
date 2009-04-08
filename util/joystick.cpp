@@ -14,3 +14,6 @@ Joystick * Joystick::create(){
 
 Joystick::Joystick(){
 }
+    
+Joystick::~Joystick(){
+}
