@@ -148,29 +148,42 @@ JoystickInput LinuxJoystick::readAll(){
     if (file == -1){
         return input;
     }
-    if (axis[0] < 0){
-        input.left = true;
+    if (axes > 0){
+        if (axis[0] < 0){
+            input.left = true;
+        }
+        if (axis[0] > 0){
+            input.right = true;
+        }
+        if (axes > 1){
+            if (axis[1] < 0){
+                input.up = true;
+            }
+            if (axis[1] > 0){
+                input.down = true;
+            }
+        }
     }
-    if (axis[0] > 0){
-        input.right = true;
-    }
-    if (axis[1] < 0){
-        input.up = true;
-    }
-    if (axis[1] > 0){
-        input.down = true;
-    }
-    if (button[0]){
-        input.button1 = true;
-    }
-    if (button[1]){
-        input.button2 = true;
-    }
-    if (button[2]){
-        input.button3 = true;
-    }
-    if (button[3]){
-        input.button4 = true;
+
+    if (buttons > 0){
+        if (button[0]){
+            input.button1 = true;
+        }
+        if (buttons > 1){
+            if (button[1]){
+                input.button2 = true;
+            }
+            if (buttons > 2){
+                if (button[2]){
+                    input.button3 = true;
+                }
+                if (buttons > 3){
+                    if (button[3]){
+                        input.button4 = true;
+                    }
+                }
+            }
+        }
     }
     Global::debug(1) << "joystick input up " << input.up
                                  << " down " << input.down
