@@ -1,38 +1,11 @@
 #ifdef LINUX
-/*
+
+/* based on
  * jstest.c  Version 1.2
  *
  * Copyright (c) 1996-1999 Vojtech Pavlik
  *
  * Sponsored by SuSE
- */
-
-/*
- * This program can be used to test all the features of the Linux
- * joystick API, including non-blocking and select() access, as
- * well as version 0.x compatibility mode. It is also intended to
- * serve as an example implementation for those who wish to learn
- * how to write their own joystick using applications.
- */
-
-/*
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- *
- * Should you need to contact me, the author, you can do so either by
- * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
- * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
  */
 
 #include <sys/ioctl.h>
@@ -46,11 +19,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <iostream>
+#include <sstream>
 
 #include <linux/input.h>
 #include <linux/joystick.h>
 
 #include "linux_joystick.h"
+#include "globals.h"
+
+using namespace std;
 
 static const char *axis_names[ABS_MAX + 1] = {
 "X", "Y", "Z", "Rx", "Ry", "Rz", "Throttle", "Rudder", 
@@ -68,14 +46,136 @@ static const char *button_names[KEY_MAX - BTN_MISC + 1] = {
 "WheelBtn", "Gear up",
 };
 
-#define NAME_LENGTH 128
+/* tries to open one /dev/input/jsX and return an open file descriptor */
+static int read_joystick(){
+    for (int num = 0; num < 100; num++){
+        ostringstream name;
+        name << "/dev/input/js" << num;
+        const char * cname = name.str().c_str();
+        int fd = open(cname, O_RDONLY);
+        if (fd >= 0){
+            return fd;
+        }
+    }
+    return -1;
+}
+
+LinuxJoystick::LinuxJoystick():
+button(0),
+axis(0){
+    file = read_joystick();
+    if (file == -1){
+        Global::debug(0) << "Could not open joystick" << endl;
+    } else {
+        Global::debug(1) << "Opened joystick " << endl;
+
+        /* grab useful info */
+        ioctl(file, JSIOCGVERSION, &version);
+        ioctl(file, JSIOCGAXES, &axes);
+        ioctl(file, JSIOCGBUTTONS, &buttons);
+        ioctl(file, JSIOCGNAME(NAME_LENGTH), name);
+        ioctl(file, JSIOCGAXMAP, axmap);
+        ioctl(file, JSIOCGBTNMAP, btnmap);
+
+        /* put joystick in nonblocking mode */
+        fcntl(file, F_SETFL, O_NONBLOCK);
+		
+        axis = new int[axes];
+        memset(axis, 0, sizeof(int) * axes);
+        button = new char[buttons];
+        memset(button, 0, sizeof(char) * buttons);
+
+        Global::debug(1) << "Joystick axis: " << (int)axes << " buttons: " << (int)buttons << endl;
+    }
+}
+
+LinuxJoystick::~LinuxJoystick(){
+    delete[] axis;
+    delete[] button;
+    if (file != -1){
+        close(file);
+    }
+}
 
 void LinuxJoystick::poll(){
+
+    struct js_event js;
+
+    if (file == -1){
+        return;
+    }
+
+    int bytes = read(file, &js, sizeof(struct js_event));
+    if (bytes == sizeof(struct js_event)){
+        Global::debug(4) << "Event: type " << (int)js.type << " time " << (int)js.time << " number " << (int)js.number << " value " << (int)js.value << endl;
+
+        if (errno != EAGAIN) {
+            perror("joystick: error reading");
+            return;
+        }
+
+        switch (js.type & ~JS_EVENT_INIT) {
+            case JS_EVENT_BUTTON:
+                button[js.number] = js.value;
+                break;
+            case JS_EVENT_AXIS:
+                axis[js.number] = js.value;
+                break;
+        }
+    }
 }
 
-LinuxJoystick::LinuxJoystick(){
+bool LinuxJoystick::pressed(){
+    for (int i = 0; i < axes; i++){
+        if (axis[i]){
+            return true;
+        }
+    }
+    for (int i = 0; i < buttons; i++){
+        if (button[i]){
+            return true;
+        }
+    }
+    return false;
 }
-
+    
+JoystickInput LinuxJoystick::readAll(){
+    JoystickInput input;
+    if (axis[0] < 0){
+        input.left = true;
+    }
+    if (axis[0] > 0){
+        input.right = true;
+    }
+    if (axis[1] < 0){
+        input.up = true;
+    }
+    if (axis[1] > 0){
+        input.down = true;
+    }
+    if (button[0]){
+        input.button1 = true;
+    }
+    if (button[1]){
+        input.button2 = true;
+    }
+    if (button[2]){
+        input.button3 = true;
+    }
+    if (button[3]){
+        input.button4 = true;
+    }
+    Global::debug(1) << "joystick input up " << input.up
+                                 << " down " << input.down
+                                 << " left " << input.left
+                                << " right " << input.right
+                              << " button1 " << input.button1
+                              << " button2 " << input.button2
+                              << " button3 " << input.button3
+                              << " button4 " << input.button4
+                              << endl;
+    return input;
+}
 
 #if 0
 int main (int argc, char **argv)
