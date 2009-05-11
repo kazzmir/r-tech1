@@ -380,7 +380,8 @@ const bool Keyboard::isChar( int key ){
 			 key == Key_W ||
 			 key == Key_X ||
 			 key == Key_Y ||
-			 key == Key_Z;
+			 key == Key_Z ||
+                         key == Key_MINUS;
 }
 
 const bool Keyboard::isAlpha( int key ){
@@ -453,9 +454,9 @@ const char * Keyboard::keyToName( int key ){
 		case Keyboard::Key_F11 : return "F11";
 		case Keyboard::Key_F12 : return "F12";
 		case Keyboard::Key_ESC : return "ESC";
-		case Keyboard::Key_TILDE : return "TILDE";
-		case Keyboard::Key_MINUS : return "MINUS";
-		case Keyboard::Key_EQUALS : return "EQUALS";
+		case Keyboard::Key_TILDE : return "~";
+		case Keyboard::Key_MINUS : return "-";
+		case Keyboard::Key_EQUALS : return "=";
 		case Keyboard::Key_BACKSPACE : return "BACKSPACE";
 		case Keyboard::Key_TAB : return "TAB";
 		case Keyboard::Key_OPENBRACE : return "OPENBRACE";
