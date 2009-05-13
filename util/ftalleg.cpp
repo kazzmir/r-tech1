@@ -474,13 +474,18 @@ namespace ftalleg{
 		createIndex();
 	}
 
+        void freetype::getSize(int * w, int * h) const {
+            *w = size.width;
+            *h = size.height;
+        }
+
 	//! Get Width
-	int freetype::getWidth(){
+	const int freetype::getWidth() const {
 		return size.width;
 	}
 
 	//! Get Height
-	int freetype::getHeight( const std::string & str ) const {
+	const int freetype::getHeight( const std::string & str ) const {
 		// return size.height;
 		return calculateHeight( str );
 	}
