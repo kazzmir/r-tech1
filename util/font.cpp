@@ -43,15 +43,26 @@ const int AllegroFont::getSizeY() const {
 	return 0;
 }
 	
+void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const {
+    char buf[512];
+    va_list ap;
+
+    va_start(ap, marker);
+    uvszprintf(buf, sizeof(buf), str.c_str(), ap);
+    va_end(ap);
+
+    textout_ex( work.getBitmap(), getInternalFont(), buf, x, y, color, -1 );
+}
+	
 void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
-	char buf[512];
-	va_list ap;
+    char buf[512];
+    va_list ap;
 
-	va_start(ap, marker);
-	uvszprintf(buf, sizeof(buf), str.c_str(), ap);
-	va_end(ap);
+    va_start(ap, marker);
+    uvszprintf(buf, sizeof(buf), str.c_str(), ap);
+    va_end(ap);
 
-	textout_ex( work.getBitmap(), getInternalFont(), buf, x, y, color, -1 );
+    textout_ex( work.getBitmap(), getInternalFont(), buf, x, y, color, -1 );
 }
 
 const Font & Font::getDefaultFont(){
@@ -80,16 +91,36 @@ const int FreeTypeFont::getHeight() const {
 const int FreeTypeFont::textLength( const char * text ) const {
 	return this->font->getLength( string( text ) );
 }
+
+void FreeTypeFont::printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const {
+    char buf[512];
+    va_list ap;
+
+    va_start(ap, marker);
+    vsnprintf(buf, sizeof(buf), str.c_str(), ap);
+    va_end(ap);
+
+    int old_x = 0;
+    int old_y = 0;
+    this->font->getSize(&old_x, &old_y);
+
+    this->font->setSize(xSize, ySize);
+
+    this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
+
+    this->font->setSize(old_x, old_y);
+
+}
 	
 void FreeTypeFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
-	char buf[512];
-	va_list ap;
+    char buf[512];
+    va_list ap;
 
-	va_start(ap, marker);
-	vsnprintf(buf, sizeof(buf), str.c_str(), ap);
-	va_end(ap);
+    va_start(ap, marker);
+    vsnprintf(buf, sizeof(buf), str.c_str(), ap);
+    va_end(ap);
 
-	this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
+    this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
 }
 
 void FreeTypeFont::setSize( const int x, const int y ){

@@ -203,12 +203,15 @@ namespace ftalleg
 			
 			//! Set italics
 			void setItalics(int i);
+
+                        /* get the size attributes (close to width/height) */
+                        void getSize(int * w, int * h) const;
 			
 			//! Get Width
-			int getWidth();
+			const int getWidth() const;
 			
 			//! Get Height
-			int getHeight( const std::string & str ) const;
+			const int getHeight( const std::string & str ) const;
 			
 			//! Get Italics
 			int getItalics();
