@@ -203,10 +203,18 @@ void Token::addToken(Token * t) throw (TokenException){
     }
     tokens.push_back( t );
 }
-	
+
+/* put quotes around a string if there are spaces in it */
+static string quoteify(const string & rhs){
+    if (rhs.find(' ') != string::npos){
+        return "\"" + rhs + "\"";
+    }
+    return rhs;
+}
+
 Token & Token::operator<<( const string & rhs ){
-	Token * n = new Token( rhs, false );
-	this->addToken( n );
+	Token * n = new Token(quoteify(rhs), false );
+	this->addToken(n);
 	return *this;
 }
 

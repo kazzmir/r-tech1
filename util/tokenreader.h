@@ -6,24 +6,22 @@
 #include <vector>
 #include "token_exception.h"
 
-using namespace std;
-
 class Token;
 
 class TokenReader{
 public:
-	TokenReader( const string & s );
+	TokenReader( const std::string & s );
 	TokenReader( const char * filename );
 
-	Token * readToken() throw( TokenException );
+	virtual Token * readToken() throw (TokenException);
 
-	~TokenReader();
+	virtual ~TokenReader();
 
 protected:
 
-	ifstream ifile;
-	string myfile;
-	vector< Token * > my_tokens;
+        std::ifstream ifile;
+        std::string myfile;
+        std::vector< Token * > my_tokens;
 };
 
 #endif

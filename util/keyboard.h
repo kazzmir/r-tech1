@@ -4,8 +4,6 @@
 #include <map>
 #include <vector>
 
-// using namespace std;
-
 /* handles allegro key[] array better than keypressed()
  * and readkey()
  */

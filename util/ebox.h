@@ -8,8 +8,6 @@
 #include "bitmap.h"
 #include <vector>
 
-using namespace std;
-
 class EQuad{
 public:
 
@@ -48,7 +46,7 @@ public:
 		return min_y;
 	}
 
-	void gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & collides, bool xflipped, bool yflipped );
+	void gather( int mx, int my, int x1, int y1, int x2, int y2, std::vector< EQuad * > & collides, bool xflipped, bool yflipped );
 
 	// bool collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last );
 	bool collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** last, bool xflipped = false, bool yflipped = false );
@@ -141,7 +139,7 @@ public:
 		return head_quad;
 	}
 
-	void gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & e, bool xflipped, bool yflipped );
+	void gather( int mx, int my, int x1, int y1, int x2, int y2, std::vector< EQuad * > & e, bool xflipped, bool yflipped );
 
 	int calcSize();
 

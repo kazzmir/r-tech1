@@ -3,11 +3,11 @@
 #include "token_exception.h"
 	
 TokenException::TokenException():
-exception(){
+std::exception(){
 }
 
-TokenException::TokenException( const string & reason ):
-exception(){
+TokenException::TokenException( const std::string & reason ):
+std::exception(){
 	this->reason = reason;
 }
 	

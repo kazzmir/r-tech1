@@ -6,13 +6,11 @@
 
 struct SAMPLE;
 
-using namespace std;
-
 /* a sound! */
 class Sound{
 public:
 	Sound();
-	Sound( const string & path ) throw( LoadException );
+	Sound( const std::string & path ) throw( LoadException );
 	Sound( const Sound & copy );
 
 	Sound & operator=( const Sound & rhs );

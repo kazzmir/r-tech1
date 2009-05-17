@@ -3,6 +3,8 @@
 #include "init.h"
 #include "factory/font_factory.h"
 
+using namespace std;
+
 Font::Font(){
 }
 

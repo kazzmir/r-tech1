@@ -5,8 +5,6 @@
 #include <sys/time.h>
 #include <string>
 
-using namespace std;
-
 class TimeDifference{
 public:
 
@@ -26,8 +24,8 @@ public:
 
 	unsigned long long int getTime();
 
-	const string printTime();
-	const string printTime( const string & s );
+	const std::string printTime();
+	const std::string printTime( const std::string & s );
 
 	~TimeDifference();
 

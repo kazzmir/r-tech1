@@ -1,14 +1,12 @@
 #ifndef _paintown_font_h
 #define _paintown_font_h
 
-struct FONT;
-
 #include <string>
 #include <vector>
 #include "bitmap.h"
 #include "ftalleg.h"
 
-using namespace std;
+struct FONT;
 
 /* handle allegro fonts and true type fonts */
 class Font{
@@ -22,17 +20,17 @@ public:
 	
 	virtual const int textLength( const char * text ) const = 0;
 
-	virtual const int getHeight( const string & str ) const = 0;
+	virtual const int getHeight( const std::string & str ) const = 0;
 	virtual const int getHeight() const = 0;
 
-	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const = 0;
-	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const = 0;
+	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
+	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
 
 	static const Font & getDefaultFont();
-	static const Font & getFont( const string & name, const int x = 32, const int y = 32 );
+	static const Font & getFont( const std::string & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
-	static vector< ftalleg::freetype * > cacheFreeType; 
+	static std::vector< ftalleg::freetype * > cacheFreeType; 
 };
 
 class AllegroFont: public Font {
@@ -42,11 +40,11 @@ public:
 	virtual ~AllegroFont();
 
 	virtual const int getHeight() const;
-	virtual const int getHeight( const string & str ) const;
+	virtual const int getHeight( const std::string & str ) const;
 	virtual const int textLength( const char * text ) const;
 	
-	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const;
-	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
 	virtual const int getSizeX() const;
@@ -62,16 +60,16 @@ private:
 
 class FreeTypeFont: public Font {
 public:
-	FreeTypeFont( const string & filename );
+	FreeTypeFont( const std::string & filename );
 	FreeTypeFont( const FreeTypeFont & copy );
 	virtual ~FreeTypeFont();
 
 	virtual const int getHeight() const;
-	virtual const int getHeight( const string & str ) const;
+	virtual const int getHeight( const std::string & str ) const;
 	virtual const int textLength( const char * text ) const;
 	
-	virtual void printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const;
-	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
 	virtual const int getSizeX() const;
