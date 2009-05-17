@@ -1,3 +1,5 @@
+#ifdef LINUX
+
 #include "joystick.h"
 
 #include <stdint.h>
@@ -30,3 +32,5 @@ protected:
     char * button;
     int * axis;
 };
+
+#endif
