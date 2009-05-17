@@ -9,8 +9,6 @@
 class TokenReader;
 class Configuration;
 
-using namespace std;
-
 /* Token:
  * Basically a tree where each node stores a value in a string
  * and can have 0 or more children
@@ -21,23 +19,23 @@ public:
     Token(Token const & copy);
     virtual ~Token();
 
-	void addToken( Token * t ) throw (TokenException);
+    void addToken( Token * t ) throw (TokenException);
 	
 	/*
 	inline const string & getName(){
 		return name;
 	}
 	*/
-	const string & getName() const;
+	const std::string & getName() const;
 	const Token * const getParent() const;
 
-	void setFile( const string & s );
-	const string getFileName() const;
+	void setFile( const std::string & s );
+	const std::string getFileName() const;
 
-	const string getLineage() const;
+	const std::string getLineage() const;
 
-	void print( const string & space );
-	void toString( ostream & stream, const string & space );
+	void print( const std::string & space );
+	void toString( std::ostream & stream, const std::string & space );
 
 	Token * getToken( unsigned int n );
 
@@ -45,7 +43,7 @@ public:
 		return tokens.size() - 1;
 	}
 
-	inline const vector< Token * > * getTokens() const{
+	inline const std::vector< Token * > * getTokens() const{
 		return &tokens;
 	}
 
@@ -56,10 +54,10 @@ public:
 	Token * readToken();
 	bool hasTokens();
 
-	bool operator== ( const string & rhs );
-	bool operator!= ( const string & rhs );
+	bool operator== ( const std::string & rhs );
+	bool operator!= ( const std::string & rhs );
 
-	Token & operator>>( string & rhs ) throw( TokenException );
+	Token & operator>>( std::string & rhs ) throw( TokenException );
 	Token & operator>>( int & rhs ) throw( TokenException );
 	Token & operator>>( double & rhs ) throw( TokenException );
 	Token & operator>>( Token * & rhs ) throw( TokenException );
@@ -68,15 +66,15 @@ public:
 protected:
 	/* Only TokenReader and Configuration can create and destroy a Token */
 	Token();
-	Token( string tok, bool parse = true );
+	Token( std::string tok, bool parse = true );
 	friend class TokenReader;
 	friend class Configuration;
 
-	Token & operator<<( const string & rhs );
+	Token & operator<<( const std::string & rhs );
 	Token & operator<<( const int rhs );
 	Token & operator<<( const double rhs );
 
-	virtual inline const string & _getName(){
+	virtual inline const std::string & _getName(){
 		return name;
 	}
 
@@ -84,14 +82,14 @@ protected:
 		this->parent = parent;
 	}
 
-	string lowerCase( const string & s );
+        std::string lowerCase( const std::string & s );
 	void finalize();
 
 	unsigned int num_token;
-	vector< Token * > tokens;
-	string filename;
+        std::vector< Token * > tokens;
+        std::string filename;
 	Token const * parent;
-	string name;
+        std::string name;
         bool own;
 };
 

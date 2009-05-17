@@ -4,22 +4,19 @@
 #include <exception>
 #include <string>
 
-using namespace std;
-
-class TokenException : public exception {
+class TokenException : public std::exception {
 public:
-	TokenException();
-	TokenException( const string & reason );
+    TokenException();
+    TokenException( const std::string & reason );
 
-	~TokenException() throw();
+    virtual ~TokenException() throw();
 
-	inline const string & getReason() const{
-		return reason;
-	}
+    inline const std::string & getReason() const{
+        return reason;
+    }
 
 protected:
-	string reason;
-
+        std::string reason;
 };
 
 #endif

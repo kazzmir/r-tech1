@@ -8,6 +8,8 @@
 #include "bitmap.h"
 #include <iostream>
 
+using namespace std;
+
 extern "C" void rest( int i );
 
 // using namespace Ebox2;
