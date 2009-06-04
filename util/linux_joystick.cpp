@@ -105,6 +105,10 @@ void LinuxJoystick::poll(){
         return;
     }
 
+    /* from an email by Vojtech Pavlik:
+     * "if you #include <linux/joystick.h>, the struct is defined in such a way
+     * that gcc doesn't add padding."
+     */
     int bytes = read(file, &js, sizeof(struct js_event));
     if (bytes == sizeof(struct js_event)){
         Global::debug(4) << "Event: type " << (int)js.type << " time " << (int)js.time << " number " << (int)js.number << " value " << (int)js.value << endl;
@@ -165,26 +169,19 @@ JoystickInput LinuxJoystick::readAll(){
         }
     }
 
-    if (buttons > 0){
-        if (button[0]){
-            input.button1 = true;
-        }
-        if (buttons > 1){
-            if (button[1]){
-                input.button2 = true;
-            }
-            if (buttons > 2){
-                if (button[2]){
-                    input.button3 = true;
-                }
-                if (buttons > 3){
-                    if (button[3]){
-                        input.button4 = true;
-                    }
-                }
-            }
-        }
+    if (buttons > 0 && button[0]){
+        input.button1 = true;
     }
+    if (buttons > 1 && button[1]){
+        input.button2 = true;
+    }
+    if (buttons > 2 && button[2]){
+        input.button3 = true;
+    }
+    if (buttons > 3 && button[3]){
+        input.button4 = true;
+    }
+
     Global::debug(1) << "joystick input up " << input.up
                                  << " down " << input.down
                                  << " left " << input.left
