@@ -109,3 +109,11 @@ string Util::trim(const std::string & str){
         return str.substr(startpos, endpos-startpos+1);
     }
 }
+
+/* makes the first letter of a string upper case */
+string Util::upcase(std::string str){
+    if ( str.length() > 0 && (str[0] >= 'a' && str[0] <= 'z') ){
+        str[0] = str[0] - 'a' + 'A';
+    }
+    return str;
+}
