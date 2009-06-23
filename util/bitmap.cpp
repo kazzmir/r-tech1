@@ -1,4 +1,6 @@
+/* allegro.h must be on top, don't move it!!!! */
 #include <allegro.h>
+
 #include "bitmap.h"
 #include "lit_bitmap.h"
 #include <stdarg.h>
@@ -77,7 +79,7 @@ error( false ){
 	}
 }
 
-/* If a BITMAP is given to us, we didnt make it so we dont own it */
+/* If a BITMAP is given to us, we didn't make it so we don't own it */
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
 own( NULL ),
 error( false ){
