@@ -158,7 +158,7 @@ const string Token::getFileName() const {
 Token & Token::operator>>( string & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( getFileName() + ":" + string("Tried to read a string from ") + this->getLineage() + string(" but there no more elements") );
+		throw TokenException( getFileName() + ":" + string("Tried to read a string from '") + this->getLineage() + string("' but there no more elements") );
 	}
 	rhs = l->getName();
 
