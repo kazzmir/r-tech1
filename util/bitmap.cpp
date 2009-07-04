@@ -505,11 +505,11 @@ int Bitmap::getRed( int x ){
 }
 
 int Bitmap::getBlue( int x ){
-	return ::getg( x );
+	return ::getb( x );
 }
 
 int Bitmap::getGreen( int x ){
-	return ::getb( x );
+	return ::getg( x );
 }
 
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const
