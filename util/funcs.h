@@ -7,6 +7,8 @@
 
 namespace Util{
 
+    extern const double pi;
+
 // int rnd( int q );
 inline int rnd( int q ){
 	if ( q <= 0 ) return 0;
@@ -14,6 +16,8 @@ inline int rnd( int q ){
 }
 
 std::vector< std::string > getFiles( std::string dataPath, std::string find );
+
+double radians(double degree);
 
 std::string getDataPath();
 void setDataPath( const std::string & str );

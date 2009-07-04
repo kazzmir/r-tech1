@@ -12,6 +12,12 @@ using namespace std;
 
 /* the build system should define DATA_PATH */
 static string dataPath = DATA_PATH;
+    
+const double Util::pi = 3.14159265;
+
+double Util::radians(double degree){
+    return degree * pi / 180.0;
+}
 
 /*
 inline int rnd( int q ){
