@@ -1497,10 +1497,18 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
     }
     Util::blend_palette(colors, width, focus_color, edge_color);
 
-    const int min_y = y < 0 ? 0 : y;
-    const int max_y = dst->h - 1;
-    const int min_x = (x-width) < 0 ? 0 : x-width;
-    const int max_x = (x+width) > dst->w-1 ? dst->w-1 : x+width;
+    int min_y, max_y, min_x, max_x;
+    if (dst->clip){
+        min_y = dst->ct;
+        max_y = dst->ct;
+        min_x = dst->cl;
+        max_x = dst->cr;
+    } else {
+        min_y = y < 0 ? 0 : y;
+        max_y = dst->h - 1;
+        min_x = (x-width) < 0 ? 0 : x-width;
+        max_x = (x+width) > dst->w-1 ? dst->w-1 : x+width;
+    }
             
     int dybeg = y;
 
