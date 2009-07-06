@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <math.h>
+#include "funcs.h"
 // #include <fblend.h>
 
 #ifdef _WIN32
@@ -27,6 +29,7 @@ int Bitmap::SCALE_Y = 0;
 Bitmap * Bitmap::temporary_bitmap = NULL;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
+static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
 const int Bitmap::MaskColor = MASK_COLOR_16;
 
@@ -1057,6 +1060,11 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 	::masked_stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, x,y, new_width, new_height );
 }
 
+
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
+    paintown_light16(getBitmap(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
+}
+
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
 	int mask = Bitmap::MaskColor;
 	for ( int x = 0; x < getWidth(); x++ ){
@@ -1240,6 +1248,7 @@ void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) con
 #define PAINTOWN_DTS_BLEND(b,o,n)       ((*(b))((n), (o), _blender_alpha))
 #define PAINTOWN_PUT_PIXEL(p,c)         bmp_write16((uintptr_t) (p), (c))
 #define PAINTOWN_PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
+#define PAINTOWN_SET_ALPHA(a)           (_blender_alpha = (a))
 
 /* defined at allegro/include/internal/aintern.h:457 */
 extern EXTERNAL_VARIABLE BLENDER_FUNC _blender_func16;
@@ -1472,6 +1481,61 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
       }
 #endif
    }
+}
+
+/* ultra special-case for drawing a light (like from a lamp).
+ * center of light is x,y and shines in a perfect isosolese triangle.
+ */
+static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color){
+
+    int dxbeg = x - width;
+    int x_dir = 1;
+    unsigned char * alphas = new unsigned char[width];
+    int * colors = new int[width];
+    for (int i = 0; i < width; i++){
+        alphas[i] = (unsigned char)((double)(edge_alpha - focus_alpha) * (double)i / (double)width + focus_alpha);
+    }
+    Util::blend_palette(colors, width, focus_color, edge_color);
+
+    const int min_y = y < 0 ? 0 : y;
+    const int max_y = dst->h - 1;
+    const int min_x = (x-width) < 0 ? 0 : x-width;
+    const int max_x = (x+width) > dst->w-1 ? dst->w-1 : x+width;
+            
+    int dybeg = y;
+
+    /* tan(theta) = y / x */
+    double xtan = (double) height / (double) width;
+    PAINTOWN_DTS_BLENDER trans_blender;
+    trans_blender = PAINTOWN_MAKE_DTS_BLENDER();
+    if (dst->id & (BMP_ID_VIDEO | BMP_ID_SYSTEM)) {
+    } else {
+        for (int sy = start_y; sy < height; sy++) {
+            if (dybeg + sy < min_y || dybeg + sy > max_y){
+                continue;
+            }
+            /* x = y / tan(theta) */
+            int top_width = (int)((double) sy / xtan);
+            if (top_width == 0){
+                continue;
+            }
+            dxbeg = x - top_width;
+            PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + sy), dxbeg);
+
+            for (int sx = -top_width; sx <= top_width; PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), sx++) {
+                if (sx + x < min_x || sx + x > max_x){
+                    continue;
+                }
+                unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(d);
+                PAINTOWN_SET_ALPHA(alphas[(int)fabs(sx)]);
+                int color = colors[(int)fabs(sx)];
+                c = PAINTOWN_DTS_BLEND(trans_blender, c, color);
+                PAINTOWN_PUT_MEMORY_PIXEL(d, c);
+            }
+        }
+    }
+    delete[] alphas;
+    delete[] colors;
 }
 
 static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip ){
