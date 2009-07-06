@@ -1500,7 +1500,7 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
     int min_y, max_y, min_x, max_x;
     if (dst->clip){
         min_y = dst->ct;
-        max_y = dst->ct;
+        max_y = dst->cb;
         min_x = dst->cl;
         max_x = dst->cr;
     } else {
