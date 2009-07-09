@@ -30,6 +30,7 @@ Bitmap * Bitmap::temporary_bitmap = NULL;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
 static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
+static void paintown_applyTrans16(BITMAP * dst, const int color);
 
 const int Bitmap::MaskColor = MASK_COLOR_16;
 
@@ -1060,9 +1061,12 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 	::masked_stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, x,y, new_width, new_height );
 }
 
-
 void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
     paintown_light16(getBitmap(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
+}
+        
+void Bitmap::applyTrans(const int color){
+    paintown_applyTrans16(getBitmap(), color);
 }
 
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
@@ -1481,6 +1485,37 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
       }
 #endif
    }
+}
+
+/* mix pixels with the given color in with each non-masking pixel in dst */
+static void paintown_applyTrans16(BITMAP * dst, const int color){
+    int y1 = 0;
+    int y2 = dst->h;
+    int x1 = 0;
+    int x2 = dst->w - 1;
+    
+    if (dst->clip){
+        y1 = dst->ct;
+        y2 = dst->cb;
+        x1 = dst->cl;
+        x2 = dst->cr;
+    }
+
+    PAINTOWN_DTS_BLENDER trans_blender;
+    trans_blender = PAINTOWN_MAKE_DTS_BLENDER();
+    if (dst->id & (BMP_ID_VIDEO | BMP_ID_SYSTEM)) {
+    } else {
+        for (int y = y1; y < y2; y++) {
+            PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, y), x1);
+            for (int x = x2; x >= x1; PAINTOWN_INC_PIXEL_PTR_EX(d,1), x--) {
+                unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(d);
+                if (!PAINTOWN_IS_SPRITE_MASK(dst, c)) {
+                    c = PAINTOWN_DTS_BLEND(trans_blender, color, c);
+                    PAINTOWN_PUT_MEMORY_PIXEL(d, c);
+                }
+            }
+        }
+    }
 }
 
 /* ultra special-case for drawing a light (like from a lamp).
