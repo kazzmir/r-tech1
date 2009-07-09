@@ -111,6 +111,7 @@ public:
 	virtual void ellipseFill( int x, int y, int rx, int ry, int color ) const;
 
         virtual void light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const;
+        virtual void applyTrans(const int color);
 
 	virtual void border( int min, int max, int color ) const;
 	virtual void rectangle( int x1, int y1, int x2, int y2, int color ) const;
@@ -159,6 +160,10 @@ public:
 
 	inline void clear() const{
 		this->fill( 0 );
+	}
+	
+        inline void clearToMask() const{
+		this->fill(MaskColor);
 	}
 
 	bool getError();
