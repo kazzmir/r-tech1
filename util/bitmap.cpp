@@ -1496,9 +1496,9 @@ static void paintown_applyTrans16(BITMAP * dst, const int color){
     
     if (dst->clip){
         y1 = dst->ct;
-        y2 = dst->cb;
+        y2 = dst->cb - 1;
         x1 = dst->cl;
-        x2 = dst->cr;
+        x2 = dst->cr - 1;
     }
 
     PAINTOWN_DTS_BLENDER trans_blender;
@@ -1535,9 +1535,9 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
     int min_y, max_y, min_x, max_x;
     if (dst->clip){
         min_y = dst->ct;
-        max_y = dst->cb;
+        max_y = dst->cb - 1;
         min_x = dst->cl;
-        max_x = dst->cr;
+        max_x = dst->cr - 1;
     } else {
         min_y = y < 0 ? 0 : y;
         max_y = dst->h - 1;
