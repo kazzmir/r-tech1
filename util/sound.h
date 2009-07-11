@@ -18,6 +18,7 @@ public:
 	void play();
 	void play( int volume, int pan );
 	void playLoop();
+        void stop();
 
 	virtual ~Sound();
 
