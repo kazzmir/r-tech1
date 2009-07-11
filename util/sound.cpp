@@ -60,6 +60,12 @@ Sound & Sound::operator=( const Sound & rhs ){
 
 	return *this;
 }
+        
+void Sound::stop(){
+    if (my_sound){
+        stop_sample(my_sound);
+    }
+}
 
 void Sound::play(){
     if ( my_sound ){
