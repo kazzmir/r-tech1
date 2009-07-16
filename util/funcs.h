@@ -40,6 +40,8 @@ void rest( int x );
 std::string trim(const std::string & str);
 std::string upcase(std::string str);
 
+int levenshtein(const std::string & str1, const std::string & str2);
+
 }
 
 #endif
