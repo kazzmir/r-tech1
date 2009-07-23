@@ -3,6 +3,10 @@
 #include <vector>
 #include <string>
 
+#ifndef WINDOWS
+#include <unistd.h>
+#endif
+
 using namespace std;
 
 /* remove this once cmake and scons properly set DATA_PATH */
@@ -175,3 +179,9 @@ static int levenshtein_distance(const char *s, const char *t){
 int Util::levenshtein(const std::string & str1, const std::string & str2){
     return levenshtein_distance(str1.c_str(), str2.c_str());
 }
+
+#ifndef ALLEGRO_WINDOWS
+int Util::getPipe(int files[2]){
+    return pipe(files);
+}
+#endif

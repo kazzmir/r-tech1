@@ -42,6 +42,8 @@ std::string upcase(std::string str);
 
 int levenshtein(const std::string & str1, const std::string & str2);
 
+int getPipe(int files[2]);
+
 }
 
 #endif
