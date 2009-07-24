@@ -184,16 +184,4 @@ int Util::levenshtein(const std::string & str1, const std::string & str2){
 int Util::getPipe(int files[2]){
     return pipe(files);
 }
-
-int Util::closePipe(int files[2]){
-    int s = close(files[0]);
-    if (s != 0){
-        return s;
-    }
-    s = close(files[1]);
-    if (s != 0){
-        return s;
-    }
-    return 0;
-}
 #endif
