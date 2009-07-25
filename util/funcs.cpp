@@ -68,7 +68,7 @@ bool Util::exists( const string & file ){
 	return ::exists( file.c_str() ) != 0;
 }
 
-vector< string > Util::getFiles( string dataPath, string find ){
+vector< string > Util::getFiles( const string & dataPath, const string & find ){
 	struct al_ffblk info;
 	vector< string > files;
 
