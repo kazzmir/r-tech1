@@ -1,3 +1,7 @@
+/* if you include this file then it must be the first line in file (after any
+ * #ifdef's of course. windows will complain loudly if <windows.h> ends up being
+ * included before allegro.h and this file fixes things so the order is correct.
+ */
 #ifndef _bitmap_h_
 #define _bitmap_h_
 
