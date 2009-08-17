@@ -19,7 +19,8 @@ std::vector< std::string > getFiles( const std::string & dataPath, const std::st
 
 double radians(double degree);
 
-std::string getDataPath();
+std::string getDataPath2();
+
 void setDataPath( const std::string & str );
 
 bool exists( const std::string & file );
