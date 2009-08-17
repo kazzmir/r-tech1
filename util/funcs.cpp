@@ -60,7 +60,7 @@ void Util::setDataPath( const string & str ){
 	dataPath = str;	
 }
 
-string Util::getDataPath(){
+string Util::getDataPath2(){
 	return dataPath + "/";
 }
 
