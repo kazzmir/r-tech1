@@ -37,9 +37,15 @@ public:
 	void print( const std::string & space );
 	void toString( std::ostream & stream, const std::string & space );
 
-	Token * getToken( unsigned int n );
+	Token * getToken( unsigned int n ) const;
 
-	inline signed int numTokens() const{
+    /* xpath-esque searching for tokens
+     * '/' delimits tokens
+     * <literal> matches a token
+     */
+    Token * findToken(const std::string & path);
+
+	inline signed int numTokens() const {
 		return tokens.size() - 1;
 	}
 

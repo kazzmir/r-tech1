@@ -90,8 +90,34 @@ Token * Token::readToken(){
 bool Token::hasTokens(){
 	return num_token < tokens.size();
 }
+    
+Token * Token::findToken(const string & path){
+    size_t find = path.find('/');
+    string self;
+    if (find == string::npos){
+        self = path;
+    } else {
+        self = path.substr(0, find);
+    }
+    if (self == getName()){
+        if (find == string::npos){
+            return this;
+        } else {
+            for (int i = 0; i < numTokens(); i++){
+                Token * next = getToken(i);
+                if (next != NULL){
+                    Token * ok = next->findToken(path.substr(find+1));
+                    if (ok != NULL){
+                        return ok;
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
+}
 	
-Token * Token::getToken( unsigned int n ){
+Token * Token::getToken( unsigned int n ) const {
 	int q = numTokens();
 	if ( q == -1 ) return NULL;
 	if ( n >= 0 && (signed int)n < q )
