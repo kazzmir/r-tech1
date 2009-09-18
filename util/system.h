@@ -7,6 +7,7 @@
 
 namespace System{
     bool readableFile(const std::string & path);
+    bool readable(const std::string & path);
 }
 
 #endif

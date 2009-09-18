@@ -9,6 +9,13 @@ namespace Filesystem{
     public:
         NotFound(const std::string & file);
         virtual ~NotFound() throw();
+
+        const std::string & getReason() const {
+            return reason;
+        }
+
+    private:
+        std::string reason;
     };
 
     /* given a relative path like sounds/arrow.png, prepend the proper
