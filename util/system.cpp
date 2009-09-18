@@ -30,4 +30,8 @@ static bool isDirectory(const std::string & path){
 bool System::readableFile(const std::string & path){
     return isReadable(path) && ! isDirectory(path);
 }
+
+bool System::readable(const std::string & path){
+    return isReadable(path);
+}
 #endif
