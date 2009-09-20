@@ -78,7 +78,8 @@ const Font & Font::getFont( const string & name, const int x, const int y ){
 
 FreeTypeFont::FreeTypeFont( const string & str ):
 sizeX( 16 ),
-sizeY( 16 ){
+sizeY( 16 ),
+own(true){
 	this->font = new ftalleg::freetype( str, getSizeX(), getSizeY() );
 }
 
@@ -141,5 +142,7 @@ const int FreeTypeFont::getSizeY() const {
 
 FreeTypeFont::~FreeTypeFont(){
 	// cout << "Delete font " << this->font << endl;
-	delete this->font;
+    if (own){
+        delete this->font;
+    }
 }
