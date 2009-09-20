@@ -16,7 +16,7 @@ void MessageQueue::add(const std::string & str){
 bool MessageQueue::hasAny(){
     bool any = false;
     pthread_mutex_lock(&lock);
-    any = messages.size() == 0;
+    any = messages.size() > 0;
     pthread_mutex_unlock(&lock);
     return any;
 }
@@ -24,8 +24,10 @@ bool MessageQueue::hasAny(){
 std::string MessageQueue::get(){
     std::string str;
     pthread_mutex_lock(&lock);
-    str = messages.front();
-    messages.pop();
+    if (messages.size() > 0){
+        str = messages.front();
+        messages.pop();
+    }
     pthread_mutex_unlock(&lock);
     return str;
 }
