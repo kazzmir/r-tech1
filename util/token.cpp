@@ -90,8 +90,13 @@ Token * Token::readToken(){
 bool Token::hasTokens(){
 	return num_token < tokens.size();
 }
-    
-Token * Token::findToken(const string & path){
+
+vector<Token *> Token::findTokens(const string & path){
+    vector<Token *> found;
+    if (path == ""){
+        return found;
+    }
+
     size_t find = path.find('/');
     string self;
     if (find == string::npos){
@@ -99,7 +104,45 @@ Token * Token::findToken(const string & path){
     } else {
         self = path.substr(0, find);
     }
-    if (self == getName()){
+    if (*this == self){
+        if (find == string::npos){
+            found.push_back(this);
+        } else {
+            for (int i = 0; i < numTokens(); i++){
+                Token * next = getToken(i);
+                if (next != NULL){
+                    vector<Token *> more = next->findTokens(path.substr(find+1));
+                    found.insert(found.end(), more.begin(), more.end());
+                }
+            }
+        }
+    }
+
+    return found;
+}
+
+Token * Token::findToken(const string & path){
+    vector<Token *> all = findTokens(path);
+    if (all.size() == 0){
+        return NULL;
+    }
+    return all[0];
+}
+
+/*
+Token * Token::findToken(const string & path){
+    if (path == ""){
+        return NULL;
+    }
+
+    size_t find = path.find('/');
+    string self;
+    if (find == string::npos){
+        self = path;
+    } else {
+        self = path.substr(0, find);
+    }
+    if (*this == self){
         if (find == string::npos){
             return this;
         } else {
@@ -116,6 +159,7 @@ Token * Token::findToken(const string & path){
     }
     return NULL;
 }
+*/
 	
 Token * Token::getToken( unsigned int n ) const {
 	int q = numTokens();
