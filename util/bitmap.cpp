@@ -1160,6 +1160,10 @@ void Bitmap::Blit( const int mx, const int my, const int width, const int height
 	BITMAP * bmp = where.getBitmap();
 	::blit( getBitmap(), bmp, mx, my, wx, wy, width, height );
 }
+    
+void Bitmap::BlitFromScreen(const int x, const int y) const {
+    Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
+}
 	
 void Bitmap::Blit( const Bitmap & where ) const {
 	this->Blit( 0, 0, where );
