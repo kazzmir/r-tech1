@@ -108,10 +108,11 @@ vector<Token *> Token::findTokens(const string & path){
         if (find == string::npos){
             found.push_back(this);
         } else {
+            string rest = path.substr(find+1);
             for (int i = 0; i < numTokens(); i++){
                 Token * next = getToken(i);
                 if (next != NULL){
-                    vector<Token *> more = next->findTokens(path.substr(find+1));
+                    vector<Token *> more = next->findTokens(rest);
                     found.insert(found.end(), more.begin(), more.end());
                 }
             }
