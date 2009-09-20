@@ -45,6 +45,9 @@ public:
      */
     Token * findToken(const std::string & path);
 
+    /* find all tokens */
+    std::vector<Token *> findTokens(const std::string & path);
+
 	inline signed int numTokens() const {
 		return tokens.size() - 1;
 	}
