@@ -301,6 +301,18 @@ Token & Token::operator<<( const double rhs ){
 	return *this << o.str();
 }
 
+Token * Token::copy(){
+    Token * token = new Token();
+    token->filename = this->filename;
+    token->name = this->name;
+    for (vector<Token *>::iterator it = this->tokens.begin(); it != this->tokens.end(); it++){
+        Token * him = (*it)->copy();
+        him->setParent(token);
+        token->addToken(him);
+    }
+    return token;
+}
+
 /* Delete tokens that are commented.
  * A commented token has a '!' character as the first
  * character in the name, e.g:

@@ -60,6 +60,9 @@ public:
         num_token = 1;
     }
 
+    /* returns a deep copy of this token. the parent field is set to null */
+    Token * copy();
+
     Token * readToken();
     bool hasTokens();
 
