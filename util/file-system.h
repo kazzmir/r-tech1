@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <string>
+#include <vector>
 
 namespace Filesystem{
     class NotFound: public std::exception {
@@ -27,6 +28,12 @@ namespace Filesystem{
      * data/sounds/arrow.png -> sounds/arrow.png
      */
     std::string cleanse(const std::string & path);
+
+    /* returns all the directories starting with the given path.
+     * will look in the main data directory, the user directory, and
+     * the current working directory.
+     */
+    std::vector<std::string> findDirectories(const std::string & path);
 }
 
 #endif
