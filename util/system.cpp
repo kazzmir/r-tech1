@@ -15,7 +15,7 @@ static bool isReadable(const std::string & path){
     }
 }
 
-static bool isDirectory(const std::string & path){
+bool System::isDirectory(const std::string & path){
     struct stat info;
     if (stat(path.c_str(), &info) == 0){
         if (S_ISDIR(info.st_mode) == 1){
