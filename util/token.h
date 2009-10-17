@@ -27,14 +27,14 @@ public:
        }
        */
     const std::string & getName() const;
-    const Token * const getParent() const;
+    const Token * getParent() const;
 
     void setFile( const std::string & s );
     const std::string getFileName() const;
 
     const std::string getLineage() const;
 
-    void print( const std::string & space );
+    void print( const std::string space );
     void toString( std::ostream & stream, const std::string & space );
 
     Token * getToken( unsigned int n ) const;
@@ -66,8 +66,8 @@ public:
     Token * readToken();
     bool hasTokens();
 
-    bool operator== ( const std::string & rhs );
-    bool operator!= ( const std::string & rhs );
+    bool operator== ( const std::string rhs );
+    bool operator!= ( const std::string rhs );
 
     Token & operator>>( std::string & rhs ) throw( TokenException );
     Token & operator>>( int & rhs ) throw( TokenException );
@@ -82,7 +82,7 @@ protected:
     friend class TokenReader;
     friend class Configuration;
 
-    Token & operator<<( const std::string & rhs );
+    Token & operator<<( const std::string rhs );
     Token & operator<<( const int rhs );
     Token & operator<<( const double rhs );
 
