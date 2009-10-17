@@ -41,7 +41,7 @@ own(false){
 }
 
 /* Dump token to the screen */
-void Token::print( const string & space ){
+void Token::print( const string space ){
 	cout<<space<<"Token: "<< getName() << endl;
 	for ( signed int i = 0; i < numTokens(); i++ ){
 		Token * x = getToken( i );
@@ -182,7 +182,7 @@ const string & Token::getName() const {
 	return name;
 }
 
-const Token * const Token::getParent() const {
+const Token * Token::getParent() const {
 	return this->parent;
 }
 
@@ -196,11 +196,11 @@ const string Token::getLineage() const {
 
 /* A token's identity is its name 
  */
-bool Token::operator== ( const string & rhs ){
+bool Token::operator== ( const string rhs ){
 	return lowerCase( getName() )  == lowerCase( rhs );
 }
 
-bool Token::operator!= ( const string & rhs ){
+bool Token::operator!= ( const string rhs ){
 	return !( *this == rhs );
 }
 
@@ -283,7 +283,7 @@ static string quoteify(const string & rhs){
     return rhs;
 }
 
-Token & Token::operator<<( const string & rhs ){
+Token & Token::operator<<( const string rhs ){
 	Token * n = new Token(quoteify(rhs), false );
 	this->addToken(n);
 	return *this;

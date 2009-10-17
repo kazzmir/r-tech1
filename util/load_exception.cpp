@@ -7,7 +7,7 @@ LoadException::LoadException():
 exception(){
 }
 
-LoadException::LoadException( const string & reason ):
+LoadException::LoadException( const string reason ):
 exception(){
 	this->reason = reason;
 }

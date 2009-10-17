@@ -11,7 +11,7 @@
 class LoadException: public std::exception {
 public:
 	LoadException();
-	LoadException( const std::string & reason );
+	LoadException( const std::string reason );
 
 	inline const std::string & getReason() const {
 		return reason;
