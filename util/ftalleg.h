@@ -111,7 +111,7 @@ namespace ftalleg
 			
 			bool operator<(const fontSize &fs) const;
 			
-			const int createKey() const;
+			int createKey() const;
 	};
 	
 	//!  Freetype based font system
@@ -167,9 +167,8 @@ namespace ftalleg
 			//! Render a character from the lookup table (utilizing the workBitmap)
 			void drawCharacter(signed long unicode, int &x1, int &y1, BITMAP *bitmap, const int & color);
 
-
-			const int height( long code ) const;
-			const int calculateHeight( const std::string & str ) const;
+			int height( long code ) const;
+			int calculateHeight( const std::string & str ) const;
 			
 		public:
 			//! Constructor
@@ -208,10 +207,10 @@ namespace ftalleg
                         void getSize(int * w, int * h) const;
 			
 			//! Get Width
-			const int getWidth() const;
+			int getWidth() const;
 			
 			//! Get Height
-			const int getHeight( const std::string & str ) const;
+			int getHeight( const std::string & str ) const;
 			
 			//! Get Italics
 			int getItalics();

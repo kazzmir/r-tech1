@@ -496,11 +496,11 @@ void Bitmap::releaseInternalBitmap(){
     }
 }
 
-const int Bitmap::getWidth() const{
+int Bitmap::getWidth() const{
 	return getBitmap()->w;
 }
 
-const int Bitmap::getHeight() const{
+int Bitmap::getHeight() const{
 	return getBitmap()->h;
 }
 	
@@ -795,7 +795,7 @@ const int Bitmap::getHeight() const{
 }
 */
 
-const int Bitmap::getPixel( const int x, const int y ) const{
+int Bitmap::getPixel( const int x, const int y ) const{
 	if ( x >= 0 && x < getBitmap()->w && y >= 0 && y < getBitmap()->h )
 		return _getpixel16( getBitmap(), x, y );
 	return -1;

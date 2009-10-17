@@ -25,7 +25,7 @@ public:
 	/* []:
 	 * Extract a boolean value given a key number
 	 */
-	inline const bool operator[] ( const int i ){
+	inline bool operator[] ( const int i ){
 
 		/* if the key has been pressed for the first time return true */
 		if ( my_keys[ i ] < 0 ){
@@ -43,22 +43,22 @@ public:
 	/* keypressed:
 	 * Returns true if a key is pressed
 	 */
-	const bool keypressed();
+	bool keypressed();
 	
 	/* readKeys:
 	 * Store all pressed keys in a user supplied vector
 	 */
 	void readKeys( std::vector< int > & all_keys );
-	const int readKey();
+	int readKey();
 	void clear();
 
 	void setDelay( const int key, const int delay );
 	void setAllDelay( const int delay );
 
 	static const char * keyToName( int key );
-	static const bool isNumber( int key );
-	static const bool isChar( int key );
-	static const bool isAlpha( int key );
+	static bool isNumber( int key );
+	static bool isChar( int key );
+	static bool isAlpha( int key );
 
 	static KeyType Key_A;
 	static KeyType Key_B;

@@ -237,7 +237,7 @@ int EQuad::numQuads() const{
 }
 */
 
-EQuad * const EQuad::getQuad() const{
+EQuad * EQuad::getQuad() const {
 	return quads[0];
 	/*
 	if ( quad1 ) return quad1;
@@ -248,7 +248,7 @@ EQuad * const EQuad::getQuad() const{
 	*/
 }
 
-EQuad * const EQuad::getQuad( int x ) const{
+EQuad * EQuad::getQuad( int x ) const {
 	return quads[x];
 }
 

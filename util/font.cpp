@@ -22,26 +22,26 @@ font( copy.getInternalFont() ){
 AllegroFont::~AllegroFont(){
 }
 	
-const int AllegroFont::textLength( const char * text ) const{
+int AllegroFont::textLength( const char * text ) const{
 	return text_length( getInternalFont(), text );
 }
 
-const int AllegroFont::getHeight( const string & str ) const {
+int AllegroFont::getHeight( const string & str ) const {
 	return getHeight();
 }
 
-const int AllegroFont::getHeight() const {
+int AllegroFont::getHeight() const {
 	return text_height( getInternalFont() );
 }
 
 void AllegroFont::setSize( const int x, const int y ){
 }
 
-const int AllegroFont::getSizeX() const {
+int AllegroFont::getSizeX() const {
 	return 0;
 }
 
-const int AllegroFont::getSizeY() const {
+int AllegroFont::getSizeY() const {
 	return 0;
 }
 	
@@ -83,15 +83,15 @@ own(true){
 	this->font = new ftalleg::freetype( str, getSizeX(), getSizeY() );
 }
 
-const int FreeTypeFont::getHeight( const string & str ) const {
+int FreeTypeFont::getHeight( const string & str ) const {
 	return this->font->getHeight( str );
 }
 
-const int FreeTypeFont::getHeight() const {
+int FreeTypeFont::getHeight() const {
 	return getHeight( "A" );
 }
 
-const int FreeTypeFont::textLength( const char * text ) const {
+int FreeTypeFont::textLength( const char * text ) const {
 	return this->font->getLength( string( text ) );
 }
 
@@ -132,11 +132,11 @@ void FreeTypeFont::setSize( const int x, const int y ){
 	this->font->setSize( this->sizeX, this->sizeY );
 }
 
-const int FreeTypeFont::getSizeX() const {
+int FreeTypeFont::getSizeX() const {
 	return this->sizeX;
 }
 
-const int FreeTypeFont::getSizeY() const {
+int FreeTypeFont::getSizeY() const {
 	return this->sizeY;
 }
 

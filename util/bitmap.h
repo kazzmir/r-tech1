@@ -48,8 +48,8 @@ public:
 
 	virtual void load( const std::string & str );
 
-	const int getWidth() const;
-	const int getHeight() const;
+	int getWidth() const;
+	int getHeight() const;
 
 	/*
 	inline const int getWidth() const{
@@ -178,7 +178,7 @@ public:
 	}
 
 	virtual void readLine( std::vector< int > & vec, int y );
-	const int getPixel( const int x, const int y ) const;
+	int getPixel( const int x, const int y ) const;
 
 	void putPixel( int x, int y, int col ) const;
 

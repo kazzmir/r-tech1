@@ -78,7 +78,7 @@ namespace ftalleg{
 		return (width<fs.width || height<fs.height || italics<fs.italics);
 	}
 
-	const int fontSize::createKey() const {
+	int fontSize::createKey() const {
 		return ((width+10) * (height+20) * (italics+250));
 	}
 
@@ -424,7 +424,7 @@ namespace ftalleg{
 	}
 
 
-	const int freetype::height( long code ) const {
+	int freetype::height( long code ) const {
 		std::map<int, std::map<signed long, character> >::const_iterator ft;
 		ft = fontTable.find( size.createKey() );
 		if ( ft != fontTable.end() ){
@@ -439,7 +439,7 @@ namespace ftalleg{
 		return 0;
 	}
 
-	const int freetype::calculateHeight( const std::string & str ) const {
+	int freetype::calculateHeight( const std::string & str ) const {
 		int max = 0;
 		for ( unsigned int i = 0; i < str.length(); i++ ){
 			int q = height( str[ i ] );
@@ -480,12 +480,12 @@ namespace ftalleg{
         }
 
 	//! Get Width
-	const int freetype::getWidth() const {
+	int freetype::getWidth() const {
 		return size.width;
 	}
 
 	//! Get Height
-	const int freetype::getHeight( const std::string & str ) const {
+	int freetype::getHeight( const std::string & str ) const {
 		// return size.height;
 		return calculateHeight( str );
 	}
