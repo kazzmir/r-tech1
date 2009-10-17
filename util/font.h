@@ -15,13 +15,13 @@ public:
 	virtual ~Font();
 
 	virtual void setSize( const int x, const int y ) = 0;
-	virtual const int getSizeX() const = 0;
-	virtual const int getSizeY() const = 0;
+	virtual int getSizeX() const = 0;
+	virtual int getSizeY() const = 0;
 	
-	virtual const int textLength( const char * text ) const = 0;
+	virtual int textLength( const char * text ) const = 0;
 
-	virtual const int getHeight( const std::string & str ) const = 0;
-	virtual const int getHeight() const = 0;
+	virtual int getHeight( const std::string & str ) const = 0;
+	virtual int getHeight() const = 0;
 
 	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
 	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
@@ -39,19 +39,19 @@ public:
 	AllegroFont( const AllegroFont & copy );
 	virtual ~AllegroFont();
 
-	virtual const int getHeight() const;
-	virtual const int getHeight( const std::string & str ) const;
-	virtual const int textLength( const char * text ) const;
+	virtual int getHeight() const;
+	virtual int getHeight( const std::string & str ) const;
+	virtual int textLength( const char * text ) const;
 	
 	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
 	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
-	virtual const int getSizeX() const;
-	virtual const int getSizeY() const;
+	virtual int getSizeX() const;
+	virtual int getSizeY() const;
 
 private:
-	inline const FONT * const getInternalFont() const{
+	inline const FONT * getInternalFont() const {
 		return font;
 	}
 
@@ -64,16 +64,16 @@ public:
 	FreeTypeFont( const FreeTypeFont & copy );
 	virtual ~FreeTypeFont();
 
-	virtual const int getHeight() const;
-	virtual const int getHeight( const std::string & str ) const;
-	virtual const int textLength( const char * text ) const;
+	virtual int getHeight() const;
+	virtual int getHeight( const std::string & str ) const;
+	virtual int textLength( const char * text ) const;
 	
 	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
 	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
-	virtual const int getSizeX() const;
-	virtual const int getSizeY() const;
+	virtual int getSizeX() const;
+	virtual int getSizeY() const;
 
 private:
 	ftalleg::freetype * font;

@@ -77,7 +77,7 @@ vector<string> findDirectories(const std::string & path){
     return dirs;
 }
 
-std::string find(const std::string & path) throw (NotFound){
+std::string find(const std::string path) throw (NotFound){
     if (path.length() == 0){
         throw NotFound("No path given");
     }

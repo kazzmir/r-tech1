@@ -30,7 +30,7 @@ public:
 		full = x;
 	}
 
-	EQuad * const getQuad( int x ) const;
+	EQuad * getQuad( int x ) const;
 
 	bool addQuad( EQuad * who );
 
@@ -77,7 +77,7 @@ protected:
 	int getX1( bool xflipped = false );
 	int getY1( bool yflipped = false );
 
-	EQuad * const getQuad() const;
+	EQuad * getQuad() const;
 	void detach( EQuad * const who );
 	void checkQuad( EQuad *& q );
 

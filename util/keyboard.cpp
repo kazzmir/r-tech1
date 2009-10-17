@@ -184,7 +184,7 @@ void Keyboard::readKeys( vector< int > & all_keys ){
 	}
 }
 	
-const int Keyboard::readKey(){
+int Keyboard::readKey(){
 	return ::readkey() >> 8;
 }
 	
@@ -331,7 +331,7 @@ void Keyboard::wait(){
 	}
 }
 
-const bool Keyboard::keypressed(){
+bool Keyboard::keypressed(){
 	for ( map<int,int>::const_iterator it = my_keys.begin(); it != my_keys.end(); it++ ){
 		const int & n = (*it).second;
 		if ( n < 0 || n > key_delay[ it->first ] ){
@@ -341,7 +341,7 @@ const bool Keyboard::keypressed(){
 	return false;
 }
 	
-const bool Keyboard::isNumber( int key ){
+bool Keyboard::isNumber( int key ){
 	return key == Key_0 ||
 	       key == Key_1 ||
 	       key == Key_2 ||
@@ -354,7 +354,7 @@ const bool Keyboard::isNumber( int key ){
 	       key == Key_9;
 }
 
-const bool Keyboard::isChar( int key ){
+bool Keyboard::isChar( int key ){
 	return key == Key_A ||
 	       key == Key_B ||
 			 key == Key_C ||
@@ -384,7 +384,7 @@ const bool Keyboard::isChar( int key ){
                          key == Key_MINUS;
 }
 
-const bool Keyboard::isAlpha( int key ){
+bool Keyboard::isAlpha( int key ){
 		  return isNumber( key ) || isChar( key );
 }
 
