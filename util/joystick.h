@@ -46,6 +46,7 @@ public:
     static Joystick * create();
 
     enum Key{
+        Invalid = -1,
         Up = 0,
         Down,
         Left,
@@ -55,6 +56,8 @@ public:
         Button3,
         Button4,
     };
+	
+    static const char * keyToName(Key key);
 
 protected:
 
