@@ -1,5 +1,5 @@
-#ifndef _paintown_joystick
-#define _paintown_joystick
+#ifndef _paintown_joystick_h
+#define _paintown_joystick_h
 
 #include <vector>
 
@@ -44,6 +44,17 @@ public:
     virtual ~Joystick();
 
     static Joystick * create();
+
+    enum Key{
+        Up = 0,
+        Down,
+        Left,
+        Right,
+        Button1,
+        Button2,
+        Button3,
+        Button4,
+    };
 
 protected:
 
