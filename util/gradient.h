@@ -1,11 +1,11 @@
-#ifndef _paintown_gradient_glow_h
-#define _paintown_gradient_glow_h
+#ifndef _paintown_gradient_h
+#define _paintown_gradient_h
 
 namespace Effects{
 
-class GradientGlow{
+class Gradient{
 public:
-    GradientGlow(int size, int startColor, int endColor);
+    Gradient(int size, int startColor, int endColor);
 
     /* move to next color */
     void update();
@@ -13,7 +13,7 @@ public:
     /* get current color */
     int current();
 
-    virtual ~GradientGlow();
+    virtual ~Gradient();
 
 protected:
     int * colors;
