@@ -1,9 +1,9 @@
-#include "gradient-glow.h"
+#include "gradient.h"
 #include "funcs.h"
 
 namespace Effects{
 
-GradientGlow::GradientGlow(int size, int startColor, int endColor):
+Gradient::Gradient(int size, int startColor, int endColor):
 colors(0),
 size(size),
 index(0){
@@ -12,15 +12,15 @@ index(0){
     Util::blend_palette(colors + size / 2, size / 2, endColor, startColor);
 }
 
-void GradientGlow::update(){
+void Gradient::update(){
     index = (index + 1) % size;
 }
 
-int GradientGlow::current(){
+int Gradient::current(){
     return colors[index];
 }
 
-GradientGlow::~GradientGlow(){
+Gradient::~Gradient(){
     delete[] colors;
 }
 
