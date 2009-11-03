@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "regex.h"
+
 namespace Util{
 
     extern const double pi;
