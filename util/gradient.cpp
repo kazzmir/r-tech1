@@ -3,6 +3,7 @@
 
 namespace Effects{
 
+/* this class does virtually no error checking. great job */
 Gradient::Gradient(int size, int startColor, int endColor):
 colors(0),
 size(size),
