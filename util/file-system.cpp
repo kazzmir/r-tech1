@@ -77,6 +77,16 @@ vector<string> findDirectories(const std::string & path){
     return dirs;
 }
 
+/* remove extra path separators (/) */
+static string sanitize(string path){
+    size_t double_slash = path.find("//");
+    while (double_slash != string::npos){
+        path.erase(double_slash, 1);
+        double_slash = path.find("//");
+    }
+    return path;
+}
+
 std::string find(const std::string path) throw (NotFound){
     if (path.length() == 0){
         throw NotFound("No path given");
@@ -84,9 +94,17 @@ std::string find(const std::string path) throw (NotFound){
     if (path[0] == '/'){
         string str(path);
         str.erase(0, 1);
-        return lookup(str);
+        string out = lookup(str);
+        if (System::isDirectory(out)){
+            return sanitize(out + "/");
+        }
+        return sanitize(out);
     }
-    return lookup(path);
+    string out = lookup(path);
+    if (System::isDirectory(out)){
+        return sanitize(out + "/");
+    }
+    return sanitize(out);
 }
 
 std::string cleanse(const std::string & path){
