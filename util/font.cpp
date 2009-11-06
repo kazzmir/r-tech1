@@ -73,7 +73,12 @@ const Font & Font::getDefaultFont(){
 }
 	
 const Font & Font::getFont( const string & name, const int x, const int y ){
-	return *FontFactory::getFont( name, x, y );
+    Font & font = *FontFactory::getFont(name, x, y);
+    /* sanity check */
+    if (font.getHeight("A") == 0){
+        return getDefaultFont();
+    }
+    return font;
 }
 
 FreeTypeFont::FreeTypeFont( const string & str ):

@@ -38,6 +38,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include <map>
 #include <string>
 #include <math.h>
+#include <exception>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 	
@@ -45,8 +46,23 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #define GLYPH_SQRT2	1.41421356237309504880
 
 struct BITMAP;
-namespace ftalleg
-{
+namespace ftalleg {
+
+    class Exception: public std::exception {
+    public:
+        Exception();
+	Exception(const std::string reason);
+
+	inline const std::string & getReason() const {
+		return reason;
+	}
+
+	virtual ~Exception() throw();
+
+    protected:
+        std::string reason;
+    };
+
 	//!  Internal class for freetype to use
 	/*!  
 	 * This holds necessary information regarding a character \n
