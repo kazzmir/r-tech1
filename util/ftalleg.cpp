@@ -37,8 +37,21 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <exception>
 
 namespace ftalleg{
+
+    Exception::Exception():
+    std::exception(){
+    }
+
+    Exception::Exception(const std::string reason):
+    std::exception(),
+    reason(reason){
+    }
+
+    Exception::~Exception() throw(){
+    }
 
 	typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
 
@@ -68,7 +81,7 @@ namespace ftalleg{
 	}
 
 	fontSize::fontSize() {
-		width = height = italics = 0;
+		width = height = italics = angle = 0;
 	}
 
 	fontSize::~fontSize() {
@@ -78,6 +91,7 @@ namespace ftalleg{
 		return (width<fs.width || height<fs.height || italics<fs.italics);
 	}
 
+        /* im not sure this is a very unique key.. */
 	int fontSize::createKey() const {
 		return ((width+10) * (height+20) * (italics+250));
 	}
@@ -178,6 +192,11 @@ namespace ftalleg{
 
 			fontTable.insert(std::make_pair(size.createKey(),tempMap));
 		}
+
+                if (fontTable.find(size.createKey()) == fontTable.end()){
+                    printf("ftalleg: inconsistency error\n");
+                    throw std::exception();
+                }
 	}
 
 	pixeler getPutPixel(){
@@ -435,8 +454,11 @@ namespace ftalleg{
 				// printf( "%c top = %d rows = %d\n", (char) code, temp.top, temp.rows );
 				return temp.top + temp.rows;
 			}
-		}
-		return 0;
+                } else {
+                    throw Exception("Internal inconsistency");
+                }
+
+                return 0;
 	}
 
 	int freetype::calculateHeight( const std::string & str ) const {
@@ -455,18 +477,17 @@ namespace ftalleg{
 	//! Set size
 	void freetype::setSize( unsigned int w, unsigned int h){
 		if ( w != size.width || h != size.height ){
-			if(internalFix)return;
-			if(w<=0 || h<=0)return;
-			size.width=w;
-			size.height=h;
+			if (internalFix)return;
+			if (w<=0 || h<=0)return;
+			size.width = w;
+			size.height = h;
 			createIndex();
 			// maximumHeight = calculateMaximumHeight();
 		}
 	}
 
 	//! Set italics
-	void freetype::setItalics(int i)
-	{
+	void freetype::setItalics(int i){
 		if(internalFix)return;
 		if(i<-45)i=(-45);
 		else if(i>45)i=45;
