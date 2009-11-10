@@ -114,7 +114,7 @@ void FreeTypeFont::printf( int x, int y, int xSize, int ySize, int color, const 
 
     this->font->setSize(xSize, ySize);
 
-    this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
+    this->font->render( x, y, color, work, ftalleg::freetype::ftLeft, string( buf ), 0 );
 
     this->font->setSize(old_x, old_y);
 
@@ -128,7 +128,7 @@ void FreeTypeFont::printf( int x, int y, int color, const Bitmap & work, const s
     vsnprintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
-    this->font->render( x, y, color, work.getBitmap(), ftalleg::freetype::ftLeft, string( buf ), 0 );
+    this->font->render( x, y, color, work, ftalleg::freetype::ftLeft, string( buf ), 0 );
 }
 
 void FreeTypeFont::setSize( const int x, const int y ){

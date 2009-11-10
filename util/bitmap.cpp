@@ -871,8 +871,12 @@ int Bitmap::addColor( int color1, int color2 ){
 }
 	
 void Bitmap::putPixel( int x, int y, int col ) const{
-	if ( x >= 0 && x < getBitmap()->w && y >= 0 && y < getBitmap()->h )
-		_putpixel16( getBitmap(), x, y, col );
+    BITMAP * dst = getBitmap();
+    if (dst->clip && ((x < dst->cl) || (x >= dst->cr) || (y < dst->ct) || (y >= dst->cb))){
+        return;
+    }
+    if ( x >= 0 && x < getBitmap()->w && y >= 0 && y < getBitmap()->h )
+        _putpixel16( getBitmap(), x, y, col );
 }
 	
 /*

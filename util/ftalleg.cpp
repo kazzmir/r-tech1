@@ -28,10 +28,14 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #ifndef FT_FONT_CPP
 #define FT_FONT_CPP
 
+#include "bitmap.h"
+
+/*
 #include <allegro.h>
 #ifdef _WIN32
 #include <winalleg.h>
 #endif
+*/
 
 #include "ftalleg.h"
 #include <iostream>
@@ -53,7 +57,7 @@ namespace ftalleg{
     Exception::~Exception() throw(){
     }
 
-	typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
+	// typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
 
 	static int fixColor(const unsigned char *c,short grays){
 		// Safety checks
@@ -67,7 +71,7 @@ namespace ftalleg{
 		int green = *c * 255 / (grays - 1);
 		int blue = *c * 255 / (grays - 1);
 		//alpha = *c * 255 / (grays - 1);
-		return makecol(red,green,blue);
+		return Bitmap::makeColor(red,green,blue);
 	}
 	// Static count of instances of fonts to track library
 	static int instances=0;
@@ -199,6 +203,7 @@ namespace ftalleg{
                 }
 	}
 
+        /*
 	pixeler getPutPixel(){
 		switch( get_color_depth() ){
 			case 8 : return _putpixel;
@@ -209,11 +214,12 @@ namespace ftalleg{
 			default : return putpixel;
 		}
 	}
+        */
 
 	// Render a character from the lookup table
-	void freetype::drawCharacter(signed long unicode, int &x1, int &y1, BITMAP *bitmap, const int &color){
+	void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Bitmap & bitmap, const int &color){
 
-		pixeler putter = getPutPixel();
+		// pixeler putter = getPutPixel();
 
 		std::map<int, std::map<signed long, character> >::iterator ft;
 		ft = fontTable.find(size.createKey());
@@ -232,10 +238,10 @@ namespace ftalleg{
 					{
 						int col = fixColor(buffer++,tempChar.grays);
 
-						if((getr(col)< 50) || (getg(col)< 50) || (getb(col)< 50))continue;
-						int red = getr(col) * getr(color) / 255;
-						int green = getg(col) * getg(color) / 255;
-						int blue = getb(col) * getb(color) / 255;
+						if((Bitmap::getRed(col)< 50) || (Bitmap::getGreen(col)< 50) || (Bitmap::getBlue(col)< 50))continue;
+						int red = Bitmap::getRed(col) * Bitmap::getRed(color) / 255;
+						int green = Bitmap::getGreen(col) * Bitmap::getGreen(color) / 255;
+						int blue = Bitmap::getBlue(col) * Bitmap::getBlue(color) / 255;
 
 						//col.alpha= col.alpha * color.alpha / 255;
 						// putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
@@ -243,8 +249,8 @@ namespace ftalleg{
 						 * you will get a segfault
 						 */
 						// putter(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
-						putter = 0;
-						putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top + y + size.height, makecol(red,green,blue));
+						// putter = 0;
+						bitmap.putPixel(x1+tempChar.left+x,y1 - tempChar.top + y + size.height, Bitmap::makeColor(red,green,blue));
 					}
 					line += tempChar.pitch;
 				}
@@ -347,7 +353,7 @@ namespace ftalleg{
 	}
 
 	//! Render font to a bitmap
-	void freetype::render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, int marker ...)
+	void freetype::render(int x, int y, const int & color, const Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...)
 	{
 		if(faceLoaded)
 		{
