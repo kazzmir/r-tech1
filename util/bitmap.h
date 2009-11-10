@@ -35,7 +35,7 @@ public:
 	Bitmap( const std::string & load_file );
 	Bitmap( const char * load_file, int sx, int sy );
 	Bitmap( const char * load_file, int sx, int sy, double accuracy );
-	Bitmap( BITMAP * who, bool deep_copy = false );
+	explicit Bitmap( BITMAP * who, bool deep_copy = false );
 	Bitmap( const Bitmap & copy, bool deep_copy = false );
 	Bitmap( const Bitmap & copy, int sx, int sy );
 	Bitmap( const Bitmap & copy, int sx, int sy, double accuracy );

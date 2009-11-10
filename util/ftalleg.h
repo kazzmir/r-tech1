@@ -45,7 +45,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #define GLYPH_PI	3.14159265358979323846
 #define GLYPH_SQRT2	1.41421356237309504880
 
-struct BITMAP;
+class Bitmap;
 namespace ftalleg {
 
     class Exception: public std::exception {
@@ -181,7 +181,7 @@ namespace ftalleg {
 			void createIndex();
 			
 			//! Render a character from the lookup table (utilizing the workBitmap)
-			void drawCharacter(signed long unicode, int &x1, int &y1, BITMAP *bitmap, const int & color);
+			void drawCharacter(signed long unicode, int &x1, int &y1, const Bitmap & bitmap, const int & color);
 
 			int height( long code ) const;
 			int calculateHeight( const std::string & str ) const;
@@ -211,7 +211,7 @@ namespace ftalleg {
 			int getLength(const std::string & text);
 			
 			//! Render font to a bitmap
-			void render(int x, int y, const int & color, BITMAP *bmp, ftAlign alignment, const std::string & text, int marker, ...);
+			void render(int x, int y, const int & color, const Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...);
 			
 			//! Set size
 			void setSize( unsigned int w, unsigned int h);
