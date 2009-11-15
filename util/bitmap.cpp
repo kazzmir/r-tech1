@@ -870,6 +870,11 @@ int Bitmap::addColor( int color1, int color2 ){
 			  getb( color1 ) + getb( color2 ) );
 }
 	
+void Bitmap::putPixelNormal(int x, int y, int col) const {
+    BITMAP * dst = getBitmap();
+    ::putpixel(dst, x, y, col);
+}
+	
 void Bitmap::putPixel( int x, int y, int col ) const{
     BITMAP * dst = getBitmap();
     if (dst->clip && ((x < dst->cl) || (x >= dst->cr) || (y < dst->ct) || (y >= dst->cb))){

@@ -250,7 +250,7 @@ namespace ftalleg{
 						 */
 						// putter(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
 						// putter = 0;
-						bitmap.putPixel(x1+tempChar.left+x,y1 - tempChar.top + y + size.height, Bitmap::makeColor(red,green,blue));
+						bitmap.putPixelNormal(x1+tempChar.left+x,y1 - tempChar.top + y + size.height, Bitmap::makeColor(red,green,blue));
 					}
 					line += tempChar.pitch;
 				}

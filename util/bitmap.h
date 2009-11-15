@@ -180,7 +180,10 @@ public:
 	virtual void readLine( std::vector< int > & vec, int y );
 	int getPixel( const int x, const int y ) const;
 
+        /* uses _putpixel16 underneath which ignores translucent behavior */
 	void putPixel( int x, int y, int col ) const;
+        /* respects the current trans mode */
+	void putPixelNormal(int x, int y, int col) const;
 
 	/*
 	inline int getPixel( int x, int y ) const{
