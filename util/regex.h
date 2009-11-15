@@ -5,6 +5,7 @@
 
 namespace Util{
     bool matchRegex(const std::string & str, const std::string & regex);
+    std::string captureRegex(const std::string & str, const std::string & regex, int capture);
 }
 
 #endif
