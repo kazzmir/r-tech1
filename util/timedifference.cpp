@@ -34,7 +34,7 @@ const string TimeDifference::printTime(const string & s){
     int unit_times[] = {1000, 1000, 60};
     string unit_descriptions[] = {"milliseconds", "seconds", "minutes"};
 
-    for (int index = 0; index < sizeof(unit_times) / sizeof(int); index++){
+    for (unsigned int index = 0; index < sizeof(unit_times) / sizeof(int); index++){
         if (total > unit_times[index]){
             total /= unit_times[index];
             units = unit_descriptions[index];
