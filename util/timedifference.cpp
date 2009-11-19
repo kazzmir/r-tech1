@@ -23,7 +23,7 @@ unsigned long long int TimeDifference::getTime(){
 }
 
 static double roundit(double number, int digits){
-    return (long long) (number * pow(10, digits)) / pow(10, digits);
+    return (long long) (number * pow((double) 10.0, digits)) / pow((double) 10.0, digits);
 }
 
 const string TimeDifference::printTime(const string & s){

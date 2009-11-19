@@ -1583,8 +1583,13 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
                     continue;
                 }
                 unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(d);
-                PAINTOWN_SET_ALPHA(alphas[(int)fabs(sx)]);
-                int color = colors[(int)fabs(sx)];
+                /* TODO:
+                 * converting to a double and calling fabs is overkill, just
+                 * write an integer abs() function.
+                 */
+                int sx_abs = (int) fabs((double) sx);
+                PAINTOWN_SET_ALPHA(alphas[sx_abs]);
+                int color = colors[sx_abs];
                 c = PAINTOWN_DTS_BLEND(trans_blender, c, color);
                 PAINTOWN_PUT_MEMORY_PIXEL(d, c);
             }
