@@ -201,11 +201,11 @@ const string Token::getLineage() const {
 
 /* A token's identity is its name 
  */
-bool Token::operator== ( const string rhs ){
+bool Token::operator== ( const string & rhs ){
 	return lowerCase( getName() )  == lowerCase( rhs );
 }
 
-bool Token::operator!= ( const string rhs ){
+bool Token::operator!= ( const string & rhs ){
 	return !( *this == rhs );
 }
 
@@ -344,10 +344,17 @@ Token::~Token(){
     }
 }
 
+TokenMatcher::TokenMatcher(){
+    throw std::exception();
+}
 
 TokenMatcher & TokenMatcher::operator=(const TokenMatcher & matcher){
+    tokens = matcher.tokens;
+    current = tokens.begin();
     return *this;
 }
 
-TokenMatcher::TokenMatcher(std::vector<Token*> tokens){
+TokenMatcher::TokenMatcher(std::vector<Token*> tokens):
+tokens(tokens){
+    current = tokens.begin();
 }
