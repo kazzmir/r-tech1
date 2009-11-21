@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <sstream>
 #include <vector>
 
 #include "token.h"
@@ -78,10 +79,12 @@ Token * TokenReader::readToken() throw( TokenException ){
 	bool escaped = false;
 	while ( !token_stack.empty() ){
 		if ( !ifile ){
-			cout<<__FILE__<<": "<<myfile<<" is bad. Open parens "<<parens<<endl;
+			// cout<<__FILE__<<": "<<myfile<<" is bad. Open parens "<<parens<<endl;
 			// cout<<"Dump: "<< token_string << "Last token = [" << n << "]" << (int)n << endl;
-			first->print( " " );
-			throw TokenException("Wrong number of parentheses");
+			// first->print( " " );
+                        ostringstream failure;
+                        failure << "Wrong number of parentheses. Open parens is " << parens;
+			throw TokenException(failure.str());
 		}
 		// char n;
 		// slow as we go
