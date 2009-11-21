@@ -91,6 +91,20 @@ bool Token::hasTokens(){
 	return num_token < tokens.size();
 }
 
+/*
+vector<Token*> Token::findTokens(const string & path){
+    vector<Token*> whoba;
+    cout << "whoba has " << whoba.size() << endl;
+    whoba.push_back(this);
+    if (whoba[0] != this){
+        cout << "complete failure!!!" << endl;
+    }
+    int x = 2;
+    x = x + 12;
+    return whoba;
+}
+*/
+
 vector<Token *> Token::findTokens(const string & path){
     vector<Token *> found;
     if (path == ""){
@@ -107,6 +121,10 @@ vector<Token *> Token::findTokens(const string & path){
     if (*this == self){
         if (find == string::npos){
             found.push_back(this);
+            if (found[0] != this){
+                cout << "internal consistency error!!!!" << endl;
+                throw exception();
+            }
         } else {
             string rest = path.substr(find+1);
             for (int i = 0; i < numTokens(); i++){
@@ -356,5 +374,5 @@ TokenMatcher & TokenMatcher::operator=(const TokenMatcher & matcher){
 
 TokenMatcher::TokenMatcher(std::vector<Token*> tokens):
 tokens(tokens){
-    current = tokens.begin();
+    current = this->tokens.begin();
 }
