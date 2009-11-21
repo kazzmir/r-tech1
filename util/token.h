@@ -125,7 +125,7 @@ public:
     Token & operator>>( double & rhs ) throw( TokenException );
     Token & operator>>( Token * & rhs ) throw( TokenException );
     Token & operator>>( bool & rhs ) throw( TokenException );
-
+    
 protected:
     /* Only TokenReader and Configuration can create and destroy a Token */
     Token();
