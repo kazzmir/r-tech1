@@ -12,12 +12,23 @@ class Token;
 
 class TokenMatcher{
 public:
-    /* TODO */
     template <typename X1>
     bool match(X1 & obj1){
-        return false;
+        if (current == tokens.end()){
+            return false;
+        }
+
+        Token * token = *current;
+        current++;
+        try{
+            *token >> obj1;
+            return true;
+        } catch (const TokenException & t){
+            return false;
+        }
     }
 
+    /* TODO */
     template <typename X1, typename X2>
     bool match(X1 & obj1, X2 & obj2){
         return false;
@@ -27,7 +38,11 @@ public:
 
 protected:
     TokenMatcher(std::vector<Token*> tokens);
+    explicit TokenMatcher();
     friend class Token;
+
+    std::vector<Token*> tokens;
+    std::vector<Token*>::iterator current;
 };
 
 /* Token:
@@ -59,6 +74,11 @@ public:
 
     void print( const std::string space );
     void toString( std::ostream & stream, const std::string & space );
+
+    bool match(const std::string & subject){
+        TokenMatcher matcher = getMatcher(subject);
+        return false;
+    }
 
     template <typename X>
     bool match(const std::string & subject, X & obj){
@@ -97,8 +117,8 @@ public:
     Token * readToken();
     bool hasTokens();
 
-    bool operator== ( const std::string rhs );
-    bool operator!= ( const std::string rhs );
+    bool operator== ( const std::string & rhs );
+    bool operator!= ( const std::string & rhs );
 
     Token & operator>>( std::string & rhs ) throw( TokenException );
     Token & operator>>( int & rhs ) throw( TokenException );
