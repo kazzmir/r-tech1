@@ -121,6 +121,11 @@ vector<Token *> Token::findTokens(const string & path){
 
     return found;
 }
+   
+TokenMatcher Token::getMatcher(const std::string & subject){
+    TokenMatcher matcher(findTokens(subject));
+    return matcher;
+}
 
 Token * Token::findToken(const string & path){
     vector<Token *> all = findTokens(path);
@@ -337,4 +342,12 @@ Token::~Token(){
             delete *it;
         }
     }
+}
+
+
+TokenMatcher & TokenMatcher::operator=(const TokenMatcher & matcher){
+    return *this;
+}
+
+TokenMatcher::TokenMatcher(std::vector<Token*> tokens){
 }

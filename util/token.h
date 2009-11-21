@@ -1,5 +1,5 @@
-#ifndef _token_h
-#define _token_h
+#ifndef _paintown_token_h
+#define _paintown_token_h
 
 #include <string>
 #include <vector>
@@ -8,6 +8,27 @@
 
 class TokenReader;
 class Configuration;
+class Token;
+
+class TokenMatcher{
+public:
+    /* TODO */
+    template <typename X1>
+    bool match(X1 & obj1){
+        return false;
+    }
+
+    template <typename X1, typename X2>
+    bool match(X1 & obj1, X2 & obj2){
+        return false;
+    }
+
+    TokenMatcher & operator=(const TokenMatcher & matcher);
+
+protected:
+    TokenMatcher(std::vector<Token*> tokens);
+    friend class Token;
+};
 
 /* Token:
  * Basically a tree where each node stores a value in a string
@@ -16,10 +37,12 @@ class Configuration;
 class Token{
 public:
 
+    typedef TokenMatcher Matcher;
+
     Token(Token const & copy);
     virtual ~Token();
 
-    void addToken( Token * t ) throw (TokenException);
+    void addToken(Token * t) throw (TokenException);
 
     /*
        inline const string & getName(){
@@ -36,6 +59,14 @@ public:
 
     void print( const std::string space );
     void toString( std::ostream & stream, const std::string & space );
+
+    template <typename X>
+    bool match(const std::string & subject, X & obj){
+        TokenMatcher matcher = getMatcher(subject);
+        return matcher.match(obj);
+    }
+
+    TokenMatcher getMatcher(const std::string & subject);
 
     Token * getToken( unsigned int n ) const;
 
