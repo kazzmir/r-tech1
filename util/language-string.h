@@ -21,7 +21,12 @@ public:
         return "english";
     }
 
+    /* add a new language translation */
     void add(const std::string & stuff, const std::string & language);
+
+    /* adds with the default language */
+    void add(const std::string & stuff);
+
     const std::string & get();
 
 protected:
