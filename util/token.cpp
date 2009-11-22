@@ -118,7 +118,11 @@ vector<Token *> Token::findTokens(const string & path){
     } else {
         self = path.substr(0, find);
     }
-    if (*this == self){
+
+    /* a name of `_' means succeed with the current token no matter
+     * what its called.
+     */
+    if (self == "_" || *this == self){
         if (find == string::npos){
             found.push_back(this);
             if (found[0] != this){
