@@ -17,11 +17,12 @@ public:
         return "english";
     }
 
-    void add(const std::string & stuff, const std::string & language);
-
-    const std::string & get(){
-        return languages[defaultLanguage()];
+    const std::string currentLanguage() const {
+        return "english";
     }
+
+    void add(const std::string & stuff, const std::string & language);
+    const std::string & get();
 
 protected:
     std::map<std::string, std::string> languages;

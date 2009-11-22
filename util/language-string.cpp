@@ -30,3 +30,10 @@ LanguageString & LanguageString::operator=(const LanguageString & obj){
 void LanguageString::add(const std::string & stuff, const std::string & language){
     languages[language] = stuff;
 }
+    
+const std::string & LanguageString::get(){
+    if (languages[currentLanguage()] != ""){
+        return languages[currentLanguage()];
+    }
+    return languages[defaultLanguage()];
+}

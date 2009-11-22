@@ -269,6 +269,9 @@ Token & Token::operator>>( int & rhs ) throw( TokenException ){
 	if ( l == NULL ){
 		throw TokenException( getFileName() + ": " + string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
 	}
+        if (!l->isData()){
+            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+        }
 	istringstream is ( l->getName() );
 	is >> rhs;
 	return *this;
@@ -279,6 +282,9 @@ Token & Token::operator>>( double & rhs ) throw( TokenException ){
 	if ( l == NULL ){
 		throw TokenException( getFileName() + ": " + string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
 	}
+        if (!l->isData()){
+            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+        }
 	istringstream is ( l->getName() );
 	is >> rhs;
 	return *this;
@@ -289,6 +295,9 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	if ( l == NULL ){
 		throw TokenException( getFileName() + ": " + string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
 	}
+        if (!l->isData()){
+            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+        }
 	istringstream is ( l->getName() );
 	is >> rhs;
 	return *this;
