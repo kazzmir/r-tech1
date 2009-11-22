@@ -9,6 +9,7 @@
 #include <iostream>
 #include <math.h>
 #include "funcs.h"
+#include <stdio.h>
 // #include <fblend.h>
 
 #ifdef _WIN32
