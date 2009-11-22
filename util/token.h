@@ -20,18 +20,33 @@ public:
 
         Token * token = *current;
         current++;
+
         try{
             *token >> obj1;
             return true;
         } catch (const TokenException & t){
-            return false;
         }
+
+        return false;
     }
 
-    /* TODO */
     template <typename X1, typename X2>
     bool match(X1 & obj1, X2 & obj2){
+        if (current == tokens.end()){
+            return false;
+        }
+
+        Token * token = *current;
+        current++;
+
+        try{
+            *token >> obj1 >> obj2;
+            return true;
+        } catch (const TokenException & t){
+        }
+
         return false;
+
     }
 
     TokenMatcher & operator=(const TokenMatcher & matcher);
@@ -101,6 +116,10 @@ public:
 
     inline signed int numTokens() const {
         return tokens.size() - 1;
+    }
+
+    inline bool isData() const {
+        return numTokens() == -1;
     }
 
     inline const std::vector< Token * > * getTokens() const{
