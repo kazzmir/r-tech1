@@ -1,9 +1,11 @@
 #include <string>
 #include "system.h"
+#include <stdint.h>
 
 #ifndef WINDOWS
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #endif
 
 #ifndef WINDOWS
@@ -34,4 +36,11 @@ bool System::readableFile(const std::string & path){
 bool System::readable(const std::string & path){
     return isReadable(path);
 }
+
+uint64_t System::currentMicroseconds(){
+    struct timeval hold;
+    gettimeofday(&hold, NULL);
+    return hold.tv_sec * 1000 * 1000 + hold.tv_usec;
+}
+
 #endif
