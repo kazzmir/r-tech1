@@ -27,6 +27,11 @@ void setDataPath( const std::string & str );
 
 bool exists( const std::string & file );
 
+/* check that `version' is compatible with this program, mostly used
+ * for network clients.
+ */
+bool checkVersion(int version);
+
 /* return a random number + some range between min/max */
 int rnd( int q, int min, int max );
 
