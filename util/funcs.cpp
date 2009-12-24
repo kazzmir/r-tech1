@@ -1,4 +1,5 @@
 #include "funcs.h"
+#include "globals.h"
 #include <allegro.h>
 #include <vector>
 #include <string>
@@ -56,8 +57,27 @@ void Util::rest( int x ){
 	::rest( x );
 }
 
+bool Util::checkVersion(int version){
+    if (version == Global::getVersion()){
+        return true;
+    }
+
+    /* when an incompatible version is made, add a check here, like
+     *  version < getVersion(3, 5)
+     * would mean any client below version 3.5 is incompatible.
+     *
+     * assume versions of client's greater than ourself is compatible, but
+     * this may not be true. There is no way to check this.
+     */
+    if (version < 0){
+        return false;
+    }
+
+    return true;
+}
+
 void Util::setDataPath( const string & str ){
-	dataPath = str;	
+    dataPath = str;	
 }
 
 string Util::getDataPath2(){
