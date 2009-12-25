@@ -90,7 +90,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 		// slow as we go
 		ifile >> n;
 		
-		const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!";
+		const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
 		const char * nonalpha = " ;()#\"";
 		// cout<<"Alpha char: "<<n<<endl;
 
