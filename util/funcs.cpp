@@ -118,7 +118,7 @@ void Util::blend_palette( int * pal, int mp, int sc, int ec ) {
 	int ec_b = getb( ec );
 
 	for ( int q = 0; q < mp; q++ ) {
-		float j = (float)( q ) / (float)( mp );
+		float j = (float)( q + 1 ) / (float)( mp );
 		int f_r = (int)( 0.5 + (float)( sc_r ) + (float)( ec_r-sc_r ) * j );
 		int f_g = (int)( 0.5 + (float)( sc_g ) + (float)( ec_g-sc_g ) * j );
 		int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
