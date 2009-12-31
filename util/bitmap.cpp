@@ -10,6 +10,8 @@
 #include <math.h>
 #include "funcs.h"
 #include <stdio.h>
+#include "load_exception.h"
+#include <sstream>
 // #include <fblend.h>
 
 #ifdef _WIN32
@@ -445,7 +447,9 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     RGB * palette = NULL;
     BITMAP * pcx = load_pcx_pf(pack, palette);
     if (!pcx){
-        cout <<"Could not load pcx from memory: " << (void*) data << " length " << length << endl;
+        ostringstream out;
+        out <<"Could not load pcx from memory: " << (void*) data << " length " << length;
+        throw LoadException(out.str());
     }
 
     /* converts 8-bit pcx mask to allegro's mask */

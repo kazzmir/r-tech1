@@ -2,8 +2,8 @@
  * #ifdef's of course. windows will complain loudly if <windows.h> ends up being
  * included before allegro.h and this file fixes things so the order is correct.
  */
-#ifndef _bitmap_h_
-#define _bitmap_h_
+#ifndef _paintown_bitmap_h_
+#define _paintown_bitmap_h_
 
 #include <string>
 #include <vector>
