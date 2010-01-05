@@ -10,17 +10,8 @@ public:
 
 	TimeDifference();
 
-	inline void startTime(){
-		#ifndef WINDOWS
-		gettimeofday( &start, NULL );
-		#endif
-	}
-
-	inline void endTime(){
-		#ifndef WINDOWS
-		gettimeofday( &end, NULL );
-		#endif
-	}
+	void startTime();
+	void endTime();
 
 	unsigned long long int getTime();
 
@@ -30,7 +21,7 @@ public:
 	~TimeDifference();
 
 protected:
-	struct timeval start, end;
+	unsigned long long start, end;
 
 };
 
