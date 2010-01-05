@@ -3,23 +3,30 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include "system.h"
 
 using namespace std;
 
-TimeDifference::TimeDifference(){
-	start.tv_usec = 0;
-	start.tv_sec = 0;
-	end.tv_usec = 0;
-	end.tv_sec = 0;
+TimeDifference::TimeDifference():
+start(0),
+end(0){
+}
+
+void TimeDifference::startTime(){
+    start = System::currentMicroseconds();
+}
+
+void TimeDifference::endTime(){
+    end = System::currentMicroseconds();
 }
 
 const string TimeDifference::printTime(){
-	return this->printTime("Function took");
+    return this->printTime("Function took");
 }
 
 unsigned long long int TimeDifference::getTime(){
-	unsigned long long int g = (end.tv_sec*1000000+end.tv_usec) - (start.tv_sec*1000000 + start.tv_usec );
-	return g;
+    unsigned long long int g = end - start;
+    return g;
 }
 
 static double roundit(double number, int digits){
@@ -28,7 +35,7 @@ static double roundit(double number, int digits){
 
 const string TimeDifference::printTime(const string & s){
 
-    double total = (unsigned long long) (end.tv_sec*1000000+end.tv_usec) - (unsigned long long) (start.tv_sec*1000000 + start.tv_usec );
+    double total = getTime();
     string units = "microseconds";
 
     int unit_times[] = {1000, 1000, 60};
