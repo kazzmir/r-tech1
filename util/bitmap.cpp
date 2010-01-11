@@ -529,19 +529,19 @@ void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const
 /* resize the internal bitmap. not guaranteed to destroy the internal bitmap */
 void Bitmap::resize( const int width, const int height ){
 
-	/* if internal bitmap is already the proper size, do nothing */
-	if ( getWidth() == width && getHeight() == height ){
-		return;
-	}
+    /* if internal bitmap is already the proper size, do nothing */
+    if ( getWidth() == width && getHeight() == height ){
+        return;
+    }
 
-	BITMAP * b = create_bitmap( width, height );
-	::stretch_blit( getBitmap(), b, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, b->w, b->h );
+    BITMAP * b = create_bitmap( width, height );
+    ::stretch_blit( getBitmap(), b, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, b->w, b->h );
 
-	releaseInternalBitmap();
+    releaseInternalBitmap();
 
-	own = new int;
-	setBitmap( b );
-	*own = 1;
+    own = new int;
+    setBitmap( b );
+    *own = 1;
 }
 
 /*
