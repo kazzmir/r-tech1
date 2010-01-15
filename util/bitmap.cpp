@@ -447,6 +447,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     RGB * palette = NULL;
     BITMAP * pcx = load_pcx_pf(pack, palette);
     if (!pcx){
+        pack_fclose(pack);
         ostringstream out;
         out <<"Could not load pcx from memory: " << (void*) data << " length " << length;
         throw LoadException(out.str());
@@ -1604,6 +1605,9 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
     delete[] colors;
 }
 
+/* there is a bug in this function that causes memory corruption. if that bug
+ * is ever found then use this method, otherwise don't use it.
+ */
 static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip ){
     int x, y, w, h;
     int x_dir = 1, y_dir = 1;
