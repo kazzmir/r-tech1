@@ -86,7 +86,7 @@ namespace Memory{
         return m->position < m->stream || m->position >= m->stream + m->length;
     }
 
-    PACKFILE_VTABLE makeTable(){
+    static PACKFILE_VTABLE makeTable(){
         PACKFILE_VTABLE table;
         table.pf_fclose = Memory::pf_fclose;
         table.pf_getc = Memory::pf_getc;
