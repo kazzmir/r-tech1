@@ -10,6 +10,9 @@ struct SAMPLE;
 class Sound{
 public:
 	Sound();
+        /* create from wav file (riff header + pcm) */
+        Sound(const char * data, int length);
+        /* load from path */
 	Sound( const std::string & path ) throw( LoadException );
 	Sound( const Sound & copy );
 
