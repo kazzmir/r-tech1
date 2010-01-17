@@ -11,6 +11,11 @@ my_sound( NULL ),
 own( NULL ){
 }
 
+Sound::Sound(const char * data, int length):
+my_sound(NULL),
+own(NULL){
+}
+
 Sound::Sound( const string & path ) throw( LoadException ):
 my_sound( NULL ),
 own( NULL ){
