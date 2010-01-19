@@ -157,6 +157,7 @@ public:
 	virtual void Blit( const int x, const int y, const Bitmap & where ) const;
 	virtual void Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const;
 	virtual void Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const;
+        virtual void BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const;
 	virtual void BlitToScreen() const;
 	virtual void BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const;
 	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
