@@ -29,7 +29,7 @@ string Util::captureRegex(const string & str, const string & pattern, int captur
         if (matches[capture+1].rm_so != -1){
             int start = matches[capture+1].rm_so;
             int end = matches[capture+1].rm_eo;
-            return str.substr(start, end);
+            return str.substr(start, end - start);
         }
     }
     return "";
