@@ -10,6 +10,11 @@ namespace Memory{
             position(stream),
             length(length){
         }
+
+        int getSize() const {
+            return position - stream;
+        }
+
         /* points to the head */
         unsigned char * stream;
         /* points to the current position */
