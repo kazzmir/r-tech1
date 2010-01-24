@@ -59,11 +59,28 @@ namespace Memory{
     }
 
     static int pf_putc(int c, void *userdata){
+        memory * m = (memory*) userdata;
+        if (m->position < m->stream + m->length){
+            *m->position = c;
+            m->position += 1;
+            return c;
+        }
         return EOF;
+
     }
 
     static long pf_fwrite(const void *p, long n, void *userdata){
-        return EOF;
+        memory *m = (memory*) userdata;
+        const unsigned char * cp = (const unsigned char *) p;
+        long i;
+        int c;
+
+        for (i=0; i<n; i++) {
+            if ((c = pf_putc(cp[i], userdata)) == EOF)
+                break;
+        }
+
+        return i;
     }
 
     static int pf_fseek(void *userdata, int offset){
