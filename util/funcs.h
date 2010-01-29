@@ -11,10 +11,16 @@ namespace Util{
 
     extern const double pi;
 
-// int rnd( int q );
+
+/* returns a number between 0 and q-1. you will never get `q'. if
+ * you wanted to get `q' then pass in q+1
+ */
 inline int rnd( int q ){
-	if ( q <= 0 ) return 0;
-	return (int)( rand() % q );
+    if (q <= 0){
+        return 0;
+    }
+
+    return (int)(rand() % q);
 }
 
 std::vector< std::string > getFiles( const std::string & dataPath, const std::string & find );
