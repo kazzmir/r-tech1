@@ -5,6 +5,12 @@ class Bitmap;
 
 namespace Paintown{
 
+struct Wisp{
+    double x, y;
+    int life;
+    int angle;
+};
+
 class Fire{
 public:
     Fire();
@@ -16,6 +22,7 @@ public:
 
 protected:
     void updateHotspots();
+    void updateWisps();
 
 protected:
     unsigned char ** data;
@@ -25,6 +32,8 @@ protected:
     static const int MAX_HOTSPOTS = 10;
     double hotspots[MAX_HOTSPOTS];
     double directions[MAX_HOTSPOTS];
+    static const int MAX_WISPS = 30;
+    Wisp wisps[MAX_WISPS];
 };
 
 }
