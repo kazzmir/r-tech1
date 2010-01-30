@@ -28,6 +28,14 @@ Fire::Fire(){
         hotspots[i] = Util::rnd(MAX_X);
         directions[i] = 0;
     }
+
+    for (int i = 0; i < MAX_WISPS; i++){
+        Wisp & wisp = wisps[i];
+        wisp.y = MAX_Y-1 + Util::rnd(MAX_Y);
+        wisp.x = Util::rnd(MAX_X);
+        wisp.life = MAX_Y;
+        wisp.angle = Util::rnd(360);
+    }
 }
 
 void Fire::updateHotspots(){
@@ -63,12 +71,45 @@ void Fire::updateHotspots(){
     }
 }
 
+void Fire::updateWisps(){
+    for (int i = 0; i < MAX_WISPS; i++){
+        Wisp & wisp = wisps[i];
+        wisp.y -= 2;
+        wisp.life -= 1;
+        wisp.angle = (wisp.angle + 1) % 360;
+        if (wisp.life < 0){
+            wisp.y = MAX_Y-1 + Util::rnd(MAX_Y);
+            wisp.life = MAX_Y;
+        }
+
+        int my = (int) wisp.y;
+        int mx = (int)(wisp.x + sin(Util::radians(wisp.angle)) * 10);
+        if (mx < 0){
+            mx += MAX_X;
+        }
+        if (mx >= MAX_X){
+            mx -= MAX_X;
+        }
+        if (my > 0 && my < MAX_Y){
+            int z = data[my][mx] + wisp.life * 2;
+            if (z >= MAX_COLORS){
+                z = MAX_COLORS - 1;
+            }
+            // z = MAX_COLORS - 1;
+            // std::cout << "Update flicker at " << mx << ", " << my << " to " << z << std::endl;
+            data[my][mx] = z;
+        }
+    }
+}
+
 void Fire::update(){
     updateHotspots();
+    // updateWisps();
 
     int decay = 1;
 
-    for (int y = MAX_Y-1; y > 0; y--){
+    // for (int y = MAX_Y-1; y > 0; y--){
+    for (int y = 0; y < MAX_Y; y++){
         for (int x = 0; x < MAX_X; x++){
             if (y < MAX_Y-1){
                 int lx = x-1;
@@ -81,10 +122,14 @@ void Fire::update(){
                 }
                 // int less = (int)((double) data[y+1][x] * 0.6 + (double) data[y+1][lx] * 0.3 + (double) data[y+1][rx] * 0.3);
                 unsigned char * down = data[y+1];
-                // int less = (int)(((double) down[x]) * 0.9 + ((double) down[lx]) * 0.05 + ((double) down[rx]) * 0.05);
+                /* dont change these numbers (0.2, 0.62, 9) because they affect
+                 * the height of the flames. if the value of fire does not go down
+                 * monotonically then the entire screen will be filled with flames.
+                 */
                 int less = (double) down[lx] * 0.20;
                 less += (double) down[rx] * 0.20;
-                less += (double) down[x] * 0.62;
+                less += (double) down[x] * 0.51;
+                less += (double) data[y][x] * 0.1;
                 less -= Util::rnd(9);
                 if (less < 0){
                     less = 0;
