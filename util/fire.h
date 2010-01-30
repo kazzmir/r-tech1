@@ -22,7 +22,7 @@ protected:
     /* enough to fill an unsigned char */
     static const int MAX_COLORS = 256;
     int colors[MAX_COLORS];
-    static const int MAX_HOTSPOTS = 15;
+    static const int MAX_HOTSPOTS = 10;
     double hotspots[MAX_HOTSPOTS];
     double directions[MAX_HOTSPOTS];
 };
