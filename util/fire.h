@@ -1,8 +1,6 @@
 #ifndef _paintown_fire_93c6678306f3542737be4288dc09cfa9
 #define _paintown_fire_93c6678306f3542737be4288dc09cfa9
 
-#include <vector>
-
 class Bitmap;
 
 namespace Paintown{
@@ -17,10 +15,16 @@ public:
     virtual ~Fire();
 
 protected:
-    std::vector<int> hotspots;
+    void updateHotspots();
+
+protected:
     unsigned char ** data;
-    static const int MAX_COLORS = 100;
+    /* enough to fill an unsigned char */
+    static const int MAX_COLORS = 256;
     int colors[MAX_COLORS];
+    static const int MAX_HOTSPOTS = 15;
+    double hotspots[MAX_HOTSPOTS];
+    double directions[MAX_HOTSPOTS];
 };
 
 }
