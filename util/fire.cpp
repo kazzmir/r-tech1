@@ -126,11 +126,11 @@ void Fire::update(){
                  * the height of the flames. if the value of fire does not go down
                  * monotonically then the entire screen will be filled with flames.
                  */
-                int less = (double) down[lx] * 0.20;
-                less += (double) down[rx] * 0.20;
-                less += (double) down[x] * 0.51;
-                less += (double) data[y][x] * 0.1;
-                less -= Util::rnd(9);
+                int less = (double) down[lx] * 0.19;
+                less += (double) down[rx] * 0.19;
+                less += (double) down[x] * (0.4 + Util::rnd(25) / 100.0);
+                less += (double) data[y][x] * 0.10;
+                // less -= Util::rnd(15);
                 if (less < 0){
                     less = 0;
                 }
