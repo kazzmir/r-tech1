@@ -131,11 +131,13 @@ public:
 	virtual void polygon( const int * verts, const int nverts, const int color ) const;
 	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const;
 
-	virtual void draw( const int x, const int y, const Bitmap & where ) const;
+	virtual void draw(const int x, const int y, const Bitmap & where) const;
+	virtual void draw(const int x, const int y, const int width, const int height, const Bitmap & where) const;
 	virtual void drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const;
         /* to draw lit use LitBitmap */
 	// virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
-	virtual void drawHFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawHFlip(const int x, const int y, const Bitmap & where) const;
+	virtual void drawHFlip(const int x, const int y, const int width, const int height, const Bitmap & where) const;
 	virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
 	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
