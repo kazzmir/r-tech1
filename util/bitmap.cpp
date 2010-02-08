@@ -926,8 +926,8 @@ void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 }
 	
 void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
-    Bitmap small(*this, startWidth, startHeight, width, height);
-    small.draw(x + startWidth, y + startHeight, where);
+    Bitmap sub(*this, startWidth, startHeight, width, height);
+    sub.draw(x + startWidth, y + startHeight, where);
 }
 	
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
@@ -936,8 +936,8 @@ void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 }
 	
 void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
-    Bitmap small(*this, startWidth, startHeight, width, height);
-    small.drawHFlip(x + startWidth, y + startHeight, where);
+    Bitmap sub(*this, startWidth, startHeight, width, height);
+    sub.drawHFlip(x + startWidth, y + startHeight, where);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
