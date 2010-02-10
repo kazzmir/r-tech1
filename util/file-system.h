@@ -34,6 +34,12 @@ namespace Filesystem{
      * the current working directory.
      */
     std::vector<std::string> findDirectories(const std::string & path);
+
+    /* basename, just get the filename and remove the directory part */
+    std::string stripDir(const std::string & str);
+
+    /* remove extension. foo.txt -> foo */
+    std::string removeExtension(const std::string & str);
 }
 
 #endif
