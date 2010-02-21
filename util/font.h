@@ -25,12 +25,16 @@ public:
 
 	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
 	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
+	virtual void printfWrap( int x, int y, int color, const Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const;
 
 	static const Font & getDefaultFont();
 	static const Font & getFont( const std::string & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
 	static std::vector< ftalleg::freetype * > cacheFreeType; 
+protected:
+
+        void printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const;
 };
 
 class AllegroFont: public Font {
