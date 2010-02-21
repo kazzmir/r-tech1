@@ -163,7 +163,7 @@ public:
 	virtual void BlitToScreen() const;
 	virtual void BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const;
 	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
-    virtual void BlitFromScreen(const int x, const int y) const;
+        virtual void BlitFromScreen(const int x, const int y) const;
 	virtual void fill( int color ) const;
 
 	inline void clear() const{
