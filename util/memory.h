@@ -80,6 +80,8 @@ namespace Memory{
         long i;
         int c;
 
+        /* probably should replace this with memcpy */
+
         for (i=0; i<n; i++) {
             if ((c = pf_putc(cp[i], userdata)) == EOF)
                 break;
