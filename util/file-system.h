@@ -19,6 +19,16 @@ namespace Filesystem{
         std::string reason;
     };
 
+    /* relative path should not have the leading data directory on it, just
+     * the path within the paintown system.
+     */
+    class RelativePath{
+    };
+
+    /* absolute paths should have the entire filesystem path on it */
+    class AbsolutePath{
+    };
+
     /* given a relative path like sounds/arrow.png, prepend the proper
      * data path to it to give data/sounds/arrow.png
      */
