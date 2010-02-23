@@ -132,12 +132,13 @@ string Util::trim(const std::string & str){
     size_t startpos = str.find_first_not_of(" \t");
     size_t endpos = str.find_last_not_of(" \t");
     // if all spaces or empty return an empty string  
-    if ((string::npos == startpos ) ||
+    if ((string::npos == startpos) ||
         (string::npos == endpos)){
         return "";
     } else {
         return str.substr(startpos, endpos-startpos+1);
     }
+    return str;
 }
 
 /* makes the first letter of a string upper case */
