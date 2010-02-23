@@ -61,7 +61,7 @@ void Font::printfWrap(int x, int y, int color, const Bitmap & work, int maxWidth
     char * end = strchr(start, '\n');
     while (end != NULL){
         char tmp[1024];
-        int ender = end - start;
+        unsigned int ender = end - start;
         if (ender >= sizeof(tmp) - 1){
             ender = sizeof(tmp) - 1;
         }
