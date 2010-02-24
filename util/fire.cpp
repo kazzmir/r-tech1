@@ -62,7 +62,7 @@ void Fire::updateHotspots(){
     for (int i = 0; i < MAX_HOTSPOTS; i++){
         for (int x = -hotspot_length/2; x < hotspot_length/2; x++){
             int position = ((int) hotspots[i] + x + MAX_X) % MAX_X;
-            int more = (int) data[MAX_Y-1][position] + (hotspot_length / 2 - fabs(x));
+            int more = (int) (data[MAX_Y-1][position] + (hotspot_length / 2 - fabs(x)));
             if (more >= MAX_COLORS){
                 more = MAX_COLORS - 1;
             }
@@ -126,10 +126,10 @@ void Fire::update(){
                  * the height of the flames. if the value of fire does not go down
                  * monotonically then the entire screen will be filled with flames.
                  */
-                int less = (double) down[lx] * 0.19;
-                less += (double) down[rx] * 0.19;
-                less += (double) down[x] * (0.4 + Util::rnd(25) / 100.0);
-                less += (double) data[y][x] * 0.10;
+                int less = (int)((double) down[lx] * 0.19);
+                less += (int)((double) down[rx] * 0.19);
+                less += (int)((double) down[x] * (0.4 + Util::rnd(25) / 100.0));
+                less += (int)((double) data[y][x] * 0.10);
                 // less -= Util::rnd(15);
                 if (less < 0){
                     less = 0;
