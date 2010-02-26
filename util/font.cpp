@@ -9,7 +9,36 @@ using namespace std;
 Font::Font(){
 }
 
+/* copy/pasted from network/message.cpp */
+static vector< string > wrapStrings( const string & left, const string & right, const Font & font, int max, vector< string > accum ){
+	if ( left == "" ){
+		return accum;
+	}
+
+	int length = font.textLength(left.c_str());
+
+	if (length >= max){
+		return wrapStrings( left.substr( 0, left.length() / 2 ), left.substr( left.length() / 2 ) + right, font, max, accum );
+	} else if ( length >= max - font.textLength( "E" ) || right == "" ){
+		accum.push_back( left );
+		return wrapStrings( right, "", font, max, accum );
+	} else {
+		return wrapStrings( left + right.substr( 0, 1 ), right.substr( 1 ), font, max, accum );
+	}
+}
+
 void Font::printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const {
+    vector< string > all;
+    all = wrapStrings(string(line), "", *this, maxWidth, all );
+    for ( vector< string >::iterator str = all.begin(); str != all.end(); str++ ){
+        printf(x, y, color, work, *str, 0);
+        y += getHeight();
+    }
+    y += getHeight() / 2;
+}
+
+#if 0
+void Font::printfWrapLine2(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const {
     int height = getHeight();
     while (*line != '\0'){
         char tmp2[1024];
@@ -48,6 +77,7 @@ void Font::printfWrapLine(int x, int & y, int color, const Bitmap & work, int ma
 
     y += height / 2;
 }
+#endif
 
 void Font::printfWrap(int x, int y, int color, const Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const {
     char buf[4096];
