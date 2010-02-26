@@ -1,4 +1,5 @@
 #include <allegro.h>
+#include "bitmap.h"
 #include "font.h"
 #include "init.h"
 #include "factory/font_factory.h"
