@@ -3,9 +3,9 @@
 
 #include <string>
 #include <vector>
-#include "bitmap.h"
 #include "ftalleg.h"
 
+class Bitmap;
 struct FONT;
 
 /* handle allegro fonts and true type fonts */
