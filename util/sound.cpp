@@ -3,6 +3,7 @@
 
 #include "memory.h"
 #include "sound.h"
+#include "configuration.h"
 #include "load_exception.h"
 
 using namespace std;
@@ -84,13 +85,17 @@ void Sound::stop(){
     }
 }
 
+int scaleVolume(int v){
+    return (int)(v * (int) Configuration::getSoundVolume() / 100.0);
+}
+
 void Sound::play(){
     if (my_sound){
-        play_sample( my_sound, 255, 128, 1000, false );
+        play_sample(my_sound, scaleVolume(255), 128, 1000, false);
     }
 }
 
-void Sound::play( int volume, int pan ){
+void Sound::play(int volume, int pan){
     if ( my_sound ){
         int p = pan;
         if ( p > 255 ){
@@ -99,12 +104,13 @@ void Sound::play( int volume, int pan ){
             p = 0;
         }
         int v = volume;
-        if ( v < 0 ){
+        if (v < 0){
             v = 0;
-        } else if ( v > 255 ){
+        } else if (v > 255){
             v = 255;
         }
-        play_sample( my_sound, v, p, 1000, false );
+
+        play_sample( my_sound, scaleVolume(v), p, 1000, false );
     }
 }
 	
