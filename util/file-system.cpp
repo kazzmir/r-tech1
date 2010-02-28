@@ -18,10 +18,14 @@ reason(file){
 NotFound::~NotFound() throw(){
 }
 
+/* FIXME: need a better solution on windows. getenv("HOME") will most likely
+ * return NULL on windows which will turn into '0' in the string.
+ * use the special directory thing from configuration.cpp
+ */
 static string userDirectory(){
-	ostringstream str;
-	str << getenv("HOME") << "/.paintown/";
-	return str.str();
+    ostringstream str;
+    str << getenv("HOME") << "/.paintown/";
+    return str.str();
 }
 
 static string lookup(const std::string & path) throw (NotFound){
