@@ -650,7 +650,7 @@ void Bitmap::drawingMode( int mode ){
 }
 
 int Bitmap::setGraphicsMode( int mode, int width, int height ){
-    int ok = ::set_gfx_mode( mode, width, height, 0, 0 );
+    int ok = ::set_gfx_mode(mode, width, height, 0, 0);
     if ( ok == 0 ){
         if (SCALE_X == 0){
             SCALE_X = width;
@@ -725,15 +725,15 @@ void Bitmap::readLine( vector< int > & vec, int y ){
 }
 
 int Bitmap::setGfxModeText(){
-	return setGraphicsMode( GFX_TEXT, 0, 0 );
+	return setGraphicsMode(GFX_TEXT, 0, 0);
 }
 	
-int Bitmap::setGfxModeFullscreen( int x, int y ){
-	return setGraphicsMode( GFX_AUTODETECT_FULLSCREEN, x, y );
+int Bitmap::setGfxModeFullscreen(int x, int y){
+	return setGraphicsMode(GFX_AUTODETECT_FULLSCREEN, x, y);
 }
 
-int Bitmap::setGfxModeWindowed( int x, int y ){
-	return setGraphicsMode( GFX_AUTODETECT_WINDOWED, x, y );
+int Bitmap::setGfxModeWindowed(int x, int y){
+	return setGraphicsMode(GFX_AUTODETECT_WINDOWED, x, y);
 }
 	
 int Bitmap::makeColor( int r, int g, int b ){
