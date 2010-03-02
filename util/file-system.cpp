@@ -70,7 +70,11 @@ static string lookup(const std::string & path) throw (NotFound){
     if (System::readable(path)){
         return path;
     }
-    throw NotFound("Cannot find " + path);
+
+    ostringstream out;
+    out << "Cannot find " << path << ". I looked in '" << (Util::getDataPath2() + path) << "', '" << (userDirectory() + path) << "', and '" << path << "'" << endl;
+
+    throw NotFound(out.str());
 }
 
 static vector<string> findDirectoriesIn(const std::string & path){
