@@ -6,6 +6,11 @@
 #include <exception>
 #include <string>
 
+#ifdef _WIN32
+#define _WIN32_IE 0x400
+#include <shlobj.h>
+#endif
+
 using namespace std;
 
 namespace Filesystem{
@@ -18,15 +23,37 @@ reason(file){
 NotFound::~NotFound() throw(){
 }
 
-/* FIXME: need a better solution on windows. getenv("HOME") will most likely
- * return NULL on windows which will turn into '0' in the string.
- * use the special directory thing from configuration.cpp
- */
-static string userDirectory(){
+#ifdef _WIN32
+string userDirectory(){
     ostringstream str;
+    char path[MAX_PATH];
+    SHGetSpecialFolderPathA(0, path, CSIDL_APPDATA, false);
+    str << path << "/paintown/";
+    return str.str();
+}
+
+string configFile(){
+    ostringstream str;
+    char path[MAX_PATH];
+    SHGetSpecialFolderPathA(0, path, CSIDL_APPDATA, false);
+    str << path << "/paintown_configuration.txt";
+    return str.str();
+}
+#else
+string configFile(){
+    ostringstream str;
+    /* what if HOME isn't set? */
+    str << getenv("HOME") << "/.paintownrc";
+    return str.str();
+}
+
+string userDirectory(){
+    ostringstream str;
+    /* what if HOME isn't set? */
     str << getenv("HOME") << "/.paintown/";
     return str.str();
 }
+#endif
 
 static string lookup(const std::string & path) throw (NotFound){
     /* first try the main data directory */

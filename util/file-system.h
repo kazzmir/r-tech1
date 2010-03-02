@@ -50,6 +50,12 @@ namespace Filesystem{
 
     /* remove extension. foo.txt -> foo */
     std::string removeExtension(const std::string & str);
+
+    /* user specific directory to hold persistent data */
+    std::string userDirectory();
+
+    /* user specific path to store the configuration file */
+    std::string configFile();
 }
 
 #endif
