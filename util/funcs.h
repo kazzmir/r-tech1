@@ -1,11 +1,12 @@
-#ifndef _funcs_h
-#define _funcs_h
+#ifndef _paintown_funcs_h
+#define _paintown_funcs_h
 
 #include <stdlib.h>
 #include <vector>
 #include <string>
 
 #include "regex.h"
+#include "file-system.h"
 
 namespace Util{
 
@@ -23,11 +24,11 @@ inline int rnd( int q ){
     return (int)(rand() % q);
 }
 
-std::vector< std::string > getFiles( const std::string & dataPath, const std::string & find );
+std::vector< std::string > getFiles(const Filesystem::AbsolutePath & dataPath, const std::string & find );
 
 double radians(double degree);
 
-std::string getDataPath2();
+Filesystem::AbsolutePath getDataPath2();
 
 void setDataPath( const std::string & str );
 

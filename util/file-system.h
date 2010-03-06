@@ -19,31 +19,73 @@ namespace Filesystem{
         std::string reason;
     };
 
+    class Path{
+    public:
+        const std::string & path() const;
+        bool isEmpty() const;
+        
+        virtual ~Path();
+
+    protected:
+        Path();
+        Path(const std::string & path);
+        Path(const Path & path);
+
+        virtual inline void setPath(const std::string & s){
+            mypath = s;
+        }
+
+        std::string mypath;
+    };
+
     /* relative path should not have the leading data directory on it, just
      * the path within the paintown system.
      */
-    class RelativePath{
+    class RelativePath: public Path {
+    public:
+        explicit RelativePath();
+        explicit RelativePath(const std::string & path);
+        RelativePath(const RelativePath & path);
+        
+        virtual RelativePath getDirectory() const;
+        virtual RelativePath getFilename() const;
+
+        /* a/ + b/ = a/b/ */
+        RelativePath join(const RelativePath & path) const;
+        RelativePath & operator=(const RelativePath & copy);
     };
 
     /* absolute paths should have the entire filesystem path on it */
-    class AbsolutePath{
+    class AbsolutePath: public Path {
+    public:
+        explicit AbsolutePath();
+        explicit AbsolutePath(const std::string & path);
+        AbsolutePath(const AbsolutePath & path);
+        AbsolutePath & operator=(const AbsolutePath & copy);
+
+        bool operator==(const AbsolutePath & path) const;
+        
+        virtual AbsolutePath getDirectory() const;
+        virtual AbsolutePath getFilename() const;
+        
+        AbsolutePath join(const RelativePath & path) const;
     };
 
     /* given a relative path like sounds/arrow.png, prepend the proper
      * data path to it to give data/sounds/arrow.png
      */
-    std::string find(const std::string path) throw (NotFound);
+    AbsolutePath find(const RelativePath & path);
 
     /* remove the data path from a string
      * data/sounds/arrow.png -> sounds/arrow.png
      */
-    std::string cleanse(const std::string & path);
+    RelativePath cleanse(const AbsolutePath & path);
 
     /* returns all the directories starting with the given path.
      * will look in the main data directory, the user directory, and
      * the current working directory.
      */
-    std::vector<std::string> findDirectories(const std::string & path);
+    std::vector<AbsolutePath> findDirectories(const RelativePath & path);
 
     /* basename, just get the filename and remove the directory part */
     std::string stripDir(const std::string & str);
@@ -52,10 +94,10 @@ namespace Filesystem{
     std::string removeExtension(const std::string & str);
 
     /* user specific directory to hold persistent data */
-    std::string userDirectory();
+    AbsolutePath userDirectory();
 
     /* user specific path to store the configuration file */
-    std::string configFile();
+    AbsolutePath configFile();
 }
 
 #endif
