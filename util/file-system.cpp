@@ -5,6 +5,7 @@
 #include <sstream>
 #include <exception>
 #include <string>
+#include <ostream>
 
 #ifdef _WIN32
 #define _WIN32_IE 0x400
@@ -14,13 +15,26 @@
 using namespace std;
 
 namespace Filesystem{
-
-NotFound::NotFound(const std::string & file):
-exception(),
+        
+Exception::Exception(const std::string & file):
 reason(file){
 }
 
+Exception::~Exception() throw (){
+}
+
+NotFound::NotFound(const std::string & file):
+Exception(file){
+}
+
 NotFound::~NotFound() throw(){
+}
+        
+IllegalPath::IllegalPath(const std::string & file):
+Exception(file){
+}
+
+IllegalPath::~IllegalPath() throw(){
 }
 
 #ifdef _WIN32
@@ -246,6 +260,11 @@ RelativePath::RelativePath(){
 
 RelativePath::RelativePath(const std::string & path):
 Path(path){
+    if (! path.empty() && path[0] == '/'){
+        ostringstream out;
+        out << "Relative path '" << path << "' cannot start with a /. Only absolute paths can start with /";
+        throw IllegalPath(out.str());
+    }
 }
 
 RelativePath::RelativePath(const RelativePath & path):
