@@ -6,17 +6,29 @@
 #include <vector>
 
 namespace Filesystem{
-    class NotFound: public std::exception {
+
+    class Exception: public std::exception {
     public:
-        NotFound(const std::string & file);
-        virtual ~NotFound() throw();
+        Exception(const std::string & file);
+        virtual ~Exception() throw ();
 
         const std::string & getReason() const {
             return reason;
         }
-
     private:
         std::string reason;
+    };
+
+    class NotFound: public Exception {
+    public:
+        NotFound(const std::string & file);
+        virtual ~NotFound() throw();
+    };
+
+    class IllegalPath: public Exception {
+    public:
+        IllegalPath(const std::string & file);
+        virtual ~IllegalPath() throw();
     };
 
     class Path{
