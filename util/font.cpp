@@ -168,10 +168,10 @@ void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const st
 
 const Font & Font::getDefaultFont(){
 	// return getFont( "tmp/comic.ttf" );
-	return getFont( "bios", 16, 16 );
+	return getFont("bios", 16, 16);
 }
 	
-const Font & Font::getFont( const string & name, const int x, const int y ){
+const Font & Font::getFont(const string & name, const int x, const int y){
     Font & font = *FontFactory::getFont(name, x, y);
     /* sanity check */
     if (font.getHeight("A") == 0){
