@@ -39,6 +39,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include <string>
 #include <math.h>
 #include <exception>
+#include "file-system.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 	
@@ -188,7 +189,7 @@ namespace ftalleg {
 			
 		public:
 			//! Constructor
-			freetype( const std::string & str, const int x, const int y );
+			freetype(const Filesystem::AbsolutePath & str, const int x, const int y );
 			
 			//! Destructor
 			~freetype();
@@ -205,7 +206,7 @@ namespace ftalleg {
 			bool load(const unsigned char *memoryFont, unsigned int length, int index, unsigned int width, unsigned int height);
 			
 			//! Load font from file
-			bool load(const std::string & filename, int index, unsigned int width, unsigned int height);
+			bool load(const Filesystem::AbsolutePath & filename, int index, unsigned int width, unsigned int height);
 			
 			//! Get text length
 			int getLength(const std::string & text);

@@ -167,11 +167,14 @@ void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const st
 }
 
 const Font & Font::getDefaultFont(){
-	// return getFont( "tmp/comic.ttf" );
-	return getFont("bios", 16, 16);
+    // return getFont( "tmp/comic.ttf" );
+    return *FontFactory::getFont(Filesystem::RelativePath("bios"), 16, 16);
 }
 	
-const Font & Font::getFont(const string & name, const int x, const int y){
+/* name should be the path of a .ttf file in the fonts/ directory.
+ * something like 'arial.ttf'
+ */
+const Font & Font::getFont(const Filesystem::RelativePath & name, const int x, const int y){
     Font & font = *FontFactory::getFont(name, x, y);
     /* sanity check */
     if (font.getHeight("A") == 0){
@@ -180,11 +183,11 @@ const Font & Font::getFont(const string & name, const int x, const int y){
     return font;
 }
 
-FreeTypeFont::FreeTypeFont( const string & str ):
+FreeTypeFont::FreeTypeFont(const Filesystem::AbsolutePath & str ):
 sizeX( 16 ),
 sizeY( 16 ),
 own(true){
-	this->font = new ftalleg::freetype( str, getSizeX(), getSizeY() );
+	this->font = new ftalleg::freetype(str, getSizeX(), getSizeY() );
 }
 
 int FreeTypeFont::getHeight( const string & str ) const {
