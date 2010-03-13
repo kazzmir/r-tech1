@@ -101,7 +101,7 @@ namespace ftalleg{
 	}
 
 	//! Constructor
-	freetype::freetype( const std::string & str, const int x, const int y ){
+	freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ){
 		//Load library
 		if ( !ftLibrary ){
 			FT_Init_FreeType(&ftLibrary);
@@ -115,7 +115,7 @@ namespace ftalleg{
 		systemName="";
 		internalFix = false;
 
-		this->load( str, 0, x, y );
+		this->load(str, 0, x, y );
 	}
 
 	//! Destructor
@@ -295,38 +295,31 @@ namespace ftalleg{
 	}
 
 	//! Load font from file
-	bool freetype::load(const std::string & filename, int index, unsigned int width, unsigned int height)
-	{
-		if(!FT_New_Face(ftLibrary,filename.c_str(),index,&face))
-		{
-			currentFilename = filename;
-			currentIndex = index;
-			faceLoaded = true;
-			size.italics = 0;
-			setSize(width, height);
-			if(FT_HAS_GLYPH_NAMES(face))
-			{
-				char buff[1024];
-				if(!FT_Get_Glyph_Name(face,currentIndex,buff,sizeof(buff)))
-				{
-					faceName = currentFilename;
-				}
-				else faceName = std::string(buff);
-			}
-			else
-			{
-				faceName = currentFilename;
-			}
-			if(FT_HAS_KERNING(face))kerning=true;
-			else kerning = false;
-		}
-		else 
-		{
-			faceLoaded=false;
-		}
+        bool freetype::load(const Filesystem::AbsolutePath & filename, int index, unsigned int width, unsigned int height){
+            if(!FT_New_Face(ftLibrary,filename.path().c_str(), index, &face)) {
+                currentFilename = filename.path();
+                currentIndex = index;
+                faceLoaded = true;
+                size.italics = 0;
+                setSize(width, height);
+                if(FT_HAS_GLYPH_NAMES(face)){
+                    char buff[1024];
+                    if(!FT_Get_Glyph_Name(face,currentIndex,buff,sizeof(buff))) {
+                        faceName = currentFilename;
+                    }
+                    else faceName = std::string(buff);
+                } else {
+                    faceName = currentFilename;
+                }
 
-		return faceLoaded;
-	}
+                if(FT_HAS_KERNING(face))kerning=true;
+                else kerning = false;
+            } else {
+                faceLoaded=false;
+            }
+
+            return faceLoaded;
+        }
 
 	//! Get text length
 	int freetype::getLength(const std::string & text)

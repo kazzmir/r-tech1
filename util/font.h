@@ -28,7 +28,7 @@ public:
 	virtual void printfWrap( int x, int y, int color, const Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const;
 
 	static const Font & getDefaultFont();
-	static const Font & getFont( const std::string & name, const int x = 32, const int y = 32 );
+	static const Font & getFont( const Filesystem::RelativePath & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
 	static std::vector< ftalleg::freetype * > cacheFreeType; 
@@ -64,8 +64,8 @@ private:
 
 class FreeTypeFont: public Font {
 public:
-	FreeTypeFont( const std::string & filename );
-	FreeTypeFont( const FreeTypeFont & copy );
+	FreeTypeFont(const Filesystem::AbsolutePath & filename);
+	FreeTypeFont(const FreeTypeFont & copy);
 	virtual ~FreeTypeFont();
 
 	virtual int getHeight() const;
