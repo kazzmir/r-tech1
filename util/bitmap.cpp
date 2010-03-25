@@ -1109,6 +1109,20 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 void Bitmap::BlitFromScreen(const int x, const int y) const {
     Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
 }
+        
+int Bitmap::getScreenWidth(){
+    if (Screen != 0){
+        return Screen->getWidth();
+    }
+    return 0;
+}
+
+int Bitmap::getScreenHeight(){
+    if (Screen != 0){
+        return Screen->getHeight();
+    }
+    return 0;
+}
 	
 void Bitmap::Blit( const Bitmap & where ) const {
 	this->Blit( 0, 0, where );
