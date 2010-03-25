@@ -164,6 +164,11 @@ public:
 	virtual void BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const;
 	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
         virtual void BlitFromScreen(const int x, const int y) const;
+
+        /* try to call Global::getScreenWidth/Height() instead of these directly */
+        static int getScreenWidth();
+        static int getScreenHeight();
+
 	virtual void fill( int color ) const;
 
 	inline void clear() const{
