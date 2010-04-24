@@ -1,17 +1,17 @@
 /* allegro.h must be on top, don't move it!!!! */
 #include <allegro.h>
 
-#include "bitmap.h"
-#include "lit_bitmap.h"
+#include "../bitmap.h"
+#include "../lit_bitmap.h"
 #include <stdarg.h>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <math.h>
-#include "funcs.h"
+#include "../funcs.h"
 #include <stdio.h>
-#include "load_exception.h"
-#include "memory.h"
+#include "../load_exception.h"
+#include "../memory.h"
 #include <sstream>
 // #include <fblend.h>
 

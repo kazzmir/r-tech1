@@ -17,7 +17,6 @@
 #endif
 
 struct BITMAP;
-struct FONT;
 class Font;
 
 class Bitmap{
