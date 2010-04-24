@@ -10,14 +10,12 @@
 
 #include <iostream>
 
-#ifdef _WIN32
-#define BITMAP dummyBITMAP
-#include <windows.h>
-#undef BITMAP
+#ifdef USE_ALLEGRO
+#include "allegro/bitmap.h"
 #endif
-
-struct BITMAP;
-class Font;
+#ifdef USE_SDL
+#include "sdl/bitmap.h"
+#endif
 
 class Bitmap{
 private:
@@ -97,15 +95,6 @@ public:
 	
 	void debugSelf() const;
 
-	/*
-	void printf( int x, int y, int color, FONT * f, const char * str, ... ) const;
-	void printf( int x, int y, int color, const Font * const f, const char * str, ... ) const;
-	void printf( int x, int y, int color, const Font * const f, const string & str ) const;
-	void printf( int x, int y, int color, const Font & f, const string & str ) const;
-	void printfNormal( int x, int y, int color, const char * str, ... ) const;
-	void printfNormal( int x, int y, int color, const string & str ) const;
-	*/
-
         /* convert to a grey scale version */
         virtual Bitmap greyScale();
 
@@ -180,10 +169,14 @@ public:
 
 	bool getError();
 
-	inline BITMAP * getBitmap() const{
-		return _my_bitmap;
+	inline const BitmapData & getData() const {
+            return data;
 	}
-
+	
+        inline BitmapData & getData(){
+            return data;
+	}
+	
 	virtual void readLine( std::vector< int > & vec, int y );
 	int getPixel( const int x, const int y ) const;
 
@@ -246,7 +239,10 @@ public:
 	static int getBlue( int x );
 	static int getGreen( int x );
 
-	/* Add two colors together
+	/* Add two RGB16 colors together
+         *  r = c1.r + c2.r
+         *  g = c1.g + c2.g
+         *  b = c1.b + c2.b
 	 */
 	static int addColor( int color1, int color2 );
 
@@ -271,23 +267,25 @@ public:
 
 protected:
 
-	void releaseInternalBitmap();
+        void releaseInternalBitmap();
 
+        /*
         inline void setBitmap( BITMAP * bitmap ){
             if ( bitmap == NULL ){
                 std::cout << "*FATAL* Setting null bitmap" << std::endl;
             }
             _my_bitmap = bitmap;
         }
+        */
 
-	void internalLoadFile( const char * load_file );
+        void internalLoadFile( const char * load_file );
 
-	BITMAP * _my_bitmap;
-	int * own;
-	// bool own;
-	bool error;
+        /* implementation specific data */
+        BitmapData data;
+        int * own;
+        // bool own;
+        bool error;
         std::string path;
-
         static Bitmap * temporary_bitmap;
 };
 

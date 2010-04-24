@@ -152,7 +152,7 @@ void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const B
     uvszprintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
-    textout_ex(work.getBitmap(), getInternalFont(), buf, x, y, color, -1);
+    textout_ex(work.getData().getBitmap(), getInternalFont(), buf, x, y, color, -1);
 }
 	
 void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
@@ -163,7 +163,7 @@ void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const st
     uvszprintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
-    textout_ex(work.getBitmap(), getInternalFont(), buf, x, y, color, -1);
+    textout_ex(work.getData().getBitmap(), getInternalFont(), buf, x, y, color, -1);
 }
 
 const Font & Font::getDefaultFont(){
