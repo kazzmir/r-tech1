@@ -528,6 +528,7 @@ ECollide::ECollide( const Bitmap & who, int mask_pixel ){
 
 }
 
+#if 0
 ECollide::ECollide( BITMAP * who, int mask_pixel ){
 
 	Bitmap tmp( who );
@@ -538,6 +539,7 @@ ECollide::ECollide( BITMAP * who, int mask_pixel ){
 	last_collide = NULL;
 	*/
 }
+#endif
 
 ECollide::ECollide( int width, int height ){
 

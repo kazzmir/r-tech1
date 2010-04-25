@@ -110,6 +110,7 @@ void Font::printfWrap(int x, int y, int color, const Bitmap & work, int maxWidth
 Font::~Font(){
 }
 
+#ifdef USE_ALLEGRO
 AllegroFont::AllegroFont( const FONT * const font ):
 font(font){
 }
@@ -165,6 +166,7 @@ void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const st
 
     textout_ex(work.getData().getBitmap(), getInternalFont(), buf, x, y, color, -1);
 }
+#endif
 
 const Font & Font::getDefaultFont(){
     // return getFont( "tmp/comic.ttf" );
