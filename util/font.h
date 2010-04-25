@@ -37,6 +37,7 @@ protected:
         void printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const;
 };
 
+#ifdef USE_ALLEGRO
 class AllegroFont: public Font {
 public:
 	AllegroFont( const FONT * const font );
@@ -61,6 +62,7 @@ private:
 
 	const FONT * const font;
 };
+#endif
 
 class FreeTypeFont: public Font {
 public:

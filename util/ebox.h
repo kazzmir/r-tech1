@@ -111,7 +111,7 @@ protected:
 class ECollide{
 public:
 	ECollide( EQuad * const head );
-	ECollide( BITMAP * who, int mask_pixel = Bitmap::MaskColor );
+	// ECollide( BITMAP * who, int mask_pixel = Bitmap::MaskColor );
 	ECollide( const Bitmap * who, int mask_pixel = Bitmap::MaskColor );
 	ECollide( const Bitmap & who, int mask_pixel = Bitmap::MaskColor );
 	ECollide( const ECollide & e );
