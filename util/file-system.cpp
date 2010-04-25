@@ -1,3 +1,6 @@
+#ifdef USE_ALLEGRO
+#include <allegro.h>
+#endif
 #include "funcs.h"
 #include "file-system.h"
 #include "system.h"
@@ -125,6 +128,27 @@ vector<AbsolutePath> findDirectories(const RelativePath & path){
     dirs.insert(dirs.end(), here_dirs.begin(), here_dirs.end());
 
     return dirs;
+}
+
+vector<string> getFiles(const AbsolutePath & dataPath, const string & find){
+#ifdef USE_ALLEGRO
+    struct al_ffblk info;
+    vector< string > files;
+
+    if ( al_findfirst( (dataPath.path() + find).c_str(), &info, FA_ALL ) != 0 ){
+        return files;
+    }
+    files.push_back( dataPath.path() + string( info.name ) );
+    while ( al_findnext( &info ) == 0 ){
+        files.push_back( dataPath.path() + string( info.name ) );
+    }
+    al_findclose( &info );
+
+    return files;
+#else
+    vector<string> files;
+    return files;
+#endif
 }
 
 /* remove extra path separators (/) */

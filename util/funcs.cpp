@@ -1,9 +1,13 @@
+#ifdef USE_ALLEGRO
+#include <allegro.h>
+#endif
 #include "funcs.h"
 #include "globals.h"
-#include <allegro.h>
 #include <vector>
 #include <string>
+#include <string.h>
 #include "file-system.h"
+#include "bitmap.h"
 
 #ifndef WINDOWS
 #include <unistd.h>
@@ -55,7 +59,9 @@ int Util::rnd( int min, int max ){
 }
 
 void Util::rest( int x ){
-	::rest( x );
+#ifdef USE_ALLEGRO
+    ::rest(x);
+#endif
 }
 
 bool Util::checkVersion(int version){
@@ -86,46 +92,37 @@ Filesystem::AbsolutePath Util::getDataPath2(){
 }
 
 bool Util::exists( const string & file ){
-	return ::exists( file.c_str() ) != 0;
+#ifdef USE_ALLEGRO
+    return ::exists( file.c_str() ) != 0;
+#endif
+    return false;
 }
 
-vector< string > Util::getFiles( const Filesystem::AbsolutePath & dataPath, const string & find ){
-	struct al_ffblk info;
-	vector< string > files;
-
-	if ( al_findfirst( (dataPath.path() + find).c_str(), &info, FA_ALL ) != 0 ){
-		return files;
-	}
-	files.push_back( dataPath.path() + string( info.name ) );
-	while ( al_findnext( &info ) == 0 ){
-		files.push_back( dataPath.path() + string( info.name ) );
-	}
-	al_findclose( &info );
-
-	return files;
+vector< string > Util::getFiles(const Filesystem::AbsolutePath & dataPath, const string & find){
+    return Filesystem::getFiles(dataPath, find);
 }
 
-void Util::blend_palette( int * pal, int mp, int sc, int ec ) {
+void Util::blend_palette(int * pal, int mp, int startColor, int endColor ) {
+    /*
+    ASSERT(pal);
+    ASSERT(mp != 0);
+    */
 
-	ASSERT( pal );
-	ASSERT( mp != 0 );
+    int sc_r = Bitmap::getRed(startColor);
+    int sc_g = Bitmap::getGreen(startColor);
+    int sc_b = Bitmap::getBlue(startColor);
 
-	int sc_r = getr( sc );
-	int sc_g = getg( sc );
-	int sc_b = getb( sc );
+    int ec_r = Bitmap::getRed(endColor);
+    int ec_g = Bitmap::getGreen(endColor);
+    int ec_b = Bitmap::getBlue(endColor);
 
-	int ec_r = getr( ec );
-	int ec_g = getg( ec );
-	int ec_b = getb( ec );
-
-	for ( int q = 0; q < mp; q++ ) {
-		float j = (float)( q + 1 ) / (float)( mp );
-		int f_r = (int)( 0.5 + (float)( sc_r ) + (float)( ec_r-sc_r ) * j );
-		int f_g = (int)( 0.5 + (float)( sc_g ) + (float)( ec_g-sc_g ) * j );
-		int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
-		pal[q] = makecol( f_r, f_g, f_b );
-	}
-
+    for ( int q = 0; q < mp; q++ ) {
+        float j = (float)( q + 1 ) / (float)( mp );
+        int f_r = (int)( 0.5 + (float)( sc_r ) + (float)( ec_r-sc_r ) * j );
+        int f_g = (int)( 0.5 + (float)( sc_g ) + (float)( ec_g-sc_g ) * j );
+        int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
+        pal[q] = Bitmap::makeColor( f_r, f_g, f_b );
+    }
 }
 
 string Util::trim(const std::string & str){
@@ -202,7 +199,7 @@ int Util::levenshtein(const std::string & str1, const std::string & str2){
     return levenshtein_distance(str1.c_str(), str2.c_str());
 }
 
-#ifndef ALLEGRO_WINDOWS
+#ifndef WINDOWS
 int Util::getPipe(int files[2]){
     return pipe(files);
 }
