@@ -38,17 +38,6 @@ static void paintown_applyTrans16(BITMAP * dst, const int color);
 
 const int Bitmap::MaskColor = MASK_COLOR_16;
 
-const int Bitmap::MODE_TRANS = 0;
-const int Bitmap::MODE_SOLID = 1;
-	
-const int Bitmap::SPRITE_NO_FLIP = 0;
-const int Bitmap::SPRITE_V_FLIP = 1;
-const int Bitmap::SPRITE_H_FLIP = 2;
-	
-const int Bitmap::SPRITE_NORMAL = 1;
-const int Bitmap::SPRITE_LIT = 2;
-const int Bitmap::SPRITE_TRANS = 3;
-
 Bitmap * Bitmap::Screen = NULL;
 Bitmap * Scaler = NULL;
 Bitmap * Buffer = NULL;
