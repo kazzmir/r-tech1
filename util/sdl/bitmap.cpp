@@ -7,8 +7,8 @@ static int SCREEN_DEPTH = 16;
 static SDL_Surface * screen;
 
 Bitmap * Bitmap::Screen = NULL;
-Bitmap * Scaler = NULL;
-Bitmap * Buffer = NULL;
+static Bitmap * Scaler = NULL;
+static Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap(){
 }

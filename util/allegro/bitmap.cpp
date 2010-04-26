@@ -39,8 +39,8 @@ static void paintown_applyTrans16(BITMAP * dst, const int color);
 const int Bitmap::MaskColor = MASK_COLOR_16;
 
 Bitmap * Bitmap::Screen = NULL;
-Bitmap * Scaler = NULL;
-Bitmap * Buffer = NULL;
+static Bitmap * Scaler = NULL;
+static Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap():
 own( NULL ),
