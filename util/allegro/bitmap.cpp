@@ -28,8 +28,6 @@ using namespace std;
 #define debug cout<<"File: "<<__FILE__<<" Line: "<<__LINE__<<endl;
 #endif
 
-int Bitmap::SCALE_X = 0;
-int Bitmap::SCALE_Y = 0;
 Bitmap * Bitmap::temporary_bitmap = NULL;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
@@ -478,21 +476,11 @@ Bitmap & Bitmap::operator=( const Bitmap & copy ){
 	return *this;
 }
 
+/*
 Bitmap::~Bitmap(){
-	/*
-	if ( own ){
-		(*own)--;
-
-		if ( *own == 0 ){
-			destroy_bitmap( getBitmap() );
-			delete own;
-		} else {
-			// cout<<"Not destroying bitmap "<<this<<endl;
-		}
-	}
-	*/
-	releaseInternalBitmap();
+    releaseInternalBitmap();
 }
+*/
 	
 void Bitmap::detach(){
 

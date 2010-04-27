@@ -2,6 +2,8 @@
 
 /* implementation independant definitions can go here */
 
+int Bitmap::SCALE_X = 0;
+int Bitmap::SCALE_Y = 0;
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
 	
@@ -19,3 +21,7 @@ const int Bitmap::SPRITE_TRANS = 3;
 #ifdef USE_SDL
 #include "sdl/bitmap.cpp"
 #endif
+
+Bitmap::~Bitmap(){
+    releaseInternalBitmap();
+}
