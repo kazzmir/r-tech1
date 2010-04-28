@@ -10,7 +10,7 @@
 
 using namespace std;
 
-extern "C" void rest( int i );
+// extern "C" void rest( int i );
 
 // using namespace Ebox2;
 
