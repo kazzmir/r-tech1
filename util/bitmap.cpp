@@ -1,3 +1,5 @@
+#include <allegro.h>
+
 #include "bitmap.h"
 
 /* implementation independant definitions can go here */
