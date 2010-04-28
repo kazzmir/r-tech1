@@ -1,3 +1,5 @@
+#include <allegro.h>
+
 #ifdef _WIN32
 #define BITMAP dummyBITMAP
 #include <windows.h>
