@@ -1,5 +1,10 @@
 #ifdef USE_ALLEGRO
 #include <allegro.h>
+#ifdef _WIN32
+#define BITMAP dummyBITMAP
+#include <windows.h>
+#undef BITMAP
+#endif
 #endif
 #include "funcs.h"
 #include "file-system.h"

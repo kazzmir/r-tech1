@@ -5,17 +5,16 @@
 #ifndef _paintown_bitmap_h_
 #define _paintown_bitmap_h_
 
-#include <string>
-#include <vector>
-
-#include <iostream>
-
 #ifdef USE_ALLEGRO
 #include "allegro/bitmap.h"
 #endif
 #ifdef USE_SDL
 #include "sdl/bitmap.h"
 #endif
+
+#include <string>
+#include <vector>
+#include <iostream>
 
 class Bitmap{
 private:
