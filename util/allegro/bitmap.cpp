@@ -1,6 +1,12 @@
 /* allegro.h must be on top, don't move it!!!! */
 #include <allegro.h>
 
+#ifdef _WIN32
+#define BITMAP dummyBITMAP
+#include <windows.h>
+#undef BITMAP
+#endif
+
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
 #include <stdarg.h>
