@@ -11,56 +11,72 @@ static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap(){
+    /* TODO */
 }
 
 Bitmap::Bitmap( int x, int y ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const char * load_file ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const std::string & load_file ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ){
+    /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ){
+    /* TODO */
 }
 
 int Bitmap::getWidth() const {
+    /* TODO */
     return 0;
 }
 
 int Bitmap::getHeight() const {
+    /* TODO */
     return 0;
 }
 
 int Bitmap::getRed(int c){
+    /* TODO */
     return 0;
 }
 
 int Bitmap::getBlue(int c){
+    /* TODO */
     return 0;
 }
 
 int Bitmap::getGreen(int c){
+    /* TODO */
     return 0;
 }
 
 int Bitmap::makeColor(int red, int blue, int green){
+    /* TODO */
     return 0;
 }
 	
@@ -109,4 +125,12 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
 
 int Bitmap::setGfxModeFullscreen(int x, int y){
     return setGraphicsMode(FULLSCREEN, x, y);
+}
+	
+void Bitmap::drawingMode(int type){
+    /* TODO */
+}
+	
+void Bitmap::transBlender( int r, int g, int b, int a ){
+    /* TODO */
 }
