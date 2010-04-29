@@ -13,6 +13,33 @@ static Bitmap * Buffer = NULL;
 Bitmap::Bitmap(){
 }
 
+Bitmap::Bitmap( int x, int y ){
+}
+
+Bitmap::Bitmap( const char * load_file ){
+}
+
+Bitmap::Bitmap( const std::string & load_file ){
+}
+
+Bitmap::Bitmap( const char * load_file, int sx, int sy ){
+}
+
+Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ){
+}
+
+Bitmap::Bitmap( const Bitmap & copy, bool deep_copy){
+}
+
+Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ){
+}
+
+Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ){
+}
+
+Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ){
+}
+
 int Bitmap::getWidth() const {
     return 0;
 }
