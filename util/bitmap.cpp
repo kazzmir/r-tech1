@@ -58,3 +58,55 @@ void Bitmap::cleanupTemporaryBitmaps(){
         temporary_bitmap = NULL;
     }
 }
+
+double Bitmap::getScale(){
+    /* the game is pretty much hard coded to run at 320 scaled upto 640
+     * and then scaled to whatever the user wants, but as long as
+     * 320 and 640 remain this number will be 2.
+     * maybe calculate this at some point
+     */
+    return 2;
+    /*
+    if (Scaler != NULL && Buffer != NULL){
+        double x1 = Scaler->getWidth();
+        double x2 = Buffer->getWidth();
+        return x2 / x1;
+    }
+    return 1;
+    */
+}
+
+/* taken from the color addon from allegro 4.9 */
+static void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow, float key, float *red, float *green, float *blue){
+    float max = 1 - key;
+    *red = max - cyan * max;
+    *green = max - magenta * max;
+    *blue = max - yellow * max;
+}
+
+void Bitmap::cymkToRGB(int c, int y, int m, int k, int * r, int * g, int * b){
+    float fc = (float)c / 255.0;
+    float fy = (float)y / 255.0;
+    float fm = (float)m / 255.0;
+    float fk = (float)k / 255.0;
+
+    float fr, fg, fb;
+    al_color_cmyk_to_rgb(fc, fm, fy, fk, &fr, &fg, &fb);
+    *r = (int)(fr * 255.0);
+    *g = (int)(fg * 255.0);
+    *b = (int)(fb * 255.0);
+}
+
+int Bitmap::getScreenWidth(){
+    if (Screen != 0){
+        return Screen->getWidth();
+    }
+    return 0;
+}
+
+int Bitmap::getScreenHeight(){
+    if (Screen != 0){
+        return Screen->getHeight();
+    }
+    return 0;
+}

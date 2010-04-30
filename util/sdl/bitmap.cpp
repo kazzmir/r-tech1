@@ -1,4 +1,5 @@
 #include "../bitmap.h"
+#include "../lit_bitmap.h"
 #include <SDL.h>
 
 static const int FULLSCREEN = 0;
@@ -6,11 +7,18 @@ static const int FULLSCREEN = 0;
 static int SCREEN_DEPTH = 16;
 static SDL_Surface * screen;
 
+/* TODO: fix MaskColor */
+const int Bitmap::MaskColor = 0;
+
 Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap(){
+    /* TODO */
+}
+
+Bitmap::Bitmap(SDL_Surface * who, bool deep_copy){
     /* TODO */
 }
 
@@ -122,6 +130,24 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
 
     return 0;
 }
+	
+void Bitmap::addBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+	
+void Bitmap::differenceBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+	
+Bitmap & Bitmap::operator=(const Bitmap &){
+    /* TODO */
+    return *this;
+}
+        
+int Bitmap::setGfxModeText(){
+    /* TODO */
+    return 0;
+}
 
 int Bitmap::setGfxModeFullscreen(int x, int y){
     return setGraphicsMode(FULLSCREEN, x, y);
@@ -132,5 +158,255 @@ void Bitmap::drawingMode(int type){
 }
 	
 void Bitmap::transBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+	
+void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const{
+    /* TODO */
+}
+        
+void Bitmap::releaseInternalBitmap(){
+    /* TODO */
+}
+	
+void Bitmap::putPixel( int x, int y, int col ) const {
+    /* TODO */
+}
+	
+bool Bitmap::getError(){
+    /* TODO */
+    return false;
+}
+
+void Bitmap::border( int min, int max, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::circleFill( int x, int y, int radius, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::circle( int x, int y, int radius, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
+    /* TODO */
+}
+
+
+void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawTransHFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawTransVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawTransHVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawMask( const int x, const int y, const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
+    /* TODO */
+}
+
+void Bitmap::Blit( const std::string & xpath ) const {
+    /* TODO */
+}
+
+void Bitmap::Blit( const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::BlitToScreen() const {
+    /* TODO */
+}
+
+void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
+    /* TODO */
+}
+
+void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+    /* TODO */
+}
+
+void Bitmap::BlitFromScreen(const int x, const int y) const {
+    /* TODO */
+}
+
+void Bitmap::Stretch( const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
+    /* TODO */
+}
+	
+void Bitmap::save( const std::string & str ){
+    /* TODO */
+}
+	
+void Bitmap::load( const std::string & str ){
+    /* TODO */
+}
+
+void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
+    /* TODO */
+}
+
+void Bitmap::applyTrans(const int color){
+    /* TODO */
+}
+	
+void Bitmap::floodfill( const int x, const int y, const int color ) const {
+    /* TODO */
+}
+	
+void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const {
+    /* TODO */
+}
+	
+void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
+    /* TODO */
+}
+	
+void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+    /* TODO */
+}
+	
+void Bitmap::fill( int color ) const {
+    /* TODO */
+}
+	
+int Bitmap::darken( int color, double factor ){
+    /* TODO */
+    return color;
+}
+        
+Bitmap Bitmap::greyScale(){
+    /* TODO */
+    return *this;
+}
+	
+void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
+    /* TODO */
+}
+        
+Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
+    /* TODO */
+    return Bitmap();
+}
+	
+int Bitmap::getPixel( const int x, const int y ) const {
+    /* TODO */
+    return 0;
+}
+
+void Bitmap::StretchBy2( const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::StretchBy4( const Bitmap & where ){
+    /* TODO */
+}
+
+LitBitmap::LitBitmap( const Bitmap & b ){
+    /* TODO */
+}
+
+LitBitmap::LitBitmap(){
+    /* TODO */
+}
+
+LitBitmap::~LitBitmap(){
     /* TODO */
 }

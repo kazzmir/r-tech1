@@ -640,22 +640,7 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
     return ok;
 }
 
-double Bitmap::getScale(){
-    /* the game is pretty much hard coded to run at 320 scaled upto 640
-     * and then scaled to whatever the user wants, but as long as
-     * 320 and 640 remain this number will be 2.
-     * maybe calculate this at some point
-     */
-    return 2;
-    /*
-    if (Scaler != NULL && Buffer != NULL){
-        double x1 = Scaler->getWidth();
-        double x2 = Buffer->getWidth();
-        return x2 / x1;
-    }
-    return 1;
-    */
-}
+
 
 /*
 const int Bitmap::getWidth() const{
@@ -715,27 +700,7 @@ void Bitmap::rgbToHSV(int r, int g, int b, float * h, float * s, float * v){
     ::rgb_to_hsv(r, g, b, h, s, v);
 }
 
-/* taken from the color addon from allegro 4.9 */
-static void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow, float key, float *red, float *green, float *blue){
-    float max = 1 - key;
-    *red = max - cyan * max;
-    *green = max - magenta * max;
-    *blue = max - yellow * max;
-}
 
-void Bitmap::cymkToRGB(int c, int y, int m, int k, int * r, int * g, int * b){
-    float fc = (float)c / 255.0;
-    float fy = (float)y / 255.0;
-    float fm = (float)m / 255.0;
-    float fk = (float)k / 255.0;
-
-    float fr, fg, fb;
-    al_color_cmyk_to_rgb(fc, fm, fy, fk, &fr, &fg, &fb);
-    *r = (int)(fr * 255.0);
-    *g = (int)(fg * 255.0);
-    *b = (int)(fb * 255.0);
-}
-	
 int Bitmap::addColor( int color1, int color2 ){
 	return makeColor( getr( color1 ) + getr( color2 ),
 			  getg( color1 ) + getg( color2 ),
@@ -1068,21 +1033,7 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 void Bitmap::BlitFromScreen(const int x, const int y) const {
     Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
 }
-        
-int Bitmap::getScreenWidth(){
-    if (Screen != 0){
-        return Screen->getWidth();
-    }
-    return 0;
-}
 
-int Bitmap::getScreenHeight(){
-    if (Screen != 0){
-        return Screen->getHeight();
-    }
-    return 0;
-}
-	
 void Bitmap::Blit( const Bitmap & where ) const {
 	this->Blit( 0, 0, where );
 }
