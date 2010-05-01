@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
+#include <stdarg.h>
 
 #include "regex.h"
 #include "file-system.h"
@@ -58,6 +59,8 @@ std::string upcase(std::string str);
 int levenshtein(const std::string & str1, const std::string & str2);
 
 int getPipe(int files[2]);
+
+void limitPrintf(char * buffer, int size, const char * format, va_list args);
 
 }
 
