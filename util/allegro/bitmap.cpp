@@ -984,8 +984,8 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
 }
 
 void Bitmap::Blit( const string & xpath ) const {
-	Bitmap duh( xpath );
-	duh.Blit( *this );
+    Bitmap duh( xpath );
+    duh.Blit( *this );
 }
 
 void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
@@ -1024,11 +1024,6 @@ void Bitmap::Blit( const Bitmap & where ) const {
 	this->Blit( 0, 0, where );
 }
 
-void Bitmap::BlitToScreen() const {
-	// this->Blit( *Bitmap::Screen );
-	this->BlitToScreen( 0, 0 );
-}
-	
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
     if ( Scaler == NULL ){
         this->Blit( upper_left_x, upper_left_y, *Bitmap::Screen );
@@ -1038,7 +1033,7 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
         Scaler->Blit( 0, 0, 0, 0, *Screen );
     }
 }
-	
+
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
 
     if ( Scaler != NULL ){

@@ -129,3 +129,9 @@ void Bitmap::releaseInternalBitmap(){
     }
 }
 
+void Bitmap::BlitToScreen() const {
+    // this->Blit( *Bitmap::Screen );
+    this->BlitToScreen(0, 0);
+}
+
+
