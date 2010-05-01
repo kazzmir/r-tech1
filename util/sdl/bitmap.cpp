@@ -1,6 +1,8 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
 #include <SDL.h>
+#include <SDL_image.h>
+#include <exception>
 
 static const int FULLSCREEN = 0;
 /* bits per pixel */
@@ -14,48 +16,72 @@ Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
-Bitmap::Bitmap(){
+Bitmap::Bitmap():
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap(SDL_Surface * who, bool deep_copy){
-    /* TODO */
+Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
+own(NULL){
+    getData().setSurface(who);
 }
 
 Bitmap::Bitmap( int x, int y ){
     /* TODO */
 }
 
-Bitmap::Bitmap( const char * load_file ){
+Bitmap::Bitmap( const char * load_file ):
+own(NULL){
+    internalLoadFile(load_file);
+}
+
+Bitmap::Bitmap( const std::string & load_file ):
+own(NULL){
+    internalLoadFile(load_file.c_str());
+}
+
+Bitmap::Bitmap( const char * load_file, int sx, int sy ):
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap( const std::string & load_file ){
+Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap( const char * load_file, int sx, int sy ){
+Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ){
+Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap( const Bitmap & copy, bool deep_copy){
+Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ){
+Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
+own(NULL){
     /* TODO */
 }
 
-Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ){
-    /* TODO */
-}
-
-Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ){
-    /* TODO */
+void Bitmap::internalLoadFile(const char * path){
+    this->path = path;
+    SDL_Surface * loaded = IMG_Load(path);
+    if (loaded){
+        getData().setSurface(SDL_DisplayFormat(loaded));
+        SDL_FreeSurface(loaded);
+    } else {
+        /* FIXME: throw a standard bitmap exception */
+        throw std::exception();
+    }
+    own = new int;
+    *own = 1;
 }
 
 int Bitmap::getWidth() const {
@@ -328,10 +354,6 @@ void Bitmap::save( const std::string & str ){
     /* TODO */
 }
 	
-void Bitmap::load( const std::string & str ){
-    /* TODO */
-}
-
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
     /* TODO */
 }

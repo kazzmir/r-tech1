@@ -8,5 +8,9 @@ struct BitmapData{
         return surface;
     }
 
+    void setSurface(SDL_Surface * surface){
+        this->surface = surface;
+    }
+
     SDL_Surface * surface;
 };
