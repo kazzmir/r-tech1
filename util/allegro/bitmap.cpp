@@ -360,22 +360,8 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     return bitmap;
 }
 
-/* decrement bitmap reference counter and free memory if counter hits 0 */
-void Bitmap::releaseInternalBitmap(){
-    const int MAGIC_DEBUG = 0xa5a5a5;
-    if (own != NULL){
-        if (*own == MAGIC_DEBUG){
-            printf("[bitmap] Trying to delete an already deleted reference counter %p\n", own);
-        }
-
-        (*own) -= 1;
-        if ( *own == 0 ){
-            *own = MAGIC_DEBUG;
-            delete own;
-            destroy_bitmap(getData().getBitmap());
-            own = NULL;
-        }
-    }
+void Bitmap::destroyPrivateData(){
+    destroy_bitmap(getData().getBitmap());
 }
 
 int Bitmap::getWidth() const{

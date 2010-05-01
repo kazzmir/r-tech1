@@ -273,7 +273,11 @@ public:
 
 protected:
 
+        /* release a reference count, and possibly destroy data */
         void releaseInternalBitmap();
+
+        /* really destroy private data */
+        void destroyPrivateData();
 
         /*
         inline void setBitmap( BITMAP * bitmap ){

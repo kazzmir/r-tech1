@@ -169,11 +169,11 @@ void Bitmap::transBlender( int r, int g, int b, int a ){
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const{
     /* TODO */
 }
-        
-void Bitmap::releaseInternalBitmap(){
-    /* TODO */
+
+void Bitmap::destroyPrivateData(){
+    SDL_FreeSurface(getData().surface);
 }
-	
+
 void Bitmap::putPixel( int x, int y, int col ) const {
     /* TODO */
 }
@@ -285,7 +285,7 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 }
 
 void Bitmap::BlitToScreen() const {
-    /* TODO */
+    SDL_Flip(screen);
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
