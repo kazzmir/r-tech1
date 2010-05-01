@@ -199,6 +199,14 @@ int Util::levenshtein(const std::string & str1, const std::string & str2){
     return levenshtein_distance(str1.c_str(), str2.c_str());
 }
 
+void Util::limitPrintf(char * buffer, int size, const char * format, va_list args){
+#ifdef USE_ALLEGRO
+    uvszprintf(buffer, size, format, args);
+#else
+    vsnprintf(buffer, size, format, args);
+#endif
+}
+
 #ifndef WINDOWS
 int Util::getPipe(int files[2]){
     return pipe(files);
