@@ -1,6 +1,9 @@
 #ifdef USE_ALLEGRO
 #include <allegro.h>
 #endif
+#ifdef USE_SDL
+#include <SDL.h>
+#endif
 #include "funcs.h"
 #include "globals.h"
 #include <vector>
@@ -58,9 +61,13 @@ int Util::rnd( int min, int max ){
 	return rnd( max - min ) + min;
 }
 
+/* sleep for `x' milliseconds */
 void Util::rest( int x ){
 #ifdef USE_ALLEGRO
     ::rest(x);
+#endif
+#ifdef USE_SDL
+    SDL_Delay(x);
 #endif
 }
 

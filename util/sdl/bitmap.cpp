@@ -265,34 +265,50 @@ void Bitmap::Blit( const std::string & xpath ) const {
 }
 
 void Bitmap::Blit( const Bitmap & where ) const {
-    /* TODO */
+    Blit(0, 0, where);
 }
 
 void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    Blit(x, y, 0, 0, where);
 }
 
 void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const {
-    /* TODO */
+    Blit(mx, my, getWidth(), getHeight(), wx, wy, where);
 }
 
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-    /* TODO */
+    SDL_Rect source;
+    SDL_Rect destination;
+    source.w = width;
+    source.h = height;
+    source.x = mx;
+    source.y = my;
+
+    destination.w = width;
+    destination.h = height;
+    destination.x = wx;
+    destination.y = wy;
+
+    SDL_BlitSurface(getData().getSurface(), &source, where.getData().getSurface(), &destination);
 }
 
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
     /* TODO */
 }
 
-void Bitmap::BlitToScreen() const {
-    SDL_Flip(screen);
+void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+    if ( Scaler == NULL ){
+        this->Blit( upper_left_x, upper_left_y, *Screen );
+    } else {
+        this->Blit( upper_left_x, upper_left_y, *Buffer );
+        Buffer->Stretch(*Scaler);
+        Scaler->Blit(0, 0, 0, 0, *Screen);
+    }
+
+    SDL_Flip(Screen->getData().getSurface());
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
-    /* TODO */
-}
-
-void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
     /* TODO */
 }
 
