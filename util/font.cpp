@@ -1,6 +1,10 @@
-#include <allegro.h>
 #include "bitmap.h"
+#ifdef USE_ALLEGRO
+/* for textout_* and whatnot */
+#include <allegro.h>
+#endif
 #include "font.h"
+#include "funcs.h"
 #include "init.h"
 #include "factory/font_factory.h"
 #include <string.h>
@@ -85,7 +89,7 @@ void Font::printfWrap(int x, int y, int color, const Bitmap & work, int maxWidth
     va_list ap;
 
     va_start(ap, marker);
-    uvszprintf(buf, sizeof(buf), str.c_str(), ap);
+    Util::limitPrintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
     char * start = buf;
@@ -150,7 +154,7 @@ void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const B
     va_list ap;
 
     va_start(ap, marker);
-    uvszprintf(buf, sizeof(buf), str.c_str(), ap);
+    Util::limitPrintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
     textout_ex(work.getData().getBitmap(), getInternalFont(), buf, x, y, color, -1);
