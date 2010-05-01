@@ -135,6 +135,10 @@ void Bitmap::addBlender( int r, int g, int b, int a ){
     /* TODO */
 }
 	
+void Bitmap::multiplyBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+	
 void Bitmap::differenceBlender( int r, int g, int b, int a ){
     /* TODO */
 }
@@ -170,6 +174,10 @@ void Bitmap::releaseInternalBitmap(){
 }
 	
 void Bitmap::putPixel( int x, int y, int col ) const {
+    /* TODO */
+}
+	
+void Bitmap::putPixelNormal(int x, int y, int col) const {
     /* TODO */
 }
 	
@@ -390,6 +398,10 @@ int Bitmap::getPixel( const int x, const int y ) const {
     /* TODO */
     return 0;
 }
+	
+void Bitmap::readLine( std::vector< int > & vec, int y ){
+    /* TODO */
+}
 
 void Bitmap::StretchBy2( const Bitmap & where ){
     /* TODO */
@@ -408,5 +420,21 @@ LitBitmap::LitBitmap(){
 }
 
 LitBitmap::~LitBitmap(){
+    /* TODO */
+}
+	
+void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
     /* TODO */
 }
