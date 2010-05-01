@@ -1,4 +1,7 @@
+#ifdef USE_ALLEGRO
 #include <allegro.h>
+#endif
+
 #include "compress.h"
 #include "memory.h"
 #include "globals.h"
@@ -6,6 +9,7 @@
 namespace Compress{
 
 void testCompression(unsigned char * input, int length){
+#ifdef USE_ALLEGRO
     unsigned char * data = new unsigned char[length*2];
     PACKFILE_VTABLE table = Memory::makeTable();
     Memory::memory memory(data, length*2);
@@ -23,6 +27,7 @@ void testCompression(unsigned char * input, int length){
     Global::debug(0) << "Compressed " << length << " to " << memory.getSize() << " ratio is " << ((double)memory.getSize() / length) << std::endl;
 
     delete[] data;
+#endif
 }
 
 }

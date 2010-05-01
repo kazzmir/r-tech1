@@ -1,5 +1,5 @@
-#ifndef _pain_sound_h
-#define _pain_sound_h
+#ifndef _paintown_sound_h
+#define _paintown_sound_h
 
 #include <string>
 #include "load_exception.h"
@@ -13,8 +13,8 @@ public:
         /* create from wav file (riff header + pcm) */
         Sound(const char * data, int length);
         /* load from path */
-	Sound( const std::string & path ) throw( LoadException );
-	Sound( const Sound & copy );
+	Sound(const std::string & path) throw (LoadException);
+	Sound(const Sound & copy);
 
 	Sound & operator=( const Sound & rhs );
 
@@ -33,7 +33,6 @@ protected:
 
 	/* reference counting */
 	int * own;
-
 };
 
 #endif
