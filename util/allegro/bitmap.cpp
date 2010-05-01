@@ -284,11 +284,6 @@ error( false ){
 	*own = 1;
 }
 	
-void Bitmap::load( const string & str ){
-	releaseInternalBitmap();
-	internalLoadFile( str.c_str() );
-}
-	
 void Bitmap::internalLoadFile( const char * load_file ){
 	path = load_file;
 	getData().setBitmap( load_bitmap( load_file, NULL ) );

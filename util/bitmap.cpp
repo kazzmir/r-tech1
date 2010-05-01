@@ -3,6 +3,7 @@
 #endif
 
 #include "bitmap.h"
+#include <string>
 
 /* implementation independant definitions can go here */
 
@@ -134,4 +135,7 @@ void Bitmap::BlitToScreen() const {
     this->BlitToScreen(0, 0);
 }
 
-
+void Bitmap::load( const std::string & str ){
+    releaseInternalBitmap();
+    internalLoadFile( str.c_str() );
+}
