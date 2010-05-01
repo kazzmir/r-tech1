@@ -32,7 +32,7 @@ Exception::~Exception() throw (){
 }
 
 NotFound::NotFound(const std::string & file):
-Exception(file){
+Exception(file + string(" was not found")){
 }
 
 NotFound::~NotFound() throw(){
