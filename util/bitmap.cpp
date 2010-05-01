@@ -110,3 +110,22 @@ int Bitmap::getScreenHeight(){
     }
     return 0;
 }
+
+/* decrement bitmap reference counter and free memory if counter hits 0 */
+void Bitmap::releaseInternalBitmap(){
+    const int MAGIC_DEBUG = 0xa5a5a5;
+    if (own != NULL){
+        if (*own == MAGIC_DEBUG){
+            printf("[bitmap] Trying to delete an already deleted reference counter %p\n", own);
+        }
+
+        (*own) -= 1;
+        if ( *own == 0 ){
+            *own = MAGIC_DEBUG;
+            delete own;
+            destroyPrivateData();
+            own = NULL;
+        }
+    }
+}
+

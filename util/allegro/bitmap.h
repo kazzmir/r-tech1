@@ -9,6 +9,9 @@
 struct BITMAP;
 
 struct BitmapData{
+    BitmapData():
+        bitmap(0){}
+
     inline BITMAP * getBitmap() const {
         return bitmap;
     }
