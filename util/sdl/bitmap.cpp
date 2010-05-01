@@ -90,7 +90,8 @@ int Bitmap::makeColor(int red, int blue, int green){
 	
 int Bitmap::setGraphicsMode(int mode, int width, int height){
     switch (mode){
-        case FULLSCREEN : {
+        default: {
+        // case WINDOWED : {
             screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE);
             if (!screen){
                 return 1;
