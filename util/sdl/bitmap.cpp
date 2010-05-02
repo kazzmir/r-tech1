@@ -26,8 +26,10 @@ own(NULL){
     getData().setSurface(who);
 }
 
-Bitmap::Bitmap( int x, int y ){
-    /* TODO */
+Bitmap::Bitmap(int w, int h){
+    getData().setSurface(SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0));
+    own = new int;
+    *own = 1;
 }
 
 Bitmap::Bitmap( const char * load_file ):
@@ -85,12 +87,18 @@ void Bitmap::internalLoadFile(const char * path){
 }
 
 int Bitmap::getWidth() const {
-    /* TODO */
+    if (getData().getSurface() != NULL){
+        return getData().getSurface()->w;
+    }
+
     return 0;
 }
 
 int Bitmap::getHeight() const {
-    /* TODO */
+    if (getData().getSurface() != NULL){
+        return getData().getSurface()->h;
+    }
+
     return 0;
 }
 
@@ -118,7 +126,8 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
     switch (mode){
         default: {
         // case WINDOWED : {
-            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE);
+            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_DOUBLEBUF);
             if (!screen){
                 return 1;
             }
@@ -332,6 +341,7 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
     }
 
     SDL_Flip(Screen->getData().getSurface());
+    // SDL_UpdateRect(Screen->getData().getSurface(), 0, 0, Screen->getWidth(), Screen->getHeight());
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
@@ -344,6 +354,16 @@ void Bitmap::BlitFromScreen(const int x, const int y) const {
 
 void Bitmap::Stretch( const Bitmap & where ) const {
     /* TODO */
+    if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
+        Blit(where);
+    } else {
+        SDL_Rect area;
+        area.x = 0;
+        area.y = 0;
+        area.w = 100;
+        area.h = 100;
+        SDL_FillRect(where.getData().getSurface(), &area, SDL_MapRGB(where.getData().getSurface()->format, 255, 0, 0));
+    }
 }
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
