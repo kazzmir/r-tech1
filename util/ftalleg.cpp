@@ -226,19 +226,21 @@ namespace ftalleg{
 		if ( ft!=fontTable.end() ){
 			std::map<signed long, character>::iterator p;
 			p = (ft->second).find(unicode);
-			if(p!=(ft->second).end())
-			{
+			if(p!=(ft->second).end()){
 				const character & tempChar = p->second;
 
 				unsigned char *line = tempChar.line;
-				for (int y = 0; y < tempChar.rows; y++)
-				{
+				for (int y = 0; y < tempChar.rows; y++){
 					unsigned char *buffer = line;
-					for (int x = 0; x < tempChar.width; x++)
-					{
+					for (int x = 0; x < tempChar.width; x++){
 						int col = fixColor(buffer++,tempChar.grays);
 
-						if((Bitmap::getRed(col)< 50) || (Bitmap::getGreen(col)< 50) || (Bitmap::getBlue(col)< 50))continue;
+						if ((Bitmap::getRed(col) < 50) ||
+                                                    (Bitmap::getGreen(col) < 50) ||
+                                                    (Bitmap::getBlue(col) < 50)){
+                                                    continue;
+                                                }
+
 						int red = Bitmap::getRed(col) * Bitmap::getRed(color) / 255;
 						int green = Bitmap::getGreen(col) * Bitmap::getGreen(color) / 255;
 						int blue = Bitmap::getBlue(col) * Bitmap::getBlue(color) / 255;
@@ -254,7 +256,7 @@ namespace ftalleg{
 					}
 					line += tempChar.pitch;
 				}
-				x1+=tempChar.right;
+				x1 += tempChar.right;
 			}
 		}
 	}
