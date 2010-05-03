@@ -167,14 +167,16 @@ namespace ftalleg {
 			//! Face Name
 			std::string faceName;
 			
+                        /*
 			//! Current character
 			character *currentChar;
+                        */
 			
 			//! Lookup Table by size
-			std::map<int, std::map<signed long, character> >fontTable;
+			std::map<int, std::map<signed long, character*> >fontTable;
 			
 			//! Extract glyph
-			character extractGlyph(signed long unicode);
+			character * extractGlyph(signed long unicode);
 
 			int calculateMaximumHeight();
 			
@@ -186,6 +188,9 @@ namespace ftalleg {
 
 			int height( long code ) const;
 			int calculateHeight( const std::string & str ) const;
+        
+                        /* only called by the destructor */
+                        void destroyGlyphIndex();
 			
 		public:
 			//! Constructor
