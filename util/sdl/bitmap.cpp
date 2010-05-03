@@ -2,6 +2,7 @@
 #include "../lit_bitmap.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_gfxPrimitives.h>
 #include <exception>
 
 static const int FULLSCREEN = 0;
@@ -219,6 +220,12 @@ void Bitmap::transBlender( int r, int g, int b, int a ){
 	
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     getData().setClip(x1, y1, x2, y2);
+    SDL_Rect area;
+    area.x = x1;
+    area.y = y1;
+    area.w = x2 - x1;
+    area.h = y2 - y1;
+    SDL_SetClipRect(getData().getSurface(), &area);
 }
 
 void Bitmap::destroyPrivateData(){
@@ -285,25 +292,24 @@ void Bitmap::border( int min, int max, int color ) const {
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
-    /* TODO */
+    rectangleColor(getData().getSurface(), x1, y1, x2, y2, color);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
-    /* TODO */
+    boxColor(getData().getSurface(), x1, y1, x2, y2, color);
 }
 
-void Bitmap::circleFill( int x, int y, int radius, int color ) const {
-    /* TODO */
+void Bitmap::circleFill(int x, int y, int radius, int color) const {
+    filledCircleColor(getData().getSurface(), x, y, radius, color);
 }
 
-void Bitmap::circle( int x, int y, int radius, int color ) const {
-    /* TODO */
+void Bitmap::circle(int x, int y, int radius, int color) const {
+    circleColor(getData().getSurface(), x, y, radius, color);
 }
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
-    /* TODO */
+    lineColor(getData().getSurface(), x1, y1, x2, y2, color);
 }
-
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     /* TODO */
@@ -474,10 +480,16 @@ void Bitmap::polygon( const int * verts, const int nverts, const int color ) con
 	
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
     /* TODO */
+    // arcColor(getData().getSurface(), x, y, 
 }
 	
-void Bitmap::fill( int color ) const {
-    /* TODO */
+void Bitmap::fill(int color) const {
+    SDL_Rect area;
+    area.x = 0;
+    area.y = 0;
+    area.w = getWidth();
+    area.h = getHeight();
+    SDL_FillRect(getData().getSurface(), &area, color);
 }
 	
 int Bitmap::darken( int color, double factor ){
