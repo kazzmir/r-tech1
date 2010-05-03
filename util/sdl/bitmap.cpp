@@ -300,7 +300,9 @@ void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
 }
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
-    filledCircleColor(getData().getSurface(), x, y, radius, color);
+    Uint8 red, green, blue;
+    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
+    filledCircleRGBA(getData().getSurface(), x, y, radius, red, green, blue, 255);
 }
 
 void Bitmap::circle(int x, int y, int radius, int color) const {
@@ -336,7 +338,8 @@ void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const 
 }
 
 void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    /* FIXME */
+    Blit(x, y, where);
 }
 
 void Bitmap::drawTransHFlip( const int x, const int y, const Bitmap & where ) const {
@@ -368,7 +371,7 @@ void Bitmap::Blit( const Bitmap & where ) const {
 }
 
 void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
-    Blit(x, y, 0, 0, where);
+    Blit(0, 0, x, y, where);
 }
 
 void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const {
