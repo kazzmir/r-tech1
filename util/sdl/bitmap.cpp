@@ -79,6 +79,21 @@ own(NULL){
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own(NULL){
     /* TODO */
+    path = copy.getPath();
+    SDL_Surface * his = copy.getData().getSurface();
+    if ( x < 0 )
+        x = 0;
+    if ( y < 0 )
+        y = 0;
+    if ( width > his->w )
+        width = his->w;
+    if ( height > his->h )
+        height = his->h;
+    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(his->pixels, width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
+    getData().setSurface(sub);
+
+    own = new int;
+    *own = 1;
 }
 
 void Bitmap::internalLoadFile(const char * path){
