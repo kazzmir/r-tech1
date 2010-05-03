@@ -103,23 +103,31 @@ int Bitmap::getHeight() const {
 }
 
 int Bitmap::getRed(int c){
-    /* TODO */
-    return 0;
+    Uint8 red = 0;
+    Uint8 green = 0;
+    Uint8 blue = 0;
+    SDL_GetRGB(c, Screen->getData().getSurface()->format, &red, &green, &blue);
+    return red;
 }
 
 int Bitmap::getBlue(int c){
-    /* TODO */
-    return 0;
+    Uint8 red = 0;
+    Uint8 green = 0;
+    Uint8 blue = 0;
+    SDL_GetRGB(c, Screen->getData().getSurface()->format, &red, &green, &blue);
+    return blue;
 }
 
 int Bitmap::getGreen(int c){
-    /* TODO */
-    return 0;
+    Uint8 red = 0;
+    Uint8 green = 0;
+    Uint8 blue = 0;
+    SDL_GetRGB(c, Screen->getData().getSurface()->format, &red, &green, &blue);
+    return green;
 }
 
 int Bitmap::makeColor(int red, int blue, int green){
-    /* TODO */
-    return 0;
+    return SDL_MapRGB(Screen->getData().getSurface()->format, red, blue, green);
 }
 	
 int Bitmap::setGraphicsMode(int mode, int width, int height){
@@ -209,12 +217,56 @@ void Bitmap::destroyPrivateData(){
     SDL_FreeSurface(getData().surface);
 }
 
-void Bitmap::putPixel( int x, int y, int col ) const {
-    /* TODO */
+void Bitmap::putPixel(int x, int y, int pixel) const {
+    SDL_Surface * surface = getData().getSurface();
+
+    /* clip it */
+    if (x < 0 || y < 0 ||
+        x >= surface->w ||
+        y >= surface->h){
+        return;
+    }
+
+    if (SDL_MUSTLOCK(surface)){
+        SDL_LockSurface(surface);
+    }
+
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to set */
+    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+
+    switch(bpp) {
+        case 1:
+            *p = pixel;
+            break;
+
+        case 2:
+            *(Uint16 *)p = pixel;
+            break;
+
+        case 3:
+            if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+                p[0] = (pixel >> 16) & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = pixel & 0xff;
+            } else {
+                p[0] = pixel & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = (pixel >> 16) & 0xff;
+            }
+            break;
+        case 4:
+            *(Uint32 *)p = pixel;
+            break;
+    }
+
+    if (SDL_MUSTLOCK(surface)){
+        SDL_UnlockSurface(surface);
+    }
 }
 	
 void Bitmap::putPixelNormal(int x, int y, int col) const {
-    /* TODO */
+    putPixel(x, y, col);
 }
 	
 bool Bitmap::getError(){
