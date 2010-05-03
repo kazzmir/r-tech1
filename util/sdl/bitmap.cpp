@@ -296,7 +296,9 @@ void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
-    boxColor(getData().getSurface(), x1, y1, x2, y2, color);
+    Uint8 red, green, blue;
+    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
+    boxRGBA(getData().getSurface(), x1, y1, x2, y2, red, green, blue, 255);
 }
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
@@ -314,7 +316,6 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    /* FIXME */
     if (getData().getSurface() != NULL){
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
         Blit(x, y, where);
