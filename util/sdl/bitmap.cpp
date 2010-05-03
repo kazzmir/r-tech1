@@ -11,7 +11,7 @@ static int SCREEN_DEPTH = 16;
 static SDL_Surface * screen;
 
 /* TODO: fix MaskColor */
-const int Bitmap::MaskColor = 0;
+const int Bitmap::MaskColor = -1;
 
 Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
@@ -314,7 +314,11 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    /* TODO */
+    /* FIXME */
+    if (getData().getSurface() != NULL){
+        SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
+        Blit(x, y, where);
+    }
 }
 
 void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
@@ -339,7 +343,7 @@ void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const 
 
 void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const {
     /* FIXME */
-    Blit(x, y, where);
+    draw(x, y, where);
 }
 
 void Bitmap::drawTransHFlip( const int x, const int y, const Bitmap & where ) const {
