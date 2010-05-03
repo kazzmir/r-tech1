@@ -16,6 +16,14 @@ Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
+void BitmapData::setSurface(SDL_Surface * surface){
+    this->surface = surface;
+    clip_left = 0;
+    clip_right = surface->w - 1;
+    clip_top = 0;
+    clip_bottom = surface->h - 1;
+}
+
 Bitmap::Bitmap():
 own(NULL){
     /* TODO */
@@ -209,8 +217,8 @@ void Bitmap::transBlender( int r, int g, int b, int a ){
     /* TODO */
 }
 	
-void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const{
-    /* TODO */
+void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
+    getData().setClip(x1, y1, x2, y2);
 }
 
 void Bitmap::destroyPrivateData(){
@@ -221,9 +229,7 @@ void Bitmap::putPixel(int x, int y, int pixel) const {
     SDL_Surface * surface = getData().getSurface();
 
     /* clip it */
-    if (x < 0 || y < 0 ||
-        x >= surface->w ||
-        y >= surface->h){
+    if (getData().isClipped(x, y)){
         return;
     }
 
