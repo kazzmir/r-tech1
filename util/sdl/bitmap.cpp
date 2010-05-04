@@ -369,8 +369,11 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     if (getData().getSurface() != NULL){
+	paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP);
+        /*
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
         Blit(x, y, where);
+        */
     }
 }
 
@@ -808,23 +811,25 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
         {
 
         switch (mode){
-            /*
             case Bitmap::SPRITE_NORMAL : {
-                                             for (y = 0; y < h; y++) {
-                                                 PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
-                                                 PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
+int bpp = src->format->BytesPerPixel;
+                unsigned int mask = Bitmap::makeColor(255, 0, 255);
+                for (y = 0; y < h; y++) {
+                    Uint8 * sourceLine = (Uint8 *) src->pixels + (sybeg + y) * src->pitch + sxbeg * bpp;
+                    Uint8 * destLine = (Uint8 *) dst->pixels + (dybeg + y * y_dir) * dst->pitch + dxbeg * bpp;
 
-                                                 for (x = w - 1; x >= 0; PAINTOWN_INC_PIXEL_PTR(s), PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), x--) {
-                                                     unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
-                                                     if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
-                                                         PAINTOWN_PUT_MEMORY_PIXEL(d, c);
-                                                     }
-                                                 }
-                                             }
-
-                                             break;
-                                         }
-            case Bitmap::SPRITE_LIT : {
+                    for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
+                        unsigned long sourcePixel = *(Uint16*) sourceLine;
+                        if (!(sourcePixel == mask)){
+                            // unsigned int destPixel = *(Uint16*) destLine;
+                            // sourcePixel = globalBlend.currentBlender(destPixel, sourcePixel, globalBlend.alpha);
+                            *(Uint16 *)destLine = sourcePixel;
+                        }
+                    }
+                }
+             }
+                                         /*
+             case Bitmap::SPRITE_LIT : {
                                           for (y = 0; y < h; y++) {
                                               PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
                                               PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
