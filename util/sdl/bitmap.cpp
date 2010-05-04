@@ -675,6 +675,14 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
     ASSERT(dst);
     ASSERT(src);
     */
+    
+    if (SDL_MUSTLOCK(src)){
+        SDL_LockSurface(src);
+    }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_LockSurface(dst);
+    }
 
     if ( flip & Bitmap::SPRITE_V_FLIP ){
         y_dir = -1;
@@ -900,5 +908,13 @@ int bpp = src->format->BytesPerPixel;
             }
         }
 #endif
+    }
+    
+    if (SDL_MUSTLOCK(src)){
+        SDL_UnlockSurface(src);
+    }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_UnlockSurface(dst);
     }
 }
