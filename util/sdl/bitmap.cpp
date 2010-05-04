@@ -40,6 +40,7 @@ struct BlendingData{
 };
 
 static BlendingData globalBlend;
+static int drawingMode = Bitmap::MODE_SOLID;
 
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
 
@@ -259,7 +260,7 @@ int Bitmap::setGfxModeFullscreen(int x, int y){
 }
 	
 void Bitmap::drawingMode(int type){
-    /* TODO */
+    ::drawingMode = type;
 }
 	
 void Bitmap::transBlender( int r, int g, int b, int a ){
@@ -306,7 +307,16 @@ void Bitmap::putPixel(int x, int y, int pixel) const {
             break;
 
         case 2:
-            *(Uint16 *)p = pixel;
+            switch (::drawingMode){
+                case MODE_SOLID : {
+                    *(Uint16 *)p = pixel;
+                    break;
+                }
+                case MODE_TRANS : {
+                    *(Uint16 *)p = globalBlend.currentBlender(pixel, *(Uint16*)p, globalBlend.alpha);
+                    break;
+                }
+            }
             break;
 
         case 3:
