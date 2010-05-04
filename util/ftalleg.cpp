@@ -230,6 +230,39 @@ namespace ftalleg{
 	}
         */
 
+        void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Bitmap & bitmap, const int & color){
+            unsigned char *line = tempChar->line;
+            for (int y = 0; y < tempChar->rows; y++){
+                unsigned char *buffer = line;
+                for (int x = 0; x < tempChar->width; x++){
+                    int col = fixColor(buffer++,tempChar->grays);
+
+                    if ((Bitmap::getRed(col) < 50) ||
+                            (Bitmap::getGreen(col) < 50) ||
+                            (Bitmap::getBlue(col) < 50)){
+                        continue;
+                    }
+
+                    int red = Bitmap::getRed(col) * Bitmap::getRed(color) / 255;
+                    int green = Bitmap::getGreen(col) * Bitmap::getGreen(color) / 255;
+                    int blue = Bitmap::getBlue(col) * Bitmap::getBlue(color) / 255;
+
+                    //col.alpha= col.alpha * color.alpha / 255;
+                    // putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
+                    /* dangerous! putter is probably one of the _putpixel* routines so if x or y are off the bitmap
+                     * you will get a segfault
+                     */
+                    // putter(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
+                    // putter = 0;
+                    int finalX = x1+tempChar->left+x;
+                    int finalY = y1 - tempChar->top + y + sizeHeight;
+                    bitmap.putPixelNormal(finalX, finalY, Bitmap::makeColor(red,green,blue));
+                }
+                line += tempChar->pitch;
+            }
+            x1 += tempChar->right;
+        }
+
 	// Render a character from the lookup table
         void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Bitmap & bitmap, const int &color){
 
@@ -240,39 +273,9 @@ namespace ftalleg{
             if ( ft!=fontTable.end() ){
                 std::map<signed long, character*>::iterator p;
                 p = (ft->second).find(unicode);
-                if(p!=(ft->second).end()){
+                if (p!=(ft->second).end()){
                     const character * tempChar = p->second;
-
-                    unsigned char *line = tempChar->line;
-                    for (int y = 0; y < tempChar->rows; y++){
-                        unsigned char *buffer = line;
-                        for (int x = 0; x < tempChar->width; x++){
-                            int col = fixColor(buffer++,tempChar->grays);
-
-                            if ((Bitmap::getRed(col) < 50) ||
-                                    (Bitmap::getGreen(col) < 50) ||
-                                    (Bitmap::getBlue(col) < 50)){
-                                continue;
-                            }
-
-                            int red = Bitmap::getRed(col) * Bitmap::getRed(color) / 255;
-                            int green = Bitmap::getGreen(col) * Bitmap::getGreen(color) / 255;
-                            int blue = Bitmap::getBlue(col) * Bitmap::getBlue(color) / 255;
-
-                            //col.alpha= col.alpha * color.alpha / 255;
-                            // putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
-                            /* dangerous! putter is probably one of the _putpixel* routines so if x or y are off the bitmap
-                             * you will get a segfault
-                             */
-                            // putter(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
-                            // putter = 0;
-                            int finalX = x1+tempChar->left+x;
-                            int finalY = y1 - tempChar->top + y + size.height;
-                            bitmap.putPixelNormal(finalX, finalY, Bitmap::makeColor(red,green,blue));
-                        }
-                        line += tempChar->pitch;
-                    }
-                    x1 += tempChar->right;
+                    drawOneCharacter(tempChar, x1, y1, size.height, bitmap, color);
                 }
             }
         }
