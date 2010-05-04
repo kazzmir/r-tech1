@@ -42,6 +42,14 @@ struct BlendingData{
 static BlendingData globalBlend;
 static int drawingMode = Bitmap::MODE_SOLID;
 
+static int drawingAlpha(){
+    switch (::drawingMode){
+        case Bitmap::MODE_SOLID : return 255;
+        case Bitmap::MODE_TRANS : return globalBlend.alpha;
+        default : return 255;
+    }
+}
+
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
 
 /* TODO: fix MaskColor */
@@ -366,7 +374,13 @@ void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
     Uint8 red, green, blue;
     SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
-    filledCircleRGBA(getData().getSurface(), x, y, radius, red, green, blue, 255);
+    int alpha = 255;
+    switch (::drawingMode){
+        case MODE_SOLID : alpha = 255; break;
+        case MODE_TRANS : alpha = globalBlend.alpha; break;
+    }
+
+    filledCircleRGBA(getData().getSurface(), x, y, radius, red, green, blue, alpha);
 }
 
 void Bitmap::circle(int x, int y, int radius, int color) const {
@@ -374,7 +388,9 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
 }
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
-    lineColor(getData().getSurface(), x1, y1, x2, y2, color);
+    Uint8 red, green, blue;
+    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
+    lineRGBA(getData().getSurface(), x1, y1, x2, y2, red, green, blue, drawingAlpha());
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
