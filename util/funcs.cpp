@@ -12,8 +12,20 @@
 #include "file-system.h"
 #include "bitmap.h"
 
+/* FIXME: move this to the filesystem module */
+#include "sfl/sfl.h"
+#include "sfl/sflfile.h"
+
 #ifndef WINDOWS
 #include <unistd.h>
+#endif
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
 #endif
 
 using namespace std;
@@ -100,9 +112,10 @@ Filesystem::AbsolutePath Util::getDataPath2(){
 
 bool Util::exists( const string & file ){
 #ifdef USE_ALLEGRO
-    return ::exists( file.c_str() ) != 0;
+    return ::exists(file.c_str()) != 0;
+#else
+    return file_exists(file.c_str());
 #endif
-    return false;
 }
 
 vector< string > Util::getFiles(const Filesystem::AbsolutePath & dataPath, const string & find){

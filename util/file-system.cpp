@@ -16,6 +16,9 @@
 #include <string>
 #include <ostream>
 
+#include "sfl/sfl.h"
+#include "sfl/sfldir.h"
+
 #ifdef _WIN32
 #define _WIN32_IE 0x400
 #include <shlobj.h>
@@ -153,7 +156,16 @@ vector<string> getFiles(const AbsolutePath & dataPath, const string & find){
     return files;
 #else
     vector<string> files;
-    Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
+    DIRST sflEntry;
+    bool ok = open_dir(&sflEntry, dataPath.path().c_str());
+    while (ok){
+        if (file_matches(sflEntry.file_name, find.c_str())){
+            files.push_back(dataPath.path() + string(sflEntry.file_name));
+        }
+        ok = read_dir(&sflEntry);
+    }
+    close_dir(&sflEntry);
+    // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
     return files;
 #endif
 }
