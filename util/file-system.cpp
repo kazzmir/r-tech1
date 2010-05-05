@@ -9,6 +9,7 @@
 #include "funcs.h"
 #include "file-system.h"
 #include "system.h"
+#include "globals.h"
 #include <dirent.h>
 #include <sstream>
 #include <exception>
@@ -152,6 +153,7 @@ vector<string> getFiles(const AbsolutePath & dataPath, const string & find){
     return files;
 #else
     vector<string> files;
+    Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
     return files;
 #endif
 }
