@@ -3,10 +3,18 @@
 
 #include <string>
 #include <vector>
-#include "ftalleg.h"
+// #include "ftalleg.h"
 
 class Bitmap;
 struct FONT;
+namespace ftalleg{
+    class freetype;
+}
+
+namespace Filesystem{
+    class RelativePath;
+    class AbsolutePath;
+}
 
 /* handle allegro fonts and true type fonts */
 class Font{
@@ -35,6 +43,25 @@ public:
 protected:
 
         void printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const;
+};
+
+class NullFont: public Font {
+public:
+    NullFont();
+    virtual ~NullFont();
+
+    virtual void setSize( const int x, const int y );
+    virtual int getSizeX() const;
+    virtual int getSizeY() const;
+
+    virtual int textLength( const char * text ) const;
+
+    virtual int getHeight( const std::string & str ) const;
+    virtual int getHeight() const;
+
+    virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+    virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+
 };
 
 #ifdef USE_ALLEGRO
