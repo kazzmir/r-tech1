@@ -6,6 +6,7 @@
 #include "font.h"
 #include "funcs.h"
 #include "init.h"
+#include "ftalleg.h"
 #include "factory/font_factory.h"
 #include <string.h>
 
@@ -174,7 +175,8 @@ void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const st
 
 const Font & Font::getDefaultFont(){
     // return getFont( "tmp/comic.ttf" );
-    return *FontFactory::getFont(Filesystem::RelativePath("bios"), 16, 16);
+    // return *FontFactory::getFont(Filesystem::RelativePath("bios"), 16, 16);
+    return *FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), 16, 16);
 }
 	
 /* name should be the path of a .ttf file in the fonts/ directory.
@@ -258,4 +260,39 @@ FreeTypeFont::~FreeTypeFont(){
     if (own){
         delete this->font;
     }
+}
+
+NullFont::NullFont(){
+}
+
+NullFont::~NullFont(){
+}
+
+void NullFont::setSize( const int x, const int y ){
+}
+
+int NullFont::getSizeX() const {
+    return 0;
+}
+
+int NullFont::getSizeY() const {
+    return 0;
+}
+
+int NullFont::textLength( const char * text ) const {
+    return 0;
+}
+
+int NullFont::getHeight( const std::string & str ) const {
+    return 0;
+}
+
+int NullFont::getHeight() const {
+    return 0;
+}
+
+void NullFont::printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const {
+}
+
+void NullFont::printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const {
 }
