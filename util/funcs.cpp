@@ -12,9 +12,11 @@
 #include "file-system.h"
 #include "bitmap.h"
 
+#ifndef USE_ALLEGRO
 /* FIXME: move this to the filesystem module */
 #include "sfl/sfl.h"
 #include "sfl/sflfile.h"
+#endif
 
 #ifndef WINDOWS
 #include <unistd.h>

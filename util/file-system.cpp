@@ -16,8 +16,10 @@
 #include <string>
 #include <ostream>
 
+#ifndef USE_ALLEGRO
 #include "sfl/sfl.h"
 #include "sfl/sfldir.h"
+#endif
 
 #ifdef _WIN32
 #define _WIN32_IE 0x400
