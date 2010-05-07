@@ -1,5 +1,6 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
+#include "stretch/SDL_stretch.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_gfxPrimitives.h>
@@ -452,7 +453,20 @@ void Bitmap::drawMask( const int x, const int y, const Bitmap & where ){
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
-    /* TODO */
+    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
+    SDL_Rect source;
+    SDL_Rect destination;
+    source.x = 0;
+    source.y = 0;
+    source.w = getWidth();
+    source.h = getHeight();
+
+    destination.x = x;
+    destination.y = y;
+    destination.w = new_width;
+    destination.h = new_height;
+
+    SDL_StretchSurfaceRect(getData().getSurface(), &source, who.getData().getSurface(), &destination);
 }
 
 void Bitmap::Blit( const std::string & xpath ) const {
