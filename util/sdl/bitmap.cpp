@@ -118,6 +118,11 @@ own(NULL){
     /* TODO */
 }
 
+static Uint8* computeOffset(SDL_Surface * surface, int x, int y){
+    int bpp = surface->format->BytesPerPixel;
+    return ((Uint8*)surface->pixels) + y * surface->pitch + x * bpp;
+}
+
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own(NULL){
     /* TODO */
@@ -132,8 +137,7 @@ own(NULL){
     if ( height > his->h )
         height = his->h;
 
-    int bpp = his->format->BytesPerPixel;
-    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(((Uint8*)his->pixels) + y * his->pitch + x * bpp, width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
+    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
     getData().setSurface(sub);
 
     own = new int;
@@ -309,7 +313,7 @@ void Bitmap::putPixel(int x, int y, int pixel) const {
 
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to set */
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+    Uint8 *p = computeOffset(surface, x, y);
 
     switch(bpp) {
         case 1:
@@ -848,11 +852,11 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
 
         switch (mode){
             case Bitmap::SPRITE_NORMAL : {
-int bpp = src->format->BytesPerPixel;
                 unsigned int mask = Bitmap::makeColor(255, 0, 255);
+                int bpp = src->format->BytesPerPixel;
                 for (y = 0; y < h; y++) {
-                    Uint8 * sourceLine = (Uint8 *) src->pixels + (sybeg + y) * src->pitch + sxbeg * bpp;
-                    Uint8 * destLine = (Uint8 *) dst->pixels + (dybeg + y * y_dir) * dst->pitch + dxbeg * bpp;
+                    Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
+                    Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
 
                     for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
                         unsigned long sourcePixel = *(Uint16*) sourceLine;
@@ -885,8 +889,8 @@ int bpp = src->format->BytesPerPixel;
                 int bpp = src->format->BytesPerPixel;
                 unsigned int mask = Bitmap::makeColor(255, 0, 255);
                 for (y = 0; y < h; y++) {
-                    Uint8 * sourceLine = (Uint8 *) src->pixels + (sybeg + y) * src->pitch + sxbeg * bpp;
-                    Uint8 * destLine = (Uint8 *) dst->pixels + (dybeg + y * y_dir) * dst->pitch + dxbeg * bpp;
+                    Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
+                    Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
 
                     for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
                         unsigned long sourcePixel = *(Uint16*) sourceLine;
