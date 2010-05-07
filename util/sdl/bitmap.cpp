@@ -131,7 +131,9 @@ own(NULL){
         width = his->w;
     if ( height > his->h )
         height = his->h;
-    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(his->pixels, width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
+
+    int bpp = his->format->BytesPerPixel;
+    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(((Uint8*)his->pixels) + y * his->pitch + x * bpp, width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
     getData().setSurface(sub);
 
     own = new int;
