@@ -139,3 +139,13 @@ void Bitmap::load( const std::string & str ){
     releaseInternalBitmap();
     internalLoadFile( str.c_str() );
 }
+
+void Bitmap::border( int min, int max, int color ) const {
+	int w = getWidth();
+	int h = getHeight();
+	for ( int i = min; i < max; i++ ){
+		rectangle( i, i, w - 1 - i, h - 1 - i, color );
+	}
+}
+
+

@@ -364,12 +364,10 @@ bool Bitmap::getError(){
     return false;
 }
 
-void Bitmap::border( int min, int max, int color ) const {
-    /* TODO */
-}
-
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
-    rectangleColor(getData().getSurface(), x1, y1, x2, y2, color);
+    Uint8 red, green, blue;
+    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
+    rectangleRGBA(getData().getSurface(), x1, y1, x2, y2, red, green, blue, 255);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
