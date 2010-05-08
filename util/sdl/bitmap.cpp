@@ -53,8 +53,10 @@ static int drawingAlpha(){
 
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
 
-/* TODO: fix MaskColor */
-const int Bitmap::MaskColor = -1;
+const int Bitmap::MaskColor(){
+    static int mask = makeColor(255, 0, 255);
+    return mask;
+}
 
 Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
