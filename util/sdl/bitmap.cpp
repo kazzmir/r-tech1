@@ -421,11 +421,7 @@ void Bitmap::draw(const int x, const int y, const int startWidth, const int star
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
-    /* TODO */
-}
-
-void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
-    /* TODO */
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
