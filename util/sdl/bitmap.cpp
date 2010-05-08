@@ -1,6 +1,7 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
 #include "stretch/SDL_stretch.h"
+#include "sprig/sprig.h"
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_gfxPrimitives.h>
@@ -503,6 +504,8 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 
     if (getData().getSurface() != NULL){
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
+
+        /*
         SDL_Rect source;
         SDL_Rect destination;
         source.x = 0;
@@ -514,6 +517,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
         destination.y = y;
         destination.w = new_width;
         destination.h = new_height;
+        */
 
         /*
         if (x < 0){
@@ -539,6 +543,11 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
         SDL_Surface * src = getData().getSurface();
         SDL_Surface * dst = who.getData().getSurface();
 
+        float xscale = (float) new_width / (float) src->w;
+        float yscale = (float) new_height / (float) src->h;
+        SPG_TransformX(src, dst, 0, xscale, yscale, 0, 0, x, y, SPG_TCOLORKEY);
+
+        /*
         if (SDL_MUSTLOCK(src)){
             SDL_LockSurface(src);
         }
@@ -556,6 +565,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
         if (SDL_MUSTLOCK(dst)){
             SDL_UnlockSurface(dst);
         }
+        */
     }
 }
 
@@ -625,6 +635,15 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 }
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
+
+    SDL_Surface * src = getData().getSurface();
+    SDL_Surface * dst = where.getData().getSurface();
+
+    float xscale = (float) destWidth / (float) sourceWidth;
+    float yscale = (float) destHeight / (float) sourceHeight;
+    SPG_TransformX(src, dst, 0, xscale, yscale, sourceX, sourceY, destX, destY, SPG_NONE);
+
+    /*
     SDL_Rect source;
     SDL_Rect destination;
     source.x = sourceX;
@@ -659,6 +678,7 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
     if (SDL_MUSTLOCK(dst)){
         SDL_UnlockSurface(dst);
     }
+    */
 }
 	
 void Bitmap::save( const std::string & str ){
