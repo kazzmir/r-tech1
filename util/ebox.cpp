@@ -137,6 +137,11 @@ parent( _parent ){
 		// printf("Size X:%d Y:%d\n", width, height );
 		int total = 0;
 		int denom = who->getWidth() * who->getHeight();
+
+                /* empty sprite? */
+                if (denom < 1){
+                    denom = 1;
+                }
 		for ( int x = 0; x < who->getWidth(); x++ ){
 			for ( int y = 0; y < who->getHeight(); y++ ){
 				// int pixel = _getpixel16( who, x, y );

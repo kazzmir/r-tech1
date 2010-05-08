@@ -1043,17 +1043,6 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
     }
 }
 
-LitBitmap::LitBitmap( const Bitmap & b ):
-Bitmap( b ){
-}
-
-LitBitmap::LitBitmap():
-Bitmap(){
-}
-	
-LitBitmap::~LitBitmap(){
-}
-
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	// ::draw_sprite_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
 	// ::draw_sprite( where.getBitmap(), getBitmap(), x, y );
