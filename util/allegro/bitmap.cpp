@@ -38,7 +38,9 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
 static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 static void paintown_applyTrans16(BITMAP * dst, const int color);
 
-const int Bitmap::MaskColor = MASK_COLOR_16;
+const int Bitmap::MaskColor(){
+    return MASK_COLOR_16;
+}
 
 Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
@@ -334,13 +336,13 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
 
         // printf("mask r %d g %d b %d = %d\n", maskR, maskG, maskB, mask);
 
-        if (mask != MaskColor){
+        if (mask != MaskColor()){
             for( int i = 0; i < pcx->h; ++i ){
                 for( int j = 0; j < pcx->w; ++j ){
                     /* use getPixel/putPixel? */
                     int pix = getpixel(pcx,j,i);
                     if (pix == mask){
-                        putpixel(pcx,j,i, MaskColor);
+                        putpixel(pcx,j,i, MaskColor());
                     }
                 }
             }
@@ -905,7 +907,7 @@ void Bitmap::applyTrans(const int color){
 }
 
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
-	int mask = Bitmap::MaskColor;
+	int mask = Bitmap::MaskColor();
 	for ( int x = 0; x < getWidth(); x++ ){
 		for ( int y = 0; y < getHeight(); y++ ){
 			if ( getPixel( x,y ) == mask ){
