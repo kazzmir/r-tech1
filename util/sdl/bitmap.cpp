@@ -77,8 +77,28 @@ own(NULL){
 
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
 own(NULL){
-    /* FIXME: handle deep_copy */
-    getData().setSurface(who);
+    if (deep_copy){
+        SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
+        SDL_Rect source;
+        SDL_Rect destination;
+        source.w = surface->w;
+        source.h = surface->h;
+        source.x = 0;
+        source.y = 0;
+
+        destination.w = surface->w;
+        destination.h = surface->h;
+        destination.x = 0;
+        destination.y = 0;
+
+        SDL_BlitSurface(who, &source, surface, &destination);
+        getData().setSurface(surface);
+        own = new int;
+        *own = 1;
+    } else {
+        /* FIXME: handle deep_copy */
+        getData().setSurface(who);
+    }
 }
 
 Bitmap::Bitmap(int w, int h){
@@ -114,7 +134,32 @@ own(NULL){
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
 own(NULL){
-    /* TODO */
+    if (deep_copy){
+        SDL_Surface * who = copy.getData().getSurface();
+        SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
+        SDL_Rect source;
+        SDL_Rect destination;
+        source.w = surface->w;
+        source.h = surface->h;
+        source.x = 0;
+        source.y = 0;
+
+        destination.w = surface->w;
+        destination.h = surface->h;
+        destination.x = 0;
+        destination.y = 0;
+
+        SDL_BlitSurface(who, &source, surface, &destination);
+        getData().setSurface(surface);
+        own = new int;
+        *own = 1;
+    } else {
+        getData().setSurface(copy.getData().getSurface());
+        own = copy.own;
+        if (own){
+            *own += 1;
+        }
+    }
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
