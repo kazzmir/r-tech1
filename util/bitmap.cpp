@@ -148,4 +148,13 @@ void Bitmap::border( int min, int max, int color ) const {
 	}
 }
 
+LitBitmap::LitBitmap( const Bitmap & b ):
+Bitmap( b ){
+}
 
+LitBitmap::LitBitmap():
+Bitmap(){
+}
+	
+LitBitmap::~LitBitmap(){
+}

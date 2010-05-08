@@ -75,11 +75,17 @@ own(NULL){
 
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
 own(NULL){
+    /* FIXME: handle deep_copy */
     getData().setSurface(who);
 }
 
 Bitmap::Bitmap(int w, int h){
-    getData().setSurface(SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0));
+    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0);
+    if (surface == NULL){
+        /* FIXME */
+        throw std::exception();
+    }
+    getData().setSurface(surface);
     own = new int;
     *own = 1;
 }
@@ -297,7 +303,7 @@ void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
 }
 
 void Bitmap::destroyPrivateData(){
-    SDL_FreeSurface(getData().surface);
+    SDL_FreeSurface(getData().getSurface());
 }
 
 void Bitmap::putPixel(int x, int y, int pixel) const {
@@ -451,20 +457,44 @@ void Bitmap::drawMask( const int x, const int y, const Bitmap & where ){
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
-    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
-    SDL_Rect source;
-    SDL_Rect destination;
-    source.x = 0;
-    source.y = 0;
-    source.w = getWidth();
-    source.h = getHeight();
 
-    destination.x = x;
-    destination.y = y;
-    destination.w = new_width;
-    destination.h = new_height;
+    if (getData().getSurface() != NULL){
+        SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
+        SDL_Rect source;
+        SDL_Rect destination;
+        source.x = 0;
+        source.y = 0;
+        source.w = getWidth();
+        source.h = getHeight();
 
-    SDL_StretchSurfaceRect(getData().getSurface(), &source, who.getData().getSurface(), &destination);
+        destination.x = x;
+        destination.y = y;
+        destination.w = new_width;
+        destination.h = new_height;
+
+        /*
+        if (x < 0){
+            source.x = -x;
+            source.w -= -x;
+            destination.x += -x;
+            destination.w -= -x;
+        }
+        */
+
+        /*
+        source.x = 0;
+        source.y = 0;
+        source.w = getWidth() / 2;
+        source.h = getHeight() / 2;
+
+        destination.x = 0;
+        destination.y = 0;
+        destination.w = new_width;
+        destination.h = new_height;
+        */
+
+        SDL_StretchSurfaceRect(getData().getSurface(), &source, who.getData().getSurface(), &destination);
+    }
 }
 
 void Bitmap::Blit( const std::string & xpath ) const {
@@ -525,21 +555,27 @@ void Bitmap::BlitFromScreen(const int x, const int y) const {
 }
 
 void Bitmap::Stretch( const Bitmap & where ) const {
-    /* TODO */
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
         Blit(where);
     } else {
-        SDL_Rect area;
-        area.x = 0;
-        area.y = 0;
-        area.w = 100;
-        area.h = 100;
-        SDL_FillRect(where.getData().getSurface(), &area, SDL_MapRGB(where.getData().getSurface()->format, 255, 0, 0));
+        Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
     }
 }
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
-    /* TODO */
+    SDL_Rect source;
+    SDL_Rect destination;
+    source.x = sourceX;
+    source.y = sourceY;
+    source.w = sourceWidth;
+    source.h = sourceHeight;
+
+    destination.x = destX;
+    destination.y = destY;
+    destination.w = destWidth;
+    destination.h = destHeight;
+
+    SDL_StretchSurfaceRect(getData().getSurface(), &source, where.getData().getSurface(), &destination);
 }
 	
 void Bitmap::save( const std::string & str ){
@@ -648,18 +684,6 @@ void Bitmap::StretchBy4( const Bitmap & where ){
     /* TODO */
 }
 
-LitBitmap::LitBitmap( const Bitmap & b ){
-    /* TODO */
-}
-
-LitBitmap::LitBitmap(){
-    /* TODO */
-}
-
-LitBitmap::~LitBitmap(){
-    /* TODO */
-}
-	
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
     /* TODO */
 }
