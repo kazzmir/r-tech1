@@ -706,8 +706,12 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
 }
         
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
-    /* TODO */
-    return Bitmap();
+    SDL_RWops * ops = SDL_RWFromConstMem(data, length);
+    SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
+    SDL_FreeRW(ops);
+    Bitmap out(pcx, true);
+    SDL_FreeSurface(pcx);
+    return out;
 }
 	
 int Bitmap::getPixel( const int x, const int y ) const {
