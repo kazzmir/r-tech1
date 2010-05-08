@@ -536,7 +536,26 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
         destination.h = new_height;
         */
 
-        SDL_StretchSurfaceRect(getData().getSurface(), &source, who.getData().getSurface(), &destination);
+        SDL_Surface * src = getData().getSurface();
+        SDL_Surface * dst = who.getData().getSurface();
+
+        if (SDL_MUSTLOCK(src)){
+            SDL_LockSurface(src);
+        }
+
+        if (SDL_MUSTLOCK(dst)){
+            SDL_LockSurface(dst);
+        }
+
+        SDL_StretchSurfaceRect(src, &source, dst, &destination);
+
+        if (SDL_MUSTLOCK(src)){
+            SDL_UnlockSurface(src);
+        }
+
+        if (SDL_MUSTLOCK(dst)){
+            SDL_UnlockSurface(dst);
+        }
     }
 }
 
@@ -618,7 +637,28 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
     destination.w = destWidth;
     destination.h = destHeight;
 
-    SDL_StretchSurfaceRect(getData().getSurface(), &source, where.getData().getSurface(), &destination);
+    // SDL_StretchSurfaceRect(getData().getSurface(), &source, where.getData().getSurface(), &destination);
+
+    SDL_Surface * src = getData().getSurface();
+    SDL_Surface * dst = where.getData().getSurface();
+
+    if (SDL_MUSTLOCK(src)){
+        SDL_LockSurface(src);
+    }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_LockSurface(dst);
+    }
+
+    SDL_StretchSurfaceRect(src, &source, dst, &destination);
+
+    if (SDL_MUSTLOCK(src)){
+        SDL_UnlockSurface(src);
+    }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_UnlockSurface(dst);
+    }
 }
 	
 void Bitmap::save( const std::string & str ){

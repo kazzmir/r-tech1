@@ -1,0 +1,31 @@
+Up-to-date (i.e. fewer bugs)!
+
+Pure C: A single library for both C and C++.  Extra features of C++ are used only in inlined functions.  SGE doesn't compile for C without a lot of work.
+
+Implemented strangely missing features (like SPG_Polygon)
+
+Thick primitives
+
+Arc functions
+
+Polygon transforms
+
+Rounded rectangle functions
+
+Functions work with Uint32 color values.  If you want a Uint8 RGB version you'll have to write it yourself; I won't force twice as many functions on everyone.
+
+Convenience functions (Like SPG_MakeRect)
+
+Other cool functions (SPG_ReplaceColorkey)
+
+Anti-aliasing moved into stack instead of so many extra functions
+
+Naming conventions - Less typing, better auto-completion compatibility
+
+Smaller dll: Uses 4/10 SGE modules
+ - no shape classes
+ - no collision detection
+ - no bitmap text
+ - no truetype text
+ - no text classes
+ - no randomizing or delay
