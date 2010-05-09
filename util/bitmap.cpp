@@ -161,6 +161,10 @@ void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int
     sub.drawHFlip(x + startWidth, y + startHeight, where);
 }
 
+void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
+    Bitmap sub(*this, startWidth, startHeight, width, height);
+    sub.draw(x + startWidth, y + startHeight, where);
+}
 
 LitBitmap::LitBitmap( const Bitmap & b ):
 Bitmap( b ){
