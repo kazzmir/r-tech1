@@ -1,6 +1,8 @@
 #ifndef _paintown_3ac0ba2587944345f2241085269c24f8
 #define _paintown_3ac0ba2587944345f2241085269c24f8
 
+#ifdef USE_ALLEGRO
+
 #include <allegro.h>
 
 namespace Memory{
@@ -124,5 +126,7 @@ namespace Memory{
         return table;
     }
 }
+
+#endif
 
 #endif
