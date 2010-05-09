@@ -821,12 +821,7 @@ void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
 	// ::draw_sprite( where.getData().getBitmap(), getBitmap(), x, y );
 }
-	
-void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
-    Bitmap sub(*this, startWidth, startHeight, width, height);
-    sub.draw(x + startWidth, y + startHeight, where);
-}
-	
+
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );

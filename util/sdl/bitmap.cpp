@@ -462,38 +462,32 @@ void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     }
 }
 
-void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
-    /* TODO */
-}
-
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
     paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP );
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP);
 }
 
 void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const {
-    /* FIXME */
-    // draw(x, y, where);
     paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP);
 }
 
 void Bitmap::drawTransHFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP);
 }
 
 void Bitmap::drawTransVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP);
 }
 
 void Bitmap::drawTransHVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP);
 }
 
 void Bitmap::drawMask( const int x, const int y, const Bitmap & where ){
@@ -505,67 +499,35 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
     if (getData().getSurface() != NULL){
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
 
-        /*
-        SDL_Rect source;
-        SDL_Rect destination;
-        source.x = 0;
-        source.y = 0;
-        source.w = getWidth();
-        source.h = getHeight();
-
-        destination.x = x;
-        destination.y = y;
-        destination.w = new_width;
-        destination.h = new_height;
-        */
-
-        /*
-        if (x < 0){
-            source.x = -x;
-            source.w -= -x;
-            destination.x += -x;
-            destination.w -= -x;
-        }
-        */
-
-        /*
-        source.x = 0;
-        source.y = 0;
-        source.w = getWidth() / 2;
-        source.h = getHeight() / 2;
-
-        destination.x = 0;
-        destination.y = 0;
-        destination.w = new_width;
-        destination.h = new_height;
-        */
-
         SDL_Surface * src = getData().getSurface();
         SDL_Surface * dst = who.getData().getSurface();
 
-        float xscale = (float) new_width / (float) src->w;
-        float yscale = (float) new_height / (float) src->h;
-        SPG_TransformX(src, dst, 0, xscale, yscale, 0, 0, x, y, SPG_TCOLORKEY);
+        int myWidth = src->w;
+        int myHeight = src->h;
+        int hisWidth = new_width;
+        int hisHeight = new_height;
+        int useX = x;
+        int useY = y;
+        int myX = 0;
+        int myY = 0;
+        
+        float xscale = (float) hisWidth / (float) myWidth;
+        float yscale = (float) hisHeight / (float) myHeight;
 
-        /*
-        if (SDL_MUSTLOCK(src)){
-            SDL_LockSurface(src);
+        /* sprig wont do the clipping right, if you start drawing from a negative offset
+         * sprig will do nothing.
+         */
+        if (useX < 0){
+            useX = 0;
+            myX = -x / xscale;
         }
 
-        if (SDL_MUSTLOCK(dst)){
-            SDL_LockSurface(dst);
+        if (useY < 0){
+            useY = 0;
+            myY = -y / yscale;
         }
 
-        SDL_StretchSurfaceRect(src, &source, dst, &destination);
-
-        if (SDL_MUSTLOCK(src)){
-            SDL_UnlockSurface(src);
-        }
-
-        if (SDL_MUSTLOCK(dst)){
-            SDL_UnlockSurface(dst);
-        }
-        */
+        SPG_TransformX(src, dst, 0, xscale, yscale, myX, myY, useX, useY, SPG_TCOLORKEY);
     }
 }
 
