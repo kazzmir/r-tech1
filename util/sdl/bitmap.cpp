@@ -1026,7 +1026,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
                         unsigned long sourcePixel = *(Uint16*) sourceLine;
                         if (!(sourcePixel == mask)){
                             unsigned int destPixel = *(Uint16*) destLine;
-                            sourcePixel = globalBlend.currentBlender(destPixel, sourcePixel, globalBlend.alpha);
+                            sourcePixel = globalBlend.currentBlender(sourcePixel, destPixel, globalBlend.alpha);
                             *(Uint16 *)destLine = sourcePixel;
                         }
                     }
