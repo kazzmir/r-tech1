@@ -742,7 +742,10 @@ void Bitmap::drawCharacter( const int x, const int y, const int color, const int
 }
 
 void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
-    /* TODO */
+    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_Surface * src = getData().getSurface();
+    SDL_Surface * dst = where.getData().getSurface();
+    SPG_TransformX(src, dst, angle, 1, 1, 0, 0, x, y, SPG_TCOLORKEY);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
