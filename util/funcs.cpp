@@ -85,6 +85,10 @@ void Util::rest( int x ){
 #endif
 }
 
+void Util::restSeconds(double x){
+    Util::rest((int)(x * 1000));
+}
+
 bool Util::checkVersion(int version){
     if (version == Global::getVersion()){
         return true;

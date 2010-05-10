@@ -51,7 +51,11 @@ int rnd( int min, int max );
 
 void blend_palette( int * pal, int mp, int sc, int ec );
 
+/* rest in milliseconds */
 void rest( int x );
+
+/* rest in seconds */
+void restSeconds(double x);
 
 std::string trim(const std::string & str);
 std::string upcase(std::string str);
