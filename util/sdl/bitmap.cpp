@@ -731,12 +731,7 @@ int Bitmap::darken( int color, double factor ){
     /* TODO */
     return color;
 }
-        
-Bitmap Bitmap::greyScale(){
-    /* TODO */
-    return *this;
-}
-	
+
 void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
     /* TODO */
 }

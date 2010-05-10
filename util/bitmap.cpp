@@ -166,6 +166,23 @@ void Bitmap::draw(const int x, const int y, const int startWidth, const int star
     sub.draw(x + startWidth, y + startHeight, where);
 }
 
+Bitmap Bitmap::greyScale(){
+    Bitmap grey(getWidth(), getHeight());
+
+    for (int x = 0; x < getWidth(); x++){
+        for (int y = 0; y < getHeight(); y++){
+	    int pixel = getPixel(x, y);
+            int val = (int)((0.299*getRed(pixel) + 0.587*getGreen(pixel) + 0.114*getBlue(pixel) + 0.5) + 16);
+            if (val > 255){
+                val = 255;
+            }
+            grey.putPixel(x, y, makeColor(val, val, val));
+        }
+    }
+
+    return grey;
+}
+
 LitBitmap::LitBitmap( const Bitmap & b ):
 Bitmap( b ){
 }
