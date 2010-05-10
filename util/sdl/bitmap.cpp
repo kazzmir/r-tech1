@@ -561,6 +561,13 @@ void Bitmap::Blit( const int mx, const int my, const int width, const int height
     destination.y = wy;
 
     SDL_BlitSurface(getData().getSurface(), &source, where.getData().getSurface(), &destination);
+
+    /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
+     * like where->Blitted()
+     */
+    if (&where == Screen){
+        SDL_Flip(Screen->getData().getSurface());
+    }
 }
 
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
@@ -581,7 +588,26 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
-    /* TODO */
+    if ( Scaler != NULL ){
+        double mult_x = (double) Scaler->getWidth() / (double) SCALE_X;
+        double mult_y = (double) Scaler->getHeight() / (double) SCALE_Y;
+
+        int x = (int)(upper_left_x * mult_x);
+        int y = (int)(upper_left_y * mult_y);
+        int w = (int)(this->getWidth() * mult_x);
+        int h = (int)(this->getHeight() * mult_y);
+
+        // printf("ux %d uy %d uw %d uh %d. x %d y %d w %d h %d\n", upper_left_x, upper_left_y, getWidth(), getHeight(), x, y, w, h );
+
+        this->Stretch( *Scaler, 0, 0, this->getWidth(), this->getHeight(), x, y, w, h );
+
+        Bitmap tmp(*Scaler, x, y, w, h );
+        tmp.Blit( x, y, *Screen );
+
+        // Scaler->Blit( x, y, w, h, *Screen );
+    } else {
+        this->Blit( upper_left_x, upper_left_y, *Screen );
+    }
 }
 
 void Bitmap::BlitFromScreen(const int x, const int y) const {
@@ -737,8 +763,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
 }
 	
 int Bitmap::getPixel( const int x, const int y ) const {
-    /* TODO */
-    return 0;
+    return SPG_GetPixel(getData().getSurface(), x, y);
 }
 	
 void Bitmap::readLine( std::vector< int > & vec, int y ){
