@@ -1,10 +1,13 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
-#include "stretch/SDL_stretch.h"
+// #include "stretch/SDL_stretch.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
 #include <SDL_image.h>
+
+/* TODO: get rid of gfx primitives, just use sprig */
 #include <SDL_gfxPrimitives.h>
+
 #include <exception>
 
 static const int FULLSCREEN = 0;
@@ -277,6 +280,7 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
         default: {
         // case WINDOWED : {
             screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            SDL_ShowCursor(0);
             // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_DOUBLEBUF);
             if (!screen){
                 return 1;
