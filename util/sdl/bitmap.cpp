@@ -315,8 +315,14 @@ void Bitmap::differenceBlender( int r, int g, int b, int a ){
     /* TODO */
 }
 	
-Bitmap & Bitmap::operator=(const Bitmap &){
-    /* TODO */
+Bitmap & Bitmap::operator=(const Bitmap & copy){
+    releaseInternalBitmap();
+    path = copy.getPath();
+    getData().setSurface(copy.getData().getSurface());
+    // own = false;
+    own = copy.own;
+    if (own)
+        *own += 1;
     return *this;
 }
         
