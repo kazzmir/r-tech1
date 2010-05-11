@@ -443,7 +443,22 @@ void Bitmap::circleFill(int x, int y, int radius, int color) const {
 }
 
 void Bitmap::circle(int x, int y, int radius, int color) const {
-    circleColor(getData().getSurface(), x, y, radius, color);
+    // Uint8 red, green, blue;
+    // SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
+    // int alpha = 255;
+    switch (::drawingMode){
+        case MODE_SOLID : {
+            SPG_Circle(getData().getSurface(), x, y, radius, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_CircleBlend(getData().getSurface(), x, y, radius, color, alpha);
+            break;
+        }
+    }
+
+    // circleRGBA(getData().getSurface(), x, y, radius, red, green, blue, alpha);
 }
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
@@ -678,7 +693,17 @@ void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color
 }
 
 void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
-    /* TODO */
+    switch (::drawingMode){
+        case MODE_SOLID : {
+            SPG_Ellipse(getData().getSurface(), x, y, rx, ry, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_EllipseBlend(getData().getSurface(), x, y, rx, ry, color, alpha);
+            break;
+        }
+    }
 }
 
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
