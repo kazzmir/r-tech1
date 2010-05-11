@@ -52,6 +52,7 @@ static int drawingAlpha(){
     }
 }
 
+static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
 
 const int Bitmap::MaskColor(){
@@ -715,7 +716,7 @@ void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_a
 }
 
 void Bitmap::applyTrans(const int color){
-    /* TODO */
+    paintown_applyTrans16(getData().getSurface(), color);
 }
 	
 void Bitmap::floodfill( const int x, const int y, const int color ) const {
@@ -841,6 +842,32 @@ void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) con
 #define PAINTOWN_PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
 #define PAINTOWN_SET_ALPHA(a)           (globalBlend.alpha = (a))
 */
+
+static void paintown_applyTrans16(SDL_Surface * dst, const int color){
+    int y1 = 0;
+    int y2 = dst->h;
+    int x1 = 0;
+    int x2 = dst->w - 1;
+    
+    y1 = dst->clip_rect.y;
+    y2 = dst->clip_rect.y + dst->clip_rect.h;
+    x1 = dst->clip_rect.x;
+    x2 = dst->clip_rect.x + dst->clip_rect.w;
+
+    int bpp = dst->format->BytesPerPixel;
+    unsigned int mask = Bitmap::makeColor(255, 0, 255);
+    for (int y = y1; y < y2; y++) {
+        Uint8 * sourceLine = computeOffset(dst, x1, y1 + y);
+
+        for (int x = x2; x >= x1; sourceLine += bpp, x--) {
+            unsigned long sourcePixel = *(Uint16*) sourceLine;
+            if (!(sourcePixel == mask)){
+                sourcePixel = globalBlend.currentBlender(color, sourcePixel, globalBlend.alpha);
+                *(Uint16 *)sourceLine = sourcePixel;
+            }
+        }
+    }
+}
 
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip){
     int x, y, w, h;
