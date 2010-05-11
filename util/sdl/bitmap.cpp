@@ -29,6 +29,22 @@ static unsigned int transBlender(unsigned int x, unsigned int y, unsigned int n)
     return ((result & 0xFFFF) | (result >> 16));
 }
 
+static unsigned int multiplyBlender(unsigned int x, unsigned int y, unsigned int n){
+    Uint8 redX = 0;
+    Uint8 greenX = 0;
+    Uint8 blueX = 0;
+    SDL_GetRGB(x, screen->format, &redX, &greenX, &blueX);
+    Uint8 redY = 0;
+    Uint8 greenY = 0;
+    Uint8 blueY = 0;
+    SDL_GetRGB(y, screen->format, &redY, &greenY, &blueY);
+
+    int r = redX * redY / 256;
+    int g = greenX * greenY / 256;
+    int b = blueX * blueY / 256;
+    return transBlender(Bitmap::makeColor(r, g, b), y, n);
+}
+
 static unsigned int noBlender(unsigned int a, unsigned int b, unsigned int c){
     return a;
 }
@@ -98,7 +114,6 @@ own(NULL){
         own = new int;
         *own = 1;
     } else {
-        /* FIXME: handle deep_copy */
         getData().setSurface(who);
     }
 }
@@ -181,7 +196,6 @@ static Uint8* computeOffset(SDL_Surface * surface, int x, int y){
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own(NULL){
-    /* TODO */
     path = copy.getPath();
     SDL_Surface * his = copy.getData().getSurface();
     if ( x < 0 )
@@ -308,7 +322,11 @@ void Bitmap::addBlender( int r, int g, int b, int a ){
 }
 	
 void Bitmap::multiplyBlender( int r, int g, int b, int a ){
-    /* TODO */
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.currentBlender = ::multiplyBlender;
 }
 	
 void Bitmap::differenceBlender( int r, int g, int b, int a ){
