@@ -144,12 +144,19 @@ own(NULL){
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
 own(NULL){
-    /* TODO */
+    Bitmap temp(load_file);
+    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, 0, 0, 0, 0);
+    getData().setSurface(surface);
+    own = new int;
+    *own = 1;
+
+    temp.Stretch(*this);
 }
 
+/* unused */
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
 own(NULL){
-    /* TODO */
+    throw std::exception();
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):

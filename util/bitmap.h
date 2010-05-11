@@ -19,6 +19,10 @@
 class Bitmap{
 private:
 	static Bitmap * Screen;
+	
+        /* these constructors don't really matter, get rid of them at some point */
+        Bitmap( const Bitmap & copy, int sx, int sy, double accuracy );
+	Bitmap( const char * load_file, int sx, int sy, double accuracy );
 public:
 
         static int SCALE_X;
@@ -30,7 +34,6 @@ public:
 	Bitmap( const char * load_file );
 	Bitmap( const std::string & load_file );
 	Bitmap( const char * load_file, int sx, int sy );
-	Bitmap( const char * load_file, int sx, int sy, double accuracy );
 
         /* 4/24/2010: remove this at some point */
 #ifdef USE_ALLEGRO
@@ -41,7 +44,6 @@ public:
 #endif
 	Bitmap( const Bitmap & copy, bool deep_copy = false );
 	Bitmap( const Bitmap & copy, int sx, int sy );
-	Bitmap( const Bitmap & copy, int sx, int sy, double accuracy );
 	Bitmap( const Bitmap & copy, int x, int y, int width, int height );
 	virtual ~Bitmap();
 
