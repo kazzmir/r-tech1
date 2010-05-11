@@ -541,10 +541,6 @@ void Bitmap::drawTransHVFlip( const int x, const int y, const Bitmap & where ) c
     paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP);
 }
 
-void Bitmap::drawMask( const int x, const int y, const Bitmap & where ){
-    /* TODO */
-}
-
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
 
     if (getData().getSurface() != NULL){
