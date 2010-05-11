@@ -808,19 +808,19 @@ void Bitmap::StretchBy4( const Bitmap & where ){
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP );
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP );
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP );
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP);
 }
 
 /*
@@ -1026,24 +1026,27 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
                         }
                     }
                 }
+                break;
              }
-                                         /*
              case Bitmap::SPRITE_LIT : {
-                                          for (y = 0; y < h; y++) {
-                                              PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
-                                              PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
+                int bpp = src->format->BytesPerPixel;
+                int litColor = Bitmap::makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
+                unsigned int mask = Bitmap::makeColor(255, 0, 255);
+                for (y = 0; y < h; y++) {
+                    Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
+                    Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
 
-                                              for (x = w - 1; x >= 0; PAINTOWN_INC_PIXEL_PTR(s), PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), x--) {
-                                                  unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
-                                                  if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
-                                                      c = PAINTOWN_DLSX_BLEND(lit_blender, c);
-                                                      PAINTOWN_PUT_MEMORY_PIXEL(d, c);
-                                                  }
-                                              }
-                                          }
-                                          break;
-                                      }
-                                      */
+                    for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
+                        unsigned long sourcePixel = *(Uint16*) sourceLine;
+                        if (!(sourcePixel == mask)){
+                            // unsigned int destPixel = *(Uint16*) destLine;
+                            sourcePixel = globalBlend.currentBlender(litColor, sourcePixel, globalBlend.alpha);
+                            *(Uint16 *)destLine = sourcePixel;
+                        }
+                    }
+                }
+                break;
+            }
             case Bitmap::SPRITE_TRANS : {
                 int bpp = src->format->BytesPerPixel;
                 unsigned int mask = Bitmap::makeColor(255, 0, 255);
