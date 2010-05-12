@@ -194,6 +194,10 @@ void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
         }
 }
 
+void Bitmap::Blit( const std::string & xpath ) const {
+    Bitmap duh( xpath );
+    duh.Blit( *this );
+}
 
 LitBitmap::LitBitmap( const Bitmap & b ):
 Bitmap( b ){

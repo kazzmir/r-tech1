@@ -578,10 +578,6 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
     }
 }
 
-void Bitmap::Blit( const std::string & xpath ) const {
-    /* TODO */
-}
-
 void Bitmap::Blit( const Bitmap & where ) const {
     Blit(0, 0, where);
 }
@@ -594,7 +590,7 @@ void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const
     Blit(mx, my, getWidth(), getHeight(), wx, wy, where);
 }
 
-void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
+static void doBlit(SDL_Surface * mine, const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ){
     SDL_Rect source;
     SDL_Rect destination;
     source.w = width;
@@ -607,7 +603,12 @@ void Bitmap::Blit( const int mx, const int my, const int width, const int height
     destination.x = wx;
     destination.y = wy;
 
-    SDL_BlitSurface(getData().getSurface(), &source, where.getData().getSurface(), &destination);
+    SDL_BlitSurface(mine, &source, where.getData().getSurface(), &destination);
+}
+    
+void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
+    SDL_SetColorKey(getData().getSurface(), 0, MaskColor());
+    doBlit(getData().getSurface(),mx, my, width, height, wx, wy, where);
 
     /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
      * like where->Blitted()
@@ -618,7 +619,17 @@ void Bitmap::Blit( const int mx, const int my, const int width, const int height
 }
 
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-    /* TODO */
+    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, MaskColor());
+
+    doBlit(getData().getSurface(),mx, my, width, height, wx, wy, where);
+
+    /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
+     * like where->Blitted()
+     */
+    if (&where == Screen){
+        SDL_Flip(Screen->getData().getSurface());
+    }
+
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
