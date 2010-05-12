@@ -924,11 +924,6 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
 	::stretch_blit( getData().getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
 }
 
-void Bitmap::Blit( const string & xpath ) const {
-    Bitmap duh( xpath );
-    duh.Blit( *this );
-}
-
 void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
 	BITMAP * bmp = where.getData().getBitmap();
 	/*
