@@ -199,6 +199,10 @@ void Bitmap::Blit( const std::string & xpath ) const {
     duh.Blit( *this );
 }
 
+void Bitmap::BlitFromScreen(const int x, const int y) const {
+    Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
+}
+
 LitBitmap::LitBitmap( const Bitmap & b ):
 Bitmap( b ){
 }

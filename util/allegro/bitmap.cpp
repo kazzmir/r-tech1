@@ -951,13 +951,9 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 	BITMAP * bmp = where.getData().getBitmap();
 	::masked_blit( getData().getBitmap(), bmp, mx, my, wx, wy, width, height );
 }
-    
-void Bitmap::BlitFromScreen(const int x, const int y) const {
-    Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
-}
 
 void Bitmap::Blit( const Bitmap & where ) const {
-	this->Blit( 0, 0, where );
+    this->Blit( 0, 0, where );
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {

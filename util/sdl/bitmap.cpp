@@ -668,10 +668,6 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
     }
 }
 
-void Bitmap::BlitFromScreen(const int x, const int y) const {
-    /* TODO */
-}
-
 void Bitmap::Stretch( const Bitmap & where ) const {
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
         Blit(where);
