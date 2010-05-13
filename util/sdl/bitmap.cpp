@@ -5,9 +5,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-/* TODO: get rid of gfx primitives, just use sprig */
-// #include <SDL_gfxPrimitives.h>
-
 #include <exception>
 
 static const int FULLSCREEN = 0;
