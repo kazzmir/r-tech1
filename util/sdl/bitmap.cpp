@@ -1,6 +1,5 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
-// #include "stretch/SDL_stretch.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
 #include <SDL_image.h>
