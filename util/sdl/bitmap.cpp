@@ -6,7 +6,7 @@
 #include <SDL_image.h>
 
 /* TODO: get rid of gfx primitives, just use sprig */
-#include <SDL_gfxPrimitives.h>
+// #include <SDL_gfxPrimitives.h>
 
 #include <exception>
 
@@ -455,27 +455,45 @@ bool Bitmap::getError(){
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
-    Uint8 red, green, blue;
-    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
-    rectangleRGBA(getData().getSurface(), x1, y1, x2, y2, red, green, blue, 255);
+    switch (::drawingMode){
+        case MODE_SOLID : {
+            SPG_Rect(getData().getSurface(), x1, y1, x2, y2, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_RectBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
+            break;
+        }
+    }
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
-    Uint8 red, green, blue;
-    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
-    boxRGBA(getData().getSurface(), x1, y1, x2, y2, red, green, blue, 255);
+    switch (::drawingMode){
+        case MODE_SOLID : {
+            SPG_RectFilled(getData().getSurface(), x1, y1, x2, y2, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_RectFilledBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
+            break;
+        }
+    }
 }
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
-    Uint8 red, green, blue;
-    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
-    int alpha = 255;
     switch (::drawingMode){
-        case MODE_SOLID : alpha = 255; break;
-        case MODE_TRANS : alpha = globalBlend.alpha; break;
+        case MODE_SOLID : {
+            SPG_CircleFilled(getData().getSurface(), x, y, radius, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_CircleFilledBlend(getData().getSurface(), x, y, radius, color, alpha);
+            break;
+        }
     }
-
-    filledCircleRGBA(getData().getSurface(), x, y, radius, red, green, blue, alpha);
 }
 
 void Bitmap::circle(int x, int y, int radius, int color) const {
@@ -498,9 +516,17 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
 }
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
-    Uint8 red, green, blue;
-    SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
-    lineRGBA(getData().getSurface(), x1, y1, x2, y2, red, green, blue, drawingAlpha());
+    switch (::drawingMode){
+        case MODE_SOLID : {
+            SPG_Line(getData().getSurface(), x1, y1, x2, y2, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_LineBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
+            break;
+        }
+    }
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
