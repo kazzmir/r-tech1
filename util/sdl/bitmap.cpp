@@ -1,8 +1,10 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
+#include "../funcs.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
 #include <SDL_image.h>
+#include <math.h>
 
 #include <exception>
 
@@ -69,6 +71,7 @@ static int drawingAlpha(){
 
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
+static void paintown_light16(SDL_Surface * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
 const int Bitmap::MaskColor(){
     static int mask = makeColor(255, 0, 255);
@@ -772,7 +775,7 @@ void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
 }
 
 void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
-    /* TODO */
+    paintown_light16(getData().getSurface(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
 }
 
 void Bitmap::applyTrans(const int color){
@@ -1184,6 +1187,76 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
     if (SDL_MUSTLOCK(src)){
         SDL_UnlockSurface(src);
     }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_UnlockSurface(dst);
+    }
+}
+
+/* ultra special-case for drawing a light (like from a lamp).
+ * center of light is x,y and shines in a perfect isosolese triangle.
+ */
+static void paintown_light16(SDL_Surface * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color){
+
+    int dxbeg = x - width;
+    int x_dir = 1;
+    unsigned char * alphas = new unsigned char[width];
+    int * colors = new int[width];
+    for (int i = 0; i < width; i++){
+        alphas[i] = (unsigned char)((double)(edge_alpha - focus_alpha) * (double)i / (double)width + focus_alpha);
+    }
+    Util::blend_palette(colors, width, focus_color, edge_color);
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_LockSurface(dst);
+    }
+
+    int min_y, max_y, min_x, max_x;
+    min_y = dst->clip_rect.y;
+    max_y = dst->clip_rect.y + dst->clip_rect.h;
+    min_x = dst->clip_rect.x;
+    max_x = dst->clip_rect.x + dst->clip_rect.w;
+            
+    int dybeg = y;
+
+    /* tan(theta) = y / x */
+    double xtan = (double) height / (double) width;
+    int bpp = dst->format->BytesPerPixel;
+    for (int sy = start_y; sy < height; sy++) {
+        if (dybeg + sy < min_y || dybeg + sy > max_y){
+            continue;
+        }
+        /* x = y / tan(theta) */
+        int top_width = (int)((double) sy / xtan);
+        if (top_width == 0){
+            continue;
+        }
+
+        dxbeg = x - top_width;
+        Uint8* line = computeOffset(dst, dxbeg, dybeg + y);
+
+        for (int sx = -top_width; sx <= top_width; line += x_dir * bpp, sx++) {
+            if (sx + x < min_x || sx + x > max_x){
+                continue;
+            }
+
+            unsigned long c = *(Uint16*) line;
+
+            /* TODO:
+             * converting to a double and calling fabs is overkill, just
+             * write an integer abs() function.
+             */
+            int sx_abs = (int) fabs((double) sx);
+            int alphaUse = alphas[sx_abs];
+            int color = colors[sx_abs];
+
+            c = globalBlend.currentBlender(c, color, alphaUse);
+
+            *(Uint16*) line = c;
+        }
+    }
+    delete[] alphas;
+    delete[] colors;
 
     if (SDL_MUSTLOCK(dst)){
         SDL_UnlockSurface(dst);
