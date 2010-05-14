@@ -16,7 +16,7 @@ static SDL_Surface * screen;
 typedef unsigned int (*blender)(unsigned int color1, unsigned int color2, unsigned int alpha);
 
 /* taken from allegro 4.2: src/colblend.c, _blender_trans16 */
-static unsigned int transBlender(unsigned int x, unsigned int y, unsigned int n){
+static inline unsigned int transBlender(unsigned int x, unsigned int y, unsigned int n){
     unsigned long result;
 
     if (n)
@@ -30,7 +30,7 @@ static unsigned int transBlender(unsigned int x, unsigned int y, unsigned int n)
     return ((result & 0xFFFF) | (result >> 16));
 }
 
-static unsigned int multiplyBlender(unsigned int x, unsigned int y, unsigned int n){
+static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsigned int n){
     Uint8 redX = 0;
     Uint8 greenX = 0;
     Uint8 blueX = 0;
@@ -46,7 +46,7 @@ static unsigned int multiplyBlender(unsigned int x, unsigned int y, unsigned int
     return transBlender(Bitmap::makeColor(r, g, b), y, n);
 }
 
-static unsigned int noBlender(unsigned int a, unsigned int b, unsigned int c){
+static inline unsigned int noBlender(unsigned int a, unsigned int b, unsigned int c){
     return a;
 }
 
