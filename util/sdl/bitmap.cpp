@@ -753,7 +753,18 @@ void Bitmap::save( const std::string & str ){
 }
 	
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
-    /* TODO */
+
+    switch (::drawingMode){
+        case MODE_SOLID : {
+            SPG_TrigonFilled(getData().getSurface(), x1, y1, x2, y2, x3, y3, color);
+            break;
+        }
+        case MODE_TRANS : {
+            int alpha = globalBlend.alpha;
+            SPG_TrigonFilledBlend(getData().getSurface(), x1, y1, x2, y2, x3, y3, color, alpha);
+            break;
+        }
+    }
 }
 
 void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
@@ -1250,7 +1261,7 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, const 
             int alphaUse = alphas[sx_abs];
             int color = colors[sx_abs];
 
-            c = globalBlend.currentBlender(c, color, alphaUse);
+            c = globalBlend.currentBlender(color, c, alphaUse);
 
             *(Uint16*) line = c;
         }
