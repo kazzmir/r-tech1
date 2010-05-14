@@ -3,7 +3,7 @@
 #include "../funcs.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
-#include <SDL_image.h>
+#include "image/SDL_image.h"
 #include <math.h>
 
 #include <exception>
