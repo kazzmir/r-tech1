@@ -794,7 +794,7 @@ void Bitmap::applyTrans(const int color){
 }
 	
 void Bitmap::floodfill( const int x, const int y, const int color ) const {
-    /* TODO */
+    SPG_FloodFill(getData().getSurface(), x, y, color);
 }
 	
 void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const {
@@ -861,8 +861,25 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
     SDL_FreeRW(ops);
-    Bitmap out(pcx, true);
+    SDL_Surface * display = SDL_DisplayFormat(pcx);
+    Bitmap out(display, true);
+
+    if (pcx->format->BitsPerPixel == 8){
+        SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
+        int bad = makeColor(color.r, color.g, color.b);
+        for (int x = 0; x < out.getWidth(); x++){
+            for (int y = 0; y < out.getHeight(); y++){
+                if (out.getPixel(x, y) == bad){
+                    out.putPixel(x, y, MaskColor());
+                }
+            }
+        }
+    }
+
     SDL_FreeSurface(pcx);
+    SDL_FreeSurface(display);
+    // out.floodfill(0, 0, makeColor(255, 0, 255));
+
     return out;
 }
 	
