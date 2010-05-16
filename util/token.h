@@ -72,7 +72,11 @@ public:
     Token(Token const & copy);
     virtual ~Token();
 
-    void addToken(Token * t) throw (TokenException);
+    /* add an existing token to the tree */
+    void addToken(Token * t);
+
+    /* creates a new empty token and returns it */
+    Token * newToken();
 
     /*
        inline const string & getName(){

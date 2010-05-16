@@ -307,11 +307,17 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	return *this;
 }
 
-void Token::addToken(Token * t) throw (TokenException){
+void Token::addToken(Token * t){
     if (!own){
         throw TokenException("This token does not own its own tokens, so you cannot add tokens to it");
     }
     tokens.push_back( t );
+}
+
+Token * Token::newToken(){
+    Token * token = new Token();
+    addToken(token);
+    return token;
 }
 
 /* put quotes around a string if there are spaces in it */
