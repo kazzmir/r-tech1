@@ -799,6 +799,7 @@ void spg_lineh(SDL_Surface *Surface, Sint16 x1, Sint16 y, Sint16 x2, Uint32 Colo
         x2=tmp;
     }
 
+/*
     //Do the clipping
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
@@ -809,6 +810,19 @@ void spg_lineh(SDL_Surface *Surface, Sint16 x1, Sint16 y, Sint16 x2, Uint32 Colo
     if (x2>Surface->clip_maxx)
         x2=Surface->clip_maxx;
 #endif
+*/
+    if (y < SPG_CLIP_YMIN(Surface) ||
+        y > SPG_CLIP_YMAX(Surface) ||
+        x1 > SPG_CLIP_XMAX(Surface) ||
+        x2 < SPG_CLIP_XMIN(Surface)){
+        return;
+    }
+    if (x1 < SPG_CLIP_XMIN(Surface)){
+        x1 = SPG_CLIP_XMIN(Surface);
+    }
+    if (x2 > SPG_CLIP_XMAX(Surface)){
+        x2 = SPG_CLIP_XMAX(Surface);
+    }
 
     SDL_Rect l;
     l.x=x1;
@@ -831,6 +845,7 @@ void SPG_LineH(SDL_Surface *Surface, Sint16 x1, Sint16 y, Sint16 x2, Uint32 Colo
         x2=tmp;
     }
 
+/*
     //Do the clipping
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
@@ -841,6 +856,20 @@ void SPG_LineH(SDL_Surface *Surface, Sint16 x1, Sint16 y, Sint16 x2, Uint32 Colo
     if (x2>Surface->clip_maxx)
         x2=Surface->clip_maxx;
 #endif
+*/
+
+    if (y < SPG_CLIP_YMIN(Surface) ||
+        y > SPG_CLIP_YMAX(Surface) ||
+        x1 > SPG_CLIP_XMAX(Surface) ||
+        x2 < SPG_CLIP_XMIN(Surface)){
+        return;
+    }
+    if (x1 < SPG_CLIP_XMIN(Surface)){
+        x1 = SPG_CLIP_XMIN(Surface);
+    }
+    if (x2 > SPG_CLIP_XMAX(Surface)){
+        x2 = SPG_CLIP_XMAX(Surface);
+    }
 
     SDL_Rect l;
     l.x=x1;
@@ -910,6 +939,7 @@ void spg_linev(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Colo
         y2=tmp;
     }
 
+    /*
     //Do the clipping
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
@@ -920,6 +950,23 @@ void spg_linev(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Colo
     if (y2>Surface->clip_maxy)
         y2=Surface->clip_maxy;
 #endif
+*/
+
+    if (x < SPG_CLIP_XMIN(Surface) ||
+        x > SPG_CLIP_XMAX(Surface) ||
+        y1 > SPG_CLIP_YMAX(Surface) ||
+        y2 < SPG_CLIP_YMIN(Surface)){
+        return;
+    }
+
+    if (y1 < SPG_CLIP_YMIN(Surface)){
+        y1 = SPG_CLIP_YMIN(Surface);
+    }
+
+    if (y2 > SPG_CLIP_YMAX(Surface)){
+        y2 = SPG_CLIP_YMAX(Surface);
+    }
+
 
     SDL_Rect l;
     l.x=x;
@@ -942,6 +989,7 @@ void SPG_LineV(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Colo
         y2=tmp;
     }
 
+    /*
     //Do the clipping
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
@@ -952,6 +1000,23 @@ void SPG_LineV(SDL_Surface *Surface, Sint16 x, Sint16 y1, Sint16 y2, Uint32 Colo
     if (y2>Surface->clip_maxy)
         y2=Surface->clip_maxy;
 #endif
+*/
+
+    if (x < SPG_CLIP_XMIN(Surface) ||
+        x > SPG_CLIP_XMAX(Surface) ||
+        y1 > SPG_CLIP_YMAX(Surface) ||
+        y2 < SPG_CLIP_YMIN(Surface)){
+        return;
+    }
+
+    if (y1 < SPG_CLIP_YMIN(Surface)){
+        y1 = SPG_CLIP_YMIN(Surface);
+    }
+
+    if (y2 > SPG_CLIP_YMAX(Surface)){
+        y2 = SPG_CLIP_YMAX(Surface);
+    }
+
 
     SDL_Rect l;
     l.x=x;
@@ -2322,6 +2387,7 @@ void SPG_RectFilled(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint1
         y2=tmp;
     }
 
+    /*
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
     if (x2<Surface->clip_minx || x1>Surface->clip_maxx || y2<Surface->clip_miny || y1>Surface->clip_maxy)
@@ -2335,6 +2401,30 @@ void SPG_RectFilled(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, Sint1
     if (y2 > Surface->clip_maxy)
         y2=Surface->clip_maxy;
 #endif
+*/
+
+    if (x2 < SPG_CLIP_XMIN(Surface) ||
+        x1 > SPG_CLIP_XMAX(Surface) ||
+        y1 > SPG_CLIP_YMAX(Surface) ||
+        y2 < SPG_CLIP_YMIN(Surface)){
+        return;
+    }
+
+    if (x1 < SPG_CLIP_XMIN(Surface)){
+        x1 = SPG_CLIP_XMIN(Surface);
+    }
+    
+    if (x2 > SPG_CLIP_XMAX(Surface)){
+        x2 = SPG_CLIP_XMAX(Surface);
+    }
+
+    if (y1 < SPG_CLIP_YMIN(Surface)){
+        y1 = SPG_CLIP_YMIN(Surface);
+    }
+
+    if (y2 > SPG_CLIP_YMAX(Surface)){
+        y2 = SPG_CLIP_YMAX(Surface);
+    }
 
     SDL_Rect area;
     area.x=x1;
@@ -2778,6 +2868,7 @@ void SPG_RectRoundFilled(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, 
         y2=tmp;
     }
 
+    /*
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
     if (x2<Surface->clip_minx || x1>Surface->clip_maxx || y2<Surface->clip_miny || y1>Surface->clip_maxy)
@@ -2791,6 +2882,30 @@ void SPG_RectRoundFilled(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16 x2, 
     if (y2 > Surface->clip_maxy)
         y2=Surface->clip_maxy;
 #endif
+*/
+
+    if (x2 < SPG_CLIP_XMIN(Surface) ||
+        x1 > SPG_CLIP_XMAX(Surface) ||
+        y1 > SPG_CLIP_YMAX(Surface) ||
+        y2 < SPG_CLIP_YMIN(Surface)){
+        return;
+    }
+
+    if (x1 < SPG_CLIP_XMIN(Surface)){
+        x1 = SPG_CLIP_XMIN(Surface);
+    }
+    
+    if (x2 > SPG_CLIP_XMAX(Surface)){
+        x2 = SPG_CLIP_XMAX(Surface);
+    }
+
+    if (y1 < SPG_CLIP_YMIN(Surface)){
+        y1 = SPG_CLIP_YMIN(Surface);
+    }
+
+    if (y2 > SPG_CLIP_YMAX(Surface)){
+        y2 = SPG_CLIP_YMAX(Surface);
+    }
 
     Sint16 minX = x1 + (Sint16)(r) + 1;
     Sint16 maxX = x2 - (Sint16)(r);
@@ -2855,6 +2970,7 @@ void SPG_RectRoundFilledBlend(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16
         y2=tmp;
     }
 
+/*
 #if SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) < \
     SDL_VERSIONNUM(1, 1, 5)
     if (x2<Surface->clip_minx || x1>Surface->clip_maxx || y2<Surface->clip_miny || y1>Surface->clip_maxy)
@@ -2868,6 +2984,30 @@ void SPG_RectRoundFilledBlend(SDL_Surface *Surface, Sint16 x1, Sint16 y1, Sint16
     if (y2 > Surface->clip_maxy)
         y2=Surface->clip_maxy;
 #endif
+*/
+
+    if (x2 < SPG_CLIP_XMIN(Surface) ||
+        x1 > SPG_CLIP_XMAX(Surface) ||
+        y1 > SPG_CLIP_YMAX(Surface) ||
+        y2 < SPG_CLIP_YMIN(Surface)){
+        return;
+    }
+
+    if (x1 < SPG_CLIP_XMIN(Surface)){
+        x1 = SPG_CLIP_XMIN(Surface);
+    }
+    
+    if (x2 > SPG_CLIP_XMAX(Surface)){
+        x2 = SPG_CLIP_XMAX(Surface);
+    }
+
+    if (y1 < SPG_CLIP_YMIN(Surface)){
+        y1 = SPG_CLIP_YMIN(Surface);
+    }
+
+    if (y2 > SPG_CLIP_YMAX(Surface)){
+        y2 = SPG_CLIP_YMAX(Surface);
+    }
 
     Sint16 minX = x1 + (Sint16)(r) + 1;
     Sint16 maxX = x2 - (Sint16)(r) - 1;
