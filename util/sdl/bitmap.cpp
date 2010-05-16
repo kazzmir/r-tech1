@@ -46,6 +46,27 @@ static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsig
     return transBlender(Bitmap::makeColor(r, g, b), y, n);
 }
 
+static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned int n){
+    Uint8 redX = 0;
+    Uint8 greenX = 0;
+    Uint8 blueX = 0;
+    SDL_GetRGB(x, screen->format, &redX, &greenX, &blueX);
+    Uint8 redY = 0;
+    Uint8 greenY = 0;
+    Uint8 blueY = 0;
+    SDL_GetRGB(y, screen->format, &redY, &greenY, &blueY);
+
+    int r = redY + redX * n / 256;
+    int g = greenY + greenX * n / 256;
+    int b = blueY + blueX * n / 256;
+
+    r = Util::min(r, 255);
+    g = Util::min(g, 255);
+    b = Util::min(b, 255);
+
+    return Bitmap::makeColor(r, g, b);
+}
+
 static inline int iabs(int x){
     return x < 0 ? -x : x;
 }
@@ -348,7 +369,11 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
 }
 	
 void Bitmap::addBlender( int r, int g, int b, int a ){
-    /* TODO */
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.currentBlender = ::addBlender;
 }
 	
 void Bitmap::multiplyBlender( int r, int g, int b, int a ){

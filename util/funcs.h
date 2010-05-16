@@ -44,7 +44,13 @@ bool checkVersion(int version);
 int rnd( int q, int min, int max );
 
 int max(int a, int b);
-int min(int a, int b);
+
+inline int min(int a, int b){
+    if (a<b){
+        return a;
+    }
+    return b;
+}
 
 /* return a number between min/max */
 int rnd( int min, int max );
