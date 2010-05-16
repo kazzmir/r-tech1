@@ -46,6 +46,26 @@ static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsig
     return transBlender(Bitmap::makeColor(r, g, b), y, n);
 }
 
+static inline int iabs(int x){
+    return x < 0 ? -x : x;
+}
+
+static inline unsigned int differenceBlender(unsigned int x, unsigned int y, unsigned int n){
+    Uint8 redX = 0;
+    Uint8 greenX = 0;
+    Uint8 blueX = 0;
+    SDL_GetRGB(x, screen->format, &redX, &greenX, &blueX);
+    Uint8 redY = 0;
+    Uint8 greenY = 0;
+    Uint8 blueY = 0;
+    SDL_GetRGB(y, screen->format, &redY, &greenY, &blueY);
+
+    int r = iabs(redY - redX);
+    int g = iabs(greenY - greenX);
+    int b = iabs(blueY - blueX);
+    return transBlender(Bitmap::makeColor(r, g, b), y, n);
+}
+
 static inline unsigned int noBlender(unsigned int a, unsigned int b, unsigned int c){
     return a;
 }
@@ -340,7 +360,11 @@ void Bitmap::multiplyBlender( int r, int g, int b, int a ){
 }
 	
 void Bitmap::differenceBlender( int r, int g, int b, int a ){
-    /* TODO */
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.currentBlender = ::differenceBlender;
 }
 	
 Bitmap & Bitmap::operator=(const Bitmap & copy){
@@ -666,7 +690,7 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
         Scaler->Blit(0, 0, 0, 0, *Screen);
     }
 
-    SDL_Flip(Screen->getData().getSurface());
+    // SDL_Flip(Screen->getData().getSurface());
     // SDL_UpdateRect(Screen->getData().getSurface(), 0, 0, Screen->getWidth(), Screen->getHeight());
 }
 
@@ -708,6 +732,7 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
 
     float xscale = (float) destWidth / (float) sourceWidth;
     float yscale = (float) destHeight / (float) sourceHeight;
+    SDL_SetColorKey(src, 0, MaskColor());
     SPG_TransformX(src, dst, 0, xscale, yscale, sourceX, sourceY, destX, destY, SPG_NONE);
 
     /*
