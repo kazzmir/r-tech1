@@ -45,16 +45,6 @@ own(NULL){
     *own = 1;
 }
 
-Sound::Sound( const Sound & copy ):
-my_sound( NULL ),
-own( NULL ){
-    own = copy.own;
-    if ( own ){
-        *own += 1;
-    }
-    my_sound = copy.my_sound;
-}
-
 void Sound::destroy(){
     if ( own ){
         *own -= 1;
@@ -73,19 +63,6 @@ void Sound::initialize(){
     set_volume_per_voice(0);
     // out<<"Install sound: "<<install_sound( DIGI_AUTODETECT, MIDI_NONE, "" )<<endl;
     install_sound(DIGI_AUTODETECT, MIDI_NONE, "");
-}
-
-Sound & Sound::operator=( const Sound & rhs ){
-    if ( own ){
-        destroy();
-    }
-    own = rhs.own;
-    if ( own ){
-        *own += 1;
-    }
-    my_sound = rhs.my_sound;
-
-    return *this;
 }
         
 void Sound::stop(){
@@ -127,8 +104,4 @@ void Sound::playLoop(){
     if ( my_sound ){
         play_sample( my_sound, 255, 128, 1000, true );
     }
-}
-
-Sound::~Sound(){
-    destroy();
 }
