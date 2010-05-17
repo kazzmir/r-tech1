@@ -3,7 +3,6 @@
 #include "mixer/SDL_mixer.h"
 
 Sound::Sound():
-my_sound(NULL),
 own(NULL){
 }
 
@@ -14,13 +13,14 @@ Sound::Sound(const char * data, int length){
 
 /* load from path */
 Sound::Sound(const std::string & path) throw (LoadException){
-    my_sound = (SAMPLE*) Mix_LoadWAV(path.c_str());
-    if (!my_sound){
+    data.chunk = Mix_LoadWAV(path.c_str());
+    if (!data.chunk){
         printf("Can't load sound %s\n", path.c_str());
         // throw LoadException("Could not load sound " + path);
+    } else {
+        own = new int;
+        *own = 1;
     }
-    own = new int;
-    *own = 1;
 }
 
 void Sound::initialize(){
@@ -36,11 +36,11 @@ void Sound::initialize(){
 }
 
 void Sound::play(){
-    Mix_PlayChannel(-1, (Mix_Chunk*) my_sound, 0);
+    Mix_PlayChannel(-1, data.chunk, 0);
 }
 
 void Sound::play( int volume, int pan ){
-    Mix_PlayChannel(-1, (Mix_Chunk*) my_sound, 0);
+    Mix_PlayChannel(-1, data.chunk, 0);
 }
 
 void Sound::playLoop(){
@@ -52,7 +52,7 @@ void Sound::destroy(){
         *own -= 1;
         if ( *own == 0 ){
             delete own;
-            Mix_FreeChunk((Mix_Chunk*) my_sound);
+            Mix_FreeChunk(data.chunk);
             own = NULL;
         }
     }

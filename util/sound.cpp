@@ -6,13 +6,12 @@
 #endif
 
 Sound::Sound( const Sound & copy ):
-my_sound( NULL ),
 own( NULL ){
     own = copy.own;
     if ( own ){
         *own += 1;
     }
-    my_sound = copy.my_sound;
+    data = copy.data;
 }
 
 Sound & Sound::operator=( const Sound & rhs ){
@@ -23,11 +22,11 @@ Sound & Sound::operator=( const Sound & rhs ){
     if ( own ){
         *own += 1;
     }
-    my_sound = rhs.my_sound;
+
+    data = rhs.data;
 
     return *this;
 }
-
 
 Sound::~Sound(){
     destroy();

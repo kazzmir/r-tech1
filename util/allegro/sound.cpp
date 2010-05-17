@@ -9,20 +9,18 @@
 using namespace std;
 
 Sound::Sound():
-my_sound(NULL),
 own(NULL){
 }
 
 Sound::Sound(const char * data, int length):
-my_sound(NULL),
 own(NULL){
     PACKFILE_VTABLE table = Memory::makeTable();
     Memory::memory memory((unsigned char *) data, length);
 
     PACKFILE * pack = pack_fopen_vtable(&table, &memory);
-    my_sound = load_wav_pf(pack);
+    this->data.sample = load_wav_pf(pack);
     pack_fclose(pack);
-    if (!my_sound){
+    if (!this->data.sample){
         throw LoadException("Could not load wav data");
     }
 	
@@ -31,11 +29,10 @@ own(NULL){
 }
 
 Sound::Sound(const string & path) throw( LoadException ):
-my_sound(NULL ),
 own(NULL){
-    my_sound = load_sample( path.c_str() );
+    data.sample = load_sample( path.c_str() );
 
-    if ( !my_sound ){
+    if ( !data.sample ){
         string xf( "Could not load " );
         xf += path;
         throw LoadException(xf);
@@ -50,7 +47,7 @@ void Sound::destroy(){
         *own -= 1;
         if ( *own == 0 ){
             delete own;
-            destroy_sample( my_sound );
+            destroy_sample(data.sample);
             own = NULL;
         }
     }
@@ -66,8 +63,8 @@ void Sound::initialize(){
 }
         
 void Sound::stop(){
-    if (my_sound){
-        stop_sample(my_sound);
+    if (data.sample){
+        stop_sample(data.sample);
     }
 }
 
@@ -76,13 +73,13 @@ int scaleVolume(int v){
 }
 
 void Sound::play(){
-    if (my_sound){
-        play_sample(my_sound, scaleVolume(255), 128, 1000, false);
+    if (data.sample){
+        play_sample(data.sample, scaleVolume(255), 128, 1000, false);
     }
 }
 
 void Sound::play(int volume, int pan){
-    if ( my_sound ){
+    if ( data.sample){
         int p = pan;
         if ( p > 255 ){
             p = 255;
@@ -96,12 +93,12 @@ void Sound::play(int volume, int pan){
             v = 255;
         }
 
-        play_sample( my_sound, scaleVolume(v), p, 1000, false );
+        play_sample( data.sample, scaleVolume(v), p, 1000, false );
     }
 }
 	
 void Sound::playLoop(){
-    if ( my_sound ){
-        play_sample( my_sound, 255, 128, 1000, true );
+    if ( data.sample ){
+        play_sample( data.sample, 255, 128, 1000, true );
     }
 }
