@@ -16,6 +16,9 @@ public:
 	Sound(const std::string & path) throw (LoadException);
 	Sound(const Sound & copy);
 
+        /* do any global initialization necessary */
+        static void initialize();
+
 	Sound & operator=( const Sound & rhs );
 
 	void play();

@@ -66,6 +66,15 @@ void Sound::destroy(){
     }
 }
 
+void Sound::initialize(){
+    /* default for alsa is 8, so reserve a few more */
+    reserve_voices(16, -1);
+    /* is calling this function a good idea? */
+    set_volume_per_voice(0);
+    // out<<"Install sound: "<<install_sound( DIGI_AUTODETECT, MIDI_NONE, "" )<<endl;
+    install_sound(DIGI_AUTODETECT, MIDI_NONE, "");
+}
+
 Sound & Sound::operator=( const Sound & rhs ){
     if ( own ){
         destroy();
