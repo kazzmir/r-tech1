@@ -4,6 +4,13 @@
 #include <string>
 #include "load_exception.h"
 
+#ifdef USE_SDL
+#include "sdl/sound.h"
+#endif
+#ifdef USE_ALLEGRO
+#include "allegro/sound.h"
+#endif
+
 struct SAMPLE;
 
 /* a sound! */
@@ -32,7 +39,8 @@ protected:
 
 	void destroy();
 
-	SAMPLE * my_sound;
+	// SAMPLE * my_sound;
+        SoundData data;
 
 	/* reference counting */
 	int * own;
