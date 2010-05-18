@@ -36,10 +36,12 @@ void Sound::initialize(){
 }
 
 void Sound::play(){
+    Mix_VolumeChunk(data.chunk, MIX_MAX_VOLUME);
     Mix_PlayChannel(-1, data.chunk, 0);
 }
 
-void Sound::play( int volume, int pan ){
+void Sound::play(double volume, int pan){
+    Mix_VolumeChunk(data.chunk, (int)(volume * MIX_MAX_VOLUME));
     Mix_PlayChannel(-1, data.chunk, 0);
 }
 
