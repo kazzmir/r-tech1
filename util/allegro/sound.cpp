@@ -8,6 +8,9 @@
 
 using namespace std;
 
+/* allegro uses volume in the range of 0-255 */
+static const int MAX_VOLUME = 255;
+
 Sound::Sound():
 own(NULL){
 }
@@ -68,32 +71,31 @@ void Sound::stop(){
     }
 }
 
-int scaleVolume(int v){
-    return (int)(v * (int) Configuration::getSoundVolume() / 100.0);
+static double scaleVolume(double v){
+    return v * Configuration::getSoundVolume() / 100.0;
 }
 
 void Sound::play(){
     if (data.sample){
-        play_sample(data.sample, scaleVolume(255), 128, 1000, false);
+        play_sample(data.sample, scaleVolume(1.0), 128, 1000, false);
     }
 }
 
-void Sound::play(int volume, int pan){
+void Sound::play(double volume, int pan){
     if ( data.sample){
-        int p = pan;
-        if ( p > 255 ){
-            p = 255;
-        } else if ( p < 0 ){
-            p = 0;
+        if (pan > 255 ){
+            pan = 255;
+        } else if ( pan < 0 ){
+            pan = 0;
         }
         int v = volume;
         if (v < 0){
             v = 0;
-        } else if (v > 255){
-            v = 255;
+        } else if (v > 1){
+            v = 1;
         }
 
-        play_sample( data.sample, scaleVolume(v), p, 1000, false );
+        play_sample( data.sample, (int)(scaleVolume(v) * MAX_VOLUME), pan, 1000, false );
     }
 }
 	
