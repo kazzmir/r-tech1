@@ -63,5 +63,7 @@ void Sound::destroy(){
 }
 
 void Sound::stop(){
-    /* TODO */
+    if (data.channel != -1){
+        Mix_HaltChannel(data.channel);
+    }
 }
