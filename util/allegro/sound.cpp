@@ -77,7 +77,7 @@ static double scaleVolume(double v){
 
 void Sound::play(){
     if (data.sample){
-        play_sample(data.sample, scaleVolume(1.0), 128, 1000, false);
+        play_sample(data.sample, (int)(scaleVolume(1.0) * MAX_VOLUME), 128, 1000, false);
     }
 }
 

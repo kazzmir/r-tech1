@@ -38,11 +38,13 @@ void Sound::initialize(){
 }
 
 void Sound::play(){
+    /* FIXME: scale the volume based on the configuration sound setting */
     Mix_VolumeChunk(data.chunk, MIX_MAX_VOLUME);
     Mix_PlayChannel(-1, data.chunk, 0);
 }
 
 void Sound::play(double volume, int pan){
+    /* FIXME: scale the volume based on the configuration sound setting */
     Mix_VolumeChunk(data.chunk, (int)(volume * MIX_MAX_VOLUME));
     Mix_PlayChannel(-1, data.chunk, 0);
 }
