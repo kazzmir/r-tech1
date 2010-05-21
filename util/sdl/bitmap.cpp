@@ -114,7 +114,7 @@ static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
-const int Bitmap::MaskColor(){
+int Bitmap::MaskColor(){
     static int mask = makeColor(255, 0, 255);
     return mask;
 }
