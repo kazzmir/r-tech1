@@ -676,6 +676,16 @@ void Bitmap::putPixelNormal(int x, int y, int col) const {
     BITMAP * dst = getData().getBitmap();
     ::putpixel(dst, x, y, col);
 }
+
+/* FIXME: its pretty slow to keep setting the drawing mode. Either
+ * 1) dont use translucent putpixel that much or
+ * 2) somehow cache the drawing mode so that its not reset every time
+ */
+void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
+    drawingMode(MODE_TRANS);
+    Bitmap::putPixelNormal(x, y, color);
+    drawingMode(MODE_SOLID);
+}
 	
 void Bitmap::putPixel( int x, int y, int col ) const{
     BITMAP * dst = getData().getBitmap();
