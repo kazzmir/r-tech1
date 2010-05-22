@@ -9,6 +9,7 @@
 
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
+#include "../trans-bitmap.h"
 #include <stdarg.h>
 #include <vector>
 #include <string>

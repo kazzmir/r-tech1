@@ -203,8 +203,8 @@ void Bitmap::BlitFromScreen(const int x, const int y) const {
     Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
 }
 
-LitBitmap::LitBitmap( const Bitmap & b ):
-Bitmap( b ){
+LitBitmap::LitBitmap(const Bitmap & b):
+Bitmap(b){
 }
 
 LitBitmap::LitBitmap():
@@ -212,4 +212,15 @@ Bitmap(){
 }
 	
 LitBitmap::~LitBitmap(){
+}
+
+TranslucentBitmap::TranslucentBitmap(const Bitmap & b):
+Bitmap(b){
+}
+
+TranslucentBitmap::TranslucentBitmap():
+Bitmap(){
+}
+
+TranslucentBitmap::~TranslucentBitmap(){
 }
