@@ -8,6 +8,8 @@ public:
     TranslucentBitmap(const Bitmap & b);
     TranslucentBitmap();
     virtual ~TranslucentBitmap();
+	
+    virtual void putPixelNormal(int x, int y, int col) const;
 };
 
 #endif

@@ -214,6 +214,10 @@ Bitmap(){
 LitBitmap::~LitBitmap(){
 }
 
+TranslucentBitmap Bitmap::translucent() const {
+    return TranslucentBitmap(*this);
+}
+
 TranslucentBitmap::TranslucentBitmap(const Bitmap & b):
 Bitmap(b){
 }
