@@ -439,13 +439,7 @@ void Bitmap::destroyPrivateData(){
     SDL_FreeSurface(getData().getSurface());
 }
 
-void Bitmap::putPixel(int x, int y, int pixel) const {
-    SDL_Surface * surface = getData().getSurface();
-
-    /* clip it */
-    if (getData().isClipped(x, y)){
-        return;
-    }
+static void doPutPixel(SDL_Surface * surface, int x, int y, int pixel, bool translucent){
 
     if (SDL_MUSTLOCK(surface)){
         SDL_LockSurface(surface);
@@ -461,18 +455,12 @@ void Bitmap::putPixel(int x, int y, int pixel) const {
             break;
 
         case 2:
-            switch (::drawingMode){
-                case MODE_SOLID : {
-                    *(Uint16 *)p = pixel;
-                    break;
-                }
-                case MODE_TRANS : {
-                    *(Uint16 *)p = globalBlend.currentBlender(pixel, *(Uint16*)p, globalBlend.alpha);
-                    break;
-                }
+            if (translucent){
+                *(Uint16 *)p = globalBlend.currentBlender(pixel, *(Uint16*)p, globalBlend.alpha);
+            } else {
+                *(Uint16 *)p = pixel;
             }
             break;
-
         case 3:
             if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
                 p[0] = (pixel >> 16) & 0xff;
@@ -492,10 +480,30 @@ void Bitmap::putPixel(int x, int y, int pixel) const {
     if (SDL_MUSTLOCK(surface)){
         SDL_UnlockSurface(surface);
     }
+
+}
+
+void Bitmap::putPixel(int x, int y, int pixel) const {
+    /* clip it */
+    if (getData().isClipped(x, y)){
+        return;
+    }
+
+    SDL_Surface * surface = getData().getSurface();
+    doPutPixel(surface, x, y, pixel, false);
 }
 	
 void Bitmap::putPixelNormal(int x, int y, int col) const {
     putPixel(x, y, col);
+}
+    
+void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
+    if (getData().isClipped(x, y)){
+        return;
+    }
+    
+    SDL_Surface * surface = getData().getSurface();
+    doPutPixel(surface, x, y, color, true);
 }
 	
 bool Bitmap::getError(){

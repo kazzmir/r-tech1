@@ -16,6 +16,8 @@
 #include <vector>
 #include <iostream>
 
+class TranslucentBitmap;
+
 class Bitmap{
 private:
 	static Bitmap * Screen;
@@ -46,6 +48,8 @@ public:
 	Bitmap( const Bitmap & copy, int sx, int sy );
 	Bitmap( const Bitmap & copy, int x, int y, int width, int height );
 	virtual ~Bitmap();
+
+        virtual TranslucentBitmap translucent() const;
 
 	virtual void save( const std::string & str );
 
@@ -191,7 +195,7 @@ public:
         /* uses _putpixel16 underneath which ignores translucent behavior */
 	void putPixel( int x, int y, int col ) const;
         /* respects the current trans mode */
-	void putPixelNormal(int x, int y, int col) const;
+	virtual void putPixelNormal(int x, int y, int col) const;
 
 	/*
 	inline int getPixel( int x, int y ) const{

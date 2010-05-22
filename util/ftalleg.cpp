@@ -232,20 +232,27 @@ namespace ftalleg{
 
         void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Bitmap & bitmap, const int & color){
             unsigned char *line = tempChar->line;
+            int colorRed = Bitmap::getRed(color);
+            int colorGreen = Bitmap::getGreen(color);
+            int colorBlue = Bitmap::getBlue(color);
             for (int y = 0; y < tempChar->rows; y++){
                 unsigned char *buffer = line;
                 for (int x = 0; x < tempChar->width; x++){
                     int col = fixColor(buffer++,tempChar->grays);
 
-                    if ((Bitmap::getRed(col) < 50) ||
-                            (Bitmap::getGreen(col) < 50) ||
-                            (Bitmap::getBlue(col) < 50)){
+                    int red = Bitmap::getRed(col);
+                    int green = Bitmap::getGreen(col);
+                    int blue = Bitmap::getBlue(col);
+
+                    if ((red < 50) ||
+                        (green < 50) ||
+                        (blue < 50)){
                         continue;
                     }
 
-                    int red = Bitmap::getRed(col) * Bitmap::getRed(color) / 255;
-                    int green = Bitmap::getGreen(col) * Bitmap::getGreen(color) / 255;
-                    int blue = Bitmap::getBlue(col) * Bitmap::getBlue(color) / 255;
+                    red = red * colorRed / 255;
+                    green = green * colorGreen / 255;
+                    blue = blue * colorBlue / 255;
 
                     //col.alpha= col.alpha * color.alpha / 255;
                     // putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
@@ -256,7 +263,7 @@ namespace ftalleg{
                     // putter = 0;
                     int finalX = x1+tempChar->left+x;
                     int finalY = y1 - tempChar->top + y + sizeHeight;
-                    bitmap.putPixelNormal(finalX, finalY, Bitmap::makeColor(red,green,blue));
+                    bitmap.putPixelNormal(finalX, finalY, Bitmap::makeColor(red, green, blue));
                 }
                 line += tempChar->pitch;
             }
