@@ -1,5 +1,6 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
+#include "../trans-bitmap.h"
 #include "../funcs.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
