@@ -211,6 +211,7 @@ public:
 	*/
 	
 	void setClipRect( int x1, int y1, int x2, int y2 ) const;
+	void getClipRect( int & x1, int & y1, int & x2, int & y2 ) const;
 
 	inline const std::string & getPath() const{
 		return path;

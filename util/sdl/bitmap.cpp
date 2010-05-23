@@ -435,6 +435,13 @@ void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     SDL_SetClipRect(getData().getSurface(), &area);
 }
 
+void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
+    x1 = getData().clip_left;
+    y1 = getData().clip_top;
+    x2 = getData().clip_right;
+    y2 = getData().clip_bottom;
+}
+
 void Bitmap::destroyPrivateData(){
     SDL_FreeSurface(getData().getSurface());
 }
@@ -512,31 +519,21 @@ bool Bitmap::getError(){
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
-    switch (::drawingMode){
-        case MODE_SOLID : {
-            SPG_Rect(getData().getSurface(), x1, y1, x2, y2, color);
-            break;
-        }
-        case MODE_TRANS : {
-            int alpha = globalBlend.alpha;
-            SPG_RectBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
-            break;
-        }
-    }
+    SPG_Rect(getData().getSurface(), x1, y1, x2, y2, color);
+}
+
+void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_RectBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
-    switch (::drawingMode){
-        case MODE_SOLID : {
-            SPG_RectFilled(getData().getSurface(), x1, y1, x2, y2, color);
-            break;
-        }
-        case MODE_TRANS : {
-            int alpha = globalBlend.alpha;
-            SPG_RectFilledBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
-            break;
-        }
-    }
+    SPG_RectFilled(getData().getSurface(), x1, y1, x2, y2, color);
+}
+
+void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color) const {
+    int alpha = globalBlend.alpha;
+    SPG_RectFilledBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
 }
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
