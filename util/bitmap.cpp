@@ -205,6 +205,9 @@ void Bitmap::BlitFromScreen(const int x, const int y) const {
 
 LitBitmap::LitBitmap(const Bitmap & b):
 Bitmap(b){
+    int x1, y1, x2, y2;
+    b.getClipRect(x1, y1, x2, y2);
+    setClipRect(x1, y1, x2, y2);
 }
 
 LitBitmap::LitBitmap():
@@ -220,6 +223,9 @@ TranslucentBitmap Bitmap::translucent() const {
 
 TranslucentBitmap::TranslucentBitmap(const Bitmap & b):
 Bitmap(b){
+    int x1, y1, x2, y2;
+    b.getClipRect(x1, y1, x2, y2);
+    setClipRect(x1, y1, x2, y2);
 }
 
 TranslucentBitmap::TranslucentBitmap():

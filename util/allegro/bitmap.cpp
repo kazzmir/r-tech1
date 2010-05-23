@@ -385,6 +385,10 @@ void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     ::set_clip_rect( getData().getBitmap(), x1, y1, x2, y2 );
 }
 
+void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
+    ::get_clip_rect(getData().getBitmap(), &x1, &y1, &x2, &y2);
+}
+
 /* resize the internal bitmap. not guaranteed to destroy the internal bitmap */
 void Bitmap::resize( const int width, const int height ){
 
@@ -760,11 +764,23 @@ void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const{
-	::rect( getData().getBitmap(), x1, y1, x2, y2, color );
+    ::rect( getData().getBitmap(), x1, y1, x2, y2, color );
+}
+
+void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+    drawingMode(MODE_TRANS);
+    Bitmap::rectangle(x1, y1, x2, y2, color);
+    drawingMode(MODE_SOLID);
 }
 	
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
-	::rectfill( getData().getBitmap(), x1, y1, x2, y2, color );
+    ::rectfill( getData().getBitmap(), x1, y1, x2, y2, color );
+}
+
+void TranslucentBitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
+    drawingMode(MODE_TRANS);
+    Bitmap::rectangleFill(x1, y1, x2, y2, color);
+    drawingMode(MODE_SOLID);
 }
 
 /*
