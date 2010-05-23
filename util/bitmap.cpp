@@ -4,6 +4,7 @@
 
 #include "bitmap.h"
 #include <string>
+#include <math.h>
 
 /* implementation independant definitions can go here */
 
@@ -164,6 +165,17 @@ void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int
 void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
     Bitmap sub(*this, startWidth, startHeight, width, height);
     sub.draw(x + startWidth, y + startHeight, where);
+}
+        
+void Bitmap::equilateralTriangle(int x, int y, int angle, int size, int color) const {
+    double radians = Util::radians(angle);
+    int x1 = x + size / 2 * cos(radians + 2 * Util::pi / 3);
+    int y1 = y + size / 2 * sin(radians + 2 * Util::pi / 3);
+    int x2 = x + size / 2 * cos(radians - 2 * Util::pi / 3);
+    int y2 = y + size / 2 * sin(radians - 2 * Util::pi / 3);
+    int x3 = x + size / 2 * cos(radians);
+    int y3 = y + size / 2 * sin(radians);
+    triangle(x1, y1, x2, y2, x3, y3, color);
 }
 
 Bitmap Bitmap::greyScale(){
