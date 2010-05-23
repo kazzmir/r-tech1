@@ -111,6 +111,11 @@ public:
         virtual Bitmap greyScale();
 
 	virtual void triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const;
+
+        /* draws an equilateral triangle centered at (x,y) pointing at `angle'
+         * where each side has `size' pixels using the color.
+         */
+        virtual void equilateralTriangle(int x, int y, int angle, int size, int color) const;
 	virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
 	virtual void ellipseFill( int x, int y, int rx, int ry, int color ) const;
 
