@@ -9,7 +9,8 @@
 
 #include <exception>
 
-static const int FULLSCREEN = 0;
+static const int WINDOWED = 0;
+static const int FULLSCREEN = 1;
 /* bits per pixel */
 static int SCREEN_DEPTH = 16;
 static SDL_Surface * screen;
@@ -325,9 +326,17 @@ int Bitmap::makeColor(int red, int blue, int green){
 	
 int Bitmap::setGraphicsMode(int mode, int width, int height){
     switch (mode){
-        default: {
-        // case WINDOWED : {
+        case WINDOWED : {
             screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            SDL_ShowCursor(0);
+            // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_DOUBLEBUF);
+            if (!screen){
+                return 1;
+            }
+            break;
+        }
+        case FULLSCREEN : {
+            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
             SDL_ShowCursor(0);
             // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_DOUBLEBUF);
             if (!screen){
@@ -411,6 +420,10 @@ int Bitmap::setGfxModeText(){
 
 int Bitmap::setGfxModeFullscreen(int x, int y){
     return setGraphicsMode(FULLSCREEN, x, y);
+}
+	
+int Bitmap::setGfxModeWindowed( int x, int y ){
+    return setGraphicsMode(WINDOWED, x, y);
 }
 	
 void Bitmap::drawingMode(int type){
