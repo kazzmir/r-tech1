@@ -701,7 +701,7 @@ static void doBlit(SDL_Surface * mine, const int mx, const int my, const int wid
     
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
     SDL_SetColorKey(getData().getSurface(), 0, MaskColor());
-    doBlit(getData().getSurface(),mx, my, width, height, wx, wy, where);
+    doBlit(getData().getSurface(), mx, my, width, height, wx, wy, where);
 
     /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
      * like where->Blitted()
