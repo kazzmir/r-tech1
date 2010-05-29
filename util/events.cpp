@@ -3,6 +3,8 @@
 #endif
 #include "events.h"
 #include "shutdown_exception.h"
+#include "thread.h"
+#include "funcs.h"
 
 namespace Util{
 
@@ -30,6 +32,19 @@ void EventManager::run(){
 #ifdef USE_SDL
     runSDL();
 #endif
+}
+
+/* kill the program if the user requests */
+void EventManager::waitForThread(Thread & thread){
+    while (!thread.isRunning()){
+        try{
+            run();
+        } catch (const ShutdownException & death){
+            thread.kill();
+            throw death;
+        }
+        Util::rest(10);
+    }
 }
 
 EventManager::~EventManager(){

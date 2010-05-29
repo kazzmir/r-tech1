@@ -8,10 +8,13 @@
 
 namespace Util{
 
+class Thread;
+
 class EventManager{
 public:
     EventManager();
     virtual void run();
+    virtual void waitForThread(Thread & thread);
     virtual ~EventManager();
 
 private:
