@@ -8,9 +8,29 @@ done(false){
     pthread_mutex_init(&doneLock, NULL);
 }
 
+Thread::Thread(void * (*thread)(void*), void * arg){
+    pthread_mutex_init(&doneLock, NULL);
+    start(thread, arg);
+}
+
+static void * do_thread(void * arg){
+    Thread * thread = (Thread *) arg;
+    thread->doRun();
+}
+
+void Thread::doRun(){
+    this->function(this->arg);
+
+    pthread_mutex_lock(&doneLock);
+    this->done = true;
+    pthread_mutex_unlock(&doneLock);
+}
+
 void Thread::start(void * (*thread)(void *), void * arg){
     done = false;
-    pthread_create(&this->thread, NULL, thread, arg);
+    this->arg = arg;
+    this->function = thread;
+    pthread_create(&this->thread, NULL, do_thread, this);
 }
 
 bool Thread::isRunning(){
@@ -22,6 +42,7 @@ bool Thread::isRunning(){
 
 void Thread::kill(){
     pthread_cancel(thread);
+    pthread_join(thread, NULL);
 }
 
 Thread::~Thread(){
