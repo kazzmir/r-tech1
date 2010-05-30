@@ -14,7 +14,7 @@ EventManager::EventManager(){
 #ifdef USE_SDL
 void EventManager::runSDL(){
     SDL_Event event;
-    if (SDL_PollEvent(&event) == 1){
+    while (SDL_PollEvent(&event) == 1){
         switch (event.type){
             case SDL_QUIT : {
                 dispatch(CloseWindow);
