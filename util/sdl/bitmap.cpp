@@ -1019,7 +1019,7 @@ static void paintown_applyTrans16(SDL_Surface * dst, const int color){
     for (int y = y1; y < y2; y++) {
         Uint8 * sourceLine = computeOffset(dst, x1, y1 + y);
 
-        for (int x = x2; x >= x1; sourceLine += bpp, x--) {
+        for (int x = x2 - 1; x >= x1; sourceLine += bpp, x--) {
             unsigned long sourcePixel = *(Uint16*) sourceLine;
             if (!(sourcePixel == mask)){
                 sourcePixel = globalBlend.currentBlender(color, sourcePixel, globalBlend.alpha);

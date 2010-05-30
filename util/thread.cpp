@@ -16,6 +16,7 @@ Thread::Thread(void * (*thread)(void*), void * arg){
 static void * do_thread(void * arg){
     Thread * thread = (Thread *) arg;
     thread->doRun();
+    return NULL;
 }
 
 void Thread::doRun(){
