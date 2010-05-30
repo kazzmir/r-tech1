@@ -51,4 +51,22 @@ Thread::~Thread(){
     /* pthread_join(thread); */
 }
 
+ThreadBoolean::ThreadBoolean(volatile bool & what, pthread_mutex_t & lock):
+what(what),
+lock(lock){
+}
+
+bool ThreadBoolean::get(){
+    pthread_mutex_lock(&lock);
+    bool b = what;
+    pthread_mutex_unlock(&lock);
+    return b;
+}
+
+void ThreadBoolean::set(bool value){
+    pthread_mutex_lock(&lock);
+    what = value;
+    pthread_mutex_unlock(&lock);
+}
+
 }

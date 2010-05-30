@@ -33,6 +33,19 @@ protected:
     void * (*function)(void *);
 };
 
+/* wraps a boolean with lock/unlock while checking/setting it */
+class ThreadBoolean{
+public:
+    ThreadBoolean(volatile bool & what, pthread_mutex_t & lock);
+
+    bool get();
+    void set(bool value);
+
+protected:
+    volatile bool & what;
+    pthread_mutex_t & lock;
+};
+
 }
 
 #endif
