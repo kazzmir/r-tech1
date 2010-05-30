@@ -13,12 +13,24 @@ index(0){
     Util::blend_palette(colors + size / 2, size / 2, endColor, startColor);
 }
 
-void Gradient::update(){
+void Gradient::forward(){
     index = (index + 1) % size;
+}
+
+void Gradient::backward(){
+    index = (index - 1 + size) % size;
+}
+
+void Gradient::update(){
+    forward();
 }
 
 int Gradient::current(){
     return colors[index];
+}
+    
+int Gradient::current(int offset){
+    return colors[(index + offset + size) % size];
 }
 
 Gradient::~Gradient(){

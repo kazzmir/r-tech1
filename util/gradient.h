@@ -7,11 +7,14 @@ class Gradient{
 public:
     Gradient(int size, int startColor, int endColor);
 
-    /* move to next color */
+    /* move to next color. update is an alias for `forward' */
     void update();
+    void forward();
+    void backward();
 
     /* get current color */
     int current();
+    int current(int offset);
 
     virtual ~Gradient();
 
