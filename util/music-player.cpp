@@ -1,17 +1,25 @@
 #include "music-player.h"
 #include "globals.h"
 #include <iostream>
+#include "configuration.h"
 
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
 
 #ifdef _WIN32
+/* what do we need winalleg for?
+ * reason: ...
+ */
 #include <winalleg.h>
 #endif
 
 #endif
 
 namespace Util{
+
+static double scaleVolume(double start){
+    return start * Configuration::getMusicVolume() / 100;
+}
     
 MusicPlayer::MusicPlayer(){
 }
@@ -64,7 +72,7 @@ volume(1.0){
 
     if (music_file){
         int buf = 1 << 11;
-        player = al_start_duh(music_file, 2, 0, volume, buf, 22050);
+        player = al_start_duh(music_file, 2, 0, scaleVolume(volume), buf, 22050);
     }
 }
 
@@ -81,13 +89,36 @@ void DumbPlayer::pause(){
     al_pause_duh(this->player);
 }
 
-void DumbPlayer::setVolume(int volume){
-    al_duh_set_volume(player, volume);
+void DumbPlayer::setVolume(double volume){
+    this->volume = volume;
+    al_duh_set_volume(player, scaleVolume(volume));
 }
 
 DumbPlayer::~DumbPlayer(){
     al_stop_duh(player);
     unload_duh(music_file);
+}
+
+#endif
+
+#ifdef USE_SDL
+DumbPlayer::DumbPlayer(const char * path):
+volume(1.0){
+}
+
+void DumbPlayer::pause(){
+}
+
+void DumbPlayer::play(){
+}
+
+void DumbPlayer::poll(){
+}
+
+void DumbPlayer::setVolume(double volume){
+}
+
+DumbPlayer::~DumbPlayer(){
 }
 
 #endif
