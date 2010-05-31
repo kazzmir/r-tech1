@@ -14,7 +14,7 @@ public:
     virtual void play() = 0;
     virtual void poll() = 0;
     virtual void pause() = 0;
-    virtual void setVolume(int volume) = 0;
+    virtual void setVolume(double volume) = 0;
     virtual ~MusicPlayer();
 };
 
@@ -25,7 +25,7 @@ public:
     virtual void play();
     virtual void poll();
     virtual void pause();
-    virtual void setVolume(int volume);
+    virtual void setVolume(double volume);
 
     virtual ~DumbPlayer();
 
