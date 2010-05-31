@@ -35,6 +35,9 @@ public:
 
 	virtual ~Sound();
 
+        /* global frequency to use */
+        static const int FREQUENCY = 22050;
+
 protected:
 
 	void destroy();
