@@ -2,8 +2,7 @@
 #include "globals.h"
 #include <iostream>
 #include "configuration.h"
-#include "funcs.h"
-#include "system.h"
+#include "sound.h"
 
 #include "dumb/include/dumb.h"
 
@@ -113,7 +112,6 @@ DumbPlayer::~DumbPlayer(){
 }
 
 #endif
-    
 
 #ifdef USE_SDL
 DumbPlayer::DumbPlayer(const char * path):
@@ -131,109 +129,17 @@ volume(1.0){
         Global::debug(0) << "Could not create renderer" << std::endl;
         throw std::exception();
     }
-
-    // Mix_HookMusic(mixer, this);
-
-    /*
-    AL_DUH_PLAYER *dp;
-
-    if (!duh)
-        return NULL;
-
-    dp = malloc(sizeof(*dp));
-    if (!dp)
-        return NULL;
-
-    dp->flags = ADP_PLAYING;
-    dp->bufsize = bufsize;
-    dp->freq = freq;
-
-    dp->stream = play_audio_stream(bufsize, 16, n_channels - 1, freq, 255, 128);
-
-    if (!dp->stream) {
-        free(dp);
-        return NULL;
-    }
-
-    voice_set_priority(dp->stream->voice, 255);
-
-    dp->sigrenderer = duh_start_sigrenderer(duh, 0, n_channels, pos);
-
-    if (!dp->sigrenderer) {
-        stop_audio_stream(dp->stream);
-        free(dp);
-        return NULL;
-    }
-
-    dp->volume = volume;
-    dp->silentcount = 0;
-
-    return dp;
-    */
 }
 
 void DumbPlayer::render(Uint8 * stream, int length){
-    int n;
-    // Global::debug(0) << "Dumb render in " << (void*) stream << " buffer " << length << std::endl;
-    double delta = 1.0;
-    delta = 65536.0 / 22050;
-    // delta = 1.0;
-    // delta = 0.5;
-    /*
-    static int ok = 0;
-    ok += 1;
-    if (ok < 2){
-        // memset(stream, 0, length);
-        return;
-    }
-    ok = 0;
-    */
-    n = 0;
-    n = duh_render(renderer, 16, 0, volume, delta, length / 4, stream);
-    // Global::debug(0) << "Rendered " << n << " bits" << " at " << System::currentMicroseconds() << std::endl; 
-    // int n_channels = duh_sigrenderer_get_n_channels(dp->sigrenderer);
-    // n *= n_channels;
-    /*
-    int size = length * n_channels;
-        */
-#if 0
-    Uint16 * s16 = (Uint16*) stream;
-    int saw = 0;
-    int f = 15000;
-    for (; n < length; n += 2){
-        /*
-        if (n < length / 2){
-            s16[n] = 32000;
-        } else {
-            s16[n] = -32000;
-        }
-        */
-        s16[n] = f;
-        saw += 1;
-        if (saw > 200){
-            f = -f;
-            saw = 0;
-        }
-        // s16[n] = 10000 + n * 5;
-        /*
-        switch (n%4){
-            case 0 : s16[n] = 0; break;
-            case 1 : s16[n] = 16000; break;
-            case 2 : s16[n] = 32000; break;
-            case 3 : s16[n] = -32000; break;
-        }
-        */
-        /*
-        switch(rnd(2)){
-            case 0 : s16[n] = 32000; break;
-            case 1 : s16[n] = -32000;
-        }
-        */
-        // s16[n] = rnd(65536) - 65536/2;
-        // stream[n] = 0xa0;
-    }
-#endif
+    double delta = 65536.0 / Sound::FREQUENCY;
 
+    /* a frame is 32 bits, 16 bit samples with 2 channels = 2 * 16,
+     * so we have to divide the number of 'dumb samples' by the
+     * size of each frame, 32 bits = 4 bytes
+     */
+    int n = duh_render(renderer, 16, 0, volume, delta, length / 4, stream);
+    
     if (n == 0){
         // Global::debug(0) << "Sound finished?" << std::endl;
     }
@@ -262,6 +168,7 @@ void DumbPlayer::poll(){
 }
 
 void DumbPlayer::setVolume(double volume){
+    this->volume = volume;
 }
 
 DumbPlayer::~DumbPlayer(){
