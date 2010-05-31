@@ -141,7 +141,7 @@ void DumbPlayer::render(Uint8 * stream, int length){
     int n = duh_render(renderer, 16, 0, volume, delta, length / 4, stream);
     
     if (n == 0){
-        // Global::debug(0) << "Sound finished?" << std::endl;
+        Global::debug(0) << "Sound finished?" << std::endl;
     }
 }
 
@@ -173,6 +173,8 @@ void DumbPlayer::setVolume(double volume){
 
 DumbPlayer::~DumbPlayer(){
     Mix_HookMusic(NULL, NULL);
+    duh_end_sigrenderer(renderer);
+    unload_duh(music_file);
 }
 
 #endif
