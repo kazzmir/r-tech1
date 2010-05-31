@@ -26,11 +26,13 @@ Sound::Sound(const std::string & path) throw (LoadException){
 void Sound::initialize(){
     // int audio_rate = 22050;
     /* allegro uses 44100 by default with alsa9 */
-    int audio_rate = 44100;
-    // Uint16 audio_format = AUDIO_S16; 
-    Uint16 audio_format = MIX_DEFAULT_FORMAT; 
+    int audio_rate = 22050;
+    // int audio_rate = 22050;
+    Uint16 audio_format = AUDIO_S16; 
+    // Uint16 audio_format = MIX_DEFAULT_FORMAT; 
     int audio_channels = 2;
     int audio_buffers = 4096;
+    // int audio_buffers = 44100;
     if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers)) {
         printf("Unable to open audio: %s!\n", Mix_GetError());
         // exit(1);
