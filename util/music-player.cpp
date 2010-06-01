@@ -214,7 +214,8 @@ volume(1.0){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
         throw std::exception();
     }
-    emulator->start_track(1);
+    emulator->start_track(0);
+    Global::debug(0) << "Loaded GME file " << path << std::endl;
 }
 
 void GMEPlayer::mixer(void * arg, Uint8 * stream, int length){
