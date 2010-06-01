@@ -11,6 +11,9 @@ struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
 struct AL_DUH_PLAYER;
 #endif
+#ifdef USE_SDL
+class Music_Emu;
+#endif
 
 namespace Util{
 
@@ -22,6 +25,24 @@ public:
     virtual void pause() = 0;
     virtual void setVolume(double volume) = 0;
     virtual ~MusicPlayer();
+};
+
+/* uses the GME library, plays nintendo music files and others */
+class GMEPlayer: public MusicPlayer {
+public:
+    GMEPlayer(const char * path);
+    virtual void play();
+    virtual void poll();
+    virtual void pause();
+    virtual void setVolume(double volume);
+    virtual ~GMEPlayer();
+protected:
+#ifdef USE_SDL
+    static void mixer(void * arg, Uint8 * stream, int length);
+    void render(Uint8 * stream, int length);
+#endif
+    double volume;
+    Music_Emu * emulator;
 };
 
 /* interface to DUMB, plays mod/s3m/xm/it */
