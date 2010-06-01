@@ -214,7 +214,7 @@ volume(1.0){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
         throw std::exception();
     }
-    emulator->start_track(0);
+    emulator->start_track(1);
 }
 
 void GMEPlayer::mixer(void * arg, Uint8 * stream, int length){
@@ -243,6 +243,8 @@ void GMEPlayer::setVolume(double volume){
 }
 
 GMEPlayer::~GMEPlayer(){
+    Mix_HookMusic(NULL, NULL);
+    delete emulator;
 }
 #endif
 
