@@ -11,9 +11,7 @@ struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
 struct AL_DUH_PLAYER;
 #endif
-#ifdef USE_SDL
 class Music_Emu;
-#endif
 
 namespace Util{
 
