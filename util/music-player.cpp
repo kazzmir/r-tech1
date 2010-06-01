@@ -5,6 +5,7 @@
 #include "sound.h"
 
 #include "dumb/include/dumb.h"
+#include "gme/Music_Emu.h"
 
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
@@ -111,6 +112,24 @@ DumbPlayer::~DumbPlayer(){
     unload_duh(music_file);
 }
 
+GMEPlayer::GMEPlayer(const char * path){
+}
+
+void GMEPlayer::play(){
+}
+
+void GMEPlayer::poll(){
+}
+
+void GMEPlayer::pause(){
+}
+
+void GMEPlayer::setVolume(double volume){
+}
+
+GMEPlayer::~GMEPlayer(){
+}
+
 #endif
 
 #ifdef USE_SDL
@@ -184,6 +203,47 @@ DumbPlayer::~DumbPlayer(){
     unload_duh(music_file);
 }
 
+struct GMEInfo{
+    GMEPlayer * player;
+};
+
+GMEPlayer::GMEPlayer(const char * path):
+volume(1.0){
+    gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
+    if (fail != NULL){
+        Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
+        throw std::exception();
+    }
+    emulator->start_track(0);
+}
+
+void GMEPlayer::mixer(void * arg, Uint8 * stream, int length){
+    GMEInfo * info = (GMEInfo*) arg;
+    info->player->render(stream, length);
+}
+
+void GMEPlayer::render(Uint8 * stream, int length){
+    /* /2 is what the demo gme player uses */
+    emulator->play(length / 2, (short*) stream);
+}
+
+void GMEPlayer::play(){
+    GMEInfo * me = new GMEInfo;
+    me->player = this;
+    Mix_HookMusic(mixer, me);
+}
+
+void GMEPlayer::poll(){
+}
+
+void GMEPlayer::pause(){
+}
+
+void GMEPlayer::setVolume(double volume){
+}
+
+GMEPlayer::~GMEPlayer(){
+}
 #endif
 
 }
