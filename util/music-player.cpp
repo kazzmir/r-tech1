@@ -172,7 +172,14 @@ void DumbPlayer::setVolume(double volume){
 }
 
 DumbPlayer::~DumbPlayer(){
+    DumbPlayerInfo * info = (DumbPlayerInfo*) Mix_GetMusicHookData();
     Mix_HookMusic(NULL, NULL);
+    if (info != NULL){
+        delete info;
+    }
+    /* I'm pretty sure if we get this far then there is no chance
+     * that our mixer function will still be active.
+     */
     duh_end_sigrenderer(renderer);
     unload_duh(music_file);
 }
