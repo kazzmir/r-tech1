@@ -10,6 +10,7 @@ struct DUH;
 struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
 struct AL_DUH_PLAYER;
+struct AUDIOSTREAM;
 #endif
 class Music_Emu;
 
@@ -38,6 +39,9 @@ protected:
 #ifdef USE_SDL
     static void mixer(void * arg, Uint8 * stream, int length);
     void render(Uint8 * stream, int length);
+#endif
+#ifdef USE_ALLEGRO
+    AUDIOSTREAM * stream;
 #endif
     double volume;
     Music_Emu * emulator;
