@@ -1,3 +1,6 @@
+#ifdef USE_ALLEGRO
+#include <allegro.h>
+#endif
 #include "music-player.h"
 #include "globals.h"
 #include <iostream>
@@ -112,22 +115,64 @@ DumbPlayer::~DumbPlayer(){
     unload_duh(music_file);
 }
 
-GMEPlayer::GMEPlayer(const char * path){
+static const int GME_BUFFER_SIZE = 1 << 11;
+GMEPlayer::GMEPlayer(const char * path):
+volume(1.0){
+    gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
+    if (fail != NULL){
+        Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
+        throw std::exception();
+    }
+    emulator->start_track(0);
+    Global::debug(0) << "Loaded GME file " << path << std::endl;
+
+    stream = play_audio_stream(GME_BUFFER_SIZE, 16, 1, Sound::FREQUENCY, 255, 128);
+    voice_set_priority(stream->voice, 255);
 }
 
 void GMEPlayer::play(){
+    voice_start(stream->voice);
 }
 
 void GMEPlayer::poll(){
+    short * buffer = (short*) get_audio_stream_buffer(stream);
+    if (buffer){
+        /* size in 16-bit samples is buffer size * channels */
+        emulator->play(GME_BUFFER_SIZE * 2, buffer);
+        if (emulator->track_ended()){
+            gme_info_t * info;
+            gme_track_info(emulator, &info, 0);
+            int intro = info->intro_length;
+            emulator->start_track(0);
+            // Global::debug(0) << "Seeking " << intro << "ms. Track length " << info->length << "ms" << std::endl;
+            /* skip past the intro if there is a loop */
+            if (info->loop_length != 0){
+                emulator->seek(intro);
+            }
+        }
+
+        /* allegro wants unsigned data but gme produces signed so to convert
+         * signed samples to unsigned samples we have to raise each value
+         * by half the maximum value of a short (0xffff+1)/2 = 0x8000
+         */
+        for (int i = 0; i < GME_BUFFER_SIZE * 2; i++){
+            buffer[i] += 0x8000;
+        }
+
+        free_audio_stream_buffer(stream);
+    }
 }
 
 void GMEPlayer::pause(){
+    voice_stop(stream->voice);
 }
 
 void GMEPlayer::setVolume(double volume){
 }
 
 GMEPlayer::~GMEPlayer(){
+    delete emulator;
+    stop_audio_stream(stream);
 }
 
 #endif
@@ -175,6 +220,7 @@ void DumbPlayer::mixer(void * player_, Uint8 * stream, int length){
 }
 
 void DumbPlayer::pause(){
+    Mix_HookMusic(NULL, NULL);
 }
 
 void DumbPlayer::play(){
@@ -224,7 +270,7 @@ void GMEPlayer::mixer(void * arg, Uint8 * stream, int length){
 }
 
 void GMEPlayer::render(Uint8 * stream, int length){
-    /* /2 is what the demo gme player uses */
+    /* length/2 to convert bytes to short */
     emulator->play(length / 2, (short*) stream);
 }
 
