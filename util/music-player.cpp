@@ -244,7 +244,11 @@ void GMEPlayer::setVolume(double volume){
 }
 
 GMEPlayer::~GMEPlayer(){
+    GMEInfo * info = (GMEInfo*) Mix_GetMusicHookData();
     Mix_HookMusic(NULL, NULL);
+    if (info != NULL){
+        delete info;
+    }
     delete emulator;
 }
 #endif
