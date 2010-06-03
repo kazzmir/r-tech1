@@ -88,7 +88,7 @@ volume(1.0){
     music_file = loadDumbFile(path);
     if (music_file != NULL){
         int buf = 1 << 11;
-        player = al_start_duh(music_file, 2, 0, scaleVolume(volume), buf, FREQUENCY);
+        player = al_start_duh(music_file, 2, 0, scaleVolume(volume), buf, Sound::FREQUENCY);
     }
 }
 
