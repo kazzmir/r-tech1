@@ -7,12 +7,14 @@ own(NULL){
 }
 
 /* create from wav file (riff header + pcm) */
-Sound::Sound(const char * data, int length){
+Sound::Sound(const char * data, int length):
+own(NULL){
     /* TODO */
 }
 
 /* load from path */
-Sound::Sound(const std::string & path) throw (LoadException){
+Sound::Sound(const std::string & path) throw (LoadException):
+own(NULL){
     data.chunk = Mix_LoadWAV(path.c_str());
     if (!data.chunk){
         printf("Can't load sound %s\n", path.c_str());
@@ -40,15 +42,19 @@ void Sound::initialize(){
 }
 
 void Sound::play(){
-    /* FIXME: scale the volume based on the configuration sound setting */
-    Mix_VolumeChunk(data.chunk, MIX_MAX_VOLUME);
-    Mix_PlayChannel(-1, data.chunk, 0);
+    if (data.chunk != NULL){
+        /* FIXME: scale the volume based on the configuration sound setting */
+        Mix_VolumeChunk(data.chunk, MIX_MAX_VOLUME);
+        Mix_PlayChannel(-1, data.chunk, 0);
+    }
 }
 
 void Sound::play(double volume, int pan){
-    /* FIXME: scale the volume based on the configuration sound setting */
-    Mix_VolumeChunk(data.chunk, (int)(volume * MIX_MAX_VOLUME));
-    Mix_PlayChannel(-1, data.chunk, 0);
+    if (data.chunk != NULL){
+        /* FIXME: scale the volume based on the configuration sound setting */
+        Mix_VolumeChunk(data.chunk, (int)(volume * MIX_MAX_VOLUME));
+        Mix_PlayChannel(-1, data.chunk, 0);
+    }
 }
 
 void Sound::playLoop(){
@@ -60,7 +66,9 @@ void Sound::destroy(){
         *own -= 1;
         if ( *own == 0 ){
             delete own;
-            Mix_FreeChunk(data.chunk);
+            if (data.chunk != NULL){
+                Mix_FreeChunk(data.chunk);
+            }
             own = NULL;
         }
     }

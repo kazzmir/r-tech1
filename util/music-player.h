@@ -47,6 +47,11 @@ protected:
     Music_Emu * emulator;
 };
 
+#ifdef HAVE_OGG
+class OggPlayer: public MusicPlayer {
+};
+#endif
+
 /* interface to DUMB, plays mod/s3m/xm/it */
 class DumbPlayer: public MusicPlayer {
 public:
@@ -57,8 +62,6 @@ public:
     virtual void setVolume(double volume);
 
     virtual ~DumbPlayer();
-
-    static const int FREQUENCY = 22050;
 
 protected:
     DUH * loadDumbFile(const char * path);
