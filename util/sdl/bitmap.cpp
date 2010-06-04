@@ -128,9 +128,9 @@ static Bitmap * Buffer = NULL;
 void BitmapData::setSurface(SDL_Surface * surface){
     this->surface = surface;
     clip_left = 0;
-    clip_right = surface->w - 1;
+    clip_right = surface->w;
     clip_top = 0;
-    clip_bottom = surface->h - 1;
+    clip_bottom = surface->h;
 }
 
 Bitmap::Bitmap():
