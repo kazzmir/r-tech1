@@ -22,8 +22,8 @@ struct BitmapData{
     bool isClipped(int x, int y) const {
         return (x < clip_left ||
                 y < clip_top ||
-                x > clip_right ||
-                y > clip_bottom);
+                x >= clip_right ||
+                y >= clip_bottom);
     }
 
     void setSurface(SDL_Surface * surface);
