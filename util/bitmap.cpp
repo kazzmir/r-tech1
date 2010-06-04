@@ -142,11 +142,11 @@ void Bitmap::load( const std::string & str ){
 }
 
 void Bitmap::border( int min, int max, int color ) const {
-	int w = getWidth();
-	int h = getHeight();
-	for ( int i = min; i < max; i++ ){
-		rectangle( i, i, w - 1 - i, h - 1 - i, color );
-	}
+    int w = getWidth();
+    int h = getHeight();
+    for (int i = min; i < max; i++){
+        rectangle(i, i, w - 1 - i, h - 1 - i, color);
+    }
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
