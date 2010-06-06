@@ -4,6 +4,7 @@
 #ifdef USE_SDL
 /* for Uint8 */
 #include <SDL.h>
+#include "sdl/mixer/SDL_mixer.h"
 #endif
 
 struct DUH;
@@ -48,6 +49,7 @@ protected:
 };
 
 #ifdef HAVE_OGG
+/* Maybe have some common sdl mixer class that this can inherit? */
 class OggPlayer: public MusicPlayer {
 public:
     OggPlayer(const char * path);
@@ -58,6 +60,10 @@ public:
     virtual void setVolume(double volume);
 
     virtual ~OggPlayer();
+protected:
+#if USE_SDL
+    Mix_Music * music;
+#endif
 };
 #endif
 

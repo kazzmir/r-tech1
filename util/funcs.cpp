@@ -175,6 +175,15 @@ string Util::upcase(std::string str){
     return str;
 }
 
+string Util::lowerCaseAll(std::string str){
+    for (int i = 0; i < str.length(); i++){
+        if (str[0] >= 'A' && str[0] <= 'Z'){
+            str[0] = str[0] - 'A' + 'a';
+        }
+    }
+    return str;
+}
+
 /*Gets the minimum of three values*/
 static int minimum(int a,int b,int c){
   int min=a;

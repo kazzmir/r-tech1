@@ -65,6 +65,7 @@ void restSeconds(double x);
 
 std::string trim(const std::string & str);
 std::string upcase(std::string str);
+std::string lowerCaseAll(std::string str);
 
 int levenshtein(const std::string & str1, const std::string & str2);
 
