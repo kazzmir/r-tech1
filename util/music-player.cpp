@@ -168,6 +168,7 @@ void GMEPlayer::pause(){
 }
 
 void GMEPlayer::setVolume(double volume){
+    /* FIXME */
 }
 
 GMEPlayer::~GMEPlayer(){
@@ -202,6 +203,7 @@ void DumbPlayer::render(Uint8 * stream, int length){
      * so we have to divide the number of 'dumb samples' by the
      * size of each frame, 32 bits = 4 bytes
      */
+    /* FIXME: use global music volume to scale the output here */
     int n = duh_render(renderer, 16, 0, volume, delta, length / 4, stream);
     
     if (n == 0){
