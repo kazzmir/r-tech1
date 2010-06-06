@@ -329,6 +329,30 @@ GMEPlayer::~GMEPlayer(){
     }
     delete emulator;
 }
+
+OggPlayer::OggPlayer(const char * path){
+    music = Mix_LoadMUS(path);
+}
+
+void OggPlayer::play(){
+    Mix_PlayMusic(music, -1);
+}
+
+void OggPlayer::poll(){
+}
+
+void OggPlayer::pause(){
+    Mix_PauseMusic();
+}
+
+void OggPlayer::setVolume(double volume){
+    Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
+}
+
+OggPlayer::~OggPlayer(){
+    Mix_FreeMusic(music);
+}
+
 #endif
 
 }
