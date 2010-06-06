@@ -1,6 +1,7 @@
 /* allegro.h must be on top, don't move it!!!! */
 #include <allegro.h>
 
+/* FIXME: I think this can be just #include <winalleg.h> */
 #ifdef _WIN32
 #define BITMAP dummyBITMAP
 #include <windows.h>

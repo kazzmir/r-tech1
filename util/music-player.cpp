@@ -207,6 +207,20 @@ void DumbPlayer::render(Uint8 * stream, int length){
     if (n == 0){
         Global::debug(0) << "Sound finished?" << std::endl;
     }
+
+    /*
+    short large = 0;
+    for (int i = 0; i < length / 2; i++){
+        short z = ((short *) stream)[i];
+        if (z < 0){
+            z = -z;
+        }
+        if (z > large){
+            large = z;
+        }
+    }
+    Global::debug(0) << "Largest amplitude " << large << std::endl;
+    */
 }
 
 struct DumbPlayerInfo{
@@ -272,6 +286,22 @@ void GMEPlayer::mixer(void * arg, Uint8 * stream, int length){
 void GMEPlayer::render(Uint8 * stream, int length){
     /* length/2 to convert bytes to short */
     emulator->play(length / 2, (short*) stream);
+
+    /*
+    short large = 0;
+    short small = 0;
+    for (int i = 0; i < length / 2; i++){
+        // ((short *) stream)[i] *= 2;
+        short z = ((short *) stream)[i];
+        if (z < small){
+            small = z;
+        }
+        if (z > large){
+            large = z;
+        }
+    }
+    Global::debug(0) << "Largest " << large << " Smallest " << small << std::endl;
+    */
 }
 
 void GMEPlayer::play(){
