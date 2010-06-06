@@ -49,6 +49,15 @@ protected:
 
 #ifdef HAVE_OGG
 class OggPlayer: public MusicPlayer {
+public:
+    OggPlayer(const char * path);
+    virtual void play();
+
+    virtual void poll();
+    virtual void pause();
+    virtual void setVolume(double volume);
+
+    virtual ~OggPlayer();
 };
 #endif
 
