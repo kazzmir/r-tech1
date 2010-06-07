@@ -176,7 +176,28 @@ GMEPlayer::~GMEPlayer(){
     stop_audio_stream(stream);
 }
 
-#endif
+#ifdef HAVE_OGG
+/* TODO */
+OggPlayer::OggPlayer(const char * path){
+}
+
+void OggPlayer::play(){
+}
+
+void OggPlayer::poll(){
+}
+
+void OggPlayer::pause(){
+}
+
+void OggPlayer::setVolume(double volume){
+}
+
+OggPlayer::~OggPlayer(){
+}
+#endif /* OGG */
+
+#endif /* ALlEGRO */
 
 #ifdef USE_SDL
 DumbPlayer::DumbPlayer(const char * path):
@@ -330,6 +351,8 @@ GMEPlayer::~GMEPlayer(){
     delete emulator;
 }
 
+#ifdef HAVE_OGG
+
 OggPlayer::OggPlayer(const char * path){
     music = Mix_LoadMUS(path);
 }
@@ -353,6 +376,8 @@ OggPlayer::~OggPlayer(){
     Mix_FreeMusic(music);
 }
 
-#endif
+#endif /* OGG */
+
+#endif /* SDL */
 
 }
