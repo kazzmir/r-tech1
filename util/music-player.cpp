@@ -177,9 +177,8 @@ GMEPlayer::~GMEPlayer(){
 }
 
 #ifdef HAVE_OGG
-/* TODO: use logg here */
 OggPlayer::OggPlayer(const char * path){
-    stream = logg_get_stream(path, 255, 128, 1);
+    stream = logg_get_stream(path, scaleVolume(volume) * 255, 128, 1);
 }
 
 void OggPlayer::play(){
