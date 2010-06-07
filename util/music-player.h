@@ -12,6 +12,7 @@ struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
 struct AL_DUH_PLAYER;
 struct AUDIOSTREAM;
+struct LOGG_Stream;
 #endif
 class Music_Emu;
 
@@ -25,6 +26,8 @@ public:
     virtual void pause() = 0;
     virtual void setVolume(double volume) = 0;
     virtual ~MusicPlayer();
+protected:
+    double volume;
 };
 
 /* uses the GME library, plays nintendo music files and others */
@@ -44,7 +47,6 @@ protected:
 #ifdef USE_ALLEGRO
     AUDIOSTREAM * stream;
 #endif
-    double volume;
     Music_Emu * emulator;
 };
 
@@ -63,6 +65,9 @@ public:
 protected:
 #if USE_SDL
     Mix_Music * music;
+#endif
+#ifdef USE_ALLEGRO
+    struct LOGG_Stream * stream;
 #endif
 };
 #endif
@@ -95,8 +100,6 @@ protected:
 #ifdef USE_SDL
     DUH_SIGRENDERER * renderer;
 #endif
-
-    double volume;
 };
 
 }

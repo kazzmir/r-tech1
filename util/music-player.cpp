@@ -12,6 +12,7 @@
 
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
+#include "ogg/logg.h"
 
 #ifdef _WIN32
 /* what do we need winalleg for?
@@ -32,7 +33,8 @@ static double scaleVolume(double start){
     return start * Configuration::getMusicVolume() / 100;
 }
     
-MusicPlayer::MusicPlayer(){
+MusicPlayer::MusicPlayer():
+volume(1.0){
 }
 
 MusicPlayer::~MusicPlayer(){
@@ -83,8 +85,7 @@ DUH * DumbPlayer::loadDumbFile(const char * path){
 
 #ifdef USE_ALLEGRO
 
-DumbPlayer::DumbPlayer(const char * path):
-volume(1.0){
+DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file != NULL){
         int buf = 1 << 11;
@@ -116,8 +117,7 @@ DumbPlayer::~DumbPlayer(){
 }
 
 static const int GME_BUFFER_SIZE = 1 << 11;
-GMEPlayer::GMEPlayer(const char * path):
-volume(1.0){
+GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
@@ -177,14 +177,16 @@ GMEPlayer::~GMEPlayer(){
 }
 
 #ifdef HAVE_OGG
-/* TODO */
+/* TODO: use logg here */
 OggPlayer::OggPlayer(const char * path){
+    stream = logg_get_stream(path, 255, 128, 1);
 }
 
 void OggPlayer::play(){
 }
 
 void OggPlayer::poll(){
+    logg_update_stream(stream);
 }
 
 void OggPlayer::pause(){
@@ -194,14 +196,14 @@ void OggPlayer::setVolume(double volume){
 }
 
 OggPlayer::~OggPlayer(){
+    logg_destroy_stream(stream);
 }
 #endif /* OGG */
 
 #endif /* ALlEGRO */
 
 #ifdef USE_SDL
-DumbPlayer::DumbPlayer(const char * path):
-volume(1.0){
+DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file == NULL){
         /* FIXME */
@@ -290,8 +292,7 @@ struct GMEInfo{
     GMEPlayer * player;
 };
 
-GMEPlayer::GMEPlayer(const char * path):
-volume(1.0){
+GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
