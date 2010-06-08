@@ -36,6 +36,7 @@ public:
 	virtual void printfWrap( int x, int y, int color, const Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const;
 
 	static const Font & getDefaultFont();
+	static const Font & getDefaultFont(int width, int height);
 	static const Font & getFont( const Filesystem::RelativePath & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
