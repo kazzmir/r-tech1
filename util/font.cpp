@@ -179,6 +179,10 @@ const Font & Font::getDefaultFont(){
     return *FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), 16, 16);
 }
 	
+const Font & Font::getDefaultFont(int width, int height){
+    return *FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), width, height);
+}
+	
 /* name should be the path of a .ttf file in the fonts/ directory.
  * something like 'arial.ttf'
  */
