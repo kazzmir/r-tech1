@@ -9,7 +9,10 @@ own(NULL){
 /* create from wav file (riff header + pcm) */
 Sound::Sound(const char * data, int length):
 own(NULL){
-    /* TODO */
+    SDL_RWops * ops = SDL_RWFromConstMem(data, length);
+    this->data.chunk = Mix_LoadWAV_RW(ops, 1);
+    own = new int;
+    *own = 1;
 }
 
 /* load from path */
