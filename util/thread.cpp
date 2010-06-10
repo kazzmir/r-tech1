@@ -42,7 +42,12 @@ bool Thread::isRunning(){
 }
 
 void Thread::kill(){
+    /* FIXME: cancel is not implemented for libogc, find another way.
+     * thread suspend/resume is there, though.
+     */
+#if !defined(WII)
     pthread_cancel(thread);
+#endif
     pthread_join(thread, NULL);
 }
 
