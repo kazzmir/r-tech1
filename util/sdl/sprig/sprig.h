@@ -20,6 +20,7 @@
 
 
 #include "SDL.h"
+#include <string.h>
 
 #define SPG_VER 1  // Check this for MISSING functionality
 #define SPG_VER_MINOR 0  // Check this for ADDED functionality
