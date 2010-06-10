@@ -10,11 +10,16 @@
 
 #ifndef WINDOWS
 static bool isReadable(const std::string & path){
+#ifndef WII
     if (access(path.c_str(), R_OK) == 0){
         return true;
     } else {
         return false;
     }
+#else
+    /* FIXME */
+    return true;
+#endif
 }
 
 bool System::isDirectory(const std::string & path){
