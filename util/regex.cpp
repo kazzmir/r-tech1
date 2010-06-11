@@ -1,6 +1,7 @@
 #include <string>
 /* gnu/posix's regex header */
-#include <regex.h>
+// #include <regex.h>
+#include "trex/trex.h"
 /* our regex header */
 #include "regex.h"
 
@@ -8,6 +9,17 @@ using namespace std;
     
 /* http://www.gnu.org/s/libc/manual/html_node/Regular-Expressions.html */
 bool Util::matchRegex(const string & str, const string & pattern){
+    TRex * regex;
+    regex = trex_compile(pattern.c_str(), NULL);
+    if (regex == NULL){
+        return false;
+    }
+
+    bool matched = trex_match(regex, str.c_str());
+    trex_free(regex);
+    return matched;
+
+    /*
     regex_t regex;
     if (regcomp(&regex, pattern.c_str(), REG_EXTENDED) != 0){
         return false;
@@ -15,9 +27,14 @@ bool Util::matchRegex(const string & str, const string & pattern){
     bool matched = regexec(&regex, str.c_str(), 0, NULL, 0) == 0;
     regfree(&regex);
     return matched;
+    */
 }
     
 string Util::captureRegex(const string & str, const string & pattern, int capture){
+
+    /* FIXME */
+
+    /*
     regex_t regex;
     regmatch_t matches[20];
     if (regcomp(&regex, pattern.c_str(), REG_EXTENDED) != 0){
@@ -33,4 +50,5 @@ string Util::captureRegex(const string & str, const string & pattern, int captur
         }
     }
     return "";
+    */
 }
