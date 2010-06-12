@@ -1,4 +1,5 @@
 #include <string>
+#include <string.h>
 /* gnu/posix's regex header */
 // #include <regex.h>
 #include "trex/trex.h"
@@ -31,6 +32,29 @@ bool Util::matchRegex(const string & str, const string & pattern){
 }
     
 string Util::captureRegex(const string & str, const string & pattern, int capture){
+
+    TRex * regex;
+    regex = trex_compile(pattern.c_str(), NULL);
+    if (regex == NULL){
+        return "";
+    }
+
+    string out = "";
+    bool matched = trex_match(regex, str.c_str());
+    if (matched){
+        TRexMatch match;
+        /* match 0 is the full string matched */
+        if (trex_getsubexp(regex, capture + 1, &match)){
+            /* WARNING: hack.. */
+            static char tmp[2048];
+            memset(tmp, 0, sizeof(tmp));
+            strncpy(tmp, match.begin, match.len < (int) sizeof(tmp) ? match.len : sizeof(tmp));
+            out = tmp;
+        }
+    }
+
+    trex_free(regex);
+    return out;
 
     /* FIXME */
 
