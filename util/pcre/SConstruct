@@ -31,6 +31,5 @@ pcredemo.c
 pcretest.c
 """)
 
-env.Append(CPPDEFINES = ['HAVE_CONFIG_H'])
 x = env.StaticLibrary('pcre', source)
 Return('x')
