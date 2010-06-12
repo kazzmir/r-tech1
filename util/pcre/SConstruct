@@ -9,7 +9,6 @@ pcre_exec.c
 pcre_fullinfo.c
 pcre_get.c
 pcre_globals.c
-pcregrep.c
 pcre_info.c
 pcre_maketables.c
 pcre_newline.c
