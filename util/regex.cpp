@@ -56,7 +56,7 @@ string Util::captureRegex(const string & str, const string & pattern, int captur
     int captures[captureMax];
     regex = pcre_compile(pattern.c_str(), 0, &error, &errorOffset, NULL);
     if (regex == NULL){
-        return false;
+        return "";
     }
 
     count = pcre_exec(regex, NULL, str.c_str(), str.size(), 0, 0, captures, captureMax);
