@@ -829,9 +829,7 @@ void Bitmap::fill( int color ) const{
 }
 
 void TranslucentBitmap::fill(int color) const {
-    drawingMode(MODE_TRANS);
-    Bitmap::fill(color);
-    drawingMode(MODE_SOLID);
+    rectangleFill(0, 0, getWidth(), getHeight(), color);
 }
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
