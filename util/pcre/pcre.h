@@ -39,6 +39,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef _PCRE_H
 #define _PCRE_H
 
+#include "config.h"
+
 /* The current PCRE version information. */
 
 #define PCRE_MAJOR          8
