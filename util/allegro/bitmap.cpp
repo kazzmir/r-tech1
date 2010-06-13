@@ -827,6 +827,12 @@ void Bitmap::clear(){
 void Bitmap::fill( int color ) const{
 	::clear_to_color( getData().getBitmap(), color );
 }
+
+void TranslucentBitmap::fill(int color) const {
+    drawingMode(MODE_TRANS);
+    Bitmap::fill(color);
+    drawingMode(MODE_SOLID);
+}
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
