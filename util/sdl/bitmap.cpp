@@ -895,7 +895,11 @@ void Bitmap::fill(int color) const {
     area.h = getHeight();
     SDL_FillRect(getData().getSurface(), &area, color);
 }
-	
+
+void TranslucentBitmap::fill(int color) const {
+    rectangleFill(0, 0, getWidth(), getHeight(), color);
+}
+
 int Bitmap::darken( int color, double factor ){
     /* TODO */
     return color;
