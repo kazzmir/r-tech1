@@ -828,9 +828,11 @@ void Bitmap::fill( int color ) const{
 	::clear_to_color( getData().getBitmap(), color );
 }
 
+/*
 void TranslucentBitmap::fill(int color) const {
     rectangleFill(0, 0, getWidth(), getHeight(), color);
 }
+*/
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
@@ -899,7 +901,7 @@ void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_a
     paintown_light16(getData().getBitmap(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
 }
         
-void Bitmap::applyTrans(const int color){
+void Bitmap::applyTrans(const int color) const {
     paintown_applyTrans16(getData().getBitmap(), color);
 }
 
@@ -1317,7 +1319,7 @@ static void paintown_applyTrans16(BITMAP * dst, const int color){
             for (int x = x2; x >= x1; PAINTOWN_INC_PIXEL_PTR_EX(d,1), x--) {
                 unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(d);
                 if (!PAINTOWN_IS_SPRITE_MASK(dst, c)) {
-                    c = PAINTOWN_DTS_BLEND(trans_blender, color, c);
+                    c = PAINTOWN_DTS_BLEND(trans_blender, c, color);
                     PAINTOWN_PUT_MEMORY_PIXEL(d, c);
                 }
             }
