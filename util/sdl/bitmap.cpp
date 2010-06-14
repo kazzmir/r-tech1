@@ -858,7 +858,7 @@ void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_a
     paintown_light16(getData().getSurface(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
 }
 
-void Bitmap::applyTrans(const int color){
+void Bitmap::applyTrans(const int color) const {
     paintown_applyTrans16(getData().getSurface(), color);
 }
 	
@@ -896,9 +896,11 @@ void Bitmap::fill(int color) const {
     SDL_FillRect(getData().getSurface(), &area, color);
 }
 
+/*
 void TranslucentBitmap::fill(int color) const {
     rectangleFill(0, 0, getWidth(), getHeight(), color);
 }
+*/
 
 int Bitmap::darken( int color, double factor ){
     /* TODO */

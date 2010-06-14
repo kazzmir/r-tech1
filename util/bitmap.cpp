@@ -246,3 +246,7 @@ Bitmap(){
 
 TranslucentBitmap::~TranslucentBitmap(){
 }
+
+void TranslucentBitmap::fill(int color) const {
+    Bitmap::applyTrans(color);
+}
