@@ -5,13 +5,13 @@
 
 namespace Util{
 
-class Thread{
+class WaitThread{
 public:
     /* does not start a new thread yet */
-    Thread();
+    WaitThread();
 
     /* starts a thread */
-    Thread(void * (*thread)(void*), void * arg);
+    WaitThread(void * (*thread)(void*), void * arg);
 
     /* starts a thread */
     void start(void * (*thread)(void *), void * arg);
@@ -19,7 +19,7 @@ public:
     bool isRunning();
     void kill();
 
-    virtual ~Thread();
+    virtual ~WaitThread();
 
 public:
     /* actually runs the thread */

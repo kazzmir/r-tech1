@@ -35,7 +35,7 @@ void EventManager::run(){
 }
 
 /* kill the program if the user requests */
-void EventManager::waitForThread(Thread & thread){
+void EventManager::waitForThread(WaitThread & thread){
     while (!thread.isRunning()){
         try{
             run();
