@@ -3,23 +3,23 @@
 
 namespace Util{
 
-Thread::Thread():
+WaitThread::WaitThread():
 done(false){
     pthread_mutex_init(&doneLock, NULL);
 }
 
-Thread::Thread(void * (*thread)(void*), void * arg){
+WaitThread::WaitThread(void * (*thread)(void*), void * arg){
     pthread_mutex_init(&doneLock, NULL);
     start(thread, arg);
 }
 
 static void * do_thread(void * arg){
-    Thread * thread = (Thread *) arg;
+    WaitThread * thread = (WaitThread *) arg;
     thread->doRun();
     return NULL;
 }
 
-void Thread::doRun(){
+void WaitThread::doRun(){
     this->function(this->arg);
 
     pthread_mutex_lock(&doneLock);
@@ -27,21 +27,21 @@ void Thread::doRun(){
     pthread_mutex_unlock(&doneLock);
 }
 
-void Thread::start(void * (*thread)(void *), void * arg){
+void WaitThread::start(void * (*thread)(void *), void * arg){
     done = false;
     this->arg = arg;
     this->function = thread;
     pthread_create(&this->thread, NULL, do_thread, this);
 }
 
-bool Thread::isRunning(){
+bool WaitThread::isRunning(){
     pthread_mutex_lock(&doneLock);
     bool what = done;
     pthread_mutex_unlock(&doneLock);
     return what;
 }
 
-void Thread::kill(){
+void WaitThread::kill(){
     /* FIXME: cancel is not implemented for libogc, find another way.
      * thread suspend/resume is there, though.
      */
@@ -51,7 +51,7 @@ void Thread::kill(){
     pthread_join(thread, NULL);
 }
 
-Thread::~Thread(){
+WaitThread::~WaitThread(){
     /* FIXME: Should we join the thread? */
     /* pthread_join(thread); */
 }
