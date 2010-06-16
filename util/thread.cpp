@@ -18,15 +18,15 @@ void releaseLock(Lock * lock){
     pthread_mutex_unlock(lock);
 }
 
-void createThread(ThreadId * thread, void * attributes, ThreadFunction function, void * arg){
+void createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
     pthread_create(thread, (pthread_attr_t*) attributes, function, arg);
 }
 
-void joinThread(ThreadId thread){
+void joinThread(Id thread){
     pthread_join(thread, NULL);
 }
     
-void cancelThread(ThreadId thread){
+void cancelThread(Id thread){
     /* FIXME: cancel is not implemented for libogc, find another way.
      * thread suspend/resume is there, though.
      */

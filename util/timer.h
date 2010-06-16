@@ -1,7 +1,7 @@
 #ifndef _paintown_util_timer_h
 #define _paintown_util_timer_h
 
-#include <pthread.h>
+#include "thread.h"
 
 namespace Util{
 
@@ -20,8 +20,8 @@ protected:
     timeout func;
     void * arg;
     bool stopped;
-    pthread_mutex_t lock;
-    pthread_t timer;
+    Thread::Lock lock;
+    Thread::Id timer;
 };
 
 }

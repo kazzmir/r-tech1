@@ -11,9 +11,9 @@ void * do_wait(void * timer_){
     while (Global::second_counter - now < timer->wait+1){
         Util::rest(50);
         bool do_stop = false;
-        pthread_mutex_lock(&timer->lock);
+        Thread::acquireLock(&timer->lock);
         do_stop = timer->stopped;
-        pthread_mutex_unlock(&timer->lock);
+        Thread::releaseLock(&timer->lock);
         if (do_stop){
             return NULL;
         }
@@ -27,15 +27,15 @@ wait(seconds_to_wait),
 func(func),
 arg(arg),
 stopped(false){
-    pthread_mutex_init(&lock, NULL);
-    pthread_create(&timer, NULL, do_wait, this);
+    Thread::initializeLock(&lock);
+    Thread::createThread(&timer, NULL, do_wait, this);
 }
 
 void Timer::stop(){
-    pthread_mutex_lock(&lock);
+    Thread::acquireLock(&lock);
     stopped = true;
-    pthread_mutex_unlock(&lock);
-    pthread_join(timer, NULL);
+    Thread::releaseLock(&lock);
+    Thread::joinThread(timer);
 }
 
 }

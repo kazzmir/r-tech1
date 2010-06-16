@@ -5,17 +5,18 @@
 
 namespace Util{
 
+/* Either uses pthreads or SDL_thread */
 namespace Thread{
     typedef pthread_mutex_t Lock;
-    typedef pthread_t ThreadId;
+    typedef pthread_t Id;
     typedef void * (*ThreadFunction)(void*);
 
     void initializeLock(Lock * lock);
     void acquireLock(Lock * lock);
     void releaseLock(Lock * lock);
-    void createThread(ThreadId * thread, void * attributes, ThreadFunction function, void * arg);
-    void joinThread(ThreadId thread);
-    void cancelThread(ThreadId thread);
+    void createThread(Id * thread, void * attributes, ThreadFunction function, void * arg);
+    void joinThread(Id thread);
+    void cancelThread(Id thread);
 }
 
 class WaitThread{
@@ -40,7 +41,7 @@ public:
 
 protected:
     Thread::Lock doneLock;
-    Thread::ThreadId thread;
+    Thread::Id thread;
     volatile bool done;
     void * arg;
     Thread::ThreadFunction function;
