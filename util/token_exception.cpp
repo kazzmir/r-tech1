@@ -1,15 +1,19 @@
-#include <exception>
 #include <string>
 #include "token_exception.h"
 	
-TokenException::TokenException():
-std::exception(){
+TokenException::TokenException(const std::string & file, int line, const std::string reason):
+Exception::Base(file, line),
+reason(reason){
+}
+    
+TokenException::TokenException(const TokenException & copy):
+Exception::Base(copy),
+reason(copy.reason){
 }
 
-TokenException::TokenException( const std::string & reason ):
-std::exception(){
-	this->reason = reason;
+Exception::Base * TokenException::copy() const {
+    return new TokenException(*this);
 }
-	
+
 TokenException::~TokenException() throw() {
 }

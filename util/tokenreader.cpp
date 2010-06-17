@@ -43,7 +43,7 @@ TokenReader::~TokenReader(){
 Token * TokenReader::readToken() throw( TokenException ){
 
 	if ( !ifile ){
-            throw TokenException( string("Could not open ") + myfile );
+            throw TokenException(__FILE__, __LINE__, string("Could not open ") + myfile );
         }
 	// Token * t;
 
@@ -84,7 +84,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 			// first->print( " " );
                         ostringstream failure;
                         failure << "Wrong number of parentheses. Open parens is " << parens;
-			throw TokenException(failure.str());
+			throw TokenException(__FILE__, __LINE__, failure.str());
 		}
 		// char n;
 		// slow as we go
@@ -182,7 +182,7 @@ Token * TokenReader::readToken() throw( TokenException ){
 			
 			if ( token_stack.empty() ){
 				cout<<"Stack is empty"<<endl;
-				throw TokenException("Stack is empty");
+				throw TokenException(__FILE__, __LINE__, "Stack is empty");
 			}
 			token_stack.pop_back();
 

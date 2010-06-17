@@ -1,13 +1,12 @@
-#ifndef _token_exception_h
-#define _token_exception_h
+#ifndef _paintown_token_exception_h
+#define _paintown_token_exception_h
 
-#include <exception>
+#include "exceptions/exception.h"
 #include <string>
 
-class TokenException : public std::exception {
+class TokenException: public Exception::Base {
 public:
-    TokenException();
-    TokenException( const std::string & reason );
+    TokenException(const std::string & file, int line, const std::string reason = "");
 
     virtual ~TokenException() throw();
 
@@ -15,8 +14,12 @@ public:
         return reason;
     }
 
+    TokenException(const TokenException & copy);
+
 protected:
-        std::string reason;
+    virtual Exception::Base * copy() const;
+
+    std::string reason;
 };
 
 #endif
