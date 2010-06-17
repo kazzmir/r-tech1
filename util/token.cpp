@@ -235,7 +235,7 @@ bool Token::operator!= ( const string & rhs ){
 Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
 	Token * x = readToken();
 	if ( x == NULL ){
-		throw TokenException( getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
+		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
 	}
 	rhs = x;
 	return *this;
@@ -256,10 +256,10 @@ const string Token::getFileName() const {
 Token & Token::operator>>( string & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if (l == NULL){
-		throw TokenException( getFileName() + ":" + string("Tried to read a string from '") + this->getLineage() + string("' but there no more elements") );
+		throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string("Tried to read a string from '") + this->getLineage() + string("' but there no more elements") );
 	}
         if (!l->isData()){
-            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+            throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
 	rhs = l->getName();
 
@@ -271,10 +271,10 @@ Token & Token::operator>>( string & rhs ) throw( TokenException ){
 Token & Token::operator>>( int & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( getFileName() + ": " + string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
+		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
 	}
         if (!l->isData()){
-            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+            throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -284,10 +284,10 @@ Token & Token::operator>>( int & rhs ) throw( TokenException ){
 Token & Token::operator>>( double & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( getFileName() + ": " + string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
+		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
 	}
         if (!l->isData()){
-            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+            throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -297,10 +297,10 @@ Token & Token::operator>>( double & rhs ) throw( TokenException ){
 Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	Token * l = readToken();
 	if ( l == NULL ){
-		throw TokenException( getFileName() + ": " + string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
+		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
 	}
         if (!l->isData()){
-            throw TokenException(getFileName() + ":" + string(" Element is not a string"));
+            throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
 	istringstream is ( l->getName() );
 	is >> rhs;
@@ -309,7 +309,7 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 
 void Token::addToken(Token * t){
     if (!own){
-        throw TokenException("This token does not own its own tokens, so you cannot add tokens to it");
+        throw TokenException(__FILE__, __LINE__, "This token does not own its own tokens, so you cannot add tokens to it");
     }
     tokens.push_back( t );
 }
