@@ -1,34 +1,57 @@
 #ifndef _paintown_file_system_h
 #define _paintown_file_system_h
 
-#include <exception>
+#include "exceptions/exception.h"
 #include <string>
 #include <vector>
 
 namespace Filesystem{
+    /* sorry for the crappy abbreviation, but can't collide with the
+     * Exception class here
+     */
+    namespace Exc = ::Exception;
 
-    class Exception: public std::exception {
+    class Exception: public Exc::Base {
     public:
-        Exception(const std::string & file);
+        Exception(const std::string & where, int line, const std::string & file);
+        Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
+        Exception(const Exception & copy);
         virtual ~Exception() throw ();
 
         const std::string & getReason() const {
             return reason;
         }
+    protected:
+        virtual Exc::Base * copy() const {
+            return new Exception(*this);
+        }
+
     private:
         std::string reason;
     };
 
     class NotFound: public Exception {
     public:
-        NotFound(const std::string & file);
+        NotFound(const std::string & where, int line, const std::string & file);
+        NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
         virtual ~NotFound() throw();
+        NotFound(const NotFound & copy);
+    protected:
+        virtual Exc::Base * copy() const {
+            return new NotFound(*this);
+        }
     };
 
     class IllegalPath: public Exception {
     public:
-        IllegalPath(const std::string & file);
+        IllegalPath(const std::string & where, int line, const std::string & file);
+        IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
         virtual ~IllegalPath() throw();
+        IllegalPath(const IllegalPath & copy);
+    protected:
+        virtual Exc::Base * copy() const {
+            return new IllegalPath(*this);
+        }
     };
 
     class Path{
