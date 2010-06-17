@@ -24,7 +24,7 @@ own(NULL){
     this->data.sample = load_wav_pf(pack);
     pack_fclose(pack);
     if (!this->data.sample){
-        throw LoadException("Could not load wav data");
+        throw LoadException(__FILE__, __LINE__, "Could not load wav data");
     }
 	
     own = new int;
@@ -38,7 +38,7 @@ own(NULL){
     if ( !data.sample ){
         string xf( "Could not load " );
         xf += path;
-        throw LoadException(xf);
+        throw LoadException(__FILE__, __LINE__, xf);
     }
 
     own = new int;

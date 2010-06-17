@@ -324,7 +324,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
         pack_fclose(pack);
         ostringstream out;
         out <<"Could not load pcx from memory: " << (void*) data << " length " << length;
-        throw LoadException(out.str());
+        throw LoadException(__FILE__, __LINE__, out.str());
     }
 
     /* converts 8-bit pcx mask to allegro's mask */
