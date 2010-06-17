@@ -2,7 +2,7 @@
 #include <SDL.h>
 #endif
 #include "events.h"
-#include "shutdown_exception.h"
+#include "exceptions/shutdown_exception.h"
 #include "thread.h"
 #include "funcs.h"
 
