@@ -1,10 +1,13 @@
 #ifdef USE_ALLEGRO
 #include <allegro.h>
+
+/* FIXME: replace with <winalleg.h> */
 #ifdef _WIN32
 #define BITMAP dummyBITMAP
 #include <windows.h>
 #undef BITMAP
 #endif
+
 #endif
 #include "funcs.h"
 #include "file-system.h"
@@ -17,6 +20,7 @@
 #include <ostream>
 
 #ifndef USE_ALLEGRO
+/* some sfl symbols conflict with allegro */
 #include "sfl/sfl.h"
 #include "sfl/sfldir.h"
 #endif
@@ -30,22 +34,49 @@ using namespace std;
 
 namespace Filesystem{
         
-Exception::Exception(const std::string & file):
+Exception::Exception(const std::string & where, int line, const std::string & file):
+Exc::Base(where, line),
 reason(file){
+}
+
+Exception::Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
+Exc::Base(where, line, nested),
+reason(file){
+}
+        
+Exception::Exception(const Exception & copy):
+Exc::Base(copy),
+reason(copy.reason){
 }
 
 Exception::~Exception() throw (){
 }
 
-NotFound::NotFound(const std::string & file):
-Exception(file + string(" was not found")){
+NotFound::NotFound(const std::string & where, int line, const std::string & file):
+Exception(where, line, file + string(" was not found")){
 }
 
-NotFound::~NotFound() throw(){
+NotFound::NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
+Exception(where, line, nested, file + string(" was not found")){
 }
         
-IllegalPath::IllegalPath(const std::string & file):
-Exception(file){
+NotFound::NotFound(const NotFound & copy):
+Exception(copy){
+}
+
+NotFound::~NotFound() throw (){
+}
+
+IllegalPath::IllegalPath(const std::string & where, int line, const std::string & file):
+Exception(where, line, file){
+}
+
+IllegalPath::IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
+Exception(where, line, nested, file){
+}
+        
+IllegalPath::IllegalPath(const IllegalPath & copy):
+Exception(copy){
 }
 
 IllegalPath::~IllegalPath() throw(){
@@ -102,7 +133,7 @@ static AbsolutePath lookup(const RelativePath path) throw (NotFound){
     ostringstream out;
     out << "Cannot find " << path.path() << ". I looked in '" << Util::getDataPath2().join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'" << endl;
 
-    throw NotFound(out.str());
+    throw NotFound(__FILE__, __LINE__, out.str());
 }
 
 static vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path){
@@ -206,7 +237,7 @@ std::string find(const std::string path){
 
 AbsolutePath find(const RelativePath & path){
     if (path.isEmpty()){
-        throw NotFound("No path given");
+        throw NotFound(__FILE__, __LINE__, "No path given");
     }
 
     AbsolutePath out = lookup(path);
@@ -308,7 +339,7 @@ Path(path){
     if (! path.empty() && path[0] == '/'){
         ostringstream out;
         out << "Relative path '" << path << "' cannot start with a /. Only absolute paths can start with /";
-        throw IllegalPath(out.str());
+        throw IllegalPath(__FILE__, __LINE__, out.str());
     }
 }
 
