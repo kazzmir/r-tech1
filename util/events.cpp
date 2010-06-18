@@ -22,7 +22,17 @@ void EventManager::runSDL(){
                 break;
             }
             case SDL_VIDEORESIZE : {
-                dispatch(ResizeScreen, event.resize.w, event.resize.h);                            
+                int width = event.resize.w;
+                int height = event.resize.h;
+                /* to keep the perspective correct
+                 * 640/480 = 1.33333
+                 */
+                if (width > height){
+                    height = (int)((double) width / 1.3333333333);
+                } else {
+                    width = (int)((double) height * 1.3333333333);
+                }
+                dispatch(ResizeScreen, width, height);
                 break;
             }
             default : {
