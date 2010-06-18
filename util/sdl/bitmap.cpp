@@ -327,7 +327,8 @@ int Bitmap::makeColor(int red, int blue, int green){
 int Bitmap::setGraphicsMode(int mode, int width, int height){
     switch (mode){
         case WINDOWED : {
-            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF);
+            // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
+            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_RESIZABLE);
             SDL_ShowCursor(0);
             // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_DOUBLEBUF);
             if (!screen){
@@ -373,6 +374,11 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
             Scaler = new Bitmap(width, height);
             Buffer = new Bitmap(SCALE_X, SCALE_Y);
         }
+    }
+
+    for (std::vector<Bitmap*>::iterator it = needResize.begin(); it != needResize.end(); it++){
+        Bitmap * who = *it;
+        who->resize(width, height);
     }
 
     return 0;

@@ -1,6 +1,7 @@
 #ifdef USE_SDL
 #include <SDL.h>
 #endif
+#include "bitmap.h"
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
 #include "funcs.h"
@@ -18,6 +19,10 @@ void EventManager::runSDL(){
         switch (event.type){
             case SDL_QUIT : {
                 dispatch(CloseWindow);
+                break;
+            }
+            case SDL_VIDEORESIZE : {
+                dispatch(ResizeScreen, event.resize.w, event.resize.h);                            
                 break;
             }
             default : {
@@ -50,11 +55,22 @@ void EventManager::waitForThread(WaitThread & thread){
 EventManager::~EventManager(){
 }
 
+void EventManager::dispatch(Event type, int arg1, int arg2){
+    switch (type){
+        case ResizeScreen : {
+            Bitmap::setGraphicsMode(0, arg1, arg2);
+            break;
+        }
+        default : break;
+    }
+}
+
 void EventManager::dispatch(Event type){
     switch (type){
         case CloseWindow : {
             throw ShutdownException();
         }
+        default : break;
     }
 }
 

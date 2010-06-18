@@ -103,8 +103,10 @@ public:
 	void acquire();
 	void release();
 
-	void resize( const int width, const int height );
-	
+        void updateOnResize();
+
+	void resize(const int width, const int height);
+
 	void debugSelf() const;
 
         /* convert to a grey scale version */
@@ -305,10 +307,14 @@ protected:
         /* implementation specific data */
         BitmapData data;
         int * own;
+        bool mustResize;
         // bool own;
         bool error;
         std::string path;
         static Bitmap * temporary_bitmap;
+
+        /* bitmaps that should always be resized to the dimensions of the screen */
+        static std::vector<Bitmap*> needResize;
 };
 
 #endif
