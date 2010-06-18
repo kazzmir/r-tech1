@@ -1,34 +1,34 @@
 #include <queue>
-#include <pthread.h>
 #include <string>
 #include "message-queue.h"
+#include "thread.h"
 
 MessageQueue::MessageQueue(){
-    pthread_mutex_init(&lock, NULL);
+    Util::Thread::initializeLock(&lock);
 }
 
 void MessageQueue::add(const std::string & str){
-    pthread_mutex_lock(&lock);
+    Util::Thread::acquireLock(&lock);
     messages.push(str);
-    pthread_mutex_unlock(&lock);
+    Util::Thread::releaseLock(&lock);
 }
 
 bool MessageQueue::hasAny(){
     bool any = false;
-    pthread_mutex_lock(&lock);
+    Util::Thread::acquireLock(&lock);
     any = messages.size() > 0;
-    pthread_mutex_unlock(&lock);
+    Util::Thread::releaseLock(&lock);
     return any;
 }
 
 std::string MessageQueue::get(){
     std::string str;
-    pthread_mutex_lock(&lock);
+    Util::Thread::acquireLock(&lock);
     if (messages.size() > 0){
         str = messages.front();
         messages.pop();
     }
-    pthread_mutex_unlock(&lock);
+    Util::Thread::releaseLock(&lock);
     return str;
 }
 

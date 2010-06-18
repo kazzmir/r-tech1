@@ -3,8 +3,8 @@
 #endif
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
-#include "thread.h"
 #include "funcs.h"
+#include "thread.h"
 
 namespace Util{
 
