@@ -1,6 +1,8 @@
+#include <time.h>
 #include "timer.h"
 #include "init.h"
 #include "funcs.h"
+#include "thread.h"
 
 namespace Util{
 

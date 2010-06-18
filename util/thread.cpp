@@ -1,8 +1,7 @@
-#include <pthread.h>
+// #include <pthread.h>
 #include "thread.h"
 
 namespace Util{
-
 
 namespace Thread{
     

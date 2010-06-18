@@ -2,8 +2,8 @@
 #define _paintown_message_queue_h
 
 #include <queue>
-#include <pthread.h>
 #include <string>
+#include "thread.h"
 
 /* multithreaded message queue.
  * someone puts messages in, someone takes them out.
@@ -23,7 +23,7 @@ public:
     ~MessageQueue();
 private:
     std::queue<std::string> messages;
-    pthread_mutex_t lock;
+    Util::Thread::Lock lock;
 };
 
 #endif
