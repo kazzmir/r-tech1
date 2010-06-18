@@ -4,6 +4,8 @@
 #include "bitmap.h"
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
+#include "configuration.h"
+#include "globals.h"
 #include "funcs.h"
 #include "thread.h"
 
@@ -68,7 +70,10 @@ EventManager::~EventManager(){
 void EventManager::dispatch(Event type, int arg1, int arg2){
     switch (type){
         case ResizeScreen : {
+            Global::debug(0) << "Resizing screen to " << arg1 << ", " << arg2 << std::endl;
             Bitmap::setGraphicsMode(0, arg1, arg2);
+            Configuration::setScreenWidth(arg1);
+            Configuration::setScreenHeight(arg2);
             break;
         }
         default : break;
