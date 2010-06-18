@@ -17,8 +17,8 @@ void releaseLock(Lock * lock){
     pthread_mutex_unlock(lock);
 }
 
-void createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
-    pthread_create(thread, (pthread_attr_t*) attributes, function, arg);
+bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
+    return pthread_create(thread, (pthread_attr_t*) attributes, function, arg) == 0;
 }
 
 void joinThread(Id thread){
