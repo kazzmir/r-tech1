@@ -10,6 +10,7 @@
 
 Bitmap * Bitmap::temporary_bitmap = NULL;
 
+std::vector<Bitmap*> Bitmap::needResize;
 int Bitmap::SCALE_X = 0;
 int Bitmap::SCALE_Y = 0;
 const int Bitmap::MODE_TRANS = 0;
@@ -35,6 +36,16 @@ static inline int max(int a, int b){
 }
 
 Bitmap::~Bitmap(){
+    if (mustResize){
+        for (std::vector<Bitmap*>::iterator it = needResize.begin(); it != needResize.end(); it++){
+            Bitmap * who = *it;
+            if (who == this){
+                needResize.erase(it);
+                break;
+            }
+        }
+    }
+
     releaseInternalBitmap();
 }
 
@@ -112,6 +123,38 @@ int Bitmap::getScreenHeight(){
     }
     return 0;
 }
+        
+void Bitmap::updateOnResize(){
+    if (!mustResize){
+        mustResize = true;
+        needResize.push_back(this);
+    }
+}
+
+/* resize the internal bitmap. not guaranteed to destroy the internal bitmap */
+void Bitmap::resize( const int width, const int height ){
+
+    /* if internal bitmap is already the proper size, do nothing */
+    if ( getWidth() == width && getHeight() == height ){
+        return;
+    }
+
+    Bitmap created(width, height);
+    Stretch(created);
+    *this = created;
+
+    /*
+    BITMAP * b = create_bitmap( width, height );
+    ::stretch_blit( getData().getBitmap(), b, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, 0, 0, b->w, b->h );
+
+    releaseInternalBitmap();
+
+    own = new int;
+    getData().setBitmap( b );
+    *own = 1;
+    */
+}
+
 
 /* decrement bitmap reference counter and free memory if counter hits 0 */
 void Bitmap::releaseInternalBitmap(){

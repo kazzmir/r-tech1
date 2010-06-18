@@ -19,9 +19,11 @@ public:
 
 private:
     enum Event{
-        CloseWindow
+        CloseWindow,
+        ResizeScreen
     };
 
+    void dispatch(Event type, int arg1, int arg2);
     virtual void dispatch(Event type);
 
 #ifdef USE_SDL
