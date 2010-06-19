@@ -13,9 +13,8 @@ namespace Thread{
 
     void initializeLock(Lock * lock);
 
-    void acquireLock(Lock * lock);
-
-    void releaseLock(Lock * lock);
+    int acquireLock(Lock * lock);
+    int releaseLock(Lock * lock);
     bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg);
     void joinThread(Id thread);
     void cancelThread(Id thread);

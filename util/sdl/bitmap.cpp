@@ -134,12 +134,14 @@ void BitmapData::setSurface(SDL_Surface * surface){
 }
 
 Bitmap::Bitmap():
-own(NULL){
+own(NULL),
+mustResize(false){
     /* TODO */
 }
 
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
-own(NULL){
+own(NULL),
+mustResize(false){
     if (deep_copy){
         SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
         SDL_Rect source;
@@ -163,7 +165,8 @@ own(NULL){
     }
 }
 
-Bitmap::Bitmap(int w, int h){
+Bitmap::Bitmap(int w, int h):
+mustResize(false){
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0);
     if (surface == NULL){
         /* FIXME */
@@ -175,17 +178,20 @@ Bitmap::Bitmap(int w, int h){
 }
 
 Bitmap::Bitmap( const char * load_file ):
-own(NULL){
+own(NULL),
+mustResize(false){
     internalLoadFile(load_file);
 }
 
 Bitmap::Bitmap( const std::string & load_file ):
-own(NULL){
+own(NULL),
+mustResize(false){
     internalLoadFile(load_file.c_str());
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
-own(NULL){
+own(NULL),
+mustResize(false){
     Bitmap temp(load_file);
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, 0, 0, 0, 0);
     getData().setSurface(surface);
@@ -197,12 +203,14 @@ own(NULL){
 
 /* unused */
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
-own(NULL){
+own(NULL),
+mustResize(false){
     throw std::exception();
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
-own(NULL){
+own(NULL),
+mustResize(false){
     if (deep_copy){
         SDL_Surface * who = copy.getData().getSurface();
         SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
@@ -232,12 +240,14 @@ own(NULL){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
-own(NULL){
+own(NULL),
+mustResize(false){
     /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
-own(NULL){
+own(NULL),
+mustResize(false){
     /* TODO */
 }
 
@@ -247,7 +257,8 @@ static Uint8* computeOffset(SDL_Surface * surface, int x, int y){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
-own(NULL){
+own(NULL),
+mustResize(false){
     path = copy.getPath();
     SDL_Surface * his = copy.getData().getSurface();
     if ( x < 0 )
