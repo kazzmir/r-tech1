@@ -9,12 +9,12 @@ void initializeLock(Lock * lock){
     pthread_mutex_init(lock, NULL);
 }
 
-void acquireLock(Lock * lock){
-    pthread_mutex_lock(lock);
+int acquireLock(Lock * lock){
+    return pthread_mutex_lock(lock);
 }
 
-void releaseLock(Lock * lock){
-    pthread_mutex_unlock(lock);
+int releaseLock(Lock * lock){
+    return pthread_mutex_unlock(lock);
 }
 
 bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){

@@ -50,6 +50,7 @@ static Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap():
 own( NULL ),
+mustResize(false),
 error( false ){
 	getData().setBitmap( create_bitmap( 10, 10 ) );
 	if (! getData().getBitmap()){
@@ -64,6 +65,7 @@ error( false ){
 
 Bitmap::Bitmap( int x, int y ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	if ( x < 1 ){
 		x = 1;
@@ -85,6 +87,7 @@ error( false ){
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	
 	if ( deep_copy ){
@@ -105,6 +108,7 @@ error( false ){
 	
 Bitmap::Bitmap( const char * load_file ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	internalLoadFile( load_file );
 	/*
@@ -121,12 +125,14 @@ error( false ){
 
 Bitmap::Bitmap( const string & load_file ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	internalLoadFile( load_file.c_str() );
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
@@ -148,6 +154,7 @@ error( false ){
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
@@ -179,6 +186,7 @@ error( false ){
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	path = copy.getPath();
 	BITMAP * temp = copy.getData().getBitmap();
@@ -198,6 +206,7 @@ error( false ){
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	path = copy.getPath();
 	BITMAP * temp = copy.getData().getBitmap();
@@ -232,6 +241,7 @@ error( false ){
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy ):
 own( NULL ),
+mustResize(false),
 error( false ){
 
 	path = copy.getPath();
@@ -263,6 +273,7 @@ error( false ){
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own( NULL ),
+mustResize(false),
 error( false ){
 	path = copy.getPath();
 	BITMAP * his = copy.getData().getBitmap();
