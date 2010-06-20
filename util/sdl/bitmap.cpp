@@ -339,7 +339,7 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
     switch (mode){
         case WINDOWED : {
             // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
-            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_RESIZABLE);
+            screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_RESIZABLE);
             SDL_ShowCursor(0);
             // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_SWSURFACE | SDL_DOUBLEBUF);
             if (!screen){
