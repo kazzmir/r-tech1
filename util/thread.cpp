@@ -5,6 +5,37 @@ namespace Util{
 
 namespace Thread{
     
+#ifdef USE_SDL
+void initializeLock(Lock * lock){
+    *lock = SDL_CreateMutex();
+}
+
+int acquireLock(Lock * lock){
+    return SDL_LockMutex(*lock);
+}
+
+int releaseLock(Lock * lock){
+    return SDL_UnlockMutex(*lock);
+}
+
+void destroyLock(Lock * lock){
+    SDL_DestroyMutex(*lock);
+}
+
+bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
+    *thread = SDL_CreateThread(function, arg);
+    return *thread != NULL;
+}
+
+void joinThread(Id thread){
+    SDL_WaitThread(thread, NULL);
+}
+
+void cancelThread(Id thread){
+    SDL_KillThread(thread);
+}
+
+#else
 void initializeLock(Lock * lock){
     pthread_mutex_init(lock, NULL);
 }
@@ -33,6 +64,12 @@ void cancelThread(Id thread){
     pthread_cancel(thread);
 #endif
 }
+    
+void destroyLock(Lock * lock){
+    /* nothing */
+}
+
+#endif
 
 }
 
@@ -41,7 +78,7 @@ done(false){
     Thread::initializeLock(&doneLock);
 }
 
-WaitThread::WaitThread(void * (*thread)(void*), void * arg){
+WaitThread::WaitThread(Thread::ThreadFunction thread, void * arg){
     Thread::initializeLock(&doneLock);
     start(thread, arg);
 }
@@ -64,7 +101,7 @@ void WaitThread::start(Thread::ThreadFunction thread, void * arg){
     done = false;
     this->arg = arg;
     this->function = thread;
-    Thread::createThread(&this->thread, NULL, do_thread, this);
+    Thread::createThread(&this->thread, NULL, (Thread::ThreadFunction) do_thread, this);
 }
 
 bool WaitThread::isRunning(){

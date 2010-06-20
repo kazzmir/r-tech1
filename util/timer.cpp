@@ -30,7 +30,7 @@ func(func),
 arg(arg),
 stopped(false){
     Thread::initializeLock(&lock);
-    Thread::createThread(&timer, NULL, do_wait, this);
+    Thread::createThread(&timer, NULL, (Util::Thread::ThreadFunction) do_wait, this);
 }
 
 void Timer::stop(){

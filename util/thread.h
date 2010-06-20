@@ -1,20 +1,32 @@
 #ifndef _paintown_thread_h
 #define _paintown_thread_h
 
+#ifdef USE_SDL
+#include <SDL_thread.h>
+#include <SDL_mutex.h>
+#else
 #include <pthread.h>
+#endif
 
 namespace Util{
 
 /* Either uses pthreads or SDL_thread */
 namespace Thread{
+#ifdef USE_SDL
+    typedef SDL_mutex* Lock;
+    typedef SDL_Thread* Id;
+    typedef int (*ThreadFunction)(void*);
+#else
     typedef pthread_mutex_t Lock;
     typedef pthread_t Id;
     typedef void * (*ThreadFunction)(void*);
+#endif
 
     void initializeLock(Lock * lock);
 
     int acquireLock(Lock * lock);
     int releaseLock(Lock * lock);
+    void destroyLock(Lock * lock);
     bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg);
     void joinThread(Id thread);
     void cancelThread(Id thread);
