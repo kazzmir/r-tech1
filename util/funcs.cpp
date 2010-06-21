@@ -176,7 +176,7 @@ string Util::upcase(std::string str){
 }
 
 string Util::lowerCaseAll(std::string str){
-    for (int i = 0; i < str.length(); i++){
+    for (unsigned int i = 0; i < str.length(); i++){
         if (str[0] >= 'A' && str[0] <= 'Z'){
             str[0] = str[0] - 'A' + 'a';
         }
