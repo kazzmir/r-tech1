@@ -394,7 +394,16 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
 
     return 0;
 }
-	
+        
+void Bitmap::shutdown(){
+    delete Screen;
+    Screen = NULL;
+    delete Scaler;
+    Scaler = NULL;
+    delete Buffer;
+    Buffer = NULL;
+}
+
 void Bitmap::addBlender( int r, int g, int b, int a ){
     globalBlend.red = r;
     globalBlend.green = g;
@@ -402,7 +411,7 @@ void Bitmap::addBlender( int r, int g, int b, int a ){
     globalBlend.alpha = a;
     globalBlend.currentBlender = ::addBlender;
 }
-	
+
 void Bitmap::multiplyBlender( int r, int g, int b, int a ){
     globalBlend.red = r;
     globalBlend.green = g;
