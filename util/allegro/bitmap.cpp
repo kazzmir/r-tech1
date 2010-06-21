@@ -603,6 +603,14 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
     return ok;
 }
 
+void Bitmap::shutdown(){
+    delete Screen;
+    Screen = NULL;
+    delete Scaler;
+    Scaler = NULL;
+    delete Buffer;
+    Buffer = NULL;
+}
 
 
 /*
