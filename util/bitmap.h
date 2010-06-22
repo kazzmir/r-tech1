@@ -97,6 +97,8 @@ public:
 	static void invertBlender( int r, int g, int b, int a );
 	static void screenBlender( int r, int g, int b, int a );
 	static int setGraphicsMode( int mode, int width, int height );
+        /* for testing */
+	static void setFakeGraphicsMode(int width, int height);
 
         /* clean up any remaining state */
         static void shutdown();
