@@ -465,13 +465,14 @@ void Bitmap::transBlender( int r, int g, int b, int a ){
 }
 	
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
-    getData().setClip(x1, y1, x2, y2);
     SDL_Rect area;
     area.x = x1;
     area.y = y1;
     area.w = x2 - x1;
     area.h = y2 - y1;
     SDL_SetClipRect(getData().getSurface(), &area);
+    SDL_GetClipRect(getData().getSurface(), &area);
+    getData().setClip(area.x, area.y, area.x + area.w, area.y + area.h);
 }
 
 void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
