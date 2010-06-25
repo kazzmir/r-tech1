@@ -361,9 +361,15 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
     if (SCALE_X == 0){
         SCALE_X = width;
     }
+
+    SCALE_X = width;
+
     if (SCALE_Y == 0){
         SCALE_Y = height;
     }
+
+    SCALE_Y = height;
+
     if ( Screen != NULL ){
         delete Screen;
         Screen = NULL;
@@ -381,10 +387,13 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
 
     if (width != 0 && height != 0){
         Screen = new Bitmap(screen);
+        Scaler = new Bitmap(width, height);
+        /*
         if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
             Scaler = new Bitmap(width, height);
             Buffer = new Bitmap(SCALE_X, SCALE_Y);
         }
+        */
     }
 
     for (std::vector<Bitmap*>::iterator it = needResize.begin(); it != needResize.end(); it++){
@@ -753,6 +762,20 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+    if (getWidth() != Screen->getWidth() || getHeight() != Screen->getHeight()){
+        /*
+        this->Blit( upper_left_x, upper_left_y, *Buffer );
+        Buffer->Stretch(*Scaler);
+        Scaler->Blit(0, 0, 0, 0, *Screen);
+        */
+
+        this->Stretch(*Scaler, 0, 0, getWidth(), getHeight(), upper_left_x, upper_left_y, Scaler->getWidth(), Scaler->getHeight());
+        Scaler->Blit(0, 0, 0, 0, *Screen);
+    } else {
+        this->Blit( upper_left_x, upper_left_y, *Screen );
+    }
+
+    /*
     if ( Scaler == NULL ){
         this->Blit( upper_left_x, upper_left_y, *Screen );
     } else {
@@ -760,6 +783,7 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
         Buffer->Stretch(*Scaler);
         Scaler->Blit(0, 0, 0, 0, *Screen);
     }
+    */
 
     // SDL_Flip(Screen->getData().getSurface());
     // SDL_UpdateRect(Screen->getData().getSurface(), 0, 0, Screen->getWidth(), Screen->getHeight());
