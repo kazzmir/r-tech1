@@ -758,7 +758,6 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
     if (&where == Screen){
         SDL_Flip(Screen->getData().getSurface());
     }
-
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
