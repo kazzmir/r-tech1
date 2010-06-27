@@ -6,8 +6,7 @@
 #include <SDL.h>
 #include "image/SDL_image.h"
 #include <math.h>
-
-#include <exception>
+#include "exceptions/exception.h"
 
 static const int WINDOWED = 0;
 static const int FULLSCREEN = 1;
@@ -169,8 +168,7 @@ Bitmap::Bitmap(int w, int h):
 mustResize(false){
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0);
     if (surface == NULL){
-        /* FIXME */
-        throw std::exception();
+        throw Exception::Base(__FILE__, __LINE__);
     }
     getData().setSurface(surface);
     own = new int;
@@ -205,7 +203,7 @@ mustResize(false){
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
 own(NULL),
 mustResize(false){
-    throw std::exception();
+    throw Exception::Base(__FILE__, __LINE__);
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
@@ -285,7 +283,7 @@ void Bitmap::internalLoadFile(const char * path){
         SDL_FreeSurface(loaded);
     } else {
         /* FIXME: throw a standard bitmap exception */
-        throw std::exception();
+        throw Exception::Base(__FILE__, __LINE__);
     }
     own = new int;
     *own = 1;
