@@ -105,6 +105,13 @@ public:
         return matcher.match(obj);
     }
 
+    template <typename X>
+    bool match(const std::string & subject, X & obj1, X & obj2){
+        TokenMatcher matcher = getMatcher(subject);
+        return matcher.match(obj1, obj2);
+    }
+
+
     TokenMatcher getMatcher(const std::string & subject);
 
     Token * getToken( unsigned int n ) const;
