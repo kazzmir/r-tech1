@@ -27,6 +27,8 @@
 #include "sdl/mixer/SDL_mixer.h"
 #endif
 
+#include "exceptions/exception.h"
+
 namespace Util{
 
 static double scaleVolume(double start){
@@ -121,7 +123,7 @@ GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
-        throw std::exception();
+        throw Exception::Base(__FILE__, __LINE__);
     }
     emulator->start_track(0);
     Global::debug(0) << "Loaded GME file " << path << std::endl;
@@ -205,8 +207,7 @@ OggPlayer::~OggPlayer(){
 DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file == NULL){
-        /* FIXME */
-        throw std::exception();
+        throw Exception::Base(__FILE__, __LINE__);
     }
     
     int n_channels = 2;
@@ -214,7 +215,7 @@ DumbPlayer::DumbPlayer(const char * path){
     renderer = duh_start_sigrenderer(music_file, 0, n_channels, position);
     if (!renderer){
         Global::debug(0) << "Could not create renderer" << std::endl;
-        throw std::exception();
+        throw Exception::Base(__FILE__, __LINE__);
     }
 }
 
@@ -295,7 +296,7 @@ GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
-        throw std::exception();
+        throw Exception::Base(__FILE__, __LINE__);
     }
     emulator->start_track(0);
     Global::debug(0) << "Loaded GME file " << path << std::endl;
