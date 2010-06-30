@@ -105,10 +105,38 @@ public:
         return matcher.match(obj);
     }
 
-    template <typename X>
-    bool match(const std::string & subject, X & obj1, X & obj2){
+    template <typename X1, typename X2>
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2){
         TokenMatcher matcher = getMatcher(subject);
-        return matcher.match(obj1, obj2);
+        return matcher.match(obj1) &&
+               matcher.match(obj2);
+    }
+
+    template <typename X1, typename X2, typename X3>
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3){
+        TokenMatcher matcher = getMatcher(subject);
+        return matcher.match(obj1) &&
+               matcher.match(obj2) &&
+               matcher.match(obj3);
+    }
+
+    template <typename X1, typename X2, typename X3, typename X4>
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4){
+        TokenMatcher matcher = getMatcher(subject);
+        return matcher.match(obj1) &&
+               matcher.match(obj2) &&
+               matcher.match(obj3) &&
+               matcher.match(obj4);
+    }
+
+    template <typename X1, typename X2, typename X3, typename X4, typename X5>
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4, X5 & obj5){
+        TokenMatcher matcher = getMatcher(subject);
+        return matcher.match(obj1) &&
+               matcher.match(obj2) &&
+               matcher.match(obj3) &&
+               matcher.match(obj4) &&
+               matcher.match(obj5);
     }
 
 
