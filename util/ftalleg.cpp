@@ -103,7 +103,8 @@ namespace ftalleg{
 	}
 
 	//! Constructor
-	freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ){
+	freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ):
+    face(NULL){
 		//Load library
 		if ( !ftLibrary ){
 			FT_Init_FreeType(&ftLibrary);
