@@ -1071,7 +1071,7 @@ static void paintown_applyTrans16(SDL_Surface * dst, const int color){
     int bpp = dst->format->BytesPerPixel;
     unsigned int mask = Bitmap::makeColor(255, 0, 255);
     for (int y = y1; y < y2; y++) {
-        Uint8 * sourceLine = computeOffset(dst, x1, y1 + y);
+        Uint8 * sourceLine = computeOffset(dst, x1, y);
 
         for (int x = x2 - 1; x >= x1; sourceLine += bpp, x--) {
             unsigned long sourcePixel = *(Uint16*) sourceLine;
