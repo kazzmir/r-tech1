@@ -73,6 +73,41 @@ protected:
     Thread::Lock & lock;
 };
 
+template<class X>
+class Future{
+public:
+    Future(){
+    }
+
+    virtual ~Future(){
+    }
+
+    virtual X get(){
+        Thread::joinThread(thread);
+        return thing;
+    }
+
+protected:
+    static void * runit(void * arg){
+        Future<X> * me = (Future<X>*) arg;
+        me->compute();
+        return NULL;
+    }
+
+    virtual void set(X x){
+        this->thing = x;
+    }
+
+    virtual void start(){
+        Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this);
+    }
+
+    virtual void compute() = 0;
+
+    X thing;
+    Thread::Id thread;
+};
+
 }
 
 #endif
