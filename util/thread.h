@@ -6,7 +6,10 @@
 #include <SDL_mutex.h>
 #else
 #include <pthread.h>
+#include <semaphore.h>
 #endif
+
+#include "exceptions/exception.h"
 
 namespace Util{
 
@@ -16,13 +19,20 @@ namespace Thread{
     typedef SDL_mutex* Lock;
     typedef SDL_Thread* Id;
     typedef int (*ThreadFunction)(void*);
+    typedef SDL_semaphore* Semaphore;
 #else
     typedef pthread_mutex_t Lock;
     typedef pthread_t Id;
+    typedef sem_t Semaphore;
     typedef void * (*ThreadFunction)(void*);
 #endif
 
     void initializeLock(Lock * lock);
+
+    void initializeSemaphore(Semaphore * semaphore, unsigned int value);
+    void destroySemaphore(Semaphore * semaphore);
+    void semaphoreDecrease(Semaphore * semaphore);
+    void semaphoreIncrease(Semaphore * semaphore);
 
     int acquireLock(Lock * lock);
     int releaseLock(Lock * lock);
@@ -76,21 +86,30 @@ protected:
 template<class X>
 class Future{
 public:
-    Future(){
+    Future():
+    thing(0){
+        /* future will increase the count */
+        Thread::initializeSemaphore(&future, 0);
     }
 
     virtual ~Future(){
+        Thread::joinThread(thread);
+        Thread::destroySemaphore(&future);
     }
 
     virtual X get(){
-        Thread::joinThread(thread);
-        return thing;
+        X out;
+        Thread::semaphoreDecrease(&future);
+        out = thing;
+        Thread::semaphoreIncrease(&future);
+        return out;
     }
 
 protected:
     static void * runit(void * arg){
         Future<X> * me = (Future<X>*) arg;
         me->compute();
+        Thread::semaphoreIncrease(&me->future);
         return NULL;
     }
 
@@ -99,13 +118,16 @@ protected:
     }
 
     virtual void start(){
-        Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this);
+        if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
+            throw Exception::Base(__FILE__, __LINE__);
+        }
     }
 
     virtual void compute() = 0;
 
     X thing;
     Thread::Id thread;
+    Thread::Semaphore future;
 };
 
 }

@@ -21,6 +21,22 @@ void destroyLock(Lock * lock){
     SDL_DestroyMutex(*lock);
 }
 
+void initializeSemaphore(Semaphore * semaphore, unsigned int value){
+    *semaphore = SDL_CreateSemaphore(value);
+}
+
+void destroySemaphore(Semaphore * semaphore){
+    SDL_DestroySemaphore(*semaphore);
+}
+
+void semaphoreDecrease(Semaphore * semaphore){
+    SDL_SemWait(*semaphore);
+}
+
+void semaphoreIncrease(Semaphore * semaphore){
+    SDL_SemPost(*semaphore);
+}
+
 bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
     *thread = SDL_CreateThread(function, arg);
     return *thread != NULL;
@@ -45,6 +61,22 @@ int acquireLock(Lock * lock){
 
 int releaseLock(Lock * lock){
     return pthread_mutex_unlock(lock);
+}
+
+void initializeSemaphore(Semaphore * semaphore, unsigned int value){
+    sem_init(semaphore, 0, value);
+}
+
+void destroySemaphore(Semaphore * semaphore){
+    /* nothing */
+}
+
+void semaphoreDecrease(Semaphore * semaphore){
+    sem_wait(semaphore);
+}
+
+void semaphoreIncrease(Semaphore * semaphore){
+    sem_post(semaphore);
 }
 
 bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
