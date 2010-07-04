@@ -2532,7 +2532,6 @@ void SPG_RectFilledBlend(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, 
     {
         Uint16 *row, *pixel;
         Uint32 dR=(color & Rmask),dG=(color & Gmask),dB=(color & Bmask),dA=(color & Amask);
-
         for (y = y1; y<=y2; y++)
         {
             row = (Uint16 *)surface->pixels + y*surface->pitch/2;

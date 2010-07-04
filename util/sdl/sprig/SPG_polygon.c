@@ -589,7 +589,6 @@ void SPG_TrigonFilled(SDL_Surface *dest,Sint16 x1,Sint16 y1,Sint16 x2,Sint16 y2,
 {
 	Sint16 y;
 
-
     // AA hack
 	if(SPG_GetAA())
 	{
@@ -711,27 +710,25 @@ void SPG_TrigonFilledBlend(SDL_Surface *dest,Sint16 x1,Sint16 y1,Sint16 x2,Sint1
 {
 	Sint16 y;
 
-
     // AA hack
-	if(SPG_GetAA())
-	{
-	    // Rough guess at center
-	    float cx = (x1 + x2 + x3)/3.0f,
-	          cy = (y1 + y2 + y3)/3.0f;
+        if(SPG_GetAA()){
+            // Rough guess at center
+            float cx = (x1 + x2 + x3)/3.0f,
+                  cy = (y1 + y2 + y3)/3.0f;
 
-        // Draw AA lines
-	    spg_lineblendaa(dest,x1,y1,x2,y2,color, alpha);
-	    spg_lineblendaa(dest,x2,y2,x3,y3,color, alpha);
-	    spg_lineblendaa(dest,x3,y3,x1,y1,color, alpha);
+            // Draw AA lines
+            spg_lineblendaa(dest,x1,y1,x2,y2,color, alpha);
+            spg_lineblendaa(dest,x2,y2,x3,y3,color, alpha);
+            spg_lineblendaa(dest,x3,y3,x1,y1,color, alpha);
 
-        // Push in all points by one
-        cx > x1? x1++ : x1--;
-        cx > x2? x2++ : x2--;
-        cx > x3? x3++ : x3--;
-        cy > y1? y1++ : y1--;
-        cy > y2? y2++ : y2--;
-        cy > y3? y3++ : y3--;
-	}
+            // Push in all points by one
+            cx > x1? x1++ : x1--;
+            cx > x2? x2++ : x2--;
+            cx > x3? x3++ : x3--;
+            cy > y1? y1++ : y1--;
+            cy > y2? y2++ : y2--;
+            cy > y3? y3++ : y3--;
+        }
 
 	//if( y1==y3 )
 	//	return;
