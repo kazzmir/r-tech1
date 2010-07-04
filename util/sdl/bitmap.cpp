@@ -113,7 +113,7 @@ static int drawingAlpha(){
 
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
-static void paintown_light16(SDL_Surface * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
+static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
 int Bitmap::MaskColor(){
     static int mask = makeColor(255, 0, 255);
@@ -270,7 +270,7 @@ mustResize(false){
 
     SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
     getData().setSurface(sub);
-
+    
     own = new int;
     *own = 1;
 }
@@ -367,6 +367,9 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
     }
 
     SCALE_Y = height;
+
+    SCALE_X = 640;
+    SCALE_Y = 480;
 
     if ( Screen != NULL ){
         delete Screen;
@@ -1347,7 +1350,15 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
 /* ultra special-case for drawing a light (like from a lamp).
  * center of light is x,y and shines in a perfect isosolese triangle.
  */
-static void paintown_light16(SDL_Surface * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color){
+static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color){
+
+    if (width > dst->w){
+        width = dst->w;
+    }
+
+    if (height > dst->h){
+        height = dst->h;
+    }
 
     int dxbeg = x - width;
     int x_dir = 1;
@@ -1364,9 +1375,9 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, const 
 
     int min_y, max_y, min_x, max_x;
     min_y = dst->clip_rect.y;
-    max_y = dst->clip_rect.y + dst->clip_rect.h;
+    max_y = dst->clip_rect.y + dst->clip_rect.h - 1;
     min_x = dst->clip_rect.x;
-    max_x = dst->clip_rect.x + dst->clip_rect.w;
+    max_x = dst->clip_rect.x + dst->clip_rect.w - 1;
             
     int dybeg = y;
 
