@@ -868,7 +868,7 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
     */
 }
 	
-void Bitmap::save( const std::string & str ){
+void Bitmap::save( const std::string & str ) const {
     /* TODO */
 }
 	

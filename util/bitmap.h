@@ -51,7 +51,7 @@ public:
 
         virtual TranslucentBitmap translucent() const;
 
-	virtual void save( const std::string & str );
+	virtual void save( const std::string & str ) const;
 
 	Bitmap & operator=( const Bitmap & );
 

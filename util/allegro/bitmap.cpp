@@ -319,8 +319,8 @@ void Bitmap::internalLoadFile( const char * load_file ){
 	*own = 1;
 }
 	
-void Bitmap::save( const string & str ){
-	save_bitmap( str.c_str(), getData().getBitmap(), NULL );
+void Bitmap::save( const string & str ) const {
+    save_bitmap( str.c_str(), getData().getBitmap(), NULL );
 }
 
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
