@@ -43,7 +43,9 @@ TokenReader::~TokenReader(){
 Token * TokenReader::readToken() throw( TokenException ){
 
 	if ( !ifile ){
-            throw TokenException(__FILE__, __LINE__, string("Could not open ") + myfile );
+            ostringstream out;
+            out << "Could not open '" << myfile << "'";
+            throw TokenException(__FILE__, __LINE__, out.str());
         }
 	// Token * t;
 
