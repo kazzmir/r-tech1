@@ -16,13 +16,11 @@ public:
     LoadException(const std::string & file, int line, const Exception::Base & nested, const std::string & reason);
     LoadException(const LoadException & copy);
 
-    inline const std::string & getReason() const {
-        return reason;
-    }
-
     virtual ~LoadException() throw();
 
 protected:
+    virtual const std::string getReason() const;
+
     virtual Exception::Base * copy() const;
 
     std::string reason;

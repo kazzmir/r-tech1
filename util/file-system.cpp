@@ -51,6 +51,10 @@ reason(copy.reason){
 
 Exception::~Exception() throw (){
 }
+        
+const std::string Exception::getReason() const {
+    return reason;
+}
 
 NotFound::NotFound(const std::string & where, int line, const std::string & file):
 Exception(where, line, file + string(" was not found")){
