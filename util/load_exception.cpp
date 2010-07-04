@@ -24,3 +24,7 @@ reason(copy.reason){
 Exception::Base * LoadException::copy() const {
     return new LoadException(*this);
 }
+    
+const std::string LoadException::getReason() const {
+    return reason;
+}

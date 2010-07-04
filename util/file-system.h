@@ -18,10 +18,9 @@ namespace Filesystem{
         Exception(const Exception & copy);
         virtual ~Exception() throw ();
 
-        const std::string & getReason() const {
-            return reason;
-        }
     protected:
+        virtual const std::string getReason() const;
+
         virtual Exc::Base * copy() const {
             return new Exception(*this);
         }

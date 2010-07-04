@@ -10,6 +10,8 @@
 #endif
 
 #include "exceptions/exception.h"
+#include "util/load_exception.h"
+#include "util/token_exception.h"
 
 namespace Util{
 
@@ -83,11 +85,35 @@ protected:
     Thread::Lock & lock;
 };
 
+/* Computes stuff in a separate thread and gives it back when you ask for it.
+ * As soon as the future is created a thread will start executing and compute
+ * whatever it is that the class is supposed to do. You can then call `get'
+ * on the future object to get the result. If the thread is still executing
+ * then `get' will block until the future completes. If the future has already
+ * completed then `get' will return immediately with the computed value.
+ * The use case is computing something that has to be used later:
+ *  Future future; // might take a while to compute
+ *  do_stuff_that_takes_a_while(); // future might finish sometime in here
+ *  Object o = future.get(); // future is already done
+ *
+ * TODO: handle exceptions
+ */
 template<class X>
 class Future{
+protected:
+    /* WARNING: hack to find out the type of the exception */
+    enum ExceptionType{
+        None,
+        Load,
+        Token,
+        Base
+    };
+
 public:
     Future():
-    thing(0){
+    thing(0),
+    exception(__FILE__, __LINE__),
+    haveException(None){
         /* future will increase the count */
         Thread::initializeSemaphore(&future, 0);
     }
@@ -98,6 +124,13 @@ public:
     }
 
     virtual X get(){
+        switch (haveException){
+            case None : break;
+            case Load : throw LoadException(__FILE__, __LINE__, exception, "Failed in future");
+            case Token: throw TokenException(exception);
+            default : throw Exception::Base(__FILE__, __LINE__, exception);
+        }
+
         X out;
         Thread::semaphoreDecrease(&future);
         out = thing;
@@ -108,8 +141,19 @@ public:
 protected:
     static void * runit(void * arg){
         Future<X> * me = (Future<X>*) arg;
-        me->compute();
-        Thread::semaphoreIncrease(&me->future);
+        try{
+            me->compute();
+            Thread::semaphoreIncrease(&me->future);
+        } catch (const LoadException & load){
+            me->haveException = Load;
+            me->exception.set(load);
+        } catch (const TokenException & t){
+            me->haveException = Token;
+            me->exception.set(t);
+        } catch (const Exception::Base & base){
+            me->haveException = Base;
+            me->exception.set(base);
+        }
         return NULL;
     }
 
@@ -128,6 +172,9 @@ protected:
     X thing;
     Thread::Id thread;
     Thread::Semaphore future;
+    /* if any exceptions occur, throw them from `get' */
+    Exception::Base exception;
+    ExceptionType haveException;
 };
 
 }
