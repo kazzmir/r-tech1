@@ -249,7 +249,7 @@ mustResize(false){
     /* TODO */
 }
 
-static Uint8* computeOffset(SDL_Surface * surface, int x, int y){
+static inline Uint8* computeOffset(SDL_Surface * surface, int x, int y){
     int bpp = surface->format->BytesPerPixel;
     return ((Uint8*)surface->pixels) + y * surface->pitch + x * bpp;
 }
