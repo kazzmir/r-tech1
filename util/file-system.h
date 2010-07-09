@@ -110,6 +110,9 @@ namespace Filesystem{
      */
     AbsolutePath find(const RelativePath & path);
 
+    /* whether the file exists at all */
+    bool exists(const RelativePath & path);
+
     /* remove the data path from a string
      * data/sounds/arrow.png -> sounds/arrow.png
      */

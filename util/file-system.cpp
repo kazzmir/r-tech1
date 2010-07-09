@@ -250,6 +250,15 @@ AbsolutePath find(const RelativePath & path){
     }
     return AbsolutePath(sanitize(out.path()));
 }
+    
+bool exists(const RelativePath & path){
+    try{
+        AbsolutePath absolute = find(path);
+        return true;
+    } catch (const NotFound & found){
+        return false;
+    }
+}
 
 RelativePath cleanse(const AbsolutePath & path){
     string str = path.path();
