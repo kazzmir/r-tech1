@@ -1013,8 +1013,10 @@ int Bitmap::getPixel( const int x, const int y ) const {
     return SPG_GetPixel(getData().getSurface(), x, y);
 }
 	
-void Bitmap::readLine( std::vector< int > & vec, int y ){
-    /* TODO */
+void Bitmap::readLine( std::vector< int > & line, int y ){
+    for (int x = 0; x < getWidth(); x++){
+        line.push_back(getPixel(x, y));
+    }
 }
 
 void Bitmap::StretchBy2( const Bitmap & where ){
