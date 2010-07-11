@@ -136,7 +136,7 @@ namespace Filesystem{
     /* user specific path to store the configuration file */
     AbsolutePath configFile();
 
-    std::vector<std::string> getFiles(const AbsolutePath & dataPath, const std::string & find);
+    std::vector<std::string> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
 }
 
 #endif

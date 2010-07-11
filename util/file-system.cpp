@@ -176,7 +176,7 @@ vector<AbsolutePath> findDirectories(const RelativePath & path){
     return dirs;
 }
 
-vector<string> getFiles(const AbsolutePath & dataPath, const string & find){
+vector<string> getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
 #ifdef USE_ALLEGRO
     struct al_ffblk info;
     vector< string > files;
