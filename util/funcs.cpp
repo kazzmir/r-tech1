@@ -126,9 +126,11 @@ bool Util::exists( const string & file ){
 #endif
 }
 
-vector< string > Util::getFiles(const Filesystem::AbsolutePath & dataPath, const string & find){
+/*
+vector<Filesystem::AbsolutePath> Util::getFiles(const Filesystem::AbsolutePath & dataPath, const string & find){
     return Filesystem::getFiles(dataPath, find);
 }
+*/
 
 void Util::blend_palette(int * pal, int mp, int startColor, int endColor ) {
     /*
