@@ -176,28 +176,28 @@ vector<AbsolutePath> findDirectories(const RelativePath & path){
     return dirs;
 }
 
-vector<string> getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
+vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
 #ifdef USE_ALLEGRO
     struct al_ffblk info;
-    vector< string > files;
+    vector<AbsolutePath> files;
 
     if ( al_findfirst( (dataPath.path() + find).c_str(), &info, FA_ALL ) != 0 ){
         return files;
     }
-    files.push_back( dataPath.path() + string( info.name ) );
+    files.push_back(AbsolutePath(dataPath.path() + string(info.name)));
     while ( al_findnext( &info ) == 0 ){
-        files.push_back( dataPath.path() + string( info.name ) );
+        files.push_back(AbsolutePath(dataPath.path() + string(info.name)));
     }
     al_findclose( &info );
 
     return files;
 #else
-    vector<string> files;
+    vector<AbsolutePath> files;
     DIRST sflEntry;
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
     while (ok){
         if (file_matches(sflEntry.file_name, find.c_str())){
-            files.push_back(dataPath.path() + string(sflEntry.file_name));
+            files.push_back(AbsolutePath(dataPath.path() + string(sflEntry.file_name)));
         }
         ok = read_dir(&sflEntry);
     }
@@ -368,6 +368,10 @@ RelativePath RelativePath::getFilename() const {
     return RelativePath(stripDir(path()));
 }
 
+bool RelativePath::operator<(const RelativePath & path) const {
+    return this->path() < path.path();
+}
+
 RelativePath RelativePath::join(const RelativePath & him) const {
     return RelativePath(sanitize(path() + "/" + him.path()));
 }
@@ -395,6 +399,10 @@ AbsolutePath & AbsolutePath::operator=(const AbsolutePath & copy){
 
 bool AbsolutePath::operator==(const AbsolutePath & path) const {
     return this->path() == path.path();
+}
+        
+bool AbsolutePath::operator<(const AbsolutePath & path) const {
+    return this->path() < path.path();
 }
         
 AbsolutePath AbsolutePath::getDirectory() const {

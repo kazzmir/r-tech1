@@ -25,7 +25,7 @@ inline int rnd( int q ){
     return (int)(rand() % q);
 }
 
-std::vector< std::string > getFiles(const Filesystem::AbsolutePath & dataPath, const std::string & find );
+// std::vector< std::string > getFiles(const Filesystem::AbsolutePath & dataPath, const std::string & find );
 
 double radians(double degree);
 

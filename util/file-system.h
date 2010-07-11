@@ -80,6 +80,8 @@ namespace Filesystem{
         explicit RelativePath();
         explicit RelativePath(const std::string & path);
         RelativePath(const RelativePath & path);
+
+        bool operator<(const RelativePath & path) const;
         
         virtual RelativePath getDirectory() const;
         virtual RelativePath getFilename() const;
@@ -97,6 +99,7 @@ namespace Filesystem{
         AbsolutePath(const AbsolutePath & path);
         AbsolutePath & operator=(const AbsolutePath & copy);
 
+        bool operator<(const AbsolutePath & path) const;
         bool operator==(const AbsolutePath & path) const;
         
         virtual AbsolutePath getDirectory() const;
@@ -136,7 +139,7 @@ namespace Filesystem{
     /* user specific path to store the configuration file */
     AbsolutePath configFile();
 
-    std::vector<std::string> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+    std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
 }
 
 #endif
