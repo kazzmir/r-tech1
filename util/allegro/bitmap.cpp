@@ -596,7 +596,7 @@ int Bitmap::setGraphicsMode( int mode, int width, int height ){
             Screen = new Bitmap( ::screen );
             if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
                 Scaler = new Bitmap(width, height);
-                Buffer = new Bitmap(SCALE_X, SCALE_Y);
+                // Buffer = new Bitmap(SCALE_X, SCALE_Y);
             }
         }
     }
@@ -995,8 +995,14 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
     if ( Scaler == NULL ){
         this->Blit( upper_left_x, upper_left_y, *Bitmap::Screen );
     } else {
-        this->Blit( upper_left_x, upper_left_y, *Buffer );
-        Buffer->Stretch( *Scaler );
+        if (upper_left_x != 0 || upper_left_y != 0){
+            Bitmap buffer = temporaryBitmap(getWidth(), getHeight());
+            buffer.clear();
+            this->Blit(upper_left_x, upper_left_y, buffer);
+            buffer.Stretch(*Scaler);
+        } else {
+            this->Stretch(*Scaler);
+        }
         Scaler->Blit( 0, 0, 0, 0, *Screen );
     }
 }
