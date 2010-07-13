@@ -11,7 +11,8 @@
 
 namespace Util{
 
-EventManager::EventManager(){
+EventManager::EventManager():
+bufferKeys(false){
 }
 
 #ifdef USE_SDL
@@ -22,6 +23,10 @@ void EventManager::runSDL(){
             case SDL_QUIT : {
                 dispatch(CloseWindow);
                 break;
+            }
+            case SDL_KEYDOWN : {
+                 dispatch(Key, event.key.keysym.sym);
+                 break;
             }
             case SDL_VIDEORESIZE : {
                 int width = event.resize.w;
@@ -65,6 +70,28 @@ void EventManager::waitForThread(WaitThread & thread){
 }
 
 EventManager::~EventManager(){
+}
+    
+void EventManager::enableKeyBuffer(){
+    bufferKeys = true;
+}
+
+void EventManager::disableKeyBuffer(){
+    bufferKeys = false;
+}
+
+void EventManager::dispatch(Event type, int arg1){
+    switch (type){
+        case Key : {
+            if (bufferKeys){
+                keys.push_back(KeyType(arg1));
+            }
+            break;
+        }
+        default : {
+            break;
+        }
+    }
 }
 
 void EventManager::dispatch(Event type, int arg1, int arg2){
