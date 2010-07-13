@@ -123,7 +123,7 @@ DumbPlayer::DumbPlayer(const char * path){
     } else {
         std::ostringstream error;
         error << "Could not DUMB file load " << path;
-        throw MusicException(__FILE__, __LINE__, path.str());
+        throw MusicException(__FILE__, __LINE__, error.str());
     }
 }
 
