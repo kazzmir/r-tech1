@@ -28,8 +28,36 @@
 #endif
 
 #include "exceptions/exception.h"
+#include <sstream>
 
 namespace Util{
+
+class MusicException: public Exception::Base {
+public:
+    MusicException(const std::string & file, int line, const std::string & reason):
+        Exception::Base(file, line),
+        reason(reason){
+        }
+
+    MusicException(const MusicException & copy):
+    Exception::Base(copy),
+    reason(copy.reason){
+    }
+
+    virtual ~MusicException() throw(){
+    }
+
+protected:
+    virtual const std::string getReason() const {
+        return reason;
+    }
+
+    virtual Exception::Base * copy() const {
+        return new MusicException(*this);
+    }
+
+    std::string reason;
+};
 
 static double scaleVolume(double start){
     return start * Configuration::getMusicVolume() / 100;
@@ -92,6 +120,10 @@ DumbPlayer::DumbPlayer(const char * path){
     if (music_file != NULL){
         int buf = 1 << 11;
         player = al_start_duh(music_file, 2, 0, scaleVolume(volume), buf, Sound::FREQUENCY);
+    } else {
+        std::ostringstream error;
+        error << "Could not DUMB file load " << path;
+        throw MusicException(__FILE__, __LINE__, path.str());
     }
 }
 
@@ -123,7 +155,7 @@ GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
-        throw Exception::Base(__FILE__, __LINE__);
+        throw MusicException(__FILE__, __LINE__, "Could not load GME file");
     }
     emulator->start_track(0);
     Global::debug(0) << "Loaded GME file " << path << std::endl;
@@ -181,6 +213,9 @@ GMEPlayer::~GMEPlayer(){
 #ifdef HAVE_OGG
 OggPlayer::OggPlayer(const char * path){
     stream = logg_get_stream(path, scaleVolume(volume) * 255, 128, 1);
+    if (stream == NULL){
+        throw MusicException(__FILE__, __LINE__, "Could not load ogg file");
+    }
 }
 
 void OggPlayer::play(){
@@ -207,7 +242,9 @@ OggPlayer::~OggPlayer(){
 DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file == NULL){
-        throw Exception::Base(__FILE__, __LINE__);
+        std::ostringstream error;
+        error << "Could not load DUMB file " << path;
+        throw MusicException(__FILE__, __LINE__, error.str());
     }
     
     int n_channels = 2;
@@ -296,7 +333,7 @@ GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
-        throw Exception::Base(__FILE__, __LINE__);
+        throw MusicException(__FILE__, __LINE__, "Could not load GME file");
     }
     emulator->start_track(0);
     Global::debug(0) << "Loaded GME file " << path << std::endl;
@@ -356,6 +393,9 @@ GMEPlayer::~GMEPlayer(){
 
 OggPlayer::OggPlayer(const char * path){
     music = Mix_LoadMUS(path);
+    if (music == NULL){
+        throw MusicException(__FILE__, __LINE__, "Could not load OGG file");
+    }
 }
 
 void OggPlayer::play(){
