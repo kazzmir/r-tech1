@@ -18,6 +18,10 @@ using namespace std;
  * (hello (world))
  * (hello (world hi))
  */
+    
+TokenReader::TokenReader(){
+}
+
 TokenReader::TokenReader(const char * file){
     readTokenFromFile(file);
 }
