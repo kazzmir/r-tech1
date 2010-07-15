@@ -10,18 +10,30 @@ class Token;
 
 class TokenReader{
 public:
-	TokenReader( const std::string & s );
-	TokenReader( const char * filename );
+    TokenReader();
 
-	virtual Token * readToken() throw (TokenException);
+    /* Deprecated */
+    TokenReader( const std::string & s );
+    TokenReader( const char * filename );
 
-	virtual ~TokenReader();
+    /* Deprecated */
+    virtual Token * readToken();
+
+    /* Use these from now on */
+    virtual Token * readToken(const std::string & path) throw (TokenException);
+    virtual Token * readToken(const char * path) throw (TokenException);
+    virtual Token * readTokenFromString(const std::string & stuff) throw (TokenException);
+    virtual Token * readTokenFromFile(const char * path);
+
+    virtual ~TokenReader();
 
 protected:
-
-        std::ifstream ifile;
-        std::string myfile;
-        std::vector< Token * > my_tokens;
+    virtual void readTokens(std::istream & stream) throw (TokenException);
+    /*
+    std::ifstream ifile;
+    std::string myfile;
+    */
+    std::vector< Token * > my_tokens;
 };
 
 #endif
