@@ -254,18 +254,23 @@ const string Token::getFileName() const {
 }
 
 Token & Token::operator>>( string & rhs ) throw( TokenException ){
-	Token * l = readToken();
-	if (l == NULL){
-		throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string("Tried to read a string from '") + this->getLineage() + string("' but there no more elements") );
-	}
-        if (!l->isData()){
-            throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
-        }
-	rhs = l->getName();
+    Token * token = readToken();
+    if (token == NULL){
+        throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string("Tried to read a string from '") + this->getLineage() + string("' but there no more elements") );
+    }
+    if (!token->isData()){
+        ostringstream out;
+        out << getFileName() << ": Element is not a string '";
+        token->toString(out, "");
+        // throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string: "));
+        throw TokenException(__FILE__, __LINE__, out.str());
+    }
 
-	// rhs = getName();
+    rhs = token->getName();
 
-	return *this;
+    // rhs = getName();
+
+    return *this;
 }
 	
 Token & Token::operator>>( int & rhs ) throw( TokenException ){
