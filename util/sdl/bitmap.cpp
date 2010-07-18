@@ -149,6 +149,7 @@ mustResize(false){
     } else {
         throw Exception::Base(__FILE__, __LINE__);
     }
+
     own = new int;
     *own = 1;
 }
