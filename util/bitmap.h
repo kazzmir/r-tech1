@@ -34,6 +34,7 @@ public:
 	Bitmap();
 	Bitmap( int x, int y );
 	Bitmap( const char * load_file );
+        Bitmap(const char * data, int length);
 	Bitmap( const std::string & load_file );
 	Bitmap( const char * load_file, int sx, int sy );
 

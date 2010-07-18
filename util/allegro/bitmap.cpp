@@ -84,6 +84,13 @@ error( false ){
 	}
 }
 
+Bitmap::Bitmap(const char * data, int length):
+own(NULL),
+mustResize(false),
+error(false){
+    /* FIXME */
+}
+
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
 own( NULL ),
