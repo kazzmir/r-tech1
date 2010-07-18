@@ -138,6 +138,21 @@ mustResize(false){
     /* TODO */
 }
 
+Bitmap::Bitmap(const char * data, int length):
+own(NULL),
+mustResize(false){
+    SDL_RWops * ops = SDL_RWFromConstMem(data, length);
+    SDL_Surface * loaded = IMG_Load_RW(ops, 1);
+    if (loaded){
+        getData().setSurface(SDL_DisplayFormat(loaded));
+        SDL_FreeSurface(loaded);
+    } else {
+        throw Exception::Base(__FILE__, __LINE__);
+    }
+    own = new int;
+    *own = 1;
+}
+
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
 own(NULL),
 mustResize(false){
