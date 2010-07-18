@@ -140,6 +140,9 @@ namespace Filesystem{
     AbsolutePath configFile();
 
     std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+
+    std::string invertSlashes(const std::string & str);
+    std::string sanitize(std::string path);
 }
 
 #endif
