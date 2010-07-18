@@ -208,7 +208,7 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
 }
 
 /* remove extra path separators (/) */
-static string sanitize(string path){
+string sanitize(string path){
     size_t double_slash = path.find("//");
     while (double_slash != string::npos){
         path.erase(double_slash, 1);
@@ -323,7 +323,7 @@ Path::~Path(){
 Path::Path(){
 }
 
-static const std::string invertSlashes(const string & str){
+std::string invertSlashes(const string & str){
     string tempStr = str;
     if (tempStr.find('\\') != string::npos){
 	for (int i = tempStr.size()-1; i>-1; --i){
