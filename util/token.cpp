@@ -313,9 +313,11 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 }
 
 void Token::addToken(Token * t){
+    /*
     if (!own){
         throw TokenException(__FILE__, __LINE__, "This token does not own its own tokens, so you cannot add tokens to it");
     }
+    */
     tokens.push_back( t );
 }
 
@@ -334,21 +336,33 @@ static string quoteify(const string & rhs){
 }
 
 Token & Token::operator<<( const string rhs ){
-	Token * n = new Token(quoteify(rhs), false );
-	this->addToken(n);
-	return *this;
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add raw strings to a token you don't own");
+    }
+
+    Token * n = new Token(quoteify(rhs), false );
+    this->addToken(n);
+    return *this;
 }
 
 Token & Token::operator<<( const int rhs ){
-	ostringstream o;
-	o << rhs;
-	return *this << o.str();
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add raw integers to a token you don't own");
+    }
+
+    ostringstream o;
+    o << rhs;
+    return *this << o.str();
 }
 
 Token & Token::operator<<( const double rhs ){
-	ostringstream o;
-	o << rhs;
-	return *this << o.str();
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add raw doubles to a token you don't own");
+    }
+
+    ostringstream o;
+    o << rhs;
+    return *this << o.str();
 }
 
 Token * Token::copy(){
