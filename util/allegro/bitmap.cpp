@@ -89,6 +89,7 @@ own(NULL),
 mustResize(false),
 error(false){
     /* FIXME */
+    throw Exception::Base(__FILE__, __LINE__);
 }
 
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
