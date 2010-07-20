@@ -45,10 +45,12 @@ struct GIF_FRAME
 void algif_init (void);
 int algif_load_animation (char const *filename, BITMAP ***frames, int **durations);
 BITMAP *load_gif (AL_CONST char *filename, RGB *pal);
+BITMAP *load_gif_packfile (PACKFILE * packfile, RGB *pal);
 int save_gif (AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal);
 
 /* Advanced use. */
 GIF_ANIMATION *algif_load_raw_animation (char const *filename);
+GIF_ANIMATION * algif_load_raw_animation_packfile(PACKFILE * file);
 void algif_render_frame (GIF_ANIMATION *gif, BITMAP *bitmap, int frame, int xpos, int ypos);
 GIF_ANIMATION *algif_create_raw_animation (int frames_count);
 int algif_save_raw_animation (const char *filename, GIF_ANIMATION *gif);

@@ -94,8 +94,8 @@ namespace Memory{
 
     static int pf_fseek(void *userdata, int offset){
         memory * m = (memory*) userdata;
-        if (offset >= 0 && offset < m->length){
-            m->position = m->stream + offset;
+        if (offset >= 0 && m->position + offset < m->stream + m->length){
+            m->position += offset;
             return 0;
         } else {
             return -1;

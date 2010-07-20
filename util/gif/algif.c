@@ -47,13 +47,8 @@ algif_load_animation (const char *filename, BITMAP ***frames, int **durations)
     return n;
 }
 
-/* Allegrified version. Puts all frames into a single bitmap,
- * with the current color depth. */
-BITMAP *
-load_gif (AL_CONST char *filename, RGB *pal)
-{
+static BITMAP * do_load_gif(GIF_ANIMATION * gif, RGB * pal){
     int i;
-    GIF_ANIMATION *gif = algif_load_raw_animation (filename);
     BITMAP *bmp = NULL;
     GIF_PALETTE gifpal;
     PALETTE tmppal;
@@ -101,6 +96,18 @@ load_gif (AL_CONST char *filename, RGB *pal)
     }
 
     return bmp;
+}
+
+BITMAP * load_gif_packfile(PACKFILE * packfile, RGB * pal){
+    return do_load_gif(algif_load_raw_animation_packfile(packfile), pal);
+}
+
+/* Allegrified version. Puts all frames into a single bitmap,
+ * with the current color depth. */
+BITMAP *
+load_gif (AL_CONST char *filename, RGB *pal)
+{
+    return do_load_gif(algif_load_raw_animation(filename), pal);
 }
 
 /* Allegrified version. Saves only a single bitmap. */
