@@ -379,6 +379,12 @@ algif_load_raw_animation (const char *filename)
     return gif;
 }
 
+GIF_ANIMATION * algif_load_raw_animation_packfile(PACKFILE * file){
+    GIF_ANIMATION *gif = NULL;
+    gif = load_object (file, 0);
+    return gif;
+}
+
 static int
 get_rgbcolor (RGB *rgb)
 {

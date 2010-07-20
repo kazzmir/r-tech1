@@ -8,6 +8,7 @@
 #undef BITMAP
 #endif
 
+#include "../gif/algif.h"
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
 #include "../trans-bitmap.h"
@@ -84,12 +85,83 @@ error( false ){
 	}
 }
 
+enum Format{
+    PNG,
+    GIF,
+};
+
+static BITMAP * memoryGIF(const char * data, int length){
+    PACKFILE_VTABLE table = Memory::makeTable();
+    Memory::memory memory((unsigned char *) data, length);
+
+    PACKFILE * pack = pack_fopen_vtable(&table, &memory);
+    /* need to supply a proper palette at some point */
+    RGB * palette = NULL;
+    /* algif will close the packfile for us in both error and success cases */
+    BITMAP * gif = load_gif_packfile(pack, palette);
+    if (!gif){
+        // pack_fclose(pack);
+        ostringstream out;
+        out <<"Could not load gif from memory: " << (void*) data << " length " << length;
+        throw LoadException(__FILE__, __LINE__, out.str());
+    }
+
+#if 0
+    /* converts 8-bit pcx mask to allegro's mask */
+    if (mask){
+        /* warning! 8-bit assumptions */
+        int colors = 256;
+        int maskR = (int)data[length - colors*3 + 0];
+        int maskG = (int)data[length - colors*3 + 1];
+        int maskB = (int)data[length - colors*3 + 2];
+        int mask = makeColor(maskR, maskG, maskB);
+
+        // printf("mask r %d g %d b %d = %d\n", maskR, maskG, maskB, mask);
+
+        if (mask != MaskColor()){
+            for( int i = 0; i < pcx->h; ++i ){
+                for( int j = 0; j < pcx->w; ++j ){
+                    /* use getPixel/putPixel? */
+                    int pix = getpixel(pcx,j,i);
+                    if (pix == mask){
+                        putpixel(pcx,j,i, MaskColor());
+                    }
+                }
+            }
+        }
+    }
+#endif
+
+    BITMAP * out = create_bitmap(gif->w, gif->h);
+    blit(gif, out, 0, 0, 0, 0, gif->w, gif->h);
+    destroy_bitmap(gif);
+    // pack_fclose(pack);
+
+    return out;
+}
+
+static BITMAP * load_bitmap_from_memory(const char * data, int length, Format type){
+    switch (type){
+        case PNG : {
+            break;
+        }
+        case GIF : {
+            return memoryGIF(data, length);
+            break;
+        }
+    }
+    throw Exception::Base(__FILE__, __LINE__);
+}
+
 Bitmap::Bitmap(const char * data, int length):
 own(NULL),
 mustResize(false),
 error(false){
-    /* FIXME */
-    throw Exception::Base(__FILE__, __LINE__);
+    /* FIXME: pass the type in */
+    Format type = GIF;
+    getData().setBitmap(load_bitmap_from_memory(data, length, type));
+    own = new int;
+    *own = 1;
 }
 
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
