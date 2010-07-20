@@ -384,6 +384,7 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
 
     SCALE_Y = height;
 
+    /* does this need to be here? I think configuration will set SCALE_ */
     SCALE_X = 640;
     SCALE_Y = 480;
 
