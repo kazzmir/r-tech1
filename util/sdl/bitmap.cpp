@@ -120,6 +120,30 @@ int Bitmap::MaskColor(){
     return mask;
 }
 
+static SDL_Surface * optimizedSurface(SDL_Surface * in){
+    /* SDL_DisplayFormat will return 0 if a graphics context is not set,
+     * like if a test is running instead of the real game.
+     */
+    SDL_Surface * out = SDL_DisplayFormat(in);
+    if (out == NULL){
+        out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, in->format->BitsPerPixel, 0, 0, 0, 0);
+        SDL_Rect source;
+        SDL_Rect destination;
+        source.w = in->w;
+        source.h = in->h;
+        source.x = 0;
+        source.y = 0;
+
+        destination.w = in->w;
+        destination.h = in->h;
+        destination.x = 0;
+        destination.y = 0;
+
+        SDL_BlitSurface(in, &source, out, &destination);
+    }
+    return out;
+}
+
 Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
@@ -144,7 +168,7 @@ mustResize(false){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * loaded = IMG_Load_RW(ops, 1);
     if (loaded){
-        getData().setSurface(SDL_DisplayFormat(loaded));
+        getData().setSurface(optimizedSurface(loaded));
         SDL_FreeSurface(loaded);
     } else {
         throw Exception::Base(__FILE__, __LINE__);
@@ -295,7 +319,7 @@ void Bitmap::internalLoadFile(const char * path){
     this->path = path;
     SDL_Surface * loaded = IMG_Load(path);
     if (loaded){
-        getData().setSurface(SDL_DisplayFormat(loaded));
+        getData().setSurface(optimizedSurface(loaded));
         SDL_FreeSurface(loaded);
     } else {
         /* FIXME: throw a standard bitmap exception */
@@ -1004,7 +1028,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
     SDL_FreeRW(ops);
-    SDL_Surface * display = SDL_DisplayFormat(pcx);
+    SDL_Surface * display = optimizedSurface(pcx);
     Bitmap out(display, true);
 
     if (pcx->format->BitsPerPixel == 8){
