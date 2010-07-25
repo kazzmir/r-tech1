@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <string.h>
+#include <algorithm>
 #include "file-system.h"
 #include "bitmap.h"
 
@@ -177,12 +178,19 @@ string Util::upcase(std::string str){
     return str;
 }
 
+static int lowerCase(int c){
+    return tolower(c);
+}
+
 string Util::lowerCaseAll(std::string str){
+    std::transform(str.begin(), str.end(), str.begin(), lowerCase);
+    /*
     for (unsigned int i = 0; i < str.length(); i++){
         if (str[0] >= 'A' && str[0] <= 'Z'){
             str[0] = str[0] - 'A' + 'a';
         }
     }
+    */
     return str;
 }
 
