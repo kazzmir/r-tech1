@@ -12,6 +12,7 @@
 #include "exceptions/exception.h"
 #include "util/load_exception.h"
 #include "util/token_exception.h"
+#include "mugen/exception.h"
 
 namespace Util{
 
@@ -106,7 +107,8 @@ protected:
         None,
         Load,
         Token,
-        Base
+        Base,
+        Mugen
     };
 
 public:
@@ -150,6 +152,9 @@ protected:
         } catch (const TokenException & t){
             me->haveException = Token;
             me->exception.set(t);
+        } catch (const MugenException & m){
+            me->haveException = Mugen;
+            me->exception.set(m);
         } catch (const Exception::Base & base){
             me->haveException = Base;
             me->exception.set(base);
