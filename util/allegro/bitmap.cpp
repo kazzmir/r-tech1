@@ -3,9 +3,12 @@
 
 /* FIXME: I think this can be just #include <winalleg.h> */
 #ifdef _WIN32
+#include <winalleg.h>
+/*
 #define BITMAP dummyBITMAP
 #include <windows.h>
 #undef BITMAP
+*/
 #endif
 
 #include "../gif/algif.h"
