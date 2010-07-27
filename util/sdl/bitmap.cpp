@@ -127,6 +127,9 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
     SDL_Surface * out = SDL_DisplayFormat(in);
     if (out == NULL){
         out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, in->format->BitsPerPixel, 0, 0, 0, 0);
+        if (out == NULL){
+            throw Exception::Base(__FILE__, __LINE__);
+        }
         SDL_Rect source;
         SDL_Rect destination;
         source.w = in->w;
