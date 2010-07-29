@@ -112,6 +112,7 @@ static int drawingAlpha(){
 }
 
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
+static void paintown_replace16(SDL_Surface * dst, const int original, const int replace);
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
@@ -1027,6 +1028,10 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
     SPG_TransformX(src, dst, angle, scale, scale, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
         
+void Bitmap::replaceColor(int original, int replaced){
+    paintown_replace16(getData().getSurface(), original, replaced);
+}
+        
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
@@ -1036,14 +1041,18 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
 
     if (pcx->format->BitsPerPixel == 8){
         SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
+        int mask = MaskColor();
         int bad = makeColor(color.r, color.g, color.b);
+        out.replaceColor(bad, mask);
+        /*
         for (int x = 0; x < out.getWidth(); x++){
             for (int y = 0; y < out.getHeight(); y++){
                 if (out.getPixel(x, y) == bad){
-                    out.putPixel(x, y, MaskColor());
+                    out.putPixel(x, y, mask);
                 }
             }
         }
+        */
     }
 
     SDL_FreeSurface(pcx);
@@ -1127,6 +1136,30 @@ static void paintown_applyTrans16(SDL_Surface * dst, const int color){
             if (!(sourcePixel == mask)){
                 sourcePixel = globalBlend.currentBlender(color, sourcePixel, globalBlend.alpha);
                 *(Uint16 *)sourceLine = sourcePixel;
+            }
+        }
+    }
+}
+
+static void paintown_replace16(SDL_Surface * dst, const int original, const int replace){
+    int y1 = 0;
+    int y2 = dst->h;
+    int x1 = 0;
+    int x2 = dst->w - 1;
+    
+    y1 = dst->clip_rect.y;
+    y2 = dst->clip_rect.y + dst->clip_rect.h;
+    x1 = dst->clip_rect.x;
+    x2 = dst->clip_rect.x + dst->clip_rect.w;
+
+    int bpp = dst->format->BytesPerPixel;
+    for (int y = y1; y < y2; y++) {
+        Uint8 * sourceLine = computeOffset(dst, x1, y);
+
+        for (int x = x2 - 1; x >= x1; sourceLine += bpp, x--) {
+            unsigned long sourcePixel = *(Uint16*) sourceLine;
+            if (sourcePixel == original){
+                *(Uint16 *)sourceLine = replace;
             }
         }
     }

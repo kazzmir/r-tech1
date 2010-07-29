@@ -640,6 +640,11 @@ void Bitmap::screenBlender( int r, int g, int b, int a ){
 	set_screen_blender( r, g, b, a );
 }
 
+void Bitmap::replaceColor(int original, int replaced){
+    /* TODO */
+    throw Exception::Base(__FILE__, __LINE__);
+}
+
 void Bitmap::drawingMode( int mode ){
 	// drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
 	switch( mode ){

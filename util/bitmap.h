@@ -85,6 +85,9 @@ public:
 
 	void detach();
 
+        /* replace all pixels that have value `original' with `replaced' */
+        void replaceColor(int original, int replaced);
+
 	static void transBlender( int r, int g, int b, int a );
 	static void multiplyBlender( int r, int g, int b, int a );
 	static void dissolveBlender( int r, int g, int b, int a );
