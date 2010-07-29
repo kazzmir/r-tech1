@@ -1158,7 +1158,7 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
 
         for (int x = x2 - 1; x >= x1; sourceLine += bpp, x--) {
             unsigned long sourcePixel = *(Uint16*) sourceLine;
-            if (sourcePixel == original){
+            if ((int) sourcePixel == original){
                 *(Uint16 *)sourceLine = replace;
             }
         }
