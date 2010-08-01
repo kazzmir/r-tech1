@@ -126,15 +126,15 @@ public:
     }
 
     virtual X get(){
+        X out;
+        Thread::semaphoreDecrease(&future);
         switch (haveException){
             case None : break;
             case Load : throw LoadException(__FILE__, __LINE__, exception, "Failed in future");
+            case Mugen : throw MugenException(exception.getTrace());
             case Token: throw TokenException(exception);
             default : throw Exception::Base(__FILE__, __LINE__, exception);
         }
-
-        X out;
-        Thread::semaphoreDecrease(&future);
         out = thing;
         Thread::semaphoreIncrease(&future);
         return out;
@@ -145,7 +145,6 @@ protected:
         Future<X> * me = (Future<X>*) arg;
         try{
             me->compute();
-            Thread::semaphoreIncrease(&me->future);
         } catch (const LoadException & load){
             me->haveException = Load;
             me->exception.set(load);
@@ -159,6 +158,7 @@ protected:
             me->haveException = Base;
             me->exception.set(base);
         }
+        Thread::semaphoreIncrease(&me->future);
         return NULL;
     }
 
