@@ -963,15 +963,15 @@ void Bitmap::floodfill( const int x, const int y, const int color ) const {
 }
 	
 void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const {
-    /* TODO */
+    SPG_LineH(getData().getSurface(), x1, y1, x2, color);
 }
 
 void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
-    /* TODO */
+    SPG_LineH(getData().getSurface(), x1, y1, x2, color);
 }
 
 void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const {
-    /* TODO */
+    SPG_LineV(getData().getSurface(), x1, y1, x2, color);
 }
 	
 void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
