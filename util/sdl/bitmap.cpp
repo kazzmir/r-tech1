@@ -947,7 +947,7 @@ void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
 }
 
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
-    /* TODO */
+    SPG_EllipseFilled(getData().getSurface(), x, y, rx, ry, color);
 }
 
 void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
@@ -975,12 +975,17 @@ void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) c
 }
 	
 void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
-    /* TODO */
+    SPG_Point * points = new SPG_Point[nverts];
+    for (int i = 0; i < nverts; i++){
+        points[i].x = verts[i*2];
+        points[i].y = verts[i*2+1];
+    }
+    SPG_PolygonFilled(getData().getSurface(), nverts, points, color);
+    delete[] points;
 }
 	
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    /* TODO */
-    // arcColor(getData().getSurface(), x, y, 
+    SPG_Arc(getData().getSurface(), x, y, radius, ang1, ang2, color);
 }
 	
 void Bitmap::fill(int color) const {
@@ -999,8 +1004,11 @@ void TranslucentBitmap::fill(int color) const {
 */
 
 int Bitmap::darken( int color, double factor ){
-    /* TODO */
-    return color;
+    int r = (int)((double)getRed(color) / factor);
+	int g = (int)((double)getGreen(color) / factor);
+	int b = (int)((double)getBlue(color) / factor);
+
+	return makeColor(r, g, b);
 }
 
 void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
