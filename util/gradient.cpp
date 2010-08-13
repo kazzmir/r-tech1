@@ -25,6 +25,10 @@ void Gradient::update(){
     forward();
 }
 
+void Gradient::reset(){
+    index = 0;
+}
+
 int Gradient::current(){
     return colors[index];
 }

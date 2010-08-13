@@ -12,6 +12,9 @@ public:
     void forward();
     void backward();
 
+    /* start at startColor */
+    void reset();
+
     /* get current color */
     int current();
     int current(int offset);
