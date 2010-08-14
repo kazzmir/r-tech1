@@ -970,6 +970,11 @@ void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) c
     SPG_LineH(getData().getSurface(), x1, y, x2, color);
 }
 
+void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_LineHBlend(getData().getSurface(), x1, y, x2, color, alpha);
+}
+
 void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const {
     SPG_LineV(getData().getSurface(), x, y1, y2, color);
 }
