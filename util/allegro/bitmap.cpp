@@ -891,7 +891,13 @@ int Bitmap::makeColor( int r, int g, int b ){
 */
 	
 void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const{
-	::hline( getData().getBitmap(), x1, y, x2, color );
+    ::hline( getData().getBitmap(), x1, y, x2, color );
+}
+
+void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const{
+    drawingMode(MODE_TRANS);
+    ::hline(getData().getBitmap(), x1, y, x2, color);
+    drawingMode(MODE_SOLID);
 }
 	
 void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const{
