@@ -3,7 +3,8 @@
 
 namespace Util{
 
-/* Some helpful pointer classes, probably equivalent to stuff in boost */
+/* Some helpful pointer classes, probably equivalent to stuff in boost
+ */
 
 /* Initializes its pointer to NULL and deletes the data in the destructor */
 template <class Data>
