@@ -52,6 +52,8 @@ inline int min(int a, int b){
     return b;
 }
 
+int clamp(int value, int min, int max);
+
 /* return a number between min/max */
 int rnd( int min, int max );
 
