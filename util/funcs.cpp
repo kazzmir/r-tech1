@@ -70,6 +70,10 @@ int Util::min(int a, int b){
 }
 */
 
+int Util::clamp(int value, int min, int max){
+    return Util::min(Util::max(value, min), max);
+}
+
 int Util::rnd( int q, int min, int range ){
 	return q - min + rnd( range );
 }
