@@ -15,6 +15,10 @@ public:
         }
 
     ClassPointer & operator=(Data * him){
+        if (data != NULL){
+            delete data;
+        }
+
         data = him;
         return *this;
     }
