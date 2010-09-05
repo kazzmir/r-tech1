@@ -186,6 +186,15 @@ static int lowerCase(int c){
     return tolower(c);
 }
 
+static int upperCase(int c){
+    return toupper(c);
+}
+
+string Util::upperCaseAll(std::string str){
+    std::transform(str.begin(), str.end(), str.begin(), upperCase);
+    return str;
+}
+
 string Util::lowerCaseAll(std::string str){
     std::transform(str.begin(), str.end(), str.begin(), lowerCase);
     /*
