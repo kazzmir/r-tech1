@@ -66,8 +66,14 @@ void rest( int x );
 void restSeconds(double x);
 
 std::string trim(const std::string & str);
+/* only upper cases the first letter of a string */
 std::string upcase(std::string str);
+
+/* lower cases the entire string */
 std::string lowerCaseAll(std::string str);
+
+/* upper cases the entire string */
+std::string upperCaseAll(std::string str);
 
 int levenshtein(const std::string & str1, const std::string & str2);
 
