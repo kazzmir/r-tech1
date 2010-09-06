@@ -87,6 +87,8 @@ public:
 
         /* replace all pixels that have value `original' with `replaced' */
         void replaceColor(int original, int replaced);
+        void set8BitMaskColor(int color);
+        int get8BitMaskColor();
 
 	static void transBlender( int r, int g, int b, int a );
 	static void multiplyBlender( int r, int g, int b, int a );
@@ -321,6 +323,7 @@ protected:
         bool error;
         std::string path;
         static Bitmap * temporary_bitmap;
+        int bit8MaskColor;
 
         /* bitmaps that should always be resized to the dimensions of the screen */
         static std::vector<Bitmap*> needResize;

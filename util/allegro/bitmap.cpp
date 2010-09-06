@@ -55,7 +55,8 @@ static Bitmap * Buffer = NULL;
 Bitmap::Bitmap():
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	getData().setBitmap( create_bitmap( 10, 10 ) );
 	if (! getData().getBitmap()){
 		error = true;
@@ -70,7 +71,8 @@ error( false ){
 Bitmap::Bitmap( int x, int y ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	if ( x < 1 ){
 		x = 1;
 	}
@@ -159,7 +161,8 @@ static BITMAP * load_bitmap_from_memory(const char * data, int length, Format ty
 Bitmap::Bitmap(const char * data, int length):
 own(NULL),
 mustResize(false),
-error(false){
+error(false),
+bit8MaskColor(0){
     /* FIXME: pass the type in */
     Format type = GIF;
     getData().setBitmap(load_bitmap_from_memory(data, length, type));
@@ -171,7 +174,8 @@ error(false){
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	
 	if ( deep_copy ){
 		BITMAP * his = who;
@@ -192,7 +196,8 @@ error( false ){
 Bitmap::Bitmap( const char * load_file ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	internalLoadFile( load_file );
 	/*
 	my_bitmap = load_bitmap( load_file, NULL );
@@ -209,14 +214,16 @@ error( false ){
 Bitmap::Bitmap( const string & load_file ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	internalLoadFile( load_file.c_str() );
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
 	// my_bitmap = load_bitmap( load_file, NULL );
@@ -238,7 +245,8 @@ error( false ){
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(0){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
 	own = new int;
@@ -270,7 +278,8 @@ error( false ){
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
 	BITMAP * temp = copy.getData().getBitmap();
 	getData().setBitmap( create_bitmap( sx, sy ) );
@@ -290,7 +299,8 @@ error( false ){
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
 	BITMAP * temp = copy.getData().getBitmap();
 	own = new int;
@@ -325,7 +335,8 @@ error( false ){
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(copy.bit8MaskColor){
 
 	path = copy.getPath();
 	if ( deep_copy ){
@@ -357,7 +368,8 @@ error( false ){
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own( NULL ),
 mustResize(false),
-error( false ){
+error( false ),
+bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
 	BITMAP * his = copy.getData().getBitmap();
 	if ( x < 0 )
@@ -421,6 +433,14 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
         throw LoadException(__FILE__, __LINE__, out.str());
     }
 
+    int colors = 256;
+    int maskR = (int)data[length - colors*3 + 0];
+    int maskG = (int)data[length - colors*3 + 1];
+    int maskB = (int)data[length - colors*3 + 2];
+    int maskColor = makeColor(maskR, maskG, maskB);
+
+
+#if 0
     /* converts 8-bit pcx mask to allegro's mask */
     if (mask){
         /* warning! 8-bit assumptions */
@@ -444,8 +464,10 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
             }
         }
     }
+#endif
 
     Bitmap bitmap(pcx, true);
+    bitmap.set8BitMaskColor(maskColor);
     destroy_bitmap(pcx);
     pack_fclose(pack);
 
@@ -641,8 +663,18 @@ void Bitmap::screenBlender( int r, int g, int b, int a ){
 }
 
 void Bitmap::replaceColor(int original, int replaced){
-    /* TODO */
-    throw Exception::Base(__FILE__, __LINE__);
+    int height = getHeight();
+    int width = getWidth();
+    BITMAP * bitmap = getData().getBitmap();
+    for (int i = 0; i < height; ++i ){
+        for( int j = 0; j < width; ++j ){
+            /* use getPixel/putPixel? */
+            int pix = getpixel(bitmap, j,i);
+            if (pix == original){
+                putpixel(bitmap, j, i, replaced);
+            }
+        }
+    }
 }
 
 void Bitmap::drawingMode( int mode ){

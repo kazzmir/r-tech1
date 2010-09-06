@@ -162,13 +162,15 @@ void BitmapData::setSurface(SDL_Surface * surface){
 
 Bitmap::Bitmap():
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     /* TODO */
 }
 
 Bitmap::Bitmap(const char * data, int length):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * loaded = IMG_Load_RW(ops, 1);
     if (loaded){
@@ -184,7 +186,8 @@ mustResize(false){
 
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     if (deep_copy){
         SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
         SDL_Rect source;
@@ -209,7 +212,8 @@ mustResize(false){
 }
 
 Bitmap::Bitmap(int w, int h):
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0);
     if (surface == NULL){
         throw Exception::Base(__FILE__, __LINE__);
@@ -221,7 +225,8 @@ mustResize(false){
 
 Bitmap::Bitmap( const char * load_file ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     internalLoadFile(load_file);
 }
 
@@ -233,7 +238,8 @@ mustResize(false){
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     Bitmap temp(load_file);
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, 0, 0, 0, 0);
     getData().setSurface(surface);
@@ -246,13 +252,15 @@ mustResize(false){
 /* unused */
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(0){
     throw Exception::Base(__FILE__, __LINE__);
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(copy.bit8MaskColor){
     if (deep_copy){
         SDL_Surface * who = copy.getData().getSurface();
         SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
@@ -283,13 +291,15 @@ mustResize(false){
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(copy.bit8MaskColor){
     /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(copy.bit8MaskColor){
     /* TODO */
 }
 
@@ -300,7 +310,8 @@ static inline Uint8* computeOffset(SDL_Surface * surface, int x, int y){
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(copy.bit8MaskColor){
     path = copy.getPath();
     SDL_Surface * his = copy.getData().getSurface();
     if ( x < 0 )
@@ -1054,18 +1065,10 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
 
     if (pcx->format->BitsPerPixel == 8){
         SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
-        int mask = MaskColor();
         int bad = makeColor(color.r, color.g, color.b);
-        out.replaceColor(bad, mask);
-        /*
-        for (int x = 0; x < out.getWidth(); x++){
-            for (int y = 0; y < out.getHeight(); y++){
-                if (out.getPixel(x, y) == bad){
-                    out.putPixel(x, y, mask);
-                }
-            }
-        }
-        */
+        out.set8BitMaskColor(bad);
+        // int mask = MaskColor();
+        // out.replaceColor(bad, mask);
     }
 
     SDL_FreeSurface(pcx);
