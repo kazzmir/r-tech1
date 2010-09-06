@@ -239,14 +239,22 @@ Bitmap Bitmap::greyScale(){
 }
 
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
-        int mask = Bitmap::MaskColor();
-        for ( int x = 0; x < getWidth(); x++ ){
-                for ( int y = 0; y < getHeight(); y++ ){
-                        if ( getPixel( x,y ) == mask ){
-                                where.putPixel( x+_x, y+_y, mask );
-                        }
-                }
+    int mask = Bitmap::MaskColor();
+    for ( int x = 0; x < getWidth(); x++ ){
+        for ( int y = 0; y < getHeight(); y++ ){
+            if ( getPixel( x,y ) == mask ){
+                where.putPixel( x+_x, y+_y, mask );
+            }
         }
+    }
+}
+        
+void Bitmap::set8BitMaskColor(int color){
+    bit8MaskColor = color;
+}
+        
+int Bitmap::get8BitMaskColor(){
+    return bit8MaskColor;
 }
 
 void Bitmap::setFakeGraphicsMode(int width, int height){
