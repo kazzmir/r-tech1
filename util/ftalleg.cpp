@@ -342,25 +342,6 @@ namespace ftalleg{
             return faceLoaded;
         }
 
-	//! Get text length
-        int freetype::getLength(const std::string & text) {
-            int length=0;
-            std::map<int, std::map<signed long, character*> >::iterator ft;
-            ft = fontTable.find(size.createKey());
-            if(ft!=fontTable.end()) {
-                for(unsigned int i = 0; i<text.length();++i) {
-                    std::map<signed long, character*>::iterator p;
-                    p = (ft->second).find(text[i]);
-                    if (p!=(ft->second).end()) {
-                        if (p!=fontTable[size.createKey()].end()){
-                            length += (p->second)->length;
-                        }
-                    }
-                }
-            }
-            return length;
-        }
-
         static long decodeUnicode(const std::string & input, unsigned int * position){
             unsigned char byte1 = (unsigned char) input[*position];
             /* one byte - ascii */
@@ -402,6 +383,26 @@ namespace ftalleg{
             }
 
             return 0;
+        }
+
+	//! Get text length
+        int freetype::getLength(const std::string & text) {
+            int length=0;
+            std::map<int, std::map<signed long, character*> >::iterator ft;
+            ft = fontTable.find(size.createKey());
+            if(ft!=fontTable.end()) {
+                for(unsigned int i = 0; i<text.length(); i++) {
+                    std::map<signed long, character*>::iterator p;
+                    signed long unicode = decodeUnicode(text, &i);
+                    p = (ft->second).find(unicode);
+                    if (p!=(ft->second).end()) {
+                        if (p!=fontTable[size.createKey()].end()){
+                            length += (p->second)->length;
+                        }
+                    }
+                }
+            }
+            return length;
         }
 
 	//! Render font to a bitmap
