@@ -103,23 +103,23 @@ namespace ftalleg{
 	}
 
 	//! Constructor
-	freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ):
-    face(NULL){
-		//Load library
-		if ( !ftLibrary ){
-			FT_Init_FreeType(&ftLibrary);
-		}
-		instances++;
-		faceLoaded = kerning = false;
-		currentIndex=0;
-		currentFilename="";
-		faceName="";
-		// currentChar = new character;
-		systemName="";
-		internalFix = false;
+        freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ):
+            face(NULL){
+                //Load library
+                if ( !ftLibrary ){
+                    FT_Init_FreeType(&ftLibrary);
+                }
+                instances++;
+                faceLoaded = kerning = false;
+                currentIndex = 0;
+                currentFilename = "";
+                faceName = "";
+                // currentChar = new character;
+                systemName="";
+                internalFix = false;
 
-		this->load(str, 0, x, y );
-	}
+                this->load(str, 0, x, y );
+            }
 
 	//! Destructor
         freetype::~freetype(){
@@ -199,7 +199,7 @@ namespace ftalleg{
         void freetype::createIndex(){
             std::map<int, std::map<signed long, character*> >::iterator p;
             p = fontTable.find(size.createKey());
-            if ( p == fontTable.end() ){
+            if (p == fontTable.end()){
                 FT_Set_Pixel_Sizes(face, size.width, size.height);
                 FT_UInt glyphIndex;
                 FT_ULong unicode = FT_Get_First_Char(face, &glyphIndex);
@@ -209,7 +209,7 @@ namespace ftalleg{
                     unicode = FT_Get_Next_Char(face, unicode, &glyphIndex);
                 }
 
-                fontTable.insert(std::make_pair(size.createKey(),tempMap));
+                fontTable.insert(std::make_pair(size.createKey(), tempMap));
             }
 
             if (fontTable.find(size.createKey()) == fontTable.end()){
@@ -278,10 +278,10 @@ namespace ftalleg{
 
             std::map<int, std::map<signed long, character*> >::iterator ft;
             ft = fontTable.find(size.createKey());
-            if ( ft!=fontTable.end() ){
+            if (ft != fontTable.end()){
                 std::map<signed long, character*>::iterator p;
                 p = (ft->second).find(unicode);
-                if (p!=(ft->second).end()){
+                if (p != ft->second.end()){
                     const character * tempChar = p->second;
                     drawOneCharacter(tempChar, x1, y1, size.height, bitmap, color);
                 }
@@ -296,10 +296,9 @@ namespace ftalleg{
                 faceLoaded = true;
                 size.italics = 0;
                 setSize(width, height);
-                if(FT_HAS_GLYPH_NAMES(face)) {
+                if (FT_HAS_GLYPH_NAMES(face)){
                     char buff[1024];
-                    if(!FT_Get_Glyph_Name(face,currentIndex,buff,sizeof(buff)))
-                    {
+                    if(!FT_Get_Glyph_Name(face, currentIndex,buff, sizeof(buff))){
                         faceName = currentFilename;
                     }
                     else faceName = std::string(buff);
@@ -318,13 +317,13 @@ namespace ftalleg{
 
 	//! Load font from file
         bool freetype::load(const Filesystem::AbsolutePath & filename, int index, unsigned int width, unsigned int height){
-            if(!FT_New_Face(ftLibrary,filename.path().c_str(), index, &face)) {
+            if (!FT_New_Face(ftLibrary, filename.path().c_str(), index, &face)){
                 currentFilename = filename.path();
                 currentIndex = index;
                 faceLoaded = true;
                 size.italics = 0;
                 setSize(width, height);
-                if(FT_HAS_GLYPH_NAMES(face)){
+                if (FT_HAS_GLYPH_NAMES(face)){
                     char buff[1024];
                     if(!FT_Get_Glyph_Name(face,currentIndex,buff,sizeof(buff))) {
                         faceName = currentFilename;
@@ -362,28 +361,71 @@ namespace ftalleg{
             return length;
         }
 
+        static long decodeUnicode(const std::string & input, unsigned int * position){
+            unsigned char byte1 = (unsigned char) input[*position];
+            /* one byte - ascii */
+            if (byte1 >> 7 == 0){
+                return byte1;
+            }
+
+            if (byte1 >> 5 == 6){
+                *position += 1;
+                unsigned char byte2 = (unsigned char) input[*position];
+                int top = byte1 & 31;
+                int bottom = byte2 & 63;
+                return (top << 6) + bottom;
+            }
+
+            if (byte1 >> 4 == 14){
+                *position += 1;
+                unsigned char byte2 = (unsigned char) input[*position];
+                *position += 1;
+                unsigned char byte3 = (unsigned char) input[*position];
+                int top4 = byte1 & 15;
+                int middle6 = byte2 & 63;
+                int bottom6 = byte3 & 63;
+                return (top4 << (6+6)) + (middle6 << 6) + bottom6;
+            }
+
+            if (byte1 >> 3 == 30){
+                *position += 1;
+                unsigned char byte2 = (unsigned char) input[*position];
+                *position += 1;
+                unsigned char byte3 = (unsigned char) input[*position];
+                *position += 1;
+                unsigned char byte4 = (unsigned char) input[*position];
+                int unit1 = byte1 & 7;
+                int unit2 = byte2 & 63;
+                int unit3 = byte3 & 63;
+                int unit4 = byte4 & 63;
+                return (unit1 << 18) + (unit2 << 12) + (unit3 << 6) + unit4;
+            }
+
+            return 0;
+        }
+
 	//! Render font to a bitmap
         void freetype::render(int x, int y, const int & color, const Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...) {
-            if(faceLoaded) {
-                int rend_x=0;
-                int rend_y=0;
+            if (faceLoaded){
+                int rend_x = 0;
+                int rend_y = 0;
                 std::ostringstream str;
 
                 /* use vsnprintf/Util::limitPrintf here? */
 
                 // Get extra arguments
                 va_list ap;
-                va_start(ap,marker);
+                va_start(ap, marker);
                 for(unsigned int i = 0; i<text.length();++i) {
-                    if(text[i]=='%') {
+                    if (text[i] == '%') {
                         if(text[i+1]=='s') {
                             str << va_arg(ap,char *);
                             ++i;
                         } else if(text[i+1]=='d'||text[i+1]=='i') {
-                            str << va_arg(ap,signed int);
+                            str << va_arg(ap, signed int);
                             ++i;
                         } else if(text[i+1]=='c') {
-                            str << (char)va_arg(ap,int);
+                            str << (char)va_arg(ap, int);
                             ++i;
                         } else str << text[i];
                     } else {
@@ -393,35 +435,37 @@ namespace ftalleg{
                 va_end(ap);
 
                 std::string fixedText(str.str());
-                switch(alignment) {
+                switch (alignment) {
                     case ftLeft:
-                        rend_x=x;
-                        rend_y=y;
+                        rend_x = x;
+                        rend_y = y;
                         break;
                     case ftCenter:
                         rend_x = x - getLength(fixedText)/2;
-                        rend_y=y;
+                        rend_y = y;
                         break;
                     case ftRight:
                         rend_x = x - getLength(fixedText);
-                        rend_y=y;
+                        rend_y = y;
                         break;
                     default:
-                        rend_x=x;
-                        rend_y=y;
+                        rend_x = x;
+                        rend_y = y;
                         break;
                 }
+
                 int previous = 0;
                 int next = 0;
-                for(unsigned int i = 0; i<fixedText.length();++i){
-                    if(kerning && previous && next){
-                        next = FT_Get_Char_Index( face, fixedText[i] );
+                for (unsigned int i = 0; i<fixedText.length(); i++){
+                    long unicode = decodeUnicode(fixedText, &i);
+                    if (kerning && previous && next){
+                        next = FT_Get_Char_Index(face, unicode);
                         FT_Vector delta;
-                        FT_Get_Kerning( face, previous, next, FT_KERNING_DEFAULT, &delta );
+                        FT_Get_Kerning(face, previous, next, FT_KERNING_DEFAULT, &delta);
                         rend_x += delta.x >> 6;
                         previous = next;
                     }
-                    drawCharacter(fixedText[i],rend_x, rend_y, bmp, color);
+                    drawCharacter(unicode, rend_x, rend_y, bmp, color);
                 }
             }
         }
