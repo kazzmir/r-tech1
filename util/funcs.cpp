@@ -12,6 +12,9 @@
 #include <algorithm>
 #include "file-system.h"
 #include "bitmap.h"
+#include "font.h"
+#include "init.h"
+#include <sstream>
 
 #ifndef USE_ALLEGRO
 /* FIXME: move this to the filesystem module */
@@ -272,3 +275,25 @@ int Util::getPipe(int files[2]){
     return pipe(files);
 }
 #endif
+
+void Util::showError(const Bitmap & screen, const Exception::Base & exception, const string & info){
+    screen.BlitFromScreen(0, 0);
+    Bitmap error(screen.getWidth() - 100, screen.getHeight() - 100);
+    error.fill(Bitmap::darken(Bitmap::makeColor(190, 0, 0), 3));
+    const Font & font = Font::getFont(Global::DEFAULT_FONT, 18, 18);
+    int y = 10;
+    std::ostringstream out;
+    out << info;
+    out << " " << exception.getTrace();
+    font.printfWrap(10, 10, Bitmap::makeColor(240, 240, 240), error, error.getWidth() - 20, out.str(), 0);
+    Global::debug(0) << out.str() << std::endl;
+
+    Bitmap::transBlender(0, 0, 0, 200);
+    error.drawTrans(50, 50, screen);
+    screen.BlitToScreen();
+}
+
+void Util::showError(const Exception::Base & exception, const std::string & info){
+    Bitmap screen(GFX_X, GFX_Y);
+    showError(screen, exception, info);
+}
