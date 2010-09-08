@@ -114,7 +114,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
     /* when a ;@ is seen, read the next s-expression but throw it away */
     bool do_ignore = false;
 
-    char n;
+    unsigned char n;
     string cur_string = "";
 
     /* in_quote is true if a " is read and before another " is read */
@@ -134,21 +134,22 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
         // char n;
         // slow as we go
         input >> n;
+        // printf("Read character '%c' %d\n", n, n);
 
         const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
         const char * nonalpha = " ;()#\"";
         // cout<<"Alpha char: "<<n<<endl;
 
-        if ( escaped ){
+        if (escaped){
             switch (n){
                 case 'n' : {
-                               cur_string += "\n";
-                               break;
-                           }
+                    cur_string += "\n";
+                    break;
+                }
                 default : {
-                              cur_string += n;
-                              break;
-                          }
+                    cur_string += n;
+                    break;
+                }
             }
             escaped = false;
             continue;
@@ -173,16 +174,16 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 }
                 cur_string = "";
 
-            } else
+            } else {
                 cur_string += n;
-
+            }
         } else {
             if ( n == '"' )
                 in_quote = true;
 
-            if ( strchr( alpha, n ) != NULL ){
+            if (strchr(alpha, n) != NULL){
                 cur_string += n;
-            } else if ( cur_string != "" && strchr( nonalpha, n ) != NULL ){
+            } else if (cur_string != "" && strchr(nonalpha, n) != NULL){
                 // cout<<"Made new token "<<cur_string<<endl;
                 Token * sub = new Token( cur_string, false );
                 sub->setParent( cur_token );
