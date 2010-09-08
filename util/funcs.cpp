@@ -279,8 +279,9 @@ int Util::getPipe(int files[2]){
 void Util::showError(const Bitmap & screen, const Exception::Base & exception, const string & info){
     screen.BlitFromScreen(0, 0);
     Bitmap error(screen.getWidth() - 100, screen.getHeight() - 100);
-    error.fill(Bitmap::darken(Bitmap::makeColor(190, 0, 0), 3));
-    const Font & font = Font::getFont(Global::DEFAULT_FONT, 18, 18);
+    error.fill(Bitmap::darken(Bitmap::makeColor(160, 0, 0), 3));
+    error.border(1, 2, Bitmap::makeColor(240, 0, 0));
+    const Font & font = Font::getFont(Global::DEFAULT_FONT, 17, 17);
     int y = 10;
     std::ostringstream out;
     out << info;
@@ -288,7 +289,7 @@ void Util::showError(const Bitmap & screen, const Exception::Base & exception, c
     font.printfWrap(10, 10, Bitmap::makeColor(240, 240, 240), error, error.getWidth() - 20, out.str(), 0);
     Global::debug(0) << out.str() << std::endl;
 
-    Bitmap::transBlender(0, 0, 0, 200);
+    Bitmap::transBlender(0, 0, 0, 220);
     error.drawTrans(50, 50, screen);
     screen.BlitToScreen();
 }
