@@ -342,6 +342,7 @@ namespace ftalleg{
             return faceLoaded;
         }
 
+        /* utf8 decoding */
         static long decodeUnicode(const std::string & input, unsigned int * position){
             unsigned char byte1 = (unsigned char) input[*position];
             /* one byte - ascii */
@@ -390,13 +391,13 @@ namespace ftalleg{
             int length=0;
             std::map<int, std::map<signed long, character*> >::iterator ft;
             ft = fontTable.find(size.createKey());
-            if(ft!=fontTable.end()) {
-                for(unsigned int i = 0; i<text.length(); i++) {
+            if (ft != fontTable.end()){
+                for (unsigned int i = 0; i < text.length(); i++) {
                     std::map<signed long, character*>::iterator p;
                     signed long unicode = decodeUnicode(text, &i);
                     p = (ft->second).find(unicode);
-                    if (p!=(ft->second).end()) {
-                        if (p!=fontTable[size.createKey()].end()){
+                    if (p != (ft->second).end()){
+                        if (p != fontTable[size.createKey()].end()){
                             length += (p->second)->length;
                         }
                     }
@@ -553,19 +554,18 @@ namespace ftalleg{
 
 	//! Get Width
 	int freetype::getWidth() const {
-		return size.width;
+            return size.width;
 	}
 
 	//! Get Height
 	int freetype::getHeight( const std::string & str ) const {
-		// return size.height;
-		return calculateHeight( str );
-	}
+            // return size.height;
+            return calculateHeight( str );
+        }
 
 	//! Get Italics
-	int freetype::getItalics()
-	{
-		return size.italics;
+	int freetype::getItalics(){
+            return size.italics;
 	}
 }
 
