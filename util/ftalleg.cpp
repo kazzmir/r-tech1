@@ -421,7 +421,7 @@ namespace ftalleg{
                 for(unsigned int i = 0; i<text.length();++i) {
                     if (text[i] == '%') {
                         if(text[i+1]=='s') {
-                            str << va_arg(ap,char *);
+                            str << va_arg(ap, char *);
                             ++i;
                         } else if(text[i+1]=='d'||text[i+1]=='i') {
                             str << va_arg(ap, signed int);
