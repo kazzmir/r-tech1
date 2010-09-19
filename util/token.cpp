@@ -49,19 +49,19 @@ void Token::print( const string space ){
 	}
 }
 
-void Token::toString( ostream & stream, const string & space ){
-	if ( numTokens() == -1 ){
-		stream << getName();
-	} else {
-		stream << endl;
-		stream << space << "(" << getName();
-		for ( signed int i = 0; i < numTokens(); i++ ){
-			Token * x = getToken( i );
-			stream << " ";
-			x->toString( stream, space + "  " );
-		}
-		stream << ")";
-	}
+void Token::toString(ostream & stream, const string & space){
+    if ( numTokens() == -1 ){
+        stream << getName();
+    } else {
+        stream << endl;
+        stream << space << "(" << getName();
+        for ( signed int i = 0; i < numTokens(); i++ ){
+            Token * x = getToken(i);
+            stream << " ";
+            x->toString( stream, space + "  " );
+        }
+        stream << ")";
+    }
 }
 
 /* helper function */
