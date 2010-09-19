@@ -335,6 +335,14 @@ static string quoteify(const string & rhs){
     return rhs;
 }
 
+Token & Token::operator<<(Token * token){
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add tokens to a token you don't own");
+    }
+    this->addToken(token);
+    return *this;
+}
+
 Token & Token::operator<<( const string rhs ){
     if (!own){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw strings to a token you don't own");
