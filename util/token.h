@@ -184,7 +184,8 @@ public:
     Token & operator>>( Token * & rhs ) throw( TokenException );
     Token & operator>>( bool & rhs ) throw( TokenException );
     
-protected:
+public:
+// protected:
     /* Only TokenReader and Configuration can create and destroy a Token */
     Token();
     Token( std::string tok, bool parse = true );
@@ -193,6 +194,7 @@ protected:
 
     Token & operator<<( const std::string rhs );
     Token & operator<<( const int rhs );
+    Token & operator<<(Token * token);
     Token & operator<<( const double rhs );
 
     virtual inline const std::string & _getName(){
