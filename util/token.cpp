@@ -332,6 +332,7 @@ static string quoteify(const string & rhs){
     if (rhs.find(' ') != string::npos){
         return "\"" + rhs + "\"";
     }
+
     return rhs;
 }
 

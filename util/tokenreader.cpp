@@ -97,8 +97,10 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
 
     char open_paren = 'x';
     int parens = 1;
+    int position = 0;
     while (input.good() && open_paren != '('){
         input >> open_paren;
+        position += 1;
     }
     // token_string += '(';
 
@@ -134,6 +136,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
         // char n;
         // slow as we go
         input >> n;
+        position += 1;
         // printf("Read character '%c' %d\n", n, n);
 
         const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
@@ -178,10 +181,11 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 cur_string += n;
             }
         } else {
-            if ( n == '"' )
-                in_quote = true;
+            /* not in a quote */
 
-            if (strchr(alpha, n) != NULL){
+            if (n == '"'){
+                in_quote = true;
+            } else if (strchr(alpha, n) != NULL){
                 cur_string += n;
             } else if (cur_string != "" && strchr(nonalpha, n) != NULL){
                 // cout<<"Made new token "<<cur_string<<endl;
@@ -195,45 +199,48 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 }
                 cur_string = "";
             }
-        }
 
-        if ( n == '#' || n == ';' ){
-            input >> n;
-            if (n == '@'){
-                do_ignore = true;
-            } else {
-                while ( n != '\n' && !input.eof() ){
-                    input >> n;
+            if ( n == '#' || n == ';' ){
+                input >> n;
+
+                /* if the next character is a @ then ignore the next entire s-expression
+                 * otherwise just ignore the current line
+                 */
+                if (n == '@'){
+                    do_ignore = true;
+                } else {
+                    while ( n != '\n' && !input.eof() ){
+                        input >> n;
+                    }
+                    continue;
                 }
-                continue;
-            }
-        } else if ( n == '(' ){
-            Token * another = new Token();
-            another->setParent( cur_token );
+            } else if ( n == '(' ){
+                Token * another = new Token();
+                another->setParent( cur_token );
 
-            if (do_ignore){
-                ignore_list.push_back(another);
-                do_ignore = false;
-            } else {
-                cur_token->addToken(another);
-            }
+                if (do_ignore){
+                    ignore_list.push_back(another);
+                    do_ignore = false;
+                } else {
+                    cur_token->addToken(another);
+                }
 
-            cur_token = another;
-            token_stack.push_back( cur_token );
-            /*
-               parens++;
-               cout<<"Inc Parens is "<<parens<<endl;
-               */
-        } else if ( n == ')' ){
+                cur_token = another;
+                token_stack.push_back( cur_token );
+                /*
+                   parens++;
+                   cout<<"Inc Parens is "<<parens<<endl;
+                   */
+            } else if ( n == ')' ){
+                if ( token_stack.empty() ){
+                    cout<<"Stack is empty"<<endl;
+                    throw TokenException(__FILE__, __LINE__, "Stack is empty");
+                }
+                token_stack.pop_back();
 
-            if ( token_stack.empty() ){
-                cout<<"Stack is empty"<<endl;
-                throw TokenException(__FILE__, __LINE__, "Stack is empty");
-            }
-            token_stack.pop_back();
-
-            if ( ! token_stack.empty() ){
-                cur_token = token_stack.back();
+                if ( ! token_stack.empty() ){
+                    cur_token = token_stack.back();
+                }
             }
         }
     }
