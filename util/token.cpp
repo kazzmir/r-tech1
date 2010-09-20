@@ -5,6 +5,8 @@
 #include <ostream>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
+#include <string.h>
 
 using namespace std;
 
@@ -327,9 +329,29 @@ Token * Token::newToken(){
     return token;
 }
 
+static bool needQuotes(const std::string & what){
+    /* ripped from tokenreader.cpp, maybe use a variable for nice sharing.. */
+    const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
+    for (unsigned int position = 0; position < what.size(); position++){
+        if (strchr(alpha, what[position]) == NULL){
+            return true;
+        }
+
+        /*
+        if (what[position] == '"' ||
+            what[position] == ' ' ||
+            (unsigned char) what[position] > 127){
+            return true;
+        }
+        */
+    }
+
+    return false;
+}
+
 /* put quotes around a string if there are spaces in it */
 static string quoteify(const string & rhs){
-    if (rhs.find(' ') != string::npos){
+    if (needQuotes(rhs)){
         return "\"" + rhs + "\"";
     }
 
@@ -370,7 +392,7 @@ Token & Token::operator<<( const double rhs ){
     }
 
     ostringstream o;
-    o << rhs;
+    o << setprecision(6) << fixed << rhs;
     return *this << o.str();
 }
 
