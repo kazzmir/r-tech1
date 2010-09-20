@@ -51,8 +51,22 @@ void Token::print( const string space ){
 	}
 }
 
+void Token::toStringCompact(ostream & stream){
+    if (numTokens() == -1){
+        stream << getName();
+    } else {
+        stream << "(" << getName();
+        for (signed int i = 0; i < numTokens(); i++){
+            Token * x = getToken(i);
+            stream << " ";
+            x->toStringCompact(stream);
+        }
+        stream << ")";
+    }
+}
+
 void Token::toString(ostream & stream, const string & space){
-    if ( numTokens() == -1 ){
+    if (numTokens() == -1){
         stream << getName();
     } else {
         stream << endl;

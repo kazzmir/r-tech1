@@ -92,7 +92,10 @@ public:
     const std::string getLineage() const;
 
     void print( const std::string space );
-    void toString( std::ostream & stream, const std::string & space );
+    /* a pretty printed s-expression */
+    void toString(std::ostream & stream, const std::string & space);
+    /* no extra whitespace */
+    void toStringCompact(std::ostream & stream);
 
     bool match(const std::string & subject){
         TokenMatcher matcher = getMatcher(subject);
