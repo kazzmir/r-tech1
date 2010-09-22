@@ -41,6 +41,10 @@ bool System::readableFile(const std::string & path){
 bool System::readable(const std::string & path){
     return isReadable(path);
 }
+    
+void System::makeDirectory(const std::string & path){
+    mkdir(path.c_str(), 0777);
+}
 
 uint64_t System::currentMicroseconds(){
     struct timeval hold;

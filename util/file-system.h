@@ -115,6 +115,7 @@ namespace Filesystem{
 
     /* whether the file exists at all */
     bool exists(const RelativePath & path);
+    bool exists(const AbsolutePath & path);
 
     /* remove the data path from a string
      * data/sounds/arrow.png -> sounds/arrow.png
