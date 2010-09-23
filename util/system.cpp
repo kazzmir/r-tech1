@@ -53,3 +53,15 @@ uint64_t System::currentMicroseconds(){
 }
 
 #endif
+    
+void System::makeAllDirectory(const std::string & path){
+    unsigned int last = path.find('/');
+    while (last != std::string::npos){
+        std::string sofar = path.substr(0, last);
+        if (sofar != ""){
+            makeDirectory(sofar);
+        }
+        last = path.find('/', last + 1);
+    }
+    makeDirectory(path);
+}
