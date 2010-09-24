@@ -52,6 +52,13 @@ uint64_t System::currentMicroseconds(){
     return hold.tv_sec * 1000 * 1000 + hold.tv_usec;
 }
 
+uint64_t System::getModificationTime(const std::string & path){
+    struct stat data;
+    if (stat(path.c_str(), &data) == 0){
+        return data.st_mtime;
+    }
+}
+
 #endif
     
 void System::makeAllDirectory(const std::string & path){
