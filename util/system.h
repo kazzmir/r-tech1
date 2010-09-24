@@ -12,6 +12,7 @@ namespace System{
     void makeAllDirectory(const std::string & path);
     bool readableFile(const std::string & path);
     bool readable(const std::string & path);
+    uint64_t getModificationTime(const std::string & path);
     uint64_t currentMicroseconds();
 }
 
