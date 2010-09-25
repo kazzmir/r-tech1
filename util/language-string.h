@@ -14,11 +14,11 @@ public:
     LanguageString & operator=(const LanguageString & obj);
 
     static const std::string defaultLanguage(){
-        return "english";
+        return "English";
     }
 
     const std::string currentLanguage() const {
-        return "english";
+        return "English";
     }
 
     /* add a new language translation */
