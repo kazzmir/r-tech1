@@ -1,5 +1,6 @@
 #include <string>
 #include "language-string.h"
+#include "configuration.h"
 
 using namespace std;
     
@@ -33,6 +34,10 @@ void LanguageString::add(const std::string & stuff, const std::string & language
 
 void LanguageString::add(const std::string & stuff){
     add(stuff, defaultLanguage());
+}
+    
+const string LanguageString::currentLanguage() const {
+    return Configuration::getLanguage();
 }
     
 const std::string & LanguageString::get(){

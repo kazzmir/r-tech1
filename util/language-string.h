@@ -17,9 +17,7 @@ public:
         return "English";
     }
 
-    const std::string currentLanguage() const {
-        return "English";
-    }
+    const std::string currentLanguage() const;
 
     /* add a new language translation */
     void add(const std::string & stuff, const std::string & language);
