@@ -29,6 +29,10 @@ public:
 
     const std::string & get();
 
+    inline const std::map<std::string, std::string> & getLanguages() const {
+        return languages;
+    }
+
 protected:
     std::map<std::string, std::string> languages;
 };
