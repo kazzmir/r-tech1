@@ -371,6 +371,10 @@ RelativePath RelativePath::getFilename() const {
 bool RelativePath::operator<(const RelativePath & path) const {
     return this->path() < path.path();
 }
+        
+bool RelativePath::operator==(const RelativePath & path) const {
+    return this->path() == path.path();
+}
 
 RelativePath RelativePath::join(const RelativePath & him) const {
     return RelativePath(sanitize(path() + "/" + him.path()));
