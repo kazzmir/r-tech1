@@ -57,6 +57,7 @@ uint64_t System::getModificationTime(const std::string & path){
     if (stat(path.c_str(), &data) == 0){
         return data.st_mtime;
     }
+    return 0;
 }
 
 #endif
