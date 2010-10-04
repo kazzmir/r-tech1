@@ -10,8 +10,8 @@ template <class Data>
 class ReferenceCount{
 public:
     ReferenceCount(Data * what = NULL):
-    data(what),
-    count(NULL){
+    count(NULL),
+    data(what){
         count = new int;
         *count = 1;
     }
@@ -27,6 +27,7 @@ public:
         data = him.data;
         count = him.count;
         *count += 1;
+        return *this;
     }
 
     Data * operator->() const {
