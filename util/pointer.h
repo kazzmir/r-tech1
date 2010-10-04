@@ -6,6 +6,64 @@ namespace Util{
 /* Some helpful pointer classes, probably equivalent to stuff in boost
  */
 
+template <class Data>
+class ReferenceCount{
+public:
+    ReferenceCount(Data * what = NULL):
+    data(what),
+    count(NULL){
+        count = new int;
+        *count = 1;
+    }
+
+    ReferenceCount(const ReferenceCount<Data> & him){
+        data = him.data;
+        count = him.count;
+        *count += 1;
+    }
+
+    ReferenceCount & operator=(const ReferenceCount<Data> & him){
+        release();
+        data = him.data;
+        count = him.count;
+        *count += 1;
+    }
+
+    Data * operator->() const {
+        return data;
+    }
+    
+    Data & operator*() const {
+        return *data;
+    }
+
+    bool operator==(const void * what) const {
+        return data == what;
+    }
+
+    bool operator!=(const void * what) const {
+        return !(*this == what);
+    }
+
+    virtual ~ReferenceCount(){
+    }
+
+protected:
+
+    void release(){
+        *count -= 1;
+        if (*count == 0){
+            delete data;
+            delete count;
+            data = NULL;
+            count = NULL;
+        }
+    }
+
+    int * count;
+    Data * data;
+};
+
 /* Initializes its pointer to NULL and deletes the data in the destructor */
 template <class Data>
 class ClassPointer{
