@@ -59,20 +59,20 @@ namespace ftalleg{
 
 	// typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
 
-	static int fixColor(const unsigned char *c,short grays){
-		// Safety checks
-		assert(c != 0);
-		assert(grays != 1);
+    static int fixColor(const unsigned char c, short grays){
+        // Safety checks
+        // assert(c != 0);
+        assert(grays != 1);
 
-		// invariant: c can be dereferenced safely
-		// invariant: (grays - 1) != 0, thus it can be used as divisor.
+        // invariant: c can be dereferenced safely
+        // invariant: (grays - 1) != 0, thus it can be used as divisor.
 
-		int red = *c * 255 / (grays - 1);
-		int green = *c * 255 / (grays - 1);
-		int blue = *c * 255 / (grays - 1);
-		//alpha = *c * 255 / (grays - 1);
-		return Bitmap::makeColor(red,green,blue);
-	}
+        int red = c * 255 / (grays - 1);
+        int green = c * 255 / (grays - 1);
+        int blue = c * 255 / (grays - 1);
+        //alpha = *c * 255 / (grays - 1);
+        return Bitmap::makeColor(red,green,blue);
+    }
 	// Static count of instances of fonts to track library
 	static int instances=0;
 	static FT_Library ftLibrary = 0;
@@ -232,28 +232,44 @@ namespace ftalleg{
         */
 
         void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Bitmap & bitmap, const int & color){
-            unsigned char *line = tempChar->line;
+            unsigned char * line = tempChar->line;
             int colorRed = Bitmap::getRed(color);
             int colorGreen = Bitmap::getGreen(color);
             int colorBlue = Bitmap::getBlue(color);
+
+            /* cache the last color, there is a good chance it will be reused */
+            unsigned char lastData = -1;
+            int lastColor = -1;
+
             for (int y = 0; y < tempChar->rows; y++){
-                unsigned char *buffer = line;
+                unsigned char * buffer = line;
                 for (int x = 0; x < tempChar->width; x++){
-                    int col = fixColor(buffer++,tempChar->grays);
+                    int finalColor = 0;
+                    unsigned char current = *buffer;
+                    buffer++;
+                    if (current == lastData){
+                        finalColor = lastColor;
+                    } else {
+                        int col = fixColor(current, tempChar->grays);
 
-                    int red = Bitmap::getRed(col);
-                    int green = Bitmap::getGreen(col);
-                    int blue = Bitmap::getBlue(col);
+                        int red = Bitmap::getRed(col);
+                        int green = Bitmap::getGreen(col);
+                        int blue = Bitmap::getBlue(col);
 
-                    if ((red < 50) ||
-                        (green < 50) ||
-                        (blue < 50)){
-                        continue;
+                        if ((red < 50) ||
+                            (green < 50) ||
+                            (blue < 50)){
+                            continue;
+                        }
+
+                        red = red * colorRed / 255;
+                        green = green * colorGreen / 255;
+                        blue = blue * colorBlue / 255;
+
+                        finalColor = Bitmap::makeColor(red, green, blue);
+                        lastData = current;
+                        lastColor = finalColor;
                     }
-
-                    red = red * colorRed / 255;
-                    green = green * colorGreen / 255;
-                    blue = blue * colorBlue / 255;
 
                     //col.alpha= col.alpha * color.alpha / 255;
                     // putpixel(bitmap,x1+tempChar.left+x,y1 - tempChar.top+y + size.height,makecol(red,blue,green));
@@ -264,7 +280,7 @@ namespace ftalleg{
                     // putter = 0;
                     int finalX = x1+tempChar->left+x;
                     int finalY = y1 - tempChar->top + y + sizeHeight;
-                    bitmap.putPixelNormal(finalX, finalY, Bitmap::makeColor(red, green, blue));
+                    bitmap.putPixelNormal(finalX, finalY, finalColor);
                 }
                 line += tempChar->pitch;
             }
