@@ -239,6 +239,7 @@ namespace ftalleg{
 
             /* cache the last color, there is a good chance it will be reused */
             unsigned char lastData = -1;
+            short lastGrays = -1;
             int lastColor = -1;
 
             for (int y = 0; y < tempChar->rows; y++){
@@ -247,7 +248,7 @@ namespace ftalleg{
                     int finalColor = 0;
                     unsigned char current = *buffer;
                     buffer++;
-                    if (current == lastData){
+                    if (current == lastData && lastGrays == tempChar->grays){
                         finalColor = lastColor;
                     } else {
                         int col = fixColor(current, tempChar->grays);
@@ -269,6 +270,7 @@ namespace ftalleg{
                         finalColor = Bitmap::makeColor(red, green, blue);
                         lastData = current;
                         lastColor = finalColor;
+                        lastGrays = tempChar->grays;
                     }
 
                     //col.alpha= col.alpha * color.alpha / 255;
