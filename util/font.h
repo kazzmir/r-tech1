@@ -38,6 +38,7 @@ public:
 	static const Font & getDefaultFont();
 	static const Font & getDefaultFont(int width, int height);
 	static const Font & getFont( const Filesystem::RelativePath & name, const int x = 32, const int y = 32 );
+	static const Font & getFont( const Filesystem::AbsolutePath & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
 	static std::vector< ftalleg::freetype * > cacheFreeType; 

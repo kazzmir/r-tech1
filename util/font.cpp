@@ -194,6 +194,10 @@ const Font & Font::getFont(const Filesystem::RelativePath & name, const int x, c
     }
     return font;
 }
+	
+const Font & Font::getFont( const Filesystem::AbsolutePath & name, const int x, const int y){
+    return *FontFactory::getFont(name, x, y);
+}
 
 FreeTypeFont::FreeTypeFont(const Filesystem::AbsolutePath & str ):
 sizeX( 16 ),
