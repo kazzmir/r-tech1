@@ -38,6 +38,14 @@ public:
         return *data;
     }
 
+    bool operator==(const ReferenceCount<Data> & him) const {
+        return data == him.data;
+    }
+
+    bool operator!=(const ReferenceCount<Data> & him) const {
+        return !(*this == him);
+    }
+
     bool operator==(const void * what) const {
         return data == what;
     }
