@@ -149,9 +149,11 @@ static vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path){
 
     struct dirent * entry = readdir(dir);
     while (entry != NULL){
-        string total = path.path() + "/" + entry->d_name;
-        if (System::isDirectory(total)){
-            dirs.push_back(AbsolutePath(total));
+        if (string(entry->d_name) != "." && string(entry->d_name) != ".."){
+            string total = path.path() + "/" + entry->d_name;
+            if (System::isDirectory(total)){
+                dirs.push_back(AbsolutePath(total));
+            }
         }
         entry = readdir(dir);
     }
@@ -184,9 +186,9 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     if ( al_findfirst( (dataPath.path() + find).c_str(), &info, FA_ALL ) != 0 ){
         return files;
     }
-    files.push_back(AbsolutePath(dataPath.path() + string(info.name)));
+    files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
     while ( al_findnext( &info ) == 0 ){
-        files.push_back(AbsolutePath(dataPath.path() + string(info.name)));
+        files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
     }
     al_findclose( &info );
 
@@ -197,7 +199,7 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
     while (ok){
         if (file_matches(sflEntry.file_name, find.c_str())){
-            files.push_back(AbsolutePath(dataPath.path() + string(sflEntry.file_name)));
+            files.push_back(AbsolutePath(dataPath.path() + "/" + string(sflEntry.file_name)));
         }
         ok = read_dir(&sflEntry);
     }
@@ -205,6 +207,34 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
     return files;
 #endif
+}
+
+template <class X>
+static void append(vector<X> & destination, const vector<X> & source){
+    for (typename vector<X>::const_iterator it = source.begin(); it != source.end(); it++){
+        destination.push_back(*it);
+    }
+}
+    
+static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
+    vector<AbsolutePath> all = findDirectoriesIn(path);
+    vector<AbsolutePath> final;
+    append(final, all);
+    for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
+        vector<AbsolutePath> more = getAllDirectories(*it);
+        append(final, more);
+    }
+    return final;
+}
+
+vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
+    vector<AbsolutePath> directories = getAllDirectories(dataPath);
+    vector<AbsolutePath> files;
+    for (vector<AbsolutePath>::iterator it = directories.begin(); it != directories.end(); it++){
+        vector<AbsolutePath> found = getFiles(*it, find, caseInsensitive);
+        append(files, found);
+    }
+    return files;
 }
 
 /* remove extra path separators (/) */

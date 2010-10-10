@@ -142,7 +142,11 @@ namespace Filesystem{
     /* user specific path to store the configuration file */
     AbsolutePath configFile();
 
+    /* search a directory for some files matching pattern `find' */
     std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+
+    /* same as getFiles but search directories recursively */
+    std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
 
     std::string invertSlashes(const std::string & str);
     std::string sanitize(std::string path);
