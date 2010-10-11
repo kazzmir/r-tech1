@@ -41,7 +41,7 @@ public:
 	static const Font & getFont( const Filesystem::AbsolutePath & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
-	static std::vector< ftalleg::freetype * > cacheFreeType; 
+	// static std::vector< ftalleg::freetype * > cacheFreeType; 
 protected:
 
         void printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const;
