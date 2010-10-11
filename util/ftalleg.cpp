@@ -106,16 +106,16 @@ namespace ftalleg{
         freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ):
             face(NULL){
                 //Load library
-                if ( !ftLibrary ){
+                if (!ftLibrary){
                     FT_Init_FreeType(&ftLibrary);
                 }
-                instances++;
+                instances += 1;
                 faceLoaded = kerning = false;
                 currentIndex = 0;
                 currentFilename = "";
                 faceName = "";
                 // currentChar = new character;
-                systemName="";
+                systemName = "";
                 internalFix = false;
 
                 this->load(str, 0, x, y );
@@ -125,13 +125,14 @@ namespace ftalleg{
         freetype::~freetype(){
 
             //if(face!=NULL)FT_Done_Face(face);
+            if (faceLoaded && face != NULL){
+                FT_Done_Face(face);
+            }
 
             if ( instances > 0 ){
                 instances--;
-            }
-
-            if ( instances == 0 ){
                 FT_Done_FreeType(ftLibrary);
+                ftLibrary = NULL;
             }
 
             destroyGlyphIndex();
@@ -335,7 +336,8 @@ namespace ftalleg{
 
 	//! Load font from file
         bool freetype::load(const Filesystem::AbsolutePath & filename, int index, unsigned int width, unsigned int height){
-            if (!FT_New_Face(ftLibrary, filename.path().c_str(), index, &face)){
+            FT_Error error = FT_New_Face(ftLibrary, filename.path().c_str(), index, &face);
+            if (error == 0){
                 currentFilename = filename.path();
                 currentIndex = index;
                 faceLoaded = true;
@@ -343,16 +345,16 @@ namespace ftalleg{
                 setSize(width, height);
                 if (FT_HAS_GLYPH_NAMES(face)){
                     char buff[1024];
-                    if(!FT_Get_Glyph_Name(face,currentIndex,buff,sizeof(buff))) {
+                    if (!FT_Get_Glyph_Name(face, currentIndex, buff, sizeof(buff))) {
                         faceName = currentFilename;
+                    } else {
+                        faceName = std::string(buff);
                     }
-                    else faceName = std::string(buff);
                 } else {
                     faceName = currentFilename;
                 }
 
-                if(FT_HAS_KERNING(face))kerning=true;
-                else kerning = false;
+                kerning = FT_HAS_KERNING(face);
             } else {
                 faceLoaded=false;
             }
