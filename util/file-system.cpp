@@ -211,9 +211,12 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
 
 template <class X>
 static void append(vector<X> & destination, const vector<X> & source){
+    /*
     for (typename vector<X>::const_iterator it = source.begin(); it != source.end(); it++){
         destination.push_back(*it);
     }
+    */
+    copy(source.begin(), source.end(), back_insert_iterator<vector<X> >(destination));
 }
     
 static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
