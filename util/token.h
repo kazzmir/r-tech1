@@ -17,6 +17,8 @@ public:
 
     bool hasMore() const;
 
+    TokenView & operator=(const TokenView & view);
+
     TokenView & operator>>(const Token* & item);
     TokenView & operator>>(std::string & item);
     TokenView & operator>>(int & item);
