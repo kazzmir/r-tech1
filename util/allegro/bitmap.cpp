@@ -592,8 +592,14 @@ void Bitmap::release(){
 	release_bitmap( getData().getBitmap() );
 }
 
-void Bitmap::circleFill( int x, int y, int radius, int color ) const{
+void Bitmap::circleFill( int x, int y, int radius, int color ) const {
 	::circlefill( getData().getBitmap(), x, y, radius, color );
+}
+
+void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
+    drawingMode(MODE_TRANS);
+    Bitmap::circleFill(x, y, radius, color);
+    drawingMode(MODE_SOLID);
 }
 	
 void Bitmap::circle( int x, int y, int radius, int color ) const{

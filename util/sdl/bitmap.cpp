@@ -657,6 +657,11 @@ void Bitmap::circleFill(int x, int y, int radius, int color) const {
     }
 }
 
+void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
+    int alpha = globalBlend.alpha;
+    SPG_CircleFilledBlend(getData().getSurface(), x, y, radius, color, alpha);
+}
+
 void Bitmap::circle(int x, int y, int radius, int color) const {
     // Uint8 red, green, blue;
     // SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
