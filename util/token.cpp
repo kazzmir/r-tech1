@@ -81,26 +81,26 @@ void Token::toString(ostream & stream, const string & space){
 }
 
 /* helper function */
-string Token::lowerCase( const string & s ){
-	string ret;
-	for ( unsigned int q = 0; q < s.length(); q++ ){
-		if ( s[q] >= 'A' && s[q] <= 'Z' ){
-			ret += s[q] - 'A' + 'a';
-		} else {
-			ret += s[q];
-		}
-	}
-	return ret;
+string Token::lowerCase( const string & s ) const{
+    string ret;
+    for ( unsigned int q = 0; q < s.length(); q++ ){
+        if ( s[q] >= 'A' && s[q] <= 'Z' ){
+            ret += s[q] - 'A' + 'a';
+        } else {
+            ret += s[q];
+        }
+    }
+    return ret;
 }
 	
 /* Return next token and increment the internal position
  * of the current token
  */
 Token * Token::readToken(){
-	if ( num_token < tokens.size() ){
-		return tokens[ num_token++ ];
-	}
-	return NULL;
+    if ( num_token < tokens.size() ){
+        return tokens[ num_token++ ];
+    }
+    return NULL;
 }
 	
 bool Token::hasTokens(){
@@ -121,8 +121,8 @@ vector<Token*> Token::findTokens(const string & path){
 }
 */
 
-vector<Token *> Token::findTokens(const string & path){
-    vector<Token *> found;
+vector<const Token *> Token::findTokens(const string & path) const {
+    vector<const Token *> found;
     if (path == ""){
         return found;
     }
@@ -137,8 +137,26 @@ vector<Token *> Token::findTokens(const string & path){
 
     /* a name of `_' means succeed with the current token no matter
      * what its called.
+     * `*' means test all children. this is useful if you dont know where in the
+     * tree a given node lives.
+     * (... (... (... (foo ...))))
+     * *\foo would find the foo token (I used backslash because forward slash will
+     * kill the current c++ comment)
      */
-    if (self == "_" || *this == self){
+    if (self == "*"){
+        /* `*' and 'blah/stuff', test the current token for 'blah/stuff' */
+        string rest = path.substr(find+1);
+        vector<const Token*> more = findTokens(rest);
+        found.insert(found.end(), more.begin(), more.end());
+        /* then test all children for the original path */
+        for (int i = 0; i < numTokens(); i++){
+            Token * next = getToken(i);
+            if (next != NULL){
+                vector<const Token *> more = next->findTokens(path);
+                found.insert(found.end(), more.begin(), more.end());
+            }
+        }
+    } else if (self == "_" || *this == self){
         if (find == string::npos){
             found.push_back(this);
             if (found[0] != this){
@@ -150,7 +168,7 @@ vector<Token *> Token::findTokens(const string & path){
             for (int i = 0; i < numTokens(); i++){
                 Token * next = getToken(i);
                 if (next != NULL){
-                    vector<Token *> more = next->findTokens(rest);
+                    vector<const Token *> more = next->findTokens(rest);
                     found.insert(found.end(), more.begin(), more.end());
                 }
             }
@@ -160,13 +178,13 @@ vector<Token *> Token::findTokens(const string & path){
     return found;
 }
    
-TokenMatcher Token::getMatcher(const std::string & subject){
+TokenMatcher Token::getMatcher(const std::string & subject) const {
     TokenMatcher matcher(findTokens(subject));
     return matcher;
 }
 
-Token * Token::findToken(const string & path){
-    vector<Token *> all = findTokens(path);
+const Token * Token::findToken(const string & path) const {
+    vector<const Token *> all = findTokens(path);
     if (all.size() == 0){
         return NULL;
     }
@@ -226,7 +244,14 @@ const string & Token::getName() const {
 }
 
 const Token * Token::getParent() const {
-	return this->parent;
+    return this->parent;
+}
+
+const Token * Token::getRootParent() const {
+    if (getParent() != NULL){
+        return getParent()->getRootParent();
+    }
+    return this;
 }
 
 const string Token::getLineage() const {
@@ -239,22 +264,22 @@ const string Token::getLineage() const {
 
 /* A token's identity is its name 
  */
-bool Token::operator== ( const string & rhs ){
-	return lowerCase( getName() )  == lowerCase( rhs );
+bool Token::operator== (const string & rhs) const {
+    return lowerCase(getName())  == lowerCase(rhs);
 }
 
-bool Token::operator!= ( const string & rhs ){
-	return !( *this == rhs );
+bool Token::operator!=(const string & rhs) const {
+    return !(*this == rhs);
 }
 
 /* extracting operators */
 Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
-	Token * x = readToken();
-	if ( x == NULL ){
-		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
-	}
-	rhs = x;
-	return *this;
+    Token * x = readToken();
+    if ( x == NULL ){
+        throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
+    }
+    rhs = x;
+    return *this;
 }
 
 void Token::setFile( const string & s ){
@@ -343,6 +368,12 @@ Token * Token::newToken(){
     return token;
 }
 
+TokenView Token::view() const {
+    vector<const Token*> out;
+    out.insert(out.end(), tokens.begin(), tokens.end());
+    return TokenView(out);
+}
+
 static bool needQuotes(const std::string & what){
     /* ripped from tokenreader.cpp, maybe use a variable for nice sharing.. */
     const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
@@ -410,11 +441,11 @@ Token & Token::operator<<( const double rhs ){
     return *this << o.str();
 }
 
-Token * Token::copy(){
+Token * Token::copy() const {
     Token * token = new Token();
     token->filename = this->filename;
     token->name = this->name;
-    for (vector<Token *>::iterator it = this->tokens.begin(); it != this->tokens.end(); it++){
+    for (vector<Token *>::const_iterator it = this->tokens.begin(); it != this->tokens.end(); it++){
         Token * him = (*it)->copy();
         him->setParent(token);
         token->addToken(him);
@@ -458,7 +489,81 @@ TokenMatcher & TokenMatcher::operator=(const TokenMatcher & matcher){
     return *this;
 }
 
-TokenMatcher::TokenMatcher(std::vector<Token*> tokens):
+TokenMatcher::TokenMatcher(std::vector<const Token*> tokens):
 tokens(tokens){
     current = this->tokens.begin();
+}
+
+TokenView::TokenView(std::vector<const Token *> tokens):
+tokens(tokens){
+    current = tokens.begin();
+    if (current != tokens.end()){
+        current++;
+    }
+}
+
+TokenView::TokenView(const TokenView & view):
+tokens(view.tokens){
+    current = tokens.begin();
+    if (current != tokens.end()){
+        current++;
+    }
+}
+    
+bool TokenView::hasMore() const {
+    return current != tokens.end();
+}
+
+TokenView & TokenView::operator>>(string & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    item = child->getName();
+    current++;
+    return *this;
+}
+
+TokenView & TokenView::operator>>(int & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    istringstream out(child->getName());
+    out >> item;
+    current++;
+    return *this;
+}
+
+TokenView & TokenView::operator>>(double & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    istringstream out(child->getName());
+    out >> item;
+    current++;
+    return *this;
+}
+    
+TokenView & TokenView::operator>>(const Token* & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    item = child;
+    current++;
+    return *this;
 }
