@@ -23,6 +23,7 @@ public:
     TokenView & operator>>(std::string & item);
     TokenView & operator>>(int & item);
     TokenView & operator>>(double & item);
+    TokenView & operator>>(bool & item);
         
 protected:
     std::vector<const Token*> tokens;
@@ -54,10 +55,11 @@ protected:
  */
 class Token{
 public:
-
     typedef TokenMatcher Matcher;
 
+    Token();
     Token(Token const & copy);
+    Token(std::string tok, bool parse = true);
     virtual ~Token();
 
     /* add an existing token to the tree */
@@ -81,11 +83,11 @@ public:
 
     const std::string getLineage() const;
 
-    void print( const std::string space );
+    void print( const std::string space ) const;
     /* a pretty printed s-expression */
-    void toString(std::ostream & stream, const std::string & space);
+    void toString(std::ostream & stream, const std::string & space) const;
     /* no extra whitespace */
-    void toStringCompact(std::ostream & stream);
+    void toStringCompact(std::ostream & stream) const;
 
     bool match(const std::string & subject) const {
         TokenMatcher matcher = getMatcher(subject);
@@ -167,29 +169,26 @@ public:
     Token * copy() const;
 
     Token * readToken();
-    bool hasTokens();
+    bool hasTokens() const;
 
     bool operator== ( const std::string & rhs ) const;
     bool operator!= ( const std::string & rhs ) const;
 
+    /*
     Token & operator>>( std::string & rhs ) throw( TokenException );
     Token & operator>>( int & rhs ) throw( TokenException );
     Token & operator>>( double & rhs ) throw( TokenException );
     Token & operator>>( Token * & rhs ) throw( TokenException );
     Token & operator>>( bool & rhs ) throw( TokenException );
-    
-public:
-// protected:
-    /* Only TokenReader and Configuration can create and destroy a Token */
-    Token();
-    Token( std::string tok, bool parse = true );
-    friend class TokenReader;
-    friend class Configuration;
+    */
 
     Token & operator<<( const std::string rhs );
     Token & operator<<( const int rhs );
     Token & operator<<(Token * token);
     Token & operator<<( const double rhs );
+    
+protected:
+    friend class TokenReader;
 
     virtual inline const std::string & _getName(){
         return name;

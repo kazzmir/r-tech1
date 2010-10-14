@@ -43,15 +43,15 @@ own(false){
 }
 
 /* Dump token to the screen */
-void Token::print( const string space ){
-	cout<<space<<"Token: "<< getName() << endl;
-	for ( signed int i = 0; i < numTokens(); i++ ){
-		Token * x = getToken( i );
-		x->print( space + " |--" );
-	}
+void Token::print( const string space ) const {
+    cout<<space<<"Token: "<< getName() << endl;
+    for ( signed int i = 0; i < numTokens(); i++ ){
+        Token * x = getToken( i );
+        x->print( space + " |--" );
+    }
 }
 
-void Token::toStringCompact(ostream & stream){
+void Token::toStringCompact(ostream & stream) const {
     if (numTokens() == -1){
         stream << getName();
     } else {
@@ -65,7 +65,7 @@ void Token::toStringCompact(ostream & stream){
     }
 }
 
-void Token::toString(ostream & stream, const string & space){
+void Token::toString(ostream & stream, const string & space) const {
     if (numTokens() == -1){
         stream << getName();
     } else {
@@ -103,8 +103,8 @@ Token * Token::readToken(){
     return NULL;
 }
 	
-bool Token::hasTokens(){
-	return num_token < tokens.size();
+bool Token::hasTokens() const {
+    return num_token < tokens.size();
 }
 
 /*
@@ -272,16 +272,6 @@ bool Token::operator!=(const string & rhs) const {
     return !(*this == rhs);
 }
 
-/* extracting operators */
-Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
-    Token * x = readToken();
-    if ( x == NULL ){
-        throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
-    }
-    rhs = x;
-    return *this;
-}
-
 void Token::setFile( const string & s ){
 	filename = s;
 }
@@ -292,6 +282,16 @@ const string Token::getFileName() const {
 	} else {
 		return filename;
 	}
+}
+
+/*
+Token & Token::operator>>( Token * & rhs ) throw( TokenException ){
+    Token * x = readToken();
+    if ( x == NULL ){
+        throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a token from ") + this->getName() + string(" but there are no more elements") );
+    }
+    rhs = x;
+    return *this;
 }
 
 Token & Token::operator>>( string & rhs ) throw( TokenException ){
@@ -352,6 +352,7 @@ Token & Token::operator>>( bool & rhs ) throw( TokenException ){
 	is >> rhs;
 	return *this;
 }
+*/
 
 void Token::addToken(Token * t){
     /*
@@ -520,6 +521,7 @@ TokenView & TokenView::operator=(const TokenView & view){
     if (current != tokens.end()){
         current++;
     }
+    return *this;
 }
 
 TokenView & TokenView::operator>>(string & item){
@@ -562,8 +564,8 @@ TokenView & TokenView::operator>>(double & item){
     current++;
     return *this;
 }
-    
-TokenView & TokenView::operator>>(const Token* & item){
+
+TokenView & TokenView::operator>>(bool & item){
     if (current == tokens.end()){
         throw TokenException(__FILE__, __LINE__, "No more elements");
     }
@@ -571,6 +573,23 @@ TokenView & TokenView::operator>>(const Token* & item){
     if (!child->isData()){
         throw TokenException(__FILE__, __LINE__, "Token is not a datum");
     }
+    istringstream out(child->getName());
+    out >> item;
+    current++;
+    return *this;
+}
+
+    
+TokenView & TokenView::operator>>(const Token* & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    /*
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    */
     item = child;
     current++;
     return *this;
