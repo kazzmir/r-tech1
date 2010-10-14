@@ -496,22 +496,30 @@ tokens(tokens){
 
 TokenView::TokenView(std::vector<const Token *> tokens):
 tokens(tokens){
-    current = tokens.begin();
-    if (current != tokens.end()){
+    current = this->tokens.begin();
+    if (current != this->tokens.end()){
         current++;
     }
 }
 
 TokenView::TokenView(const TokenView & view):
 tokens(view.tokens){
-    current = tokens.begin();
-    if (current != tokens.end()){
+    current = this->tokens.begin();
+    if (current != this->tokens.end()){
         current++;
     }
 }
     
 bool TokenView::hasMore() const {
     return current != tokens.end();
+}
+    
+TokenView & TokenView::operator=(const TokenView & view){
+    tokens = view.tokens;
+    current = tokens.begin();
+    if (current != tokens.end()){
+        current++;
+    }
 }
 
 TokenView & TokenView::operator>>(string & item){
