@@ -10,54 +10,40 @@ class TokenReader;
 class Configuration;
 class Token;
 
+class TokenView{
+public:
+    TokenView(std::vector<const Token *> tokens);
+    TokenView(const TokenView & view);
+
+    bool hasMore() const;
+
+    TokenView & operator>>(const Token* & item);
+    TokenView & operator>>(std::string & item);
+    TokenView & operator>>(int & item);
+    TokenView & operator>>(double & item);
+        
+protected:
+    std::vector<const Token*> tokens;
+    std::vector<const Token*>::iterator current;
+};
+
 class TokenMatcher{
 public:
     template <typename X1>
-    bool match(X1 & obj1){
-        if (current == tokens.end()){
-            return false;
-        }
-
-        Token * token = *current;
-        current++;
-
-        try{
-            *token >> obj1;
-            return true;
-        } catch (const TokenException & t){
-        }
-
-        return false;
-    }
+    bool match(X1 & obj1);
 
     template <typename X1, typename X2>
-    bool match(X1 & obj1, X2 & obj2){
-        if (current == tokens.end()){
-            return false;
-        }
-
-        Token * token = *current;
-        current++;
-
-        try{
-            *token >> obj1 >> obj2;
-            return true;
-        } catch (const TokenException & t){
-        }
-
-        return false;
-
-    }
+    bool match(X1 & obj1, X2 & obj2);
 
     TokenMatcher & operator=(const TokenMatcher & matcher);
 
 protected:
-    TokenMatcher(std::vector<Token*> tokens);
+    TokenMatcher(std::vector<const Token*> tokens);
     explicit TokenMatcher();
     friend class Token;
 
-    std::vector<Token*> tokens;
-    std::vector<Token*>::iterator current;
+    std::vector<const Token*> tokens;
+    std::vector<const Token*>::iterator current;
 };
 
 /* Token:
@@ -85,6 +71,8 @@ public:
        */
     const std::string & getName() const;
     const Token * getParent() const;
+    /* get the original parent, the parent with no parents */
+    const Token * getRootParent() const;
 
     void setFile( const std::string & s );
     const std::string getFileName() const;
@@ -97,26 +85,26 @@ public:
     /* no extra whitespace */
     void toStringCompact(std::ostream & stream);
 
-    bool match(const std::string & subject){
+    bool match(const std::string & subject) const {
         TokenMatcher matcher = getMatcher(subject);
         return false;
     }
 
     template <typename X>
-    bool match(const std::string & subject, X & obj){
+    bool match(const std::string & subject, X & obj) const {
         TokenMatcher matcher = getMatcher(subject);
         return matcher.match(obj);
     }
 
     template <typename X1, typename X2>
-    bool match(const std::string & subject, X1 & obj1, X2 & obj2){
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2) const {
         TokenMatcher matcher = getMatcher(subject);
         return matcher.match(obj1) &&
                matcher.match(obj2);
     }
 
     template <typename X1, typename X2, typename X3>
-    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3){
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3) const {
         TokenMatcher matcher = getMatcher(subject);
         return matcher.match(obj1) &&
                matcher.match(obj2) &&
@@ -124,7 +112,7 @@ public:
     }
 
     template <typename X1, typename X2, typename X3, typename X4>
-    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4){
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4) const {
         TokenMatcher matcher = getMatcher(subject);
         return matcher.match(obj1) &&
                matcher.match(obj2) &&
@@ -133,7 +121,7 @@ public:
     }
 
     template <typename X1, typename X2, typename X3, typename X4, typename X5>
-    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4, X5 & obj5){
+    bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4, X5 & obj5) const {
         TokenMatcher matcher = getMatcher(subject);
         return matcher.match(obj1) &&
                matcher.match(obj2) &&
@@ -142,8 +130,9 @@ public:
                matcher.match(obj5);
     }
 
+    TokenView view() const;
 
-    TokenMatcher getMatcher(const std::string & subject);
+    TokenMatcher getMatcher(const std::string & subject) const;
 
     Token * getToken( unsigned int n ) const;
 
@@ -151,10 +140,10 @@ public:
      * '/' delimits tokens
      * <literal> matches a token
      */
-    Token * findToken(const std::string & path);
+    const Token * findToken(const std::string & path) const;
 
-    /* find all tokens */
-    std::vector<Token *> findTokens(const std::string & path);
+    /* find all tokens. special characters _ and * */
+    std::vector<const Token *> findTokens(const std::string & path) const;
 
     inline signed int numTokens() const {
         return tokens.size() - 1;
@@ -173,13 +162,13 @@ public:
     }
 
     /* returns a deep copy of this token. the parent field is set to null */
-    Token * copy();
+    Token * copy() const;
 
     Token * readToken();
     bool hasTokens();
 
-    bool operator== ( const std::string & rhs );
-    bool operator!= ( const std::string & rhs );
+    bool operator== ( const std::string & rhs ) const;
+    bool operator!= ( const std::string & rhs ) const;
 
     Token & operator>>( std::string & rhs ) throw( TokenException );
     Token & operator>>( int & rhs ) throw( TokenException );
@@ -208,7 +197,7 @@ public:
         this->parent = parent;
     }
 
-    std::string lowerCase( const std::string & s );
+    std::string lowerCase(const std::string & s) const;
     void finalize();
 
     unsigned int num_token;
@@ -218,5 +207,43 @@ public:
     std::string name;
     bool own;
 };
+
+
+template <typename X1>
+bool TokenMatcher::match(X1 & obj1){
+    if (current == tokens.end()){
+        return false;
+    }
+
+    const Token * token = *current;
+    current++;
+
+    try{
+        token->view() >> obj1;
+        return true;
+    } catch (const TokenException & t){
+    }
+
+    return false;
+}
+
+template <typename X1, typename X2>
+bool TokenMatcher::match(X1 & obj1, X2 & obj2){
+    if (current == tokens.end()){
+        return false;
+    }
+
+    const Token * token = *current;
+    current++;
+
+    try{
+        token->view() >> obj1 >> obj2;
+        return true;
+    } catch (const TokenException & t){
+    }
+
+    return false;
+
+}
 
 #endif
