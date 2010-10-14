@@ -14,6 +14,7 @@ public:
     virtual void rectangle(int x1, int y1, int x2, int y2, int color) const;
     virtual void fill(int color) const;
     virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
+    virtual void circleFill( int x, int y, int radius, int color ) const;
 };
 
 #endif
