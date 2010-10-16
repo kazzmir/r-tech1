@@ -81,13 +81,13 @@ void Token::toString(ostream & stream, const string & space) const {
 }
 
 /* helper function */
-string Token::lowerCase( const string & s ) const{
-    string ret;
+string Token::lowerCase( const string & s ) const {
+    string ret = s;
     for ( unsigned int q = 0; q < s.length(); q++ ){
         if ( s[q] >= 'A' && s[q] <= 'Z' ){
-            ret += s[q] - 'A' + 'a';
+            ret[q] = s[q] - 'A' + 'a';
         } else {
-            ret += s[q];
+            // ret[q] = s[q];
         }
     }
     return ret;
@@ -474,7 +474,7 @@ void Token::finalize(){
 
 Token::~Token(){
     if (own){
-        for ( vector< Token * >::iterator it = tokens.begin(); it != tokens.end(); it++ ){
+        for (vector<Token * >::iterator it = tokens.begin(); it != tokens.end(); it++){
             delete *it;
         }
     }
