@@ -183,7 +183,7 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     struct al_ffblk info;
     vector<AbsolutePath> files;
 
-    if ( al_findfirst( (dataPath.path() + find).c_str(), &info, FA_ALL ) != 0 ){
+    if ( al_findfirst( (dataPath.path() + "/" + find).c_str(), &info, FA_ALL ) != 0 ){
         return files;
     }
     files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
@@ -191,7 +191,6 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
         files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
     }
     al_findclose( &info );
-
     return files;
 #else
     vector<AbsolutePath> files;
@@ -222,6 +221,7 @@ static void append(vector<X> & destination, const vector<X> & source){
 static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
     vector<AbsolutePath> all = findDirectoriesIn(path);
     vector<AbsolutePath> final;
+    final.push_back(path);
     append(final, all);
     for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
         vector<AbsolutePath> more = getAllDirectories(*it);
