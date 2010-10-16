@@ -221,7 +221,6 @@ static void append(vector<X> & destination, const vector<X> & source){
 static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
     vector<AbsolutePath> all = findDirectoriesIn(path);
     vector<AbsolutePath> final;
-    final.push_back(path);
     append(final, all);
     for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
         vector<AbsolutePath> more = getAllDirectories(*it);
@@ -232,6 +231,7 @@ static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
 
 vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
     vector<AbsolutePath> directories = getAllDirectories(dataPath);
+    directories.push_back(dataPath);
     vector<AbsolutePath> files;
     for (vector<AbsolutePath>::iterator it = directories.begin(); it != directories.end(); it++){
         vector<AbsolutePath> found = getFiles(*it, find, caseInsensitive);
@@ -321,8 +321,8 @@ static string dirname(string path){
 }
 
 std::string stripDir(const std::string & str){
-    std::string temp = str;
     if (str.find( "/") != std::string::npos || str.find( "\\") != std::string::npos){
+        std::string temp = str;
         size_t rem = temp.find_last_of( "/" );
         if (rem != std::string::npos){
             return str.substr(rem+1,str.size());
