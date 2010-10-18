@@ -74,7 +74,7 @@ namespace ftalleg{
         return Bitmap::makeColor(red,green,blue);
     }
 	// Static count of instances of fonts to track library
-	static int instances=0;
+	static int instances = 0;
 	static FT_Library ftLibrary = 0;
 
 	character::character() {
@@ -127,10 +127,11 @@ namespace ftalleg{
             //if(face!=NULL)FT_Done_Face(face);
             if (faceLoaded && face != NULL){
                 FT_Done_Face(face);
+                face = NULL;
             }
 
-            if ( instances > 0 ){
-                instances--;
+            instances -= 1;
+            if (instances == 0){
                 FT_Done_FreeType(ftLibrary);
                 ftLibrary = NULL;
             }
