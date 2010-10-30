@@ -1175,6 +1175,88 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
     x2 = dst->clip_rect.x + dst->clip_rect.w;
 
     int bpp = dst->format->BytesPerPixel;
+
+    /* Attempted manual unrolling. Gcc can optimize the naive loop below better
+     * than this unrolling attempt.
+     */
+    /*
+    for (int y = y1; y < y2; y += 4){
+        switch (y2 - y1){
+            case 1 : {
+                Uint8 * source1 = computeOffset(dst, x1, y);
+                for (int x = x2 - 1; x >= x1; source1 += bpp, x--) {
+                    unsigned long sourcePixel = *(Uint16*) source1;
+                    if ((int) sourcePixel == original){
+                        *(Uint16 *)source1 = replace;
+                    }
+                }
+                break;
+            }
+            case 2 : {
+                Uint8 * source1 = computeOffset(dst, x1, y);
+                Uint8 * source2 = computeOffset(dst, x1, y + 1);
+                for (int x = x2 - 1; x >= x1; source1 += bpp, source2 += bpp, x--) {
+                    unsigned long sourcePixel = *(Uint16*) source1;
+                    unsigned long sourcePixel2 = *(Uint16*) source2;
+                    if ((int) sourcePixel == original){
+                        *(Uint16 *)source1 = replace;
+                    }
+                    if ((int) sourcePixel2 == original){
+                        *(Uint16 *)source2 = replace;
+                    }
+                }
+                break;
+            }
+            case 3 : {
+                Uint8 * source1 = computeOffset(dst, x1, y);
+                Uint8 * source2 = computeOffset(dst, x1, y + 1);
+                Uint8 * source3 = computeOffset(dst, x1, y + 2);
+                for (int x = x2 - 1; x >= x1; source1 += bpp, source2 += bpp, source3 += bpp, x--) {
+                    unsigned long sourcePixel = *(Uint16*) source1;
+                    unsigned long sourcePixel2 = *(Uint16*) source2;
+                    unsigned long sourcePixel3 = *(Uint16*) source3;
+                    if ((int) sourcePixel == original){
+                        *(Uint16 *)source1 = replace;
+                    }
+                    if ((int) sourcePixel2 == original){
+                        *(Uint16 *)source2 = replace;
+                    }
+                    if ((int) sourcePixel3 == original){
+                        *(Uint16 *)source3 = replace;
+                    }
+                }
+                break;
+            }
+            default:
+            case 4 : {
+                Uint8 * source1 = computeOffset(dst, x1, y);
+                Uint8 * source2 = computeOffset(dst, x1, y + 1);
+                Uint8 * source3 = computeOffset(dst, x1, y + 2);
+                Uint8 * source4 = computeOffset(dst, x1, y + 3);
+                for (int x = x2 - 1; x >= x1; source1 += bpp, source2 += bpp, source3 += bpp, source4 += bpp, x--) {
+                    unsigned long sourcePixel = *(Uint16*) source1;
+                    unsigned long sourcePixel2 = *(Uint16*) source2;
+                    unsigned long sourcePixel3 = *(Uint16*) source3;
+                    unsigned long sourcePixel4 = *(Uint16*) source4;
+                    if ((int) sourcePixel == original){
+                        *(Uint16 *)source1 = replace;
+                    }
+                    if ((int) sourcePixel2 == original){
+                        *(Uint16 *)source2 = replace;
+                    }
+                    if ((int) sourcePixel3 == original){
+                        *(Uint16 *)source3 = replace;
+                    }
+                    if ((int) sourcePixel4 == original){
+                        *(Uint16 *)source4 = replace;
+                    }
+                }
+                break;
+            }
+        }
+    }
+*/
+
     for (int y = y1; y < y2; y++) {
         Uint8 * sourceLine = computeOffset(dst, x1, y);
 
