@@ -114,6 +114,7 @@ static int drawingAlpha(){
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_replace16(SDL_Surface * dst, const int original, const int replace);
 static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
+static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int x, int y, const Bitmap::Filter & filter);
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
 int Bitmap::MaskColor(){
@@ -1101,6 +1102,10 @@ void Bitmap::StretchBy2( const Bitmap & where ){
 void Bitmap::StretchBy4( const Bitmap & where ){
     /* TODO */
 }
+	
+void Bitmap::draw(const int x, const int y, const Filter & filter, const Bitmap & where) const {
+    paintown_draw_sprite_filter_ex16(where.getData().getSurface(), getData().getSurface(), x, y, filter);
+}
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP );
@@ -1256,6 +1261,9 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
         }
     }
 */
+    if (SDL_MUSTLOCK(dst)){
+        SDL_LockSurface(dst);
+    }
 
     for (int y = y1; y < y2; y++) {
         Uint8 * sourceLine = computeOffset(dst, x1, y);
@@ -1266,6 +1274,63 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
                 *(Uint16 *)sourceLine = replace;
             }
         }
+    }
+    
+    if (SDL_MUSTLOCK(dst)){
+        SDL_UnlockSurface(dst);
+    }
+}
+
+static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, const Bitmap::Filter & filter){
+    int x, y, w, h;
+    int x_dir = 1, y_dir = 1;
+    int dxbeg, dybeg;
+    int sxbeg, sybeg;
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_LockSurface(dst);
+    }
+
+    if (true /* dst->clip*/ ) {
+        int tmp;
+
+        tmp = dst->clip_rect.x - dx;
+        sxbeg = ((tmp < 0) ? 0 : tmp);
+        dxbeg = sxbeg + dx;
+
+        tmp = dst->clip_rect.x + dst->clip_rect.w - dx;
+        w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
+        if (w <= 0)
+            return;
+
+        tmp = dst->clip_rect.y - dy;
+        sybeg = ((tmp < 0) ? 0 : tmp);
+        dybeg = sybeg + dy;
+
+        tmp = dst->clip_rect.y + dst->clip_rect.h - dy;
+        h = ((tmp > src->h) ? src->h : tmp) - sybeg;
+        if (h <= 0)
+            return;
+    }
+
+    unsigned int mask = Bitmap::makeColor(255, 0, 255);
+    int bpp = src->format->BytesPerPixel;
+    for (y = 0; y < h; y++) {
+        Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
+        Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
+
+        for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
+            unsigned long sourcePixel = *(Uint16*) sourceLine;
+            if (!(sourcePixel == mask)){
+                *(Uint16 *)destLine = filter.filter(sourcePixel);
+            } else {
+                *(Uint16 *)destLine = mask;
+            }
+        }
+    }
+    
+    if (SDL_MUSTLOCK(dst)){
+        SDL_UnlockSurface(dst);
     }
 }
 
