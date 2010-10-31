@@ -27,6 +27,11 @@ private:
 	Bitmap( const char * load_file, int sx, int sy, double accuracy );
 public:
 
+        class Blender{
+        public:
+            virtual unsigned int blend(unsigned int pixel) const = 0;
+        };
+
         static int SCALE_X;
         static int SCALE_Y;
 	
