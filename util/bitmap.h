@@ -27,9 +27,9 @@ private:
 	Bitmap( const char * load_file, int sx, int sy, double accuracy );
 public:
 
-        class Blender{
+        class Filter{
         public:
-            virtual unsigned int blend(unsigned int pixel) const = 0;
+            virtual unsigned int filter(unsigned int pixel) const = 0;
         };
 
         static int SCALE_X;
@@ -155,6 +155,7 @@ public:
 	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const;
 
 	virtual void draw(const int x, const int y, const Bitmap & where) const;
+	virtual void draw(const int x, const int y, const Filter & filter, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
 	virtual void drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const;
         /* to draw lit use LitBitmap */
@@ -246,6 +247,7 @@ public:
          * might also make temporary bitmaps.
          */
         static Bitmap temporaryBitmap(int w, int h);
+        static Bitmap temporaryBitmap2(int w, int h);
 
         /* call this method to delete all temporary bitmaps.
          * don't call this unless you know what you are doing
@@ -328,6 +330,7 @@ protected:
         bool error;
         std::string path;
         static Bitmap * temporary_bitmap;
+        static Bitmap * temporary_bitmap2;
         int bit8MaskColor;
 
         /* bitmaps that should always be resized to the dimensions of the screen */

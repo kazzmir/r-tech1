@@ -9,6 +9,7 @@
 /* implementation independant definitions can go here */
 
 Bitmap * Bitmap::temporary_bitmap = NULL;
+Bitmap * Bitmap::temporary_bitmap2 = NULL;
 
 std::vector<Bitmap*> Bitmap::needResize;
 int Bitmap::SCALE_X = 0;
@@ -49,26 +50,39 @@ Bitmap::~Bitmap(){
     releaseInternalBitmap();
 }
 
-Bitmap Bitmap::temporaryBitmap(int w, int h){
-    if (temporary_bitmap == NULL){
-        temporary_bitmap = new Bitmap(w, h);
-    } else if (temporary_bitmap->getWidth() < w || temporary_bitmap->getHeight() < h){
-        int mw = max(temporary_bitmap->getWidth(), w);
-        int mh = max(temporary_bitmap->getHeight(), h);
+static Bitmap makeTemporaryBitmap(Bitmap *& temporary, int w, int h){
+    if (temporary == NULL){
+        temporary = new Bitmap(w, h);
+    } else if (temporary->getWidth() < w || temporary->getHeight() < h){
+        int mw = max(temporary->getWidth(), w);
+        int mh = max(temporary->getHeight(), h);
         // printf("Create temporary bitmap %d %d\n", mw, mh);
-        delete temporary_bitmap;
-        temporary_bitmap = new Bitmap(mw, mh);
+        delete temporary;
+        temporary = new Bitmap(mw, mh);
     }
-    if (temporary_bitmap == NULL){
+    if (temporary == NULL){
         printf("*bug* temporary bitmap is null\n");
     }
-    return Bitmap(*temporary_bitmap, 0, 0, w, h);
+    return Bitmap(*temporary, 0, 0, w, h);
+}
+
+Bitmap Bitmap::temporaryBitmap(int w, int h){
+    return makeTemporaryBitmap(temporary_bitmap, w, h);
+}
+
+Bitmap Bitmap::temporaryBitmap2(int w, int h){
+    return makeTemporaryBitmap(temporary_bitmap2, w, h);
 }
         
 void Bitmap::cleanupTemporaryBitmaps(){
     if (temporary_bitmap != NULL){
         delete temporary_bitmap;
         temporary_bitmap = NULL;
+    }
+
+    if (temporary_bitmap2 != NULL){
+        delete temporary_bitmap2;
+        temporary_bitmap2 = NULL;
     }
 }
 

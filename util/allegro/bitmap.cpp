@@ -974,6 +974,10 @@ void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP );
 	// ::draw_sprite( where.getData().getBitmap(), getBitmap(), x, y );
 }
+	
+void Bitmap::draw(const int x, const int y, const Filter & filter, const Bitmap & where) const {
+    /* TODO */
+}
 
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
