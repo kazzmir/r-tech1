@@ -619,7 +619,7 @@ void Bitmap::floodfill( const int x, const int y, const int color ) const {
 void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
 	::draw_character_ex( where.getData().getBitmap(), getData().getBitmap(), x, y, color, background );
 }
-	
+
 void Bitmap::transBlender( int r, int g, int b, int a ){
 	set_trans_blender( r, g, b, a );
 }

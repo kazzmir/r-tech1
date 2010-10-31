@@ -530,7 +530,7 @@ void Bitmap::transBlender( int r, int g, int b, int a ){
     globalBlend.alpha = a;
     globalBlend.currentBlender = ::transBlender;
 }
-	
+
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     SDL_Rect area;
     area.x = x1;
