@@ -82,6 +82,10 @@ public:
         data(NULL){
         }
 
+    ClassPointer(Data * him):
+    data(him){
+    }
+
     ClassPointer & operator=(Data * him){
         if (data != NULL){
             delete data;
