@@ -293,6 +293,10 @@ bool exists(const RelativePath & path){
     }
 }
 
+bool exists(const AbsolutePath & path){
+    return System::readable(path.path());
+}
+
 RelativePath cleanse(const AbsolutePath & path){
     string str = path.path();
     if (str.find(Util::getDataPath2().path()) == 0){
