@@ -12,6 +12,8 @@
 #include <SDL.h>
 #endif
 
+class Keyboard;
+
 namespace Util{
 
 class WaitThread;
@@ -19,7 +21,7 @@ class WaitThread;
 class EventManager{
 public:
     EventManager();
-    virtual void run();
+    virtual void run(Keyboard & keyboard);
     virtual void waitForThread(WaitThread & thread);
     virtual ~EventManager();
 
@@ -48,7 +50,7 @@ private:
     virtual void dispatch(Event type);
 
 #ifdef USE_SDL
-    virtual void runSDL();
+    virtual void runSDL(Keyboard &);
 #endif
 
     std::vector<KeyType> keys;
