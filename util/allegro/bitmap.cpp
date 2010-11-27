@@ -41,6 +41,7 @@ using namespace std;
 #endif
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip );
+static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int x, int y, const Bitmap::Filter & filter);
 static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 static void paintown_applyTrans16(BITMAP * dst, const int color);
 
@@ -976,7 +977,7 @@ void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
 }
 	
 void Bitmap::draw(const int x, const int y, const Filter & filter, const Bitmap & where) const {
-    /* TODO */
+    paintown_draw_sprite_filter_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, filter);
 }
 
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
@@ -1664,6 +1665,51 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                     }
                     PAINTOWN_PUT_MEMORY_PIXEL(d, c);
                 }
+            }
+        }
+    }
+}
+
+static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx, int dy, const Bitmap::Filter & filter){
+    int x, y, w, h;
+    int x_dir = 1, y_dir = 1;
+    int dxbeg, dybeg;
+    int sxbeg, sybeg;
+
+    if (true /* dst->clip*/ ) {
+        int tmp;
+
+        tmp = dst->cl - dx;
+        sxbeg = ((tmp < 0) ? 0 : tmp);
+        dxbeg = sxbeg + dx;
+
+        tmp = dst->cr - dx;
+        w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
+        if (w <= 0)
+            return;
+
+        tmp = dst->ct - dy;
+        sybeg = ((tmp < 0) ? 0 : tmp);
+        dybeg = sybeg + dy;
+
+        tmp = dst->cb - dy;
+        h = ((tmp > src->h) ? src->h : tmp) - sybeg;
+        if (h <= 0)
+            return;
+    }
+
+    unsigned int mask = Bitmap::makeColor(255, 0, 255);
+    // int bpp = src->format->BytesPerPixel;
+    for (y = 0; y < h; y++) {
+        PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
+        PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
+
+        for (x = w - 1; x >= 0; PAINTOWN_INC_PIXEL_PTR(s), PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), x--) {
+            unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
+            if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
+                PAINTOWN_PUT_MEMORY_PIXEL(d, filter.filter(c));
+            } else {
+                PAINTOWN_PUT_MEMORY_PIXEL(d, mask);
             }
         }
     }
