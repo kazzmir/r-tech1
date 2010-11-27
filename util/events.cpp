@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "funcs.h"
 #include "thread.h"
+#include "input/keyboard.h"
 
 namespace Util{
 
@@ -16,7 +17,15 @@ bufferKeys(false){
 }
 
 #ifdef USE_SDL
-void EventManager::runSDL(){
+static void handleKeyDown(Keyboard & keyboard, const SDL_Event & event){
+    keyboard.press(event.key.keysym.sym, event.key.keysym.unicode);
+}
+
+static void handleKeyUp(Keyboard & keyboard, const SDL_Event & event){
+    keyboard.release(event.key.keysym.sym);
+}
+
+void EventManager::runSDL(Keyboard & keyboard){
     SDL_Event event;
     while (SDL_PollEvent(&event) == 1){
         switch (event.type){
@@ -25,8 +34,13 @@ void EventManager::runSDL(){
                 break;
             }
             case SDL_KEYDOWN : {
-                 dispatch(Key, event.key.keysym.sym);
+                handleKeyDown(keyboard, event);
+                 // dispatch(Key, event.key.keysym.sym);
                  break;
+            }
+            case SDL_KEYUP : {
+                handleKeyUp(keyboard, event);
+                break;
             }
             case SDL_VIDEORESIZE : {
                 int width = event.resize.w;
@@ -50,17 +64,18 @@ void EventManager::runSDL(){
 }
 #endif
 
-void EventManager::run(){
+void EventManager::run(Keyboard & keyboard){
 #ifdef USE_SDL
-    runSDL();
+    runSDL(keyboard);
 #endif
 }
 
 /* kill the program if the user requests */
 void EventManager::waitForThread(WaitThread & thread){
+    Keyboard dummy;
     while (!thread.isRunning()){
         try{
-            run();
+            run(dummy);
         } catch (const ShutdownException & death){
             thread.kill();
             throw death;
