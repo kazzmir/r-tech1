@@ -64,9 +64,15 @@ void EventManager::runSDL(Keyboard & keyboard){
 }
 #endif
 
+void EventManager::runAllegro(Keyboard & keyboard){
+    keyboard.poll();
+}
+
 void EventManager::run(Keyboard & keyboard){
 #ifdef USE_SDL
     runSDL(keyboard);
+#elif USE_ALLEGRO
+    runAllegro(keyboard);
 #endif
 }
 

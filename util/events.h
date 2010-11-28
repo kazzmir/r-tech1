@@ -52,6 +52,9 @@ private:
 #ifdef USE_SDL
     virtual void runSDL(Keyboard &);
 #endif
+#ifdef USE_ALLEGRO
+    virtual void runAllegro(Keyboard & keyboard);
+#endif
 
     std::vector<KeyType> keys;
     bool bufferKeys;
