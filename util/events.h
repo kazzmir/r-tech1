@@ -13,6 +13,7 @@
 #endif
 
 class Keyboard;
+class Joystick;
 
 namespace Util{
 
@@ -21,7 +22,7 @@ class WaitThread;
 class EventManager{
 public:
     EventManager();
-    virtual void run(Keyboard & keyboard);
+    virtual void run(Keyboard & keyboard, Joystick * joystick);
     virtual void waitForThread(WaitThread & thread);
     virtual ~EventManager();
 
@@ -50,10 +51,10 @@ private:
     virtual void dispatch(Event type);
 
 #ifdef USE_SDL
-    virtual void runSDL(Keyboard &);
+    virtual void runSDL(Keyboard &, Joystick *);
 #endif
 #ifdef USE_ALLEGRO
-    virtual void runAllegro(Keyboard & keyboard);
+    virtual void runAllegro(Keyboard & keyboard, Joystick *);
 #endif
 
     std::vector<KeyType> keys;

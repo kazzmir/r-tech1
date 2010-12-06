@@ -26,7 +26,7 @@ static void handleKeyUp(Keyboard & keyboard, const SDL_Event & event){
     keyboard.release(event.key.keysym.sym);
 }
 
-void EventManager::runSDL(Keyboard & keyboard){
+void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
     keyboard.poll();
     SDL_Event event;
     while (SDL_PollEvent(&event) == 1){
@@ -42,6 +42,18 @@ void EventManager::runSDL(Keyboard & keyboard){
             }
             case SDL_KEYUP : {
                 handleKeyUp(keyboard, event);
+                break;
+            }
+            case SDL_JOYBUTTONDOWN: {
+                /* TODO */
+                break;
+            }
+            case SDL_JOYBUTTONUP: {
+                /* TODO */
+                break;
+            }
+            case SDL_JOYAXISMOTION: {
+                /* TODO */
                 break;
             }
             case SDL_VIDEORESIZE : {
@@ -67,16 +79,16 @@ void EventManager::runSDL(Keyboard & keyboard){
 #endif
 
 #ifdef USE_ALLEGRO
-void EventManager::runAllegro(Keyboard & keyboard){
+void EventManager::runAllegro(Keyboard & keyboard, Joystick * joystick){
     keyboard.poll();
 }
 #endif
 
-void EventManager::run(Keyboard & keyboard){
+void EventManager::run(Keyboard & keyboard, Joystick * joystick){
 #ifdef USE_SDL
-    runSDL(keyboard);
+    runSDL(keyboard, joystick);
 #elif USE_ALLEGRO
-    runAllegro(keyboard);
+    runAllegro(keyboard, joystick);
 #endif
 }
 
