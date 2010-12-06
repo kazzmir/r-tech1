@@ -223,6 +223,10 @@ void Bitmap::draw(const int x, const int y, const int startWidth, const int star
     Bitmap sub(*this, startWidth, startHeight, width, height);
     sub.draw(x + startWidth, y + startHeight, where);
 }
+
+void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const{
+    this->hLine( x1, y, x2, color );
+}
         
 void Bitmap::equilateralTriangle(int x, int y, int angle, int size, int color) const {
     double radians = Util::radians(angle);

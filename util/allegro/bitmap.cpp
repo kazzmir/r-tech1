@@ -939,10 +939,6 @@ void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const in
     drawingMode(MODE_SOLID);
 }
 	
-void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const{
-	this->hLine( x1, y, x2, color );
-}
-
 void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const{
 	::vline( getData().getBitmap(), x, y1, y2, color );
 }
