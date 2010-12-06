@@ -9,6 +9,7 @@
 #include "funcs.h"
 #include "thread.h"
 #include "input/keyboard.h"
+#include "input/input-manager.h"
 
 namespace Util{
 
@@ -80,10 +81,12 @@ void EventManager::run(Keyboard & keyboard){
 
 /* kill the program if the user requests */
 void EventManager::waitForThread(WaitThread & thread){
-    Keyboard dummy;
+    // Keyboard dummy;
     while (!thread.isRunning()){
         try{
-            run(dummy);
+            /* input manager will run the event manager */
+            InputManager::poll();
+            // run(dummy);
         } catch (const ShutdownException & death){
             thread.kill();
             throw death;
