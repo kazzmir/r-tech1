@@ -984,10 +984,12 @@ void Bitmap::applyTrans(const int color) const {
 void Bitmap::floodfill( const int x, const int y, const int color ) const {
     SPG_FloodFill(getData().getSurface(), x, y, color);
 }
-	
+
+/*
 void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const {
     SPG_LineH(getData().getSurface(), x1, y, x2, color);
 }
+*/
 
 void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
     SPG_LineH(getData().getSurface(), x1, y, x2, color);
