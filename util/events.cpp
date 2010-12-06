@@ -27,6 +27,7 @@ static void handleKeyUp(Keyboard & keyboard, const SDL_Event & event){
 }
 
 void EventManager::runSDL(Keyboard & keyboard){
+    keyboard.poll();
     SDL_Event event;
     while (SDL_PollEvent(&event) == 1){
         switch (event.type){
