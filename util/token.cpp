@@ -226,7 +226,7 @@ Token * Token::findToken(const string & path){
 Token * Token::getToken( unsigned int n ) const {
 	int q = numTokens();
 	if ( q == -1 ) return NULL;
-	if ( n >= 0 && (signed int)n < q )
+	if ( (signed int)n < q )
 		return tokens[n+1];
 	return NULL;
 }
