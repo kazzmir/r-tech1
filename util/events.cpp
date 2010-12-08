@@ -31,7 +31,7 @@ static void handleJoystickButtonUp(Joystick * joystick, const SDL_Event & event)
     int device = event.jbutton.which;
     int button = event.jbutton.button;
     if (device == joystick->getDeviceId()){
-        joystick->release(button);
+        joystick->releaseButton(button);
     }
 }
 
@@ -39,12 +39,24 @@ static void handleJoystickButtonDown(Joystick * joystick, const SDL_Event & even
     int device = event.jbutton.which;
     int button = event.jbutton.button;
     if (device == joystick->getDeviceId()){
-        joystick->press(button);
+        joystick->pressButton(button);
+    }
+}
+
+static void handleJoystickAxis(Joystick * joystick, const SDL_Event & event){
+    int device = event.jaxis.which;
+    int axis = event.jaxis.axis;
+    int value = event.jaxis.value;
+    if (device == joystick->getDeviceId()){
+        joystick->axisMotion(axis, value);
     }
 }
 
 void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
     keyboard.poll();
+    if (joystick){
+        joystick->poll();
+    }
     SDL_Event event;
     while (SDL_PollEvent(&event) == 1){
         switch (event.type){
@@ -74,7 +86,9 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
                 break;
             }
             case SDL_JOYAXISMOTION: {
-                /* TODO */
+                if (joystick != NULL){
+                    handleJoystickAxis(joystick, event);
+                }
                 break;
             }
             case SDL_VIDEORESIZE : {
