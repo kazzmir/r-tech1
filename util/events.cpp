@@ -5,10 +5,11 @@
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
 #include "configuration.h"
-#include "globals.h"
+#include "debug.h"
 #include "funcs.h"
 #include "thread.h"
 #include "input/keyboard.h"
+#include "input/joystick.h"
 #include "input/input-manager.h"
 
 namespace Util{
@@ -24,6 +25,22 @@ static void handleKeyDown(Keyboard & keyboard, const SDL_Event & event){
 
 static void handleKeyUp(Keyboard & keyboard, const SDL_Event & event){
     keyboard.release(event.key.keysym.sym);
+}
+
+static void handleJoystickButtonUp(Joystick * joystick, const SDL_Event & event){
+    int device = event.jbutton.which;
+    int button = event.jbutton.button;
+    if (device == joystick->getDeviceId()){
+        joystick->release(button);
+    }
+}
+
+static void handleJoystickButtonDown(Joystick * joystick, const SDL_Event & event){
+    int device = event.jbutton.which;
+    int button = event.jbutton.button;
+    if (device == joystick->getDeviceId()){
+        joystick->press(button);
+    }
 }
 
 void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
@@ -45,11 +62,15 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
                 break;
             }
             case SDL_JOYBUTTONDOWN: {
-                /* TODO */
+                if (joystick != NULL){
+                    handleJoystickButtonDown(joystick, event);
+                }
                 break;
             }
             case SDL_JOYBUTTONUP: {
-                /* TODO */
+                if (joystick != NULL){
+                    handleJoystickButtonUp(joystick, event);
+                }
                 break;
             }
             case SDL_JOYAXISMOTION: {
