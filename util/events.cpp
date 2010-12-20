@@ -35,6 +35,36 @@ static void handleJoystickButtonUp(Joystick * joystick, const SDL_Event & event)
     }
 }
 
+static void handleJoystickHat(Joystick * joystick, const SDL_Event & event){
+    int device = event.jhat.which;
+    int motion = event.jhat.value;
+    /* should up/down control left/right -- flip these values? */
+#if WII
+    const int axis_up_down = 0;
+    const int axis_left_right = 1;
+    const int up = 1;
+    const int down = -1;
+    const int left = -1;
+    const int right = 1;
+#else
+    const int axis_up_down = 1;
+    const int axis_left_right = 0;
+    const int up = -1;
+    const int down = 1;
+    const int left = -1;
+    const int right = 1;
+#endif
+
+    switch (motion){
+        case SDL_HAT_CENTERED: break;
+        case SDL_HAT_UP: joystick->axisMotion(axis_up_down, up); break;
+        case SDL_HAT_DOWN: joystick->axisMotion(axis_up_down, down); break;
+        case SDL_HAT_RIGHT: joystick->axisMotion(axis_left_right, right); break;
+        case SDL_HAT_LEFT: joystick->axisMotion(axis_left_right, left); break;
+        default: break;
+    }
+}
+
 static void handleJoystickButtonDown(Joystick * joystick, const SDL_Event & event){
     int device = event.jbutton.which;
     int button = event.jbutton.button;
@@ -76,6 +106,12 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
             case SDL_JOYBUTTONDOWN: {
                 if (joystick != NULL){
                     handleJoystickButtonDown(joystick, event);
+                }
+                break;
+            }
+            case SDL_JOYHATMOTION : {
+                if (joystick != NULL){
+                    handleJoystickHat(joystick, event);
                 }
                 break;
             }
