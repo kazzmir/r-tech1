@@ -42,6 +42,10 @@ void Sound::initialize(){
         printf("Unable to open audio: %s!\n", Mix_GetError());
         // exit(1);
     }
+
+    /* use the frequency enforced by the audio system */
+    Mix_QuerySpec(&audio_rate, &audio_format, &audio_channels);
+    FREQUENCY = audio_rate;
 }
 
 void Sound::play(){

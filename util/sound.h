@@ -36,7 +36,8 @@ public:
 	virtual ~Sound();
 
         /* global frequency to use */
-        static const int FREQUENCY = 22050;
+        // static const int FREQUENCY = 22050;
+        static int FREQUENCY;
 
 protected:
 
