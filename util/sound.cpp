@@ -4,6 +4,8 @@
 #ifdef USE_SDL
 #include "sdl/sound.cpp"
 #endif
+        
+int Sound::FREQUENCY = 22050;
 
 Sound::Sound( const Sound & copy ):
 own( NULL ){
