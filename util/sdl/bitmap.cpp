@@ -2,6 +2,7 @@
 #include "../lit_bitmap.h"
 #include "../trans-bitmap.h"
 #include "../funcs.h"
+#include "debug.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
 #include "image/SDL_image.h"
@@ -417,6 +418,25 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
             break;
         }
     }
+
+    Global::debug(1) << "SDL Screen format palette: " << screen->format->palette <<
+                        " bits per pixel: " << (int) screen->format->BitsPerPixel <<
+                        " bytes per pixel: " << (int) screen->format->BytesPerPixel <<
+                        " rloss: " << (int) screen->format->Rloss <<
+                        " gloss: " << (int) screen->format->Gloss <<
+                        " bloss: " << (int) screen->format->Bloss <<
+                        " aloss: " << (int) screen->format->Aloss <<
+                        " rshift: " << (int) screen->format->Rshift <<
+                        " gshift: " << (int) screen->format->Gshift <<
+                        " bshift: " << (int) screen->format->Bshift <<
+                        " ashift: " << (int) screen->format->Ashift <<
+                        " rmask: " << (int) screen->format->Rmask <<
+                        " gmask: " << (int) screen->format->Gmask <<
+                        " bmask: " << (int) screen->format->Bmask <<
+                        " amask: " << (int) screen->format->Amask <<
+                        " colorkey: " << (int) screen->format->colorkey <<
+                        " alpha: " << (int) screen->format->alpha << std::endl;
+
 
     if (SCALE_X == 0){
         SCALE_X = width;
