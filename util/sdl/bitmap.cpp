@@ -24,6 +24,9 @@ static inline unsigned int transBlender(unsigned int x, unsigned int y, unsigned
     if (n)
         n = (n + 1) / 8;
 
+    /* hex:    0x7E0F81F
+     * binary: 111111000001111100000011111
+     */
     x = ((x & 0xFFFF) | (x << 16)) & 0x7E0F81F;
     y = ((y & 0xFFFF) | (y << 16)) & 0x7E0F81F;
 
