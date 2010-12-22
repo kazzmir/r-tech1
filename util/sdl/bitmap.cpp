@@ -15,9 +15,18 @@ static const int FULLSCREEN = 1;
 static int SCREEN_DEPTH = 16;
 static SDL_Surface * screen;
 
+static SDL_PixelFormat format565;
+
 typedef unsigned int (*blender)(unsigned int color1, unsigned int color2, unsigned int alpha);
 
 /* taken from allegro 4.2: src/colblend.c, _blender_trans16 */
+/* this function performs a psuedo-SIMD operation on the pixel
+ * components in RGB 5-6-5 format. To get this to work for some
+ * other format probably all that needs to happen is to change
+ * the 0x7E0F81F constant to something else. 5-5-5:
+ * binary: 0011 1110 000 0111 1100 0001 1111
+ * hex:    0x174076037
+ */
 static inline unsigned int transBlender(unsigned int x, unsigned int y, unsigned int n){
     unsigned long result;
 
@@ -25,7 +34,7 @@ static inline unsigned int transBlender(unsigned int x, unsigned int y, unsigned
         n = (n + 1) / 8;
 
     /* hex:    0x7E0F81F
-     * binary: 111111000001111100000011111
+     * binary: 0111 1110 0000 1111 1000 0001 1111
      */
     x = ((x & 0xFFFF) | (x << 16)) & 0x7E0F81F;
     y = ((y & 0xFFFF) | (y << 16)) & 0x7E0F81F;
@@ -39,11 +48,11 @@ static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsig
     Uint8 redX = 0;
     Uint8 greenX = 0;
     Uint8 blueX = 0;
-    SDL_GetRGB(x, screen->format, &redX, &greenX, &blueX);
+    SDL_GetRGB(x, &format565, &redX, &greenX, &blueX);
     Uint8 redY = 0;
     Uint8 greenY = 0;
     Uint8 blueY = 0;
-    SDL_GetRGB(y, screen->format, &redY, &greenY, &blueY);
+    SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
 
     int r = redX * redY / 256;
     int g = greenX * greenY / 256;
@@ -55,11 +64,11 @@ static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned i
     Uint8 redX = 0;
     Uint8 greenX = 0;
     Uint8 blueX = 0;
-    SDL_GetRGB(x, screen->format, &redX, &greenX, &blueX);
+    SDL_GetRGB(x, &format565, &redX, &greenX, &blueX);
     Uint8 redY = 0;
     Uint8 greenY = 0;
     Uint8 blueY = 0;
-    SDL_GetRGB(y, screen->format, &redY, &greenY, &blueY);
+    SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
 
     int r = redY + redX * n / 256;
     int g = greenY + greenX * n / 256;
@@ -80,11 +89,11 @@ static inline unsigned int differenceBlender(unsigned int x, unsigned int y, uns
     Uint8 redX = 0;
     Uint8 greenX = 0;
     Uint8 blueX = 0;
-    SDL_GetRGB(x, screen->format, &redX, &greenX, &blueX);
+    SDL_GetRGB(x, &format565, &redX, &greenX, &blueX);
     Uint8 redY = 0;
     Uint8 greenY = 0;
     Uint8 blueY = 0;
-    SDL_GetRGB(y, screen->format, &redY, &greenY, &blueY);
+    SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
 
     int r = iabs(redY - redX);
     int g = iabs(greenY - greenX);
@@ -130,10 +139,11 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
     /* SDL_DisplayFormat will return 0 if a graphics context is not set,
      * like if a test is running instead of the real game.
      */
-    SDL_Surface * out = SDL_DisplayFormat(in);
+    // SDL_Surface * out = SDL_DisplayFormat(in);
+    SDL_Surface * out = SDL_ConvertSurface(in, &format565, SDL_SWSURFACE);
     if (out == NULL){
         // out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, in->format->BitsPerPixel, 0, 0, 0, 0);
-        out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, SCREEN_DEPTH, 0, 0, 0, 0);
+        out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
         if (out == NULL){
             throw Exception::Base(__FILE__, __LINE__);
         }
@@ -200,7 +210,7 @@ own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     if (deep_copy){
-        SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
+        SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
         SDL_Rect source;
         SDL_Rect destination;
         source.w = surface->w;
@@ -225,7 +235,7 @@ bit8MaskColor(0){
 Bitmap::Bitmap(int w, int h):
 mustResize(false),
 bit8MaskColor(0){
-    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, 0, 0, 0, 0);
+    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     if (surface == NULL){
         throw Exception::Base(__FILE__, __LINE__);
     }
@@ -252,7 +262,7 @@ own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     Bitmap temp(load_file);
-    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, 0, 0, 0, 0);
+    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     getData().setSurface(surface);
     own = new int;
     *own = 1;
@@ -274,7 +284,7 @@ mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     if (deep_copy){
         SDL_Surface * who = copy.getData().getSurface();
-        SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, 0, 0, 0, 0);
+        SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
         SDL_Rect source;
         SDL_Rect destination;
         source.w = surface->w;
@@ -334,7 +344,7 @@ bit8MaskColor(copy.bit8MaskColor){
     if ( height > his->h )
         height = his->h;
 
-    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, 0, 0, 0, 0);
+    SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     getData().setSurface(sub);
     
     own = new int;
@@ -375,7 +385,7 @@ int Bitmap::getRed(int c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
-    SDL_GetRGB(c, Screen->getData().getSurface()->format, &red, &green, &blue);
+    SDL_GetRGB(c, &format565, &red, &green, &blue);
     return red;
 }
 
@@ -383,7 +393,7 @@ int Bitmap::getBlue(int c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
-    SDL_GetRGB(c, Screen->getData().getSurface()->format, &red, &green, &blue);
+    SDL_GetRGB(c, &format565, &red, &green, &blue);
     return blue;
 }
 
@@ -391,15 +401,35 @@ int Bitmap::getGreen(int c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
-    SDL_GetRGB(c, Screen->getData().getSurface()->format, &red, &green, &blue);
+    SDL_GetRGB(c, &format565, &red, &green, &blue);
     return green;
 }
 
 int Bitmap::makeColor(int red, int blue, int green){
-    return SDL_MapRGB(Screen->getData().getSurface()->format, red, blue, green);
+    return SDL_MapRGB(&format565, red, blue, green);
 }
 	
 int Bitmap::setGraphicsMode(int mode, int width, int height){
+
+    /* this is as good a place as any to initialize our format */
+    format565.palette = 0;
+    format565.BitsPerPixel = 16;
+    format565.BytesPerPixel = 2;
+    format565.Rloss = 3;
+    format565.Gloss = 2;
+    format565.Bloss = 3;
+    format565.Aloss = 0;
+    format565.Rshift = 11;
+    format565.Gshift = 5;
+    format565.Bshift = 0;
+    format565.Ashift = 0;
+    format565.Rmask = 63488;
+    format565.Gmask = 2016;
+    format565.Bmask = 31;
+    format565.Amask = 0;
+    format565.colorkey = 0;
+    format565.alpha = 255;
+
     switch (mode){
         case WINDOWED : {
             // screen = SDL_SetVideoMode(width, height, SCREEN_DEPTH, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE);
