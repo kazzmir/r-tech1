@@ -1022,6 +1022,11 @@ void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
     }
 }
 
+void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_EllipseBlend(getData().getSurface(), x, y, rx, ry, color, alpha);
+}
+
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
     SPG_EllipseFilled(getData().getSurface(), x, y, rx, ry, color);
 }

@@ -15,6 +15,7 @@ public:
     virtual void fill(int color) const;
     virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
     virtual void circleFill( int x, int y, int radius, int color ) const;
+    virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
 };
 
 #endif
