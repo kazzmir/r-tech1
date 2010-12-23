@@ -891,6 +891,12 @@ void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
 	::ellipse( getData().getBitmap(), x, y, rx, ry, color );
 }
 
+void TranslucentBitmap::ellipse(int x, int y, int rx, int ry, int color) const {
+    drawingMode(MODE_TRANS);
+    Bitmap::ellipse(x, y, rx, ry, color);
+    drawingMode(MODE_SOLID);
+}
+
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
 	::ellipsefill( getData().getBitmap(), x, y, rx, ry, color );
 }

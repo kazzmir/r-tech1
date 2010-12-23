@@ -216,6 +216,9 @@ public:
 	virtual void readLine( std::vector< int > & vec, int y );
 	int getPixel( const int x, const int y ) const;
 
+        /* true if the point is within the bounds of the bitmap */
+        bool inRange(int x, int y) const;
+
         /* uses _putpixel16 underneath which ignores translucent behavior */
 	void putPixel( int x, int y, int col ) const;
         /* respects the current trans mode */

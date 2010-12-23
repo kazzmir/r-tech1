@@ -255,6 +255,13 @@ Bitmap Bitmap::greyScale(){
 
     return grey;
 }
+        
+bool Bitmap::inRange(int x, int y) const {
+    int x1, y1, x2, y2;
+    getClipRect(x1, y1, x2, y2);
+    return (x >= x1 && x <= x2 &&
+            y >= y1 && y <= y2);
+}
 
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
     int mask = Bitmap::MaskColor();
