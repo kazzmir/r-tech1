@@ -60,7 +60,7 @@ protected:
 };
 
 static double scaleVolume(double start){
-    return start * Configuration::getMusicVolume() / 100;
+    return start;
 }
     
 MusicPlayer::MusicPlayer():
@@ -308,9 +308,14 @@ void DumbPlayer::play(){
 void DumbPlayer::poll(){
 }
 
+/* volume should be in the range 0.0 to 1.0 */
 void DumbPlayer::setVolume(double volume){
     this->volume = volume;
-    Mix_VolumeMusic(MIX_MAX_VOLUME * volume);
+    /* Mix_VolumeMusic only handles volume for formats it handles natively.
+     * for custom formats (like all these players) we have to handle volume
+     * ourselves.
+     */
+    // Mix_VolumeMusic(MIX_MAX_VOLUME * volume);
 }
 
 DumbPlayer::~DumbPlayer(){
@@ -349,6 +354,12 @@ void GMEPlayer::render(Uint8 * stream, int length){
     /* length/2 to convert bytes to short */
     emulator->play(length / 2, (short*) stream);
 
+    /* scale for volume */
+    for (int i = 0; i < length / 2; i++){
+        short & sample = ((short *) stream)[i];
+        sample *= volume;
+    }
+
     /*
     short large = 0;
     short small = 0;
@@ -379,6 +390,8 @@ void GMEPlayer::pause(){
 }
 
 void GMEPlayer::setVolume(double volume){
+    this->volume = volume;
+    // Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
 }
 
 GMEPlayer::~GMEPlayer(){
@@ -411,6 +424,7 @@ void OggPlayer::pause(){
 }
 
 void OggPlayer::setVolume(double volume){
+    this->volume = volume;
     Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
 }
 
