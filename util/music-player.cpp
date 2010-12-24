@@ -190,6 +190,7 @@ void GMEPlayer::poll(){
          * by half the maximum value of a short (0xffff+1)/2 = 0x8000
          */
         for (int i = 0; i < GME_BUFFER_SIZE * 2; i++){
+            buffer[i] *= volume;
             buffer[i] += 0x8000;
         }
 
@@ -202,7 +203,7 @@ void GMEPlayer::pause(){
 }
 
 void GMEPlayer::setVolume(double volume){
-    /* FIXME */
+    this->volume = volume;
 }
 
 GMEPlayer::~GMEPlayer(){
