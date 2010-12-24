@@ -310,6 +310,7 @@ void DumbPlayer::poll(){
 
 void DumbPlayer::setVolume(double volume){
     this->volume = volume;
+    Mix_VolumeMusic(MIX_MAX_VOLUME * volume);
 }
 
 DumbPlayer::~DumbPlayer(){
