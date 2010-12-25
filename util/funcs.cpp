@@ -298,3 +298,20 @@ void Util::showError(const Exception::Base & exception, const std::string & info
     Bitmap screen(GFX_X, GFX_Y);
     showError(screen, exception, info);
 }
+
+string Util::niceSize(unsigned long size){
+    const char sizes[] = {'b', 'k', 'm', 'g', 't'};
+    double real = size;
+    for (unsigned int i = 0; i < sizeof(sizes) / sizeof(const char); i++){
+        if (real > 1024){
+            real /= 1024.0;
+        } else {
+            ostringstream in;
+            in << real << sizes[i];
+            return in.str();
+        }
+    }
+    ostringstream in;
+    in << real << "t";
+    return in.str();
+}

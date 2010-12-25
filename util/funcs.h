@@ -81,6 +81,11 @@ std::string lowerCaseAll(std::string str);
 /* upper cases the entire string */
 std::string upperCaseAll(std::string str);
 
+/* convert a size in bytes into human readable form.
+ * 234823592 = 223.94m
+ */
+std::string niceSize(unsigned long size);
+
 int levenshtein(const std::string & str1, const std::string & str2);
 
 int getPipe(int files[2]);
