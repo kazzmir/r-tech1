@@ -261,7 +261,7 @@
 
 /*  These include files are for non-PC systems                               */
 
-#if (defined (__UNIX__)) && !defined(WII)
+#if (defined (__UNIX__)) && !defined(WII) && !defined(NDS)
 #   if defined (__GNUC__) && (__GNUC__ >= 2)
 #       define __STRICT_ANSI__
 #   endif
@@ -292,7 +292,7 @@
 #   endif
 #endif
 
-#if defined(WII)
+#if defined(WII) || defined(NDS)
 #define AF_INET 1
 #include <dirent.h>
 #endif
