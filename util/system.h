@@ -14,6 +14,10 @@ namespace System{
     bool readable(const std::string & path);
     uint64_t getModificationTime(const std::string & path);
     uint64_t currentMicroseconds();
+    unsigned long memoryUsage();
+
+    /* call startMemoryUsage once at the very beginning of the program */
+    void startMemoryUsage();
 }
 
 #endif

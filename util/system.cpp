@@ -60,6 +60,17 @@ uint64_t System::getModificationTime(const std::string & path){
     return 0;
 }
 
+static void * start_memory = 0;
+unsigned long System::memoryUsage(){
+    void * here = sbrk(0);
+    /* hopefully the heap is growing up */
+    return (char*) here - (char*) start_memory;
+}
+
+void System::startMemoryUsage(){
+    start_memory = sbrk(0);
+}
+
 #endif
     
 void System::makeAllDirectory(const std::string & path){
