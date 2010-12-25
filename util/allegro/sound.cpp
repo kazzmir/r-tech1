@@ -65,7 +65,7 @@ void Sound::initialize(){
     install_sound(DIGI_AUTODETECT, MIDI_NONE, "");
 }
 
-void Sound:uninitialize(){
+void Sound::uninitialize(){
     /* anything needed? */
 }
 
