@@ -4,6 +4,7 @@
 #include "exceptions/exception.h"
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 namespace Filesystem{
     /* sorry for the crappy abbreviation, but can't collide with the
@@ -150,6 +151,84 @@ namespace Filesystem{
 
     std::string invertSlashes(const std::string & str);
     std::string sanitize(std::string path);
+
+    class Eof: public std::exception {
+        public:
+            Eof(){
+            }
+
+            virtual ~Eof() throw (){
+            }
+    };
+
+    class EndianReader{
+        public:
+            EndianReader(std::ifstream & stream):
+                stream(stream){
+                }
+
+            virtual ~EndianReader(){
+            }
+
+            virtual int8_t readByte1(){
+                return convert(readBytes(sizeof(int8_t)));
+            }
+
+            virtual int16_t readByte2(){
+                return convert(readBytes(sizeof(int16_t)));
+            }
+
+            virtual int32_t readByte4(){
+                return convert(readBytes(sizeof(int32_t)));
+            }
+
+            virtual std::string readString(int length);
+            virtual std::string readString2(int length);
+
+            virtual void seekEnd(std::streamoff where);
+            virtual void seek(std::streampos where);
+
+            virtual int position();
+
+        protected:
+            virtual int32_t convert(const std::vector<uint8_t> & bytes) = 0;
+
+            std::vector<uint8_t> readBytes(int length);
+                
+            std::ifstream & stream;
+    };
+
+    /* combines bytes b0 b1 b2 b3 as b0 + b1*2^8 + b2*2^16 + b3*2^24 */
+    class LittleEndianReader: public EndianReader {
+        public:
+            LittleEndianReader(std::ifstream & stream):
+                EndianReader(stream){
+                }
+        protected:
+            virtual int32_t convert(const std::vector<uint8_t> & bytes){
+                uint32_t out = 0;
+                for (std::vector<uint8_t>::const_reverse_iterator it = bytes.rbegin(); it != bytes.rend(); it++){
+                    out = (out << 8) + *it;
+                }
+                return out;
+            }
+    };
+
+    /* combines bytes b0 b1 b2 b3 as b0*2^24 + b1*2^16 + b2*2^8 + b3 */
+    class BigEndianReader: public EndianReader {
+        public:
+            BigEndianReader(std::ifstream & stream):
+                EndianReader(stream){
+                }
+        protected:
+            virtual int32_t convert(const std::vector<uint8_t> & bytes){
+                uint32_t out = 0;
+                for (std::vector<uint8_t>::const_iterator it = bytes.begin(); it != bytes.end(); it++){
+                    out = (out << 8) + *it;
+                }
+                return out;
+            }
+    };
 }
 
 #endif
