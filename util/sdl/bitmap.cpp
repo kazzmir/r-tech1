@@ -335,14 +335,14 @@ mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     path = copy.getPath();
     SDL_Surface * his = copy.getData().getSurface();
-    if ( x < 0 )
+    if (x < 0)
         x = 0;
-    if ( y < 0 )
+    if (y < 0)
         y = 0;
-    if ( width > his->w )
-        width = his->w;
-    if ( height > his->h )
-        height = his->h;
+    if (width + x > his->w )
+        width = his->w - x;
+    if (height + y > his->h)
+        height = his->h - y;
 
     SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     getData().setSurface(sub);

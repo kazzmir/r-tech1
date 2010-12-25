@@ -140,6 +140,12 @@ public:
         return out;
     }
 
+    virtual void start(){
+        if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
+            throw Exception::Base(__FILE__, __LINE__);
+        }
+    }
+
 protected:
     static void * runit(void * arg){
         Future<X> * me = (Future<X>*) arg;
@@ -166,11 +172,6 @@ protected:
         this->thing = x;
     }
 
-    virtual void start(){
-        if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
-            throw Exception::Base(__FILE__, __LINE__);
-        }
-    }
 
     virtual void compute() = 0;
 

@@ -377,10 +377,10 @@ bit8MaskColor(copy.bit8MaskColor){
 		x = 0;
 	if ( y < 0 )
 		y = 0;
-	if ( width > his->w )
-		width = his->w;
-	if ( height > his->h )
-		height = his->h;
+	if ( width + x > his->w )
+		width = his->w - x;
+	if ( height + y > his->h )
+		height = his->h - y;
 	getData().setBitmap( create_sub_bitmap( his, x, y, width, height ) );
 
 	if ( ! getData().getBitmap() ){
