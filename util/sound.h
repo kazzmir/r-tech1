@@ -16,38 +16,40 @@ struct SAMPLE;
 /* a sound! */
 class Sound{
 public:
-	Sound();
-        /* create from wav file (riff header + pcm) */
-        Sound(const char * data, int length);
-        /* load from path */
-	Sound(const std::string & path) throw (LoadException);
-	Sound(const Sound & copy);
+    Sound();
+    /* create from wav file (riff header + pcm) */
+    Sound(const char * data, int length);
+    /* load from path */
+    Sound(const std::string & path) throw (LoadException);
+    Sound(const Sound & copy);
 
-        /* do any global initialization necessary */
-        static void initialize();
+    /* do any global initialization necessary */
+    static void initialize();
+    /* cleanup */
+    static void uninitialize();
 
-	Sound & operator=( const Sound & rhs );
+    Sound & operator=( const Sound & rhs );
 
-	void play();
-	void play(double volume, int pan);
-	void playLoop();
-        void stop();
+    void play();
+    void play(double volume, int pan);
+    void playLoop();
+    void stop();
 
-	virtual ~Sound();
+    virtual ~Sound();
 
-        /* global frequency to use */
-        // static const int FREQUENCY = 22050;
-        static int FREQUENCY;
+    /* global frequency to use */
+    // static const int FREQUENCY = 22050;
+    static int FREQUENCY;
 
 protected:
 
-	void destroy();
+    void destroy();
 
-	// SAMPLE * my_sound;
-        SoundData data;
+    // SAMPLE * my_sound;
+    SoundData data;
 
-	/* reference counting */
-	int * own;
+    /* reference counting */
+    int * own;
 };
 
 #endif
