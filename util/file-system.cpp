@@ -17,6 +17,7 @@
 #include <sstream>
 #include <exception>
 #include <string>
+#include <fstream>
 #include <ostream>
 
 #ifndef USE_ALLEGRO
@@ -456,6 +457,55 @@ AbsolutePath AbsolutePath::getFilename() const {
         
 AbsolutePath AbsolutePath::join(const RelativePath & path) const {
     return AbsolutePath(sanitize(this->path() + "/" + path.path()));
+}
+
+string EndianReader::readString(int length){
+    ostringstream out;
+    uint8_t letter = readByte1();
+    while (letter != 0 && length > 0){
+        out << letter;
+        letter = readByte1();
+    }
+    return out.str();
+}
+
+std::string EndianReader::readString2(int length){
+    ostringstream out;
+    vector<uint8_t> bytes = readBytes(length);
+    for (vector<uint8_t>::iterator it = bytes.begin(); it != bytes.end(); it++){
+        char byte = *it;
+        if (byte == 0){
+            break;
+        }
+        out << *it;
+    }
+    return out.str();
+}
+            
+void EndianReader::seekEnd(streamoff where){
+    stream.seekg(where, ios::end);
+}
+
+void EndianReader::seek(streampos where){
+    stream.seekg(where);
+}
+
+int EndianReader::position(){
+    return stream.tellg();
+}
+
+vector<uint8_t> EndianReader::readBytes(int length){
+    vector<uint8_t> bytes;
+    for (int i = 0; i < length; i++){
+        uint8_t byte = 0;
+        stream.read((char*) &byte, 1);
+        if (stream.eof()){
+            throw Eof();
+        } else {
+        }
+        bytes.push_back(byte);
+    }
+    return bytes;
 }
 
 }
