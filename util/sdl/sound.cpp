@@ -49,6 +49,10 @@ void Sound::initialize(){
     FREQUENCY = audio_rate;
 }
 
+void Sound::uninitialize(){
+    Mix_CloseAudio();
+}
+
 static int scale(double in){
     return (int)(in * Configuration::getSoundVolume() / 100.0);
 }

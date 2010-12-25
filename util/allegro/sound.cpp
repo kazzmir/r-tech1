@@ -64,7 +64,11 @@ void Sound::initialize(){
     // out<<"Install sound: "<<install_sound( DIGI_AUTODETECT, MIDI_NONE, "" )<<endl;
     install_sound(DIGI_AUTODETECT, MIDI_NONE, "");
 }
-        
+
+void Sound:uninitialize(){
+    /* anything needed? */
+}
+
 void Sound::stop(){
     if (data.sample){
         stop_sample(data.sample);
