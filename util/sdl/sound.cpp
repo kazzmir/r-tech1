@@ -1,6 +1,7 @@
 #include "../sound.h"
 #include <SDL.h>
 #include "mixer/SDL_mixer.h"
+#include "configuration.h"
 
 Sound::Sound():
 own(NULL){
@@ -48,28 +49,33 @@ void Sound::initialize(){
     FREQUENCY = audio_rate;
 }
 
+static int scale(double in){
+    return (int)(in * Configuration::getSoundVolume() / 100.0);
+}
+
 void Sound::play(){
     if (data.chunk != NULL){
-        /* FIXME: scale the volume based on the configuration sound setting */
-        Mix_VolumeChunk(data.chunk, MIX_MAX_VOLUME);
+        Mix_VolumeChunk(data.chunk, scale(MIX_MAX_VOLUME));
         Mix_PlayChannel(-1, data.chunk, 0);
     }
 }
 
 void Sound::play(double volume, int pan){
     if (data.chunk != NULL){
-        /* FIXME: scale the volume based on the configuration sound setting */
-        Mix_VolumeChunk(data.chunk, (int)(volume * MIX_MAX_VOLUME));
+        Mix_VolumeChunk(data.chunk, scale(volume * MIX_MAX_VOLUME));
         Mix_PlayChannel(-1, data.chunk, 0);
     }
 }
 
 void Sound::playLoop(){
-    /* TODO */
+    if (data.chunk != NULL){
+        Mix_VolumeChunk(data.chunk, scale(MIX_MAX_VOLUME));
+        Mix_PlayChannel(-1, data.chunk, -1);
+    }
 }
 
 void Sound::destroy(){
-    if ( own ){
+    if (own){
         *own -= 1;
         if ( *own == 0 ){
             delete own;
