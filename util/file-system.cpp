@@ -459,7 +459,7 @@ AbsolutePath AbsolutePath::join(const RelativePath & path) const {
     return AbsolutePath(sanitize(this->path() + "/" + path.path()));
 }
 
-string EndianReader::readString(int length){
+string EndianReader::readStringX(int length){
     ostringstream out;
     uint8_t letter = readByte1();
     while (letter != 0 && length > 0){

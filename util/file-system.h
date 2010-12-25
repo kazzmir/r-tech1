@@ -182,7 +182,7 @@ namespace Filesystem{
                 return convert(readBytes(sizeof(int32_t)));
             }
 
-            virtual std::string readString(int length);
+            virtual std::string readStringX(int length);
             virtual std::string readString2(int length);
 
             virtual void seekEnd(std::streamoff where);
