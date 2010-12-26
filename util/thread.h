@@ -13,6 +13,7 @@
 #include "util/load_exception.h"
 #include "util/token_exception.h"
 #include "mugen/exception.h"
+#include "debug.h"
 
 namespace Util{
 
@@ -121,7 +122,9 @@ public:
     }
 
     virtual ~Future(){
-        Thread::joinThread(thread);
+        if (thread != NULL){
+            Thread::joinThread(thread);
+        }
         Thread::destroySemaphore(&future);
     }
 
@@ -142,7 +145,9 @@ public:
 
     virtual void start(){
         if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
-            throw Exception::Base(__FILE__, __LINE__);
+            Global::debug(0) << "Could not create future thread. Blocking until its done" << std::endl;
+            get();
+            // throw Exception::Base(__FILE__, __LINE__);
         }
     }
 
