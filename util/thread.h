@@ -146,7 +146,7 @@ public:
     virtual void start(){
         if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
             Global::debug(0) << "Could not create future thread. Blocking until its done" << std::endl;
-            get();
+            runit(this);
             // throw Exception::Base(__FILE__, __LINE__);
         }
     }
