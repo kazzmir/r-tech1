@@ -307,6 +307,7 @@ public:
 	static const int SPRITE_TRANS;
 
 protected:
+	static void initializeExtraStuff();
 
         /* release a reference count, and possibly destroy data */
         void releaseInternalBitmap();
