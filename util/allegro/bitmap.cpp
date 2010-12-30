@@ -475,6 +475,10 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     return bitmap;
 }
 
+void Bitmap::initializeExtraStuff(){
+    /* nothing yet */
+}
+
 void Bitmap::destroyPrivateData(){
     destroy_bitmap(getData().getBitmap());
 }

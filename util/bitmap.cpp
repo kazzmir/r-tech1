@@ -283,12 +283,13 @@ int Bitmap::get8BitMaskColor(){
 }
 
 void Bitmap::setFakeGraphicsMode(int width, int height){
+    initializeExtraStuff();
     Screen = new Bitmap(width, height);
 }
 
 void Bitmap::Blit( const std::string & xpath ) const {
-    Bitmap duh( xpath );
-    duh.Blit( *this );
+    Bitmap duh(xpath);
+    duh.Blit(*this);
 }
 
 void Bitmap::BlitFromScreen(const int x, const int y) const {

@@ -408,9 +408,8 @@ int Bitmap::getGreen(int c){
 int Bitmap::makeColor(int red, int blue, int green){
     return SDL_MapRGB(&format565, red, blue, green);
 }
-	
-int Bitmap::setGraphicsMode(int mode, int width, int height){
 
+void Bitmap::initializeExtraStuff(){
     /* this is as good a place as any to initialize our format */
     format565.palette = 0;
     format565.BitsPerPixel = 16;
@@ -429,6 +428,10 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
     format565.Amask = 0;
     format565.colorkey = 0;
     format565.alpha = 255;
+}
+
+int Bitmap::setGraphicsMode(int mode, int width, int height){
+    initializeExtraStuff();
 
     switch (mode){
         case WINDOWED : {
