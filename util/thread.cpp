@@ -4,7 +4,13 @@ namespace Util{
 
 namespace Thread{
     
+bool isUninitialized(Id thread){
+    return thread == uninitializedValue;
+}
+
 #ifdef USE_SDL
+Id uninitializedValue = NULL;
+    
 void initializeLock(Lock * lock){
     *lock = SDL_CreateMutex();
 }
@@ -51,6 +57,8 @@ void cancelThread(Id thread){
 }
 
 #else
+Id uninitializedValue = 0;
+
 void initializeLock(Lock * lock){
     pthread_mutex_init(lock, NULL);
 }
