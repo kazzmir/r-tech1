@@ -31,6 +31,8 @@ namespace Thread{
     typedef void * (*ThreadFunction)(void*);
 #endif
 
+    extern Id uninitializedValue;
+    bool isUninitialized(Id thread);
     void initializeLock(Lock * lock);
 
     void initializeSemaphore(Semaphore * semaphore, unsigned int value);
@@ -115,6 +117,7 @@ protected:
 public:
     Future():
     thing(0),
+    thread(Thread::uninitializedValue),
     exception(__FILE__, __LINE__),
     haveException(None){
         /* future will increase the count */
@@ -122,7 +125,7 @@ public:
     }
 
     virtual ~Future(){
-        if (thread != NULL){
+        if (Thread::isUninitialized(thread)){
             Thread::joinThread(thread);
         }
         Thread::destroySemaphore(&future);
