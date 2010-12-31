@@ -13,7 +13,7 @@
 #include "util/load_exception.h"
 #include "util/token_exception.h"
 #include "mugen/exception.h"
-#include "../debug.h"
+#include "debug.h"
 
 namespace Util{
 

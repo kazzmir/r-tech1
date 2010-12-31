@@ -3,6 +3,7 @@
 #endif
 #include "music-player.h"
 #include "globals.h"
+#include "util/debug.h"
 #include <iostream>
 #include "configuration.h"
 #include "sound.h"
