@@ -3,7 +3,8 @@
 #include <math.h>
 #include <iostream>
 
-#include "level/utils.h"
+/* FIXME: get rid of this dependancy */
+#include "paintown-engine/level/utils.h"
 #include "messages.h"
 #include "loading.h"
 #include "file-system.h"
