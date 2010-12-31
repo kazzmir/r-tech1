@@ -2,7 +2,7 @@
 #include "../lit_bitmap.h"
 #include "../trans-bitmap.h"
 #include "../funcs.h"
-#include "../../debug.h"
+#include "../../util/debug.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
 #include "image/SDL_image.h"

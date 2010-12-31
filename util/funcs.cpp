@@ -6,6 +6,7 @@
 #endif
 #include "funcs.h"
 #include "globals.h"
+#include "debug.h"
 #include <vector>
 #include <string>
 #include <string.h>
