@@ -1,20 +1,20 @@
-#include "util/bitmap.h"
-#include "util/trans-bitmap.h"
+#include "bitmap.h"
+#include "trans-bitmap.h"
 #include <math.h>
 #include <iostream>
 
 #include "level/utils.h"
-#include "util/messages.h"
+#include "messages.h"
 #include "loading.h"
-#include "util/file-system.h"
-#include "util/font.h"
-#include "util/funcs.h"
-#include "util/gradient.h"
-#include "util/thread.h"
+#include "file-system.h"
+#include "font.h"
+#include "funcs.h"
+#include "gradient.h"
+#include "thread.h"
 #include "globals.h"
 #include <vector>
-#include "util/thread.h"
-#include "util/message-queue.h"
+#include "thread.h"
+#include "message-queue.h"
 #include "init.h"
 
 using namespace std;

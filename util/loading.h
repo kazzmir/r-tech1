@@ -1,7 +1,7 @@
 #ifndef _paintown_loading_h
 #define _paintown_loading_h
 
-#include "util/thread.h"
+#include "thread.h"
 
 namespace Level{
     class LevelInfo;
