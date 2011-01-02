@@ -30,6 +30,8 @@ public:
         class Filter{
         public:
             virtual unsigned int filter(unsigned int pixel) const = 0;
+            virtual ~Filter(){
+            }
         };
 
         static int SCALE_X;
