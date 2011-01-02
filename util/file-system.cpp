@@ -141,7 +141,7 @@ static AbsolutePath lookup(const RelativePath path){
     throw NotFound(__FILE__, __LINE__, out.str());
 }
 
-static AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath path){
+AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath path){
     vector<AbsolutePath> all = getFiles(directory, "*", true);
     for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
         AbsolutePath & check = *it;
