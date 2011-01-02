@@ -119,7 +119,7 @@ AbsolutePath userDirectory(){
 }
 #endif
 
-static AbsolutePath lookup(const RelativePath path) throw (NotFound){
+static AbsolutePath lookup(const RelativePath path){
     /* first try the main data directory */
     AbsolutePath final = Util::getDataPath2().join(path);
     if (System::readable(final.path())){
@@ -136,8 +136,22 @@ static AbsolutePath lookup(const RelativePath path) throw (NotFound){
     }
 
     ostringstream out;
-    out << "Cannot find " << path.path() << ". I looked in '" << Util::getDataPath2().join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'" << endl;
+    out << "Cannot find " << path.path() << ". I looked in '" << Util::getDataPath2().join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'";
 
+    throw NotFound(__FILE__, __LINE__, out.str());
+}
+
+static AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath path){
+    vector<AbsolutePath> all = getFiles(directory, "*", true);
+    for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
+        AbsolutePath & check = *it;
+        if (InsensitivePath(check.getFilename()) == path){
+            return check;
+        }
+    }
+
+    ostringstream out;
+    out << "Cannot find " << path.path() << " in " << directory.path();
     throw NotFound(__FILE__, __LINE__, out.str());
 }
 
@@ -283,6 +297,17 @@ AbsolutePath find(const RelativePath & path){
         return AbsolutePath(sanitize(out.path() + "/"));
     }
     return AbsolutePath(sanitize(out.path()));
+}
+    
+AbsolutePath findInsensitive(const RelativePath & path){
+    try{
+        /* try sensitive lookup first */
+        return lookup(path);
+    } catch (const NotFound & fail){
+    }
+    /* get the base directory */
+    AbsolutePath directory = lookup(path.getDirectory());
+    return lookupInsensitive(directory, path.getFilename());
 }
     
 bool exists(const RelativePath & path){
@@ -457,6 +482,14 @@ AbsolutePath AbsolutePath::getFilename() const {
         
 AbsolutePath AbsolutePath::join(const RelativePath & path) const {
     return AbsolutePath(sanitize(this->path() + "/" + path.path()));
+}
+        
+InsensitivePath::InsensitivePath(const Path & what):
+Path(what){
+}
+
+bool InsensitivePath::operator==(const Path & path) const {
+    return Util::upperCaseAll(path.path()) == Util::upperCaseAll(path.path());
 }
 
 string EndianReader::readStringX(int length){

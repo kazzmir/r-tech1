@@ -73,6 +73,12 @@ namespace Filesystem{
         std::string mypath;
     };
 
+    class InsensitivePath: public Path {
+    public:
+        InsensitivePath(const Path & what);
+        bool operator==(const Path & path) const;
+    };
+
     /* relative path should not have the leading data directory on it, just
      * the path within the paintown system.
      */
@@ -115,6 +121,9 @@ namespace Filesystem{
      * data path to it to give data/sounds/arrow.png
      */
     AbsolutePath find(const RelativePath & path);
+
+    /* like `find' but ignores case */
+    AbsolutePath findInsensitive(const RelativePath & path);
 
     /* whether the file exists at all */
     bool exists(const RelativePath & path);
