@@ -125,6 +125,9 @@ namespace Filesystem{
     /* like `find' but ignores case */
     AbsolutePath findInsensitive(const RelativePath & path);
 
+    /* findInsensitive but starts in the given absolute directory path */
+    AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath path);
+
     /* whether the file exists at all */
     bool exists(const RelativePath & path);
     bool exists(const AbsolutePath & path);
