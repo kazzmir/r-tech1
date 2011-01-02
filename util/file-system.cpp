@@ -489,7 +489,7 @@ Path(what){
 }
 
 bool InsensitivePath::operator==(const Path & path) const {
-    return Util::upperCaseAll(path.path()) == Util::upperCaseAll(path.path());
+    return Util::upperCaseAll(this->path()) == Util::upperCaseAll(path.path());
 }
 
 string EndianReader::readStringX(int length){
