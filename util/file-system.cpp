@@ -350,6 +350,21 @@ static string dirname(string path){
     return "";
 }
 
+std::string stripFirstDir(const std::string & str){
+    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
+        std::string temp = str;
+        size_t rem = temp.find("/");
+        if (rem != std::string::npos){
+            return str.substr(rem+1,str.size());
+        }
+        rem = temp.find("\\");
+        if( rem != std::string::npos ){
+            return str.substr(rem+1,str.size());
+        }
+    }
+    return str; 
+}
+
 std::string stripDir(const std::string & str){
     if (str.find( "/") != std::string::npos || str.find( "\\") != std::string::npos){
         std::string temp = str;
@@ -421,6 +436,10 @@ Path(path){
 
 RelativePath::RelativePath(const RelativePath & path):
 Path(path){
+}
+        
+RelativePath RelativePath::removeFirstDirectory() const {
+    return RelativePath(stripFirstDir(path()));
 }
 
 RelativePath RelativePath::getDirectory() const {
