@@ -93,6 +93,8 @@ namespace Filesystem{
         virtual RelativePath getDirectory() const;
         virtual RelativePath getFilename() const;
 
+        RelativePath removeFirstDirectory() const;
+
         /* a/ + b/ = a/b/ */
         RelativePath join(const RelativePath & path) const;
         RelativePath & operator=(const RelativePath & copy);
