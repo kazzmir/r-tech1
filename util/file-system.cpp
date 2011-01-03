@@ -333,6 +333,7 @@ RelativePath cleanse(const AbsolutePath & path){
     return RelativePath(str);
 }
 
+/* a/b/c/d -> a/b/c */
 static string dirname(string path){
     if (path.find("/") != string::npos ||
             path.find("\\") != string::npos){
@@ -350,6 +351,7 @@ static string dirname(string path){
     return "";
 }
 
+/* a/b/c/d -> b/c/d */
 std::string stripFirstDir(const std::string & str){
     if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
         std::string temp = str;
@@ -365,6 +367,7 @@ std::string stripFirstDir(const std::string & str){
     return str; 
 }
 
+/* a/b/c/d -> d */
 std::string stripDir(const std::string & str){
     if (str.find( "/") != std::string::npos || str.find( "\\") != std::string::npos){
         std::string temp = str;
