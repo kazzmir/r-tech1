@@ -18,6 +18,9 @@ namespace Filesystem{
         Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
         Exception(const Exception & copy);
         virtual ~Exception() throw ();
+        virtual void throwSelf() const {
+            throw *this;
+        }
 
     protected:
         virtual const std::string getReason() const;
@@ -36,6 +39,9 @@ namespace Filesystem{
         NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
         virtual ~NotFound() throw();
         NotFound(const NotFound & copy);
+        virtual void throwSelf() const {
+            throw *this;
+        }
     protected:
         virtual Exc::Base * copy() const {
             return new NotFound(*this);
@@ -48,6 +54,9 @@ namespace Filesystem{
         IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
         virtual ~IllegalPath() throw();
         IllegalPath(const IllegalPath & copy);
+        virtual void throwSelf() const {
+            throw *this;
+        }
     protected:
         virtual Exc::Base * copy() const {
             return new IllegalPath(*this);

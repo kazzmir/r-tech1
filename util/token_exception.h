@@ -12,6 +12,10 @@ public:
 
     virtual ~TokenException() throw();
 
+    virtual void throwSelf() const {
+        throw *this;
+    }
+
 protected:
     virtual Exception::Base * copy() const;
 

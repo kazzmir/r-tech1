@@ -106,6 +106,7 @@ template<class X>
 class Future{
 protected:
     /* WARNING: hack to find out the type of the exception */
+    /*
     enum ExceptionType{
         None,
         Load,
@@ -113,13 +114,13 @@ protected:
         Base,
         Mugen
     };
+    */
 
 public:
     Future():
     thing(0),
     thread(Thread::uninitializedValue),
-    exception(__FILE__, __LINE__),
-    haveException(None){
+    exception(NULL){
         /* future will increase the count */
         Thread::initializeSemaphore(&future, 0);
     }
@@ -129,17 +130,14 @@ public:
             Thread::joinThread(thread);
         }
         Thread::destroySemaphore(&future);
+        delete exception;
     }
 
     virtual X get(){
         X out;
         Thread::semaphoreDecrease(&future);
-        switch (haveException){
-            case None : break;
-            case Load : throw LoadException(__FILE__, __LINE__, exception, "Failed in future");
-            case Mugen : throw MugenException(exception.getTrace());
-            case Token: throw TokenException(exception);
-            default : throw Exception::Base(__FILE__, __LINE__, exception);
+        if (exception != NULL){
+            exception->throwSelf();
         }
         out = thing;
         Thread::semaphoreIncrease(&future);
@@ -160,17 +158,13 @@ protected:
         try{
             me->compute();
         } catch (const LoadException & load){
-            me->haveException = Load;
-            me->exception.set(load);
+            me->exception = new LoadException(load);
         } catch (const TokenException & t){
-            me->haveException = Token;
-            me->exception.set(t);
+            me->exception = new TokenException(t);
         } catch (const MugenException & m){
-            me->haveException = Mugen;
-            me->exception.set(m);
+            me->exception = new MugenException(m);
         } catch (const Exception::Base & base){
-            me->haveException = Base;
-            me->exception.set(base);
+            me->exception = new Exception::Base(base);
         }
         Thread::semaphoreIncrease(&me->future);
         return NULL;
@@ -187,8 +181,7 @@ protected:
     Thread::Id thread;
     Thread::Semaphore future;
     /* if any exceptions occur, throw them from `get' */
-    Exception::Base exception;
-    ExceptionType haveException;
+    Exception::Base * exception;
 };
 
 }
