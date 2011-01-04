@@ -18,6 +18,10 @@ public:
 
     virtual ~LoadException() throw();
 
+    virtual void throwSelf() const {
+        throw *this;
+    }
+
 protected:
     virtual const std::string getReason() const;
 
