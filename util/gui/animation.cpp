@@ -279,7 +279,7 @@ allowReset(true){
                 // start loop here
                 int l;
                 token->view() >> l;
-		if (l >= frames.size()){
+		if (l >= (int)frames.size()){
 		    ostringstream out;
 		    out << "Loop location is larger than the number of frames. Loop: " << loop << " Frames: " << frames.size();
 		    throw LoadException(__FILE__, __LINE__, out.str());
