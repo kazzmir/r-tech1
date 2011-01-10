@@ -9,6 +9,7 @@
 #endif
 
 #endif
+#include <algorithm>
 #include "funcs.h"
 #include "file-system.h"
 #include "system.h"
@@ -141,18 +142,22 @@ static AbsolutePath lookup(const RelativePath path){
     throw NotFound(__FILE__, __LINE__, out.str());
 }
 
-AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath path){
-    vector<AbsolutePath> all = getFiles(directory, "*", true);
-    for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
-        AbsolutePath & check = *it;
-        if (InsensitivePath(check.getFilename()) == path){
-            return check;
+AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path){
+    if (path.isFile()){
+        vector<AbsolutePath> all = getFiles(directory, "*", true);
+        for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
+            AbsolutePath & check = *it;
+            if (InsensitivePath(check.getFilename()) == path){
+                return check;
+            }
         }
-    }
 
-    ostringstream out;
-    out << "Cannot find " << path.path() << " in " << directory.path();
-    throw NotFound(__FILE__, __LINE__, out.str());
+        ostringstream out;
+        out << "Cannot find " << path.path() << " in " << directory.path();
+        throw NotFound(__FILE__, __LINE__, out.str());
+    } else {
+        return lookupInsensitive(lookupInsensitive(directory, path.firstDirectory()), path.removeFirstDirectory());
+    }
 }
 
 static vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path){
@@ -294,9 +299,9 @@ AbsolutePath find(const RelativePath & path){
 
     AbsolutePath out = lookup(path);
     if (System::isDirectory(out.path())){
-        return AbsolutePath(sanitize(out.path() + "/"));
+        return AbsolutePath(out.path() + "/");
     }
-    return AbsolutePath(sanitize(out.path()));
+    return AbsolutePath(out.path());
 }
     
 AbsolutePath findInsensitive(const RelativePath & path){
@@ -333,10 +338,55 @@ RelativePath cleanse(const AbsolutePath & path){
     return RelativePath(str);
 }
 
+static string joinPath(const vector<string> & paths){
+    ostringstream out;
+    bool first = true;
+    for (vector<string>::const_iterator it = paths.begin(); it != paths.end(); it++){
+        if (!first){
+            out << '/';
+        }
+        out << *it;
+        first = false;
+    }
+    return out.str();
+}
+
+static vector<string> splitPath(string path){
+    vector<string> all;
+    if (path.size() > 0 && path[0] == '/'){
+        all.push_back("/");
+    }
+    size_t found = path.find('/');
+    while (found != string::npos){
+        if (found > 0){
+            all.push_back(path.substr(0, found));
+        }
+        path.erase(0, found + 1);
+        found = path.find('/');
+    }   
+    if (path.size() != 0){
+        all.push_back(path);
+    }   
+    return all;
+}
+
 /* a/b/c/d -> a/b/c
  * a/b/c/d/ -> a/b/c
  */
 static string dirname(string path){
+    vector<string> paths = splitPath(path);
+    if (paths.size() > 1){
+        paths.pop_back();
+        return joinPath(paths);
+    } else if (paths.size() == 1){
+        if (paths[0] == "/"){
+            return "/";
+        }
+        return ".";
+    } else {
+        return ".";
+    }
+    /*
     while (path.size() > 0 && path[path.size() - 1] == '/'){
         path.erase(path.size() - 1);
     }
@@ -355,6 +405,7 @@ static string dirname(string path){
     }
 
     return "";
+    */
 }
 
 /* a/b/c/d -> b/c/d */
@@ -410,7 +461,18 @@ Path::~Path(){
 Path::Path(){
 }
 
-std::string invertSlashes(const string & str){
+static int invert(int c){
+    if (c == '\\'){
+        return '/';
+    }
+    return c;
+}
+
+std::string invertSlashes(string str){
+    transform(str.begin(), str.end(), str.begin(), invert);
+    return str;
+
+    /*
     string tempStr = str;
     if (tempStr.find('\\') != string::npos){
 	for (int i = tempStr.size()-1; i>-1; --i){
@@ -421,6 +483,7 @@ std::string invertSlashes(const string & str){
     }
 
     return tempStr;
+    */
 }
 
 Path::Path(const std::string & path):
@@ -450,6 +513,19 @@ Path(path){
 RelativePath RelativePath::removeFirstDirectory() const {
     return RelativePath(stripFirstDir(path()));
 }
+        
+bool RelativePath::isFile() const {
+    vector<string> paths = splitPath(path());
+    return paths.size() == 1;
+}
+        
+RelativePath RelativePath::firstDirectory() const {
+    vector<string> paths = splitPath(path());
+    if (paths.size() > 1){
+        return RelativePath(paths[0]);
+    }
+    return RelativePath();
+}
 
 RelativePath RelativePath::getDirectory() const {
     return RelativePath(dirname(path()));
@@ -468,7 +544,7 @@ bool RelativePath::operator==(const RelativePath & path) const {
 }
 
 RelativePath RelativePath::join(const RelativePath & him) const {
-    return RelativePath(sanitize(path() + "/" + him.path()));
+    return RelativePath(path() + "/" + him.path());
 }
 
 RelativePath & RelativePath::operator=(const RelativePath & copy){
@@ -509,7 +585,7 @@ AbsolutePath AbsolutePath::getFilename() const {
 }
         
 AbsolutePath AbsolutePath::join(const RelativePath & path) const {
-    return AbsolutePath(sanitize(this->path() + "/" + path.path()));
+    return AbsolutePath(this->path() + "/" + path.path());
 }
         
 InsensitivePath::InsensitivePath(const Path & what):
