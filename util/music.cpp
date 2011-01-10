@@ -207,8 +207,8 @@ static Tx_ removeVectorElement( vector< Tx_ > & toRemove, int pos ){
         return toRemove.front();
     }
 
-    const Tx_ & removed = toRemove[ pos ];
-    toRemove.erase( it );
+    Tx_ removed = toRemove[pos];
+    toRemove.erase(it);
     return removed;
 
 }
@@ -226,7 +226,7 @@ void Music::loadSong( const vector<Filesystem::AbsolutePath> & Songs ){
     vector<Filesystem::AbsolutePath> _songs = Songs;
     vector<Filesystem::AbsolutePath> songs;
     while ( ! _songs.empty() ){
-        int i = Util::rnd( _songs.size() );
+        int i = Util::rnd(_songs.size());
         songs.push_back(removeVectorElement(_songs, i));
     }
 
@@ -236,7 +236,7 @@ void Music::loadSong( const vector<Filesystem::AbsolutePath> & Songs ){
        */
 
     for ( vector<Filesystem::AbsolutePath>::iterator it = songs.begin(); it != songs.end(); it++ ){
-        Global::debug( 1 ) << "Trying to load song " << (*it).path() << endl;
+        Global::debug(1) << "Trying to load song " << (*it).path() << endl;
         if (loadSong((*it).path())){
             break;
         }
