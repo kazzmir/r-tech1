@@ -103,6 +103,9 @@ namespace Filesystem{
         virtual RelativePath getFilename() const;
 
         RelativePath removeFirstDirectory() const;
+        RelativePath firstDirectory() const;
+
+        bool isFile() const;
 
         /* a/ + b/ = a/b/ */
         RelativePath join(const RelativePath & path) const;
@@ -137,7 +140,7 @@ namespace Filesystem{
     AbsolutePath findInsensitive(const RelativePath & path);
 
     /* findInsensitive but starts in the given absolute directory path */
-    AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath path);
+    AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
 
     /* whether the file exists at all */
     bool exists(const RelativePath & path);
@@ -172,7 +175,7 @@ namespace Filesystem{
     /* same as getFiles but search directories recursively */
     std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
 
-    std::string invertSlashes(const std::string & str);
+    std::string invertSlashes(std::string str);
     std::string sanitize(std::string path);
 
     class Eof: public std::exception {
