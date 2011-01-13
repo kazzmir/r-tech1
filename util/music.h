@@ -26,7 +26,7 @@ public:
         static void changeSong();
 
 	/* load one of the songs in 'songs' */
-	static void loadSong( const std::vector<Filesystem::AbsolutePath> & songs );
+	static void loadSong(std::vector<Filesystem::AbsolutePath> songs);
 
 	static void pause();
 	static void play();

@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include "globals.h"
+#include <algorithm>
 // #include "defs.h"
 
 #include "configuration.h"
@@ -213,7 +214,7 @@ static Tx_ removeVectorElement( vector< Tx_ > & toRemove, int pos ){
 
 }
 	
-void Music::loadSong( const vector<Filesystem::AbsolutePath> & Songs ){
+void Music::loadSong(vector<Filesystem::AbsolutePath> songs){
 
     /*
        cout << "Songs = " << &Songs << endl;
@@ -223,19 +224,22 @@ void Music::loadSong( const vector<Filesystem::AbsolutePath> & Songs ){
        return;
        */
 
+    /*
     vector<Filesystem::AbsolutePath> _songs = Songs;
     vector<Filesystem::AbsolutePath> songs;
     while ( ! _songs.empty() ){
         int i = Util::rnd(_songs.size());
         songs.push_back(removeVectorElement(_songs, i));
     }
+    */
 
     /*
        songs.clear();
        songs.push_back( "music/song3.xm" );
        */
 
-    for ( vector<Filesystem::AbsolutePath>::iterator it = songs.begin(); it != songs.end(); it++ ){
+    std::random_shuffle(songs.begin(), songs.end());
+    for (vector<Filesystem::AbsolutePath>::iterator it = songs.begin(); it != songs.end(); it++){
         Global::debug(1) << "Trying to load song " << (*it).path() << endl;
         if (loadSong((*it).path())){
             break;
