@@ -1135,6 +1135,9 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
     SDL_FreeRW(ops);
+    if (!pcx){
+        throw Exception::Base(__FILE__, __LINE__);
+    }
     SDL_Surface * display = optimizedSurface(pcx);
     Bitmap out(display, true);
 
