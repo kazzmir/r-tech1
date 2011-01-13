@@ -143,6 +143,9 @@ static AbsolutePath lookup(const RelativePath path){
 }
 
 AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path){
+    if (path.path() == ""){
+        throw NotFound(__FILE__, __LINE__, "Given empty path to lookup");
+    }
     if (path.isFile()){
         vector<AbsolutePath> all = getFiles(directory, "*", true);
         for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
