@@ -12,6 +12,7 @@
 #ifndef WINDOWS
 #include <signal.h>
 #include <string.h>
+#include <execinfo.h>
 #endif
 
 /* don't be a boring tuna */
@@ -87,14 +88,28 @@ END_OF_FUNCTION( inc_second_counter )
 #endif
 
 #if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(NDS)
+static void print_stack_trace(){
+    /* use addr2line on these addresses to get a filename and line number */
+    void *trace[128];
+    int frames = backtrace(trace, 128);
+    printf("Stack trace\n");
+    for (int i = 0; i < frames; i++){
+        printf(" %p\n", trace[i]);
+    }
+}
+
 static void handleSigSegV(int i, siginfo_t * sig, void * data){
     const char * message = "Bug! Caught a memory violation. Shutting down..\n";
     int dont_care = write(1, message, 48);
     dont_care = dont_care;
+    print_stack_trace();
     // Global::shutdown_message = "Bug! Caught a memory violation. Shutting down..";
     Bitmap::setGfxModeText();
 #ifdef USE_ALLEGRO
     allegro_exit();
+#endif
+#ifdef USE_SDL
+    SDL_Quit();
 #endif
     /* write to a log file or something because sigsegv shouldn't
      * normally happen.
