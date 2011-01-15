@@ -504,7 +504,7 @@ static void showLoadMessage(){
     top.fill(Bitmap::makeColor(0, 0, 0));
     Font::getDefaultFont(25, 25).printf(10, 5, Bitmap::makeColor(192, 192, 192), top, "Loading", 0);
     Bitmap::transBlender(0, 0, 0, 200);
-    top.drawTrans(0, 0, work);
+    top.translucent().draw(0, 0, work);
     work.BlitAreaToScreen(screenX, screenY);
 }
 

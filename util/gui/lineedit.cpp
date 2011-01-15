@@ -1,4 +1,5 @@
 #include "util/bitmap.h"
+#include "util/trans-bitmap.h"
 #include "util/font.h"
 #include "lineedit.h"
 #include "keys.h"
@@ -137,26 +138,26 @@ void LineEdit::render(const Bitmap & work){
     if (location.getRadius()>0) {
         Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
         roundRectFill( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea->drawTrans(location.getX(),location.getY(),work);
+        workArea->translucent().draw(location.getX(),location.getY(),work);
 
         workArea->fill(Bitmap::makeColor(255,0,255));
 
         Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
         roundRect( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
-        workArea->drawTrans(location.getX(),location.getY(),work);
+        workArea->translucent().draw(location.getX(),location.getY(),work);
     } else {
         Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
         workArea->rectangleFill( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea->drawTrans(location.getX(),location.getY(),work);
+        workArea->translucent().draw(location.getX(),location.getY(),work);
 
         workArea->fill(Bitmap::makeColor(255,0,255));
 
         Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
         workArea->rectangle( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
-        workArea->drawTrans(location.getX(),location.getY(),work);
+        workArea->translucent().draw(location.getX(),location.getY(),work);
     }
 
-    work.drawingMode( Bitmap::MODE_SOLID );
+    // work.drawingMode( Bitmap::MODE_SOLID );
 
     workArea->fill(Bitmap::makeColor(255,0,255));
 
