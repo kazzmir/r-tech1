@@ -33,8 +33,7 @@ IMG_tif.c
 IMG_xxx.c 
 IMG_gif.c 
 IMG_png.c 
-IMG_xcf.c 
-showimage.c)
+IMG_xcf.c)
 
 # -------------------------------------------------------
 # Include directory
