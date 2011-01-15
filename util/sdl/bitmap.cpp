@@ -126,8 +126,8 @@ static int drawingAlpha(){
 
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_replace16(SDL_Surface * dst, const int original, const int replace);
-static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip );
-static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int x, int y, const Bitmap::Filter & filter);
+static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter);
+static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int x, int y, Bitmap::Filter * filter);
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
 int Bitmap::MaskColor(){
@@ -759,7 +759,7 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     if (getData().getSurface() != NULL){
-	paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP);
+	paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP, NULL);
         /*
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
         Blit(x, y, where);
@@ -768,31 +768,59 @@ void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP );
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP, NULL);
+}
+
+void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP );
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP, NULL);
+}
+
+void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP, filter);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP);
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, NULL);
+}
+
+void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawTrans( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP);
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP, NULL);
+}
+
+void Bitmap::drawTrans( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP, filter);
 }
 
 void Bitmap::drawTransHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP);
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP, NULL);
+}
+
+void Bitmap::drawTransHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawTransVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP);
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP, NULL);
+}
+
+void Bitmap::drawTransVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP, filter);
 }
 
 void Bitmap::drawTransHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP);
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+}
+
+void Bitmap::drawTransHVFlip( const int x, const int y, Filter * filter,const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
@@ -1174,24 +1202,25 @@ void Bitmap::StretchBy4( const Bitmap & where ){
     /* TODO */
 }
 	
-void Bitmap::draw(const int x, const int y, const Filter & filter, const Bitmap & where) const {
-    paintown_draw_sprite_filter_ex16(where.getData().getSurface(), getData().getSurface(), x, y, filter);
+void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
+    // paintown_draw_sprite_filter_ex16(where.getData().getSurface(), getData().getSurface(), x, y, filter);
+    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP, filter);
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP );
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, NULL);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP );
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP );
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, NULL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP);
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 /*
@@ -1352,7 +1381,7 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
     }
 }
 
-static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, const Bitmap::Filter & filter){
+static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, Bitmap::Filter * filter){
     int x, y, w, h;
     int x_dir = 1, y_dir = 1;
     int dxbeg, dybeg;
@@ -1393,7 +1422,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
         for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
             unsigned long sourcePixel = *(Uint16*) sourceLine;
             if (!(sourcePixel == mask)){
-                *(Uint16 *)destLine = filter.filter(sourcePixel);
+                *(Uint16 *)destLine = filter->filter(sourcePixel);
             } else {
                 *(Uint16 *)destLine = mask;
             }
@@ -1405,7 +1434,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
     }
 }
 
-static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip){
+static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter){
     int x, y, w, h;
     int x_dir = 1, y_dir = 1;
     int dxbeg, dybeg;
@@ -1585,7 +1614,11 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
                         if (!(sourcePixel == mask)){
                             // unsigned int destPixel = *(Uint16*) destLine;
                             // sourcePixel = globalBlend.currentBlender(destPixel, sourcePixel, globalBlend.alpha);
-                            *(Uint16 *)destLine = sourcePixel;
+                            if (filter != NULL){
+                                *(Uint16 *)destLine = filter->filter(sourcePixel);
+                            } else {
+                                *(Uint16 *)destLine = sourcePixel;
+                            }
                         }
                     }
                 }
@@ -1603,8 +1636,13 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
                         unsigned long sourcePixel = *(Uint16*) sourceLine;
                         if (!(sourcePixel == mask)){
                             // unsigned int destPixel = *(Uint16*) destLine;
-                            sourcePixel = globalBlend.currentBlender(litColor, sourcePixel, globalBlend.alpha);
-                            *(Uint16 *)destLine = sourcePixel;
+                            if (filter != NULL){
+                                sourcePixel = globalBlend.currentBlender(litColor, filter->filter(sourcePixel), globalBlend.alpha);
+                                *(Uint16 *)destLine = sourcePixel;
+                            } else {
+                                sourcePixel = globalBlend.currentBlender(litColor, sourcePixel, globalBlend.alpha);
+                                *(Uint16 *)destLine = sourcePixel;
+                            }
                         }
                     }
                 }
@@ -1621,8 +1659,13 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
                         unsigned long sourcePixel = *(Uint16*) sourceLine;
                         if (!(sourcePixel == mask)){
                             unsigned int destPixel = *(Uint16*) destLine;
-                            sourcePixel = globalBlend.currentBlender(sourcePixel, destPixel, globalBlend.alpha);
-                            *(Uint16 *)destLine = sourcePixel;
+                            if (filter != NULL){
+                                sourcePixel = globalBlend.currentBlender(filter->filter(sourcePixel), destPixel, globalBlend.alpha);
+                                *(Uint16 *)destLine = sourcePixel;
+                            } else {
+                                sourcePixel = globalBlend.currentBlender(sourcePixel, destPixel, globalBlend.alpha);
+                                *(Uint16 *)destLine = sourcePixel;
+                            }
                         }
                     }
                 }

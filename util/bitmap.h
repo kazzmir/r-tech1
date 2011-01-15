@@ -1,7 +1,3 @@
-/* if you include this file then it must be the first line in file (after any
- * #ifdef's of course. windows will complain loudly if <windows.h> ends up being
- * included before allegro.h and this file fixes things so the order is correct.
- */
 #ifndef _paintown_bitmap_h_
 #define _paintown_bitmap_h_
 
@@ -27,6 +23,7 @@ private:
 	Bitmap( const char * load_file, int sx, int sy, double accuracy );
 public:
 
+        /* equivalent to a GPU shader */
         class Filter{
         public:
             virtual unsigned int filter(unsigned int pixel) const = 0;
@@ -157,19 +154,28 @@ public:
 	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const;
 
 	virtual void draw(const int x, const int y, const Bitmap & where) const;
-	virtual void draw(const int x, const int y, const Filter & filter, const Bitmap & where) const;
+	virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
+	virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, Filter * filter, const Bitmap & where) const;
 	virtual void drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const;
         /* to draw lit use LitBitmap */
 	// virtual void drawLit( const int x, const int y, const int level, const Bitmap & where ) const;
 	virtual void drawHFlip(const int x, const int y, const Bitmap & where) const;
+	virtual void drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const;
 	virtual void drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
+	virtual void drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, Filter * filter, const Bitmap & where) const;
 	virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawTrans( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTrans( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawTransHFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTransHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawTransVFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTransVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawTransHVFlip( const int x, const int y, const Bitmap & where ) const;
+	virtual void drawTransHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawMask( const int x, const int y, const Bitmap & where );
 	virtual void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who );
 	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
