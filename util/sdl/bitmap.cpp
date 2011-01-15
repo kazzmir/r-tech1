@@ -1211,16 +1211,32 @@ void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, NULL);
 }
 
+void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, filter);
+}
+
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, NULL);
+}
+
+void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, filter);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, NULL);
 }
 
+void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, filter);
+}
+
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+}
+
+void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 /*

@@ -1206,22 +1206,35 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    // ::draw_sprite_ex( where.getBitmap(), getBitmap(), x, y, SPRITE_LIT );
-    // ::draw_sprite( where.getBitmap(), getBitmap(), x, y );
-    // Bitmap::draw( x, y, where );
     paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, NULL);
+}
+
+void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, filter);
 }
 	
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
 	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, NULL);
 }
 
+void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, filter);
+}
+
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, NULL);
 }
 
+void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, filter);
+}
+
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
     paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, NULL);
+}
+
+void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, filter);
 }
 
 /* this function should be in allegro but its not yet so just store it
