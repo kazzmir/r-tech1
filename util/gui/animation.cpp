@@ -4,6 +4,7 @@
 #include <math.h>
 #include <sstream>
 #include "util/token.h"
+#include "util/trans-bitmap.h"
 #include "util/bitmap.h"
 #include "globals.h"
 #include "../debug.h"
@@ -18,13 +19,13 @@ static void renderSprite(const Bitmap & bmp, const int x, const int y, const int
     if (alpha != 255){
         Bitmap::transBlender( 0, 0, 0, alpha );
         if (hflip && !vflip){
-            bmp.drawTransHFlip(x,y, work);
+            bmp.translucent().drawHFlip(x,y, work);
         } else if (!hflip && vflip){
-            bmp.drawTransVFlip(x,y, work);
+            bmp.translucent().drawVFlip(x,y, work);
         } else if (hflip && vflip){
-            bmp.drawTransHVFlip(x,y, work);
+            bmp.translucent().drawHVFlip(x,y, work);
         } else if (!hflip && !vflip){
-            bmp.drawTrans(x,y, work);
+            bmp.translucent().draw(x,y, work);
         }
     } else {
         if (hflip && !vflip){

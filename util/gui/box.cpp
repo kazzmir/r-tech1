@@ -1,4 +1,5 @@
 #include "util/bitmap.h"
+#include "util/trans-bitmap.h"
 #include "box.h"
 
 #include "menu/menu.h"
@@ -45,7 +46,7 @@ void Box::render(const Bitmap & work){
     }
     Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
     // workArea->drawingMode( Bitmap::MODE_TRANS );
-    workArea->drawTrans(location.getX(), location.getY(), work);
+    workArea->translucent().draw(location.getX(), location.getY(), work);
     // work.drawingMode( Bitmap::MODE_SOLID );
 }
 

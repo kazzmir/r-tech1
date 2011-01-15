@@ -16,6 +16,23 @@ public:
     virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
     virtual void circleFill( int x, int y, int radius, int color ) const;
     virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
+
+    using Bitmap::draw;
+    virtual void draw(const int x, const int y, const Bitmap & where) const;
+    virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;
+    // virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
+    // virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, Filter * filter, const Bitmap & where) const;
+
+    using Bitmap::drawHFlip;
+    virtual void drawHFlip(const int x, const int y, const Bitmap & where) const;
+    virtual void drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const;
+    // virtual void drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
+    // virtual void drawHFlip(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, Filter * filter, const Bitmap & where) const;
+    virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
+    virtual void drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
+    virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
+    virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
+
 };
 
 #endif

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include "file-system.h"
 #include "bitmap.h"
+#include "trans-bitmap.h"
 #include "font.h"
 #include "init.h"
 #include <sstream>
@@ -291,7 +292,7 @@ void Util::showError(const Bitmap & screen, const Exception::Base & exception, c
     Global::debug(0) << out.str() << std::endl;
 
     Bitmap::transBlender(0, 0, 0, 220);
-    error.drawTrans(50, 50, screen);
+    error.translucent().draw(50, 50, screen);
     screen.BlitToScreen();
 }
 
