@@ -8,6 +8,35 @@
 #include "image/SDL_image.h"
 #include <math.h>
 #include "exceptions/exception.h"
+#include <string>
+#include <sstream>
+
+class BitmapException: public Exception::Base {
+public:
+    BitmapException(const std::string & file, int line, const std::string & reason):
+    Base(file, line),
+    reason(reason){
+    }
+
+    BitmapException(const BitmapException & copy):
+    Base(copy),
+    reason(copy.reason){
+    }
+
+    virtual void throwSelf() const {
+        throw *this;
+    }
+
+    virtual ~BitmapException() throw () {
+    }
+    
+protected:
+    virtual const std::string getReason() const {
+        return reason;
+    }
+
+    std::string reason;
+};
 
 static const int WINDOWED = 0;
 static const int FULLSCREEN = 1;
@@ -145,7 +174,7 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
         // out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, in->format->BitsPerPixel, 0, 0, 0, 0);
         out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
         if (out == NULL){
-            throw Exception::Base(__FILE__, __LINE__);
+            throw BitmapException(__FILE__, __LINE__, "Could not create RGB surface");
         }
         SDL_Rect source;
         SDL_Rect destination;
@@ -198,7 +227,9 @@ bit8MaskColor(0){
         getData().setSurface(optimizedSurface(loaded));
         SDL_FreeSurface(loaded);
     } else {
-        throw Exception::Base(__FILE__, __LINE__);
+        std::ostringstream out;
+        out << "Could not load surface from memory " << (void*) data << " length " << length;
+        throw BitmapException(__FILE__, __LINE__, out.str());
     }
 
     own = new int;
@@ -237,7 +268,9 @@ mustResize(false),
 bit8MaskColor(0){
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     if (surface == NULL){
-        throw Exception::Base(__FILE__, __LINE__);
+        std::ostringstream out;
+        out << "Could not create surface with dimensions " << w << ", " << h;
+        throw BitmapException(__FILE__, __LINE__, out.str());
     }
     getData().setSurface(surface);
     own = new int;
@@ -275,7 +308,7 @@ Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
 own(NULL),
 mustResize(false),
 bit8MaskColor(0){
-    throw Exception::Base(__FILE__, __LINE__);
+    throw BitmapException(__FILE__, __LINE__, "Unimplemented constructor");
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
@@ -358,8 +391,9 @@ void Bitmap::internalLoadFile(const char * path){
         getData().setSurface(optimizedSurface(loaded));
         SDL_FreeSurface(loaded);
     } else {
-        /* FIXME: throw a standard bitmap exception */
-        throw Exception::Base(__FILE__, __LINE__);
+        std::ostringstream out;
+        out << "Could not load file '" << path << "'";
+        throw BitmapException(__FILE__, __LINE__, out.str());
     }
     own = new int;
     *own = 1;
@@ -1164,7 +1198,9 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
     SDL_FreeRW(ops);
     if (!pcx){
-        throw Exception::Base(__FILE__, __LINE__);
+        std::ostringstream out;
+        out << "Could not load PCX file at " << (void*) data << " length " << length;
+        throw BitmapException(__FILE__, __LINE__, out.str());
     }
     SDL_Surface * display = optimizedSurface(pcx);
     Bitmap out(display, true);

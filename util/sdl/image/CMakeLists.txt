@@ -13,7 +13,7 @@ else(NOT MSVC)
 endif(NOT MSVC)
 
 remove_definitions(${CXXFLAGS})
-add_definitions(${CFLAGS} -DLOAD_PNG)
+add_definitions(${CFLAGS} -DLOAD_PNG -DLOAD_PCX -DLOAD_GIF)
 
 # -------------------------------------------------------
 # Source directories containing all the necessary .cpp files
