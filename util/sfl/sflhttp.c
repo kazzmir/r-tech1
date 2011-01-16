@@ -1840,6 +1840,7 @@ build_full_url (const char *uri, const char *base_uri)
     time is in a static string that each call overwrites.
     ---------------------------------------------------------------------[>]-*/
 
+/*
 char *
 http_time_str (void)
 {
@@ -1865,6 +1866,7 @@ http_time_str (void)
                               timezone_string ());
     return (formatted_time);
 }
+*/
 
 
 /*  ---------------------------------------------------------------------[<]-

@@ -45,7 +45,6 @@ sflini.c
 sfllang.c
 sfllbuf.c
 sfllist.c
-sflmail.c
 sflmath.c
 sflmem.c
 sflmesg.c

@@ -252,6 +252,7 @@ init_conversion_tables (void)
     The returned date and time are in local time, not GMT.
     ---------------------------------------------------------------------[>]-*/
 
+#if 0
 Bool
 decode_mime_time (const char *mime_string, long *date, long *time)
 {
@@ -319,6 +320,7 @@ decode_mime_time (const char *mime_string, long *date, long *time)
     gmt_to_local (*date, *time, date, time);
     return (TRUE);
 }
+#endif
 
 
 /*  -------------------------------------------------------------------------

@@ -649,6 +649,7 @@ xml_changed (
     be accessed, or if the XML tree was incorrectly created.
     ---------------------------------------------------------------------[>]-*/
 
+#if 0
 Bool
 xml_refresh (
     XML_ITEM **item)
@@ -673,3 +674,4 @@ xml_refresh (
       }
     return (FALSE);
 }
+#endif
