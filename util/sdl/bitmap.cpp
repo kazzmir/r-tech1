@@ -3,6 +3,7 @@
 #include "../trans-bitmap.h"
 #include "../funcs.h"
 #include "../../util/debug.h"
+#include "../system.h"
 #include "sprig/sprig.h"
 #include <SDL.h>
 #include "image/SDL_image.h"
@@ -174,7 +175,9 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
         // out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, in->format->BitsPerPixel, 0, 0, 0, 0);
         out = SDL_CreateRGBSurface(SDL_SWSURFACE, in->w, in->h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
         if (out == NULL){
-            throw BitmapException(__FILE__, __LINE__, "Could not create RGB surface");
+            std::ostringstream out;
+            out << "Could not create RGB surface of size " << in->w << ", " << in->h << ". Memory usage: " << System::memoryUsage();
+            throw BitmapException(__FILE__, __LINE__, out.str());
         }
         SDL_Rect source;
         SDL_Rect destination;
