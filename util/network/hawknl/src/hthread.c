@@ -20,7 +20,7 @@
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
-#include "htinternal.h"
+#include "hawknl/htinternal.h"
 
 #ifdef HT_WIN_THREADS
 

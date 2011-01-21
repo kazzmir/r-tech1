@@ -35,7 +35,7 @@ src/sock.c)
 # -------------------------------------------------------
 # Include directory
 # -------------------------------------------------------
-include_directories(include hawknl)
+#include_directories(include hawknl)
 
 # -------------------------------------------------------
 # module

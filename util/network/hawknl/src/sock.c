@@ -100,8 +100,8 @@ typedef int socklen_t;
 #endif /* HL_WINDOWS_APP*/
 
 
-#include "nlinternal.h"
-#include "sock.h"
+#include "hawknl/nlinternal.h"
+#include "hawknl/sock.h"
 
 #ifndef IN_MULTICAST
 #define IN_MULTICAST(i) (((unsigned long)(i) & 0xF0000000) == (unsigned long)0xE0000000)

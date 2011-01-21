@@ -20,7 +20,7 @@
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
-#include "nl.h"
+#include "hawknl/nl.h"
 
 
 static NLushort crc16tab[256] =
