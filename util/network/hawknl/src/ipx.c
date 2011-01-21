@@ -31,7 +31,7 @@
 
 #if defined WIN32 || defined WIN64
 
-#include "wsock.h"
+#include "hawknl/wsock.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable:4100) /* disable "unreferenced formal parameter" */
@@ -57,12 +57,12 @@
 
 #endif
 
-#include "nlinternal.h"
-#include "sock.h"
+#include "hawknl/nlinternal.h"
+#include "hawknl/sock.h"
 
 
 #ifdef NL_INCLUDE_IPX
-#include "ipx.h"
+#include "hawknl/ipx.h"
 
 typedef struct
 {

@@ -39,7 +39,7 @@
 #define SOCKET int
 #endif
 
-#include "nlinternal.h"
+#include "hawknl/nlinternal.h"
 
 static HTmutex  grouplock;
 

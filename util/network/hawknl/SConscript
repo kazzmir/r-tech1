@@ -18,7 +18,7 @@ src/nltime.c
 src/sock.c
 """);
 
-env.Append(CPPPATH = 'hawknl')
+# env.Append(CPPPATH = 'hawknl')
 
 x = env.StaticLibrary('hawknl', source)
-Return( 'x' )
+Return('x')

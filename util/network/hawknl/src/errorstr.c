@@ -51,7 +51,7 @@
 #include <string.h>
 #endif
 
-#include "nlinternal.h"
+#include "hawknl/nlinternal.h"
 
 
 HL_EXP const /*@observer@*/  NLchar* HL_APIENTRY nlGetSystemErrorStr(NLint err)

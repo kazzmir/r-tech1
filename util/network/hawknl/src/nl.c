@@ -21,17 +21,17 @@
 */
 
 #include <string.h>
-#include "nlinternal.h"
-#include "sock.h"
-#include "serial.h"
-#include "parallel.h"
+#include "hawknl/nlinternal.h"
+#include "hawknl/sock.h"
+#include "hawknl/serial.h"
+#include "hawknl/parallel.h"
 
 #ifdef NL_INCLUDE_LOOPBACK
-#include "loopback.h"
+#include "hawknl/loopback.h"
 #endif
 
 #if defined HL_WINDOWS_APP && defined NL_INCLUDE_IPX
-  #include "ipx.h"
+  #include "hawknl/ipx.h"
 #endif
 
 #define MAX_NET_DRIVERS     6

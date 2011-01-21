@@ -30,12 +30,12 @@
 #include <errno.h>
 #endif
 
-#include "nlinternal.h"
+#include "hawknl/nlinternal.h"
 
 #ifdef HL_WINDOWS_APP
 /* Windows systems */
 
-#include "wsock.h"
+#include "hawknl/wsock.h"
 
 #else
 /* Unix-style systems or macs with posix support */
@@ -43,7 +43,7 @@
 #endif
 
 #ifdef NL_INCLUDE_LOOPBACK
-#include "loopback.h"
+#include "hawknl/loopback.h"
 
 static NLaddress loopback_ouraddress;
 static NLint loopgroup;

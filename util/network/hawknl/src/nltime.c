@@ -20,7 +20,7 @@
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
-#include "nlinternal.h"
+#include "hawknl/nlinternal.h"
 
 #ifdef HL_WINDOWS_APP
 #ifdef _MSC_VER
