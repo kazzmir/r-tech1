@@ -37,7 +37,7 @@
 
 #if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
 
-#include "wsock.h"
+#include "hawknl/wsock.h"
 
 #elif defined Macintosh
 

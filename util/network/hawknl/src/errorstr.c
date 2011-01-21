@@ -28,7 +28,7 @@
 #if !defined (_WIN32_WCE)
 #include <errno.h>
 #endif
-#include "wsock.h"
+#include "hawknl/wsock.h"
 #elif macintosh
 /* POSIX compat Mac systems ie pre OSX with GUSI2 installed */
 #include <unistd.h>
