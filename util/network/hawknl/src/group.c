@@ -27,7 +27,7 @@
 #if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
 /* Windows systems */
 
-#include "wsock.h"
+#include "hawknl/wsock.h"
 
 #else
 /* Unix-style systems or macs with posix support */
