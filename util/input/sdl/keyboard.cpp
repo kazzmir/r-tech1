@@ -3,6 +3,16 @@
 #include "../input-manager.h"
 #include "util/funcs.h"
 
+#ifdef PS3
+    Uint8 * getKeyState(int * keys){
+	return SDL_GetKeyboardState(keys);
+    }
+#else
+    Uint8 * getKeyState(int * keys){
+	return SDL_GetKeyState(keys);
+    }
+#endif
+
 Keyboard::Keyboard():
 enableBuffer(false){
 }
@@ -21,7 +31,7 @@ void Keyboard::wait(){
 
 bool Keyboard::keypressed(){
     int keys = 0;
-    Uint8 * state = SDL_GetKeyState(&keys);
+    Uint8 * state = getKeyState(&keys);
     for (int i = 0; i < keys; i++){
         if (i != SDLK_NUMLOCK && state[i] == 1){
             return true;
@@ -34,7 +44,7 @@ bool Keyboard::keypressed(){
 #if 0
 void Keyboard::readKeys( std::vector<int> & all_keys ){
     int keys = 0;
-    Uint8 * state = SDL_GetKeyState(&keys);
+    Uint8 * state = getKeyState(&keys);
     /* FIXME: the mapping between SDLK_* and our keyboard values are not 1-1 so
      * use a function here that returns the right mapping.
      */

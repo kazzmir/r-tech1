@@ -276,13 +276,15 @@
 #   include <sys/socket.h>
 #   include <sys/time.h>
 #   include <sys/stat.h>
+#ifndef PS3
 #   include <sys/ioctl.h>
+#endif
 #   include <sys/file.h>
 #   include <sys/wait.h>
 #   include <netinet/in.h>              /*  Must come before arpa/inet.h     */
 #   if (!defined (__UTYPE_BEOS))
 #       include <arpa/inet.h>
-#       if (!defined (TCP_NODELAY))
+#       if (!defined (TCP_NODELAY) && !defined (PS3))
 #           include <netinet/tcp.h>
 #       endif
 #   endif

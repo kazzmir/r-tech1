@@ -12,11 +12,16 @@ public:
     virtual void poll();
     virtual JoystickInput readAll();
     virtual int getDeviceId() const;
+    virtual void pressButton(int button);
+    virtual void releaseButton(int button);
+    virtual void axisMotion(int axis, int motion);
 
     virtual ~PSPJoystick();
 
     friend class Joystick;
 protected:
+    
+    Joystick::Event getKey(int button);
     PSPJoystick();
     // joystick
     SceCtrlData joystick;

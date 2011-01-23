@@ -370,12 +370,14 @@ void spg_pixelblend(SDL_Surface *surface, Sint16 x, Sint16 y, Uint32 color, Uint
                         if(Amask)
                             A = ((((dc & Amask) >> surface->format->Ashift) + alpha) >> 1) << surface->format->Ashift;
                         break;
+#ifndef PS3
                     case SPG_REPLACE_COLORKEY:  // Replace the colorkeyed color
                         if(!(surface->flags & SDL_SRCCOLORKEY) || dc != surface->format->colorkey)
                             return;
                         if(Amask)
                             A = (alpha << surface->format->Ashift);
                         break;
+#endif
                 }
                 
                 *pixel = R | G | B | A;
@@ -741,12 +743,14 @@ void SPG_PixelPatternBlend(SDL_Surface *surface, SDL_Rect target, SPG_bool* patt
                         if(Amask)
                             A = ((((dc & Amask) >> surface->format->Ashift) + alpha) >> 1) << surface->format->Ashift;
                         break;
+#ifndef PS3
                     case SPG_REPLACE_COLORKEY:  // Replace the colorkeyed color
                         if(!(surface->flags & SDL_SRCCOLORKEY) || dc != surface->format->colorkey)
                             return;
                         if(Amask)
                             A = (alpha << surface->format->Ashift);
                         break;
+#endif
                     }
 
                     *pixel = R | G | B | A;
@@ -2731,6 +2735,7 @@ void SPG_RectFilledBlend(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, 
                 }
             }
             break;
+#ifndef PS3
         case SPG_REPLACE_COLORKEY:  // Replace the colorkeyed color
             for (y = y1; y<=y2; y++)
             {
@@ -2746,6 +2751,7 @@ void SPG_RectFilledBlend(SDL_Surface *surface, Sint16 x1, Sint16 y1, Sint16 x2, 
                 }
             }
             break;
+#endif
         }
 
 
