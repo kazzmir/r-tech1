@@ -636,7 +636,7 @@ void SPG_BlendBlit(SDL_Surface* source, SDL_Rect* srect, SDL_Surface* dest, SDL_
     }
     
     
-
+#ifndef PS3
     // Get the per-surface alpha
     Uint8 perSAlpha = source->format->alpha;
 
@@ -687,7 +687,8 @@ void SPG_BlendBlit(SDL_Surface* source, SDL_Rect* srect, SDL_Surface* dest, SDL_
             dy++;
         }
     }
-    
+#endif 
+
     /*spg_unlock(surface);
     spg_unlock(dest);*/
     if(spg_makedirtyrects)
@@ -745,7 +746,7 @@ SDL_Surface* SPG_ReplaceColor(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* 
 {
     if(src == NULL || dest == NULL)
         return NULL;
-    
+#ifndef PS3   
     // Save per-surface alpha
     Uint32 srcAlpha = src->flags & SDL_SRCALPHA;
     Uint32 destAlpha = dest->flags & SDL_SRCALPHA;
@@ -772,6 +773,10 @@ SDL_Surface* SPG_ReplaceColor(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* 
     SDL_SetAlpha(src, srcAlpha, src->format->alpha);
     SDL_SetAlpha(dest, destAlpha, dest->format->alpha);
     return temp;
+#else
+    return NULL;
+#endif 
+    
 }
 
 

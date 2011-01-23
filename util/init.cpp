@@ -90,7 +90,7 @@ static void inc_second_counter() {
 END_OF_FUNCTION( inc_second_counter )
 #endif
 
-#if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(NDS)
+#if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
 #ifdef LINUX
 static void print_stack_trace(){
     /* use addr2line on these addresses to get a filename and line number */
@@ -127,7 +127,7 @@ static void handleSigSegV(int i, siginfo_t * sig, void * data){
 #endif
 
 /* catch a socket being closed prematurely on unix */
-#if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(NDS)
+#if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
 static void handleSigPipe( int i, siginfo_t * sig, void * data ){
 }
 
@@ -139,7 +139,7 @@ static void handleSigUsr1( int i, siginfo_t * sig, void * data ){
 #endif
 
 static void registerSignals(){
-#if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(NDS)
+#if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
 	struct sigaction action;
 	memset( &action, 0, sizeof(struct sigaction) );
 	action.sa_sigaction = handleSigPipe;

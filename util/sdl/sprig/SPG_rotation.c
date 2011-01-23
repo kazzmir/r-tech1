@@ -410,7 +410,7 @@ SDL_Rect SPG_transformNorm(SDL_Surface *src, SDL_Surface *dst, float angle, floa
         return r;
     }
 
-
+#ifndef PS3
 	// Use the correct bpp
 	if( src->format->BytesPerPixel == dst->format->BytesPerPixel  &&  src->format->BytesPerPixel != 3 && !(flags & SPG_TSAFE)){
 		switch( src->format->BytesPerPixel ){
@@ -430,7 +430,7 @@ SDL_Rect SPG_transformNorm(SDL_Surface *src, SDL_Surface *dst, float angle, floa
 	}else{
 		TRANSFORM_GENERIC
 	}
-
+#endif
 
 	
 	spg_unlock(src);
@@ -518,7 +518,7 @@ SDL_Rect SPG_transformAA(SDL_Surface *src, SDL_Surface *dst, float angle, float 
         return r;
     }
 
-
+#ifndef PS3
 	// Use the correct bpp
 	if( src->format->BytesPerPixel == dst->format->BytesPerPixel  &&  src->format->BytesPerPixel != 3 && !(flags & SPG_TSAFE) ){
 		switch( src->format->BytesPerPixel ){
@@ -539,7 +539,7 @@ SDL_Rect SPG_transformAA(SDL_Surface *src, SDL_Surface *dst, float angle, float 
 	}else{
 		TRANSFORM_GENERIC_AA
 	}
-
+#endif
 
 	// Unlock surfaces
 	
@@ -605,9 +605,10 @@ SDL_Surface* SPG_Transform(SDL_Surface *src, Uint32 bgColor, float angle, float 
 
 	// Copy flag settings (passes on colorkey and alpha blending)
 	dest->flags = src->flags;
+#ifndef PS3
 	dest->format->alpha = src->format->alpha;
 	dest->format->colorkey = src->format->colorkey;
-
+#endif 
 	SPG_Fill(dest,bgColor);  //Set background color
 
 	SPG_TransformX(src, dest, angle, xscale, yscale, 0, 0, qx, qy, flags);

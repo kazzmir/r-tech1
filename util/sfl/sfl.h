@@ -276,7 +276,7 @@
 
 /*  These include files are for non-PC systems                               */
 
-#if (defined (__UNIX__)) && !defined(WII) && !defined(MINPSPW) && !defined(NDS)
+#if (defined (__UNIX__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
 #   if defined (__GNUC__) && (__GNUC__ >= 2)
 #       define __STRICT_ANSI__
 #   endif
@@ -307,7 +307,7 @@
 #   endif
 #endif
 
-#if defined(WII) || defined(MINPSPW) || defined(NDS)
+#if defined(WII) || defined(MINPSPW) || defined(PS3) || defined(NDS)
 #define AF_INET 1
 #include <dirent.h>
 #endif
@@ -598,7 +598,7 @@ void  sys_assert  (const char *filename, unsigned line_number);
                                         { sizeof (value) - 1, 14, 1, value }
 #endif
 
-#if (defined (__UNIX__) || defined (__VMS__) || defined (__DJGPP__)) && !defined(WII) && !defined(MINPSPW) && !defined(NDS)
+#if (defined (__UNIX__) || defined (__VMS__) || defined (__DJGPP__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
     extern char **environ;              /*  Not defined in include files     */
 #endif
 
@@ -3265,7 +3265,7 @@ int    read_UDP             (sock_t handle, void *buffer, size_t length,
 int    write_UDP            (sock_t handle, const void *buffer, size_t length,
                              const struct sockaddr_in *sin);
 int    close_socket         (sock_t handle);
-#ifndef MINPSPW
+#ifndef MINPSPW && PS3
 int    sock_select          (int nfds, fd_set *readfds, fd_set *writefds,
                              fd_set *errorfds, struct timeval *timeout);
 #endif

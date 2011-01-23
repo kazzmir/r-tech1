@@ -463,8 +463,10 @@ void Bitmap::initializeExtraStuff(){
     format565.Gmask = 2016;
     format565.Bmask = 31;
     format565.Amask = 0;
+#ifndef PS3
     format565.colorkey = 0;
     format565.alpha = 255;
+#endif
 }
 
 int Bitmap::setGraphicsMode(int mode, int width, int height){
@@ -507,8 +509,12 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
                         " gmask: " << (int) screen->format->Gmask <<
                         " bmask: " << (int) screen->format->Bmask <<
                         " amask: " << (int) screen->format->Amask <<
+#ifndef PS3
                         " colorkey: " << (int) screen->format->colorkey <<
                         " alpha: " << (int) screen->format->alpha << std::endl;
+#else 
+			std::endl;
+#endif
 
 
     if (SCALE_X == 0){
@@ -1208,6 +1214,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     SDL_Surface * display = optimizedSurface(pcx);
     Bitmap out(display, true);
 
+#ifndef PS3
     if (pcx->format->BitsPerPixel == 8){
         SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
         int bad = makeColor(color.r, color.g, color.b);
@@ -1215,6 +1222,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
         // int mask = MaskColor();
         // out.replaceColor(bad, mask);
     }
+#endif
 
     SDL_FreeSurface(pcx);
     SDL_FreeSurface(display);
