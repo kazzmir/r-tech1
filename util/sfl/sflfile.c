@@ -2374,7 +2374,7 @@ get_tmp_file_name (const char *path, qbyte *index, const char *ext)
     redirection later.  Returns -1 if there were errors.
     ---------------------------------------------------------------------[>]-*/
 
-#ifndef MINPSPW
+#if !defined(MINPSPW) && !defined(PS3)
 int
 file_fhredirect (int source, int dest)
 {
