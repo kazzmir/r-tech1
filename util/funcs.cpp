@@ -274,7 +274,11 @@ void Util::limitPrintf(char * buffer, int size, const char * format, va_list arg
 
 #ifndef WINDOWS
 int Util::getPipe(int files[2]){
+#ifdef PS3
+    return 0;
+#else
     return pipe(files);
+#endif
 }
 #endif
 
