@@ -52,11 +52,11 @@ void joinThread(Id thread){
     SDL_WaitThread(thread, NULL);
 }
 
-#ifndef PS3
 void cancelThread(Id thread){
+#ifndef PS3
     SDL_KillThread(thread);
-}
 #endif
+}
 
 #else
 Id uninitializedValue = 0;
