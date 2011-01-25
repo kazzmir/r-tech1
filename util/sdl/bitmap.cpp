@@ -930,7 +930,7 @@ static void doBlit(SDL_Surface * mine, const int mx, const int my, const int wid
 
     SDL_BlitSurface(mine, &source, where.getData().getSurface(), &destination);
 }
-    
+
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
     SDL_SetColorKey(getData().getSurface(), 0, MaskColor());
     doBlit(getData().getSurface(), mx, my, width, height, wx, wy, where);
