@@ -125,9 +125,46 @@ static inline unsigned int differenceBlender(unsigned int x, unsigned int y, uns
     Uint8 blueY = 0;
     SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
 
-    int r = iabs(redY - redX);
-    int g = iabs(greenY - greenX);
-    int b = iabs(blueY - blueX);
+    // int r = iabs(redY - redX);
+    // int g = iabs(greenY - greenX);
+    // int b = iabs(blueY - blueX);
+    int r = redY - redX;
+    int g = greenY - greenX;
+    int b = blueY - blueX;
+    if (r < 0){
+        r = 0;
+    }
+    if (g < 0){
+        g = 0;
+    }
+    if (b < 0){
+        b = 0;
+    }
+    return transBlender(Bitmap::makeColor(r, g, b), y, n);
+}
+
+static inline unsigned int burnBlender(unsigned int x, unsigned int y, unsigned int n){
+    Uint8 redX = 0;
+    Uint8 greenX = 0;
+    Uint8 blueX = 0;
+    SDL_GetRGB(x, &format565, &redX, &greenX, &blueX);
+    Uint8 redY = 0;
+    Uint8 greenY = 0;
+    Uint8 blueY = 0;
+    SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
+
+    int r = redX - redY;
+    int g = greenX - greenY;
+    int b = blueX - blueY;
+    if (r < 0){
+        r = 0;
+    }
+    if (g < 0){
+        g = 0;
+    }
+    if (b < 0){
+        g = 0;
+    }
     return transBlender(Bitmap::makeColor(r, g, b), y, n);
 }
 
@@ -598,6 +635,14 @@ void Bitmap::differenceBlender( int r, int g, int b, int a ){
     globalBlend.blue = b;
     globalBlend.alpha = a;
     globalBlend.currentBlender = ::differenceBlender;
+}
+
+void Bitmap::burnBlender(int r, int g, int b, int a){
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.currentBlender = ::burnBlender;
 }
 	
 Bitmap & Bitmap::operator=(const Bitmap & copy){
