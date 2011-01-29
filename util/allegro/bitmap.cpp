@@ -1067,7 +1067,7 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
     ::pivot_scaled_sprite( where.getData().getBitmap(), getData().getBitmap(), x, y, centerX, centerY, fang, fscale ); 
 }
 
-void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
+void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
 	BITMAP * bmp = who.getData().getBitmap();
 	::masked_stretch_blit( getData().getBitmap(), bmp, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, x,y, new_width, new_height );
 }

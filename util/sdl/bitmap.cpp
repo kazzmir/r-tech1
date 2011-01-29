@@ -866,7 +866,7 @@ void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter,co
     paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, Bitmap::SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
-void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ){
+void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
 
     if (getData().getSurface() != NULL){
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
