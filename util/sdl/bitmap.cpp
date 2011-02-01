@@ -5,6 +5,7 @@
 #include "../../util/debug.h"
 #include "../system.h"
 #include "sprig/sprig.h"
+#include "stretch/SDL_stretch.h"
 #include <SDL.h>
 #include "image/SDL_image.h"
 #include <math.h>
@@ -1062,13 +1063,41 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 
+    Bitmap subSource(*this, sourceX, sourceY, sourceWidth, sourceHeight);
+    Bitmap subDestination(where, destX, destY, destWidth, destHeight);
+
+    SDL_Surface * src = subSource.getData().getSurface();
+    SDL_Surface * dst = subDestination.getData().getSurface();
+
+    if (SDL_MUSTLOCK(src)){
+        SDL_LockSurface(src);
+    }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_LockSurface(dst);
+    }
+
+    SDL_StretchSurfaceRect(src, NULL, dst, NULL);
+
+    if (SDL_MUSTLOCK(src)){
+        SDL_UnlockSurface(src);
+    }
+
+    if (SDL_MUSTLOCK(dst)){
+        SDL_UnlockSurface(dst);
+    }
+
+    /*
     SDL_Surface * src = getData().getSurface();
     SDL_Surface * dst = where.getData().getSurface();
+    */
 
+    /*
     float xscale = (float) destWidth / (float) sourceWidth;
     float yscale = (float) destHeight / (float) sourceHeight;
     SDL_SetColorKey(src, 0, MaskColor());
     SPG_TransformX(src, dst, 0, xscale, yscale, sourceX, sourceY, destX, destY, SPG_NONE);
+    */
 
     /*
     SDL_Rect source;
