@@ -99,6 +99,9 @@ public:
     // int readKey();
     void clear();
 
+    static void disableKeyRepeat();
+    static void enableKeyRepeat();
+
     void setDelay( const int key, const int delay );
     void setAllDelay( const int delay );
 
