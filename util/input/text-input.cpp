@@ -1,6 +1,7 @@
 #include "input-map.h"
 #include "text-input.h"
 #include "input-manager.h"
+#include "keyboard.h"
 #include <string.h>
 #include <sstream>
 #include <string>
@@ -107,11 +108,13 @@ bool TextInput::doInput(){
 void TextInput::enable(){
     InputManager::captureInput(*this);
     enabled = true;
+    Keyboard::enableKeyRepeat();
 }
 
 void TextInput::disable(){
     InputManager::releaseInput(*this);
     enabled = false;
+    Keyboard::disableKeyRepeat();
 }
 
 string TextInput::getText(){

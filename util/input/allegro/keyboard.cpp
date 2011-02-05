@@ -173,7 +173,7 @@ enableBuffer(false){
 		my_keys[ q ] = 0;
 	}
         */
-	setAllDelay( 0 );
+	setAllDelay(0);
 
         Util::Thread::initializeLock(&keyboardData);
         ::keyboard_ucallback = steal_keys;
@@ -252,6 +252,15 @@ std::vector<Keyboard::unicode_t> Keyboard::readText(){
     return out;
 }
 #endif
+
+void Keyboard::enableKeyRepeat(){
+    /* these numbers come from the allergo source, src/keyboard.c */
+    set_keyboard_rate(250, 33);
+}
+
+void Keyboard::disableKeyRepeat(){
+    set_keyboard_rate(0, 0);
+}
 
 void Keyboard::readKeys( vector< int > & all_keys ){
 

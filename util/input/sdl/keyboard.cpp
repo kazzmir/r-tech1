@@ -40,6 +40,14 @@ bool Keyboard::keypressed(){
 
     return false;
 }
+
+void Keyboard::disableKeyRepeat(){
+    SDL_EnableKeyRepeat(0, 0);
+}
+    
+void Keyboard::enableKeyRepeat(){
+    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+}
 	
 #if 0
 void Keyboard::readKeys( std::vector<int> & all_keys ){
