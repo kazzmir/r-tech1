@@ -24,25 +24,26 @@
 #include "globals.h"
 #include "init.h"
 #include "network/network.h"
-#include "util/thread.h"
+#include "thread.h"
 #include <time.h>
 
 #include <ostream>
-#include "util/dumb/include/dumb.h"
+#include "dumb/include/dumb.h"
 #ifdef USE_ALLEGRO
-#include "util/dumb/include/aldumb.h"
-#include "util/loadpng/loadpng.h"
-#include "util/gif/algif.h"
+#include "dumb/include/aldumb.h"
+#include "loadpng/loadpng.h"
+#include "gif/algif.h"
 #endif
-#include "util/bitmap.h"
-#include "util/funcs.h"
-#include "util/file-system.h"
-#include "util/font.h"
-#include "util/sound.h"
+#include "bitmap.h"
+#include "funcs.h"
+#include "file-system.h"
+#include "font.h"
+#include "sound.h"
 #include "configuration.h"
 #include "script/script.h"
-#include "util/music.h"
-#include "util/loading.h"
+#include "music.h"
+#include "loading.h"
+#include "input/keyboard.h"
 
 #ifdef WII
 #include <fat.h>
@@ -405,6 +406,8 @@ bool Global::init(int gfx){
     
     /* music */
     atexit(&dumb_exit);
+
+    Keyboard::disableKeyRepeat();
 
     out << "Initialize random number generator" << endl;
     /* initialize random number generator */
