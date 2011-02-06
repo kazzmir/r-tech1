@@ -5,6 +5,11 @@
 #endif
 #endif
 
+#ifdef USE_ALLEGRO5
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
+#endif
+
 #ifdef USE_SDL
 #include <SDL.h>
 #endif
@@ -188,6 +193,9 @@ END_OF_FUNCTION(close_window)
 
 #ifdef USE_ALLEGRO5
 static void initSystem(ostream & out){
+    al_init();
+    al_init_image_addon();
+    al_install_keyboard();
 }
 #endif
 
