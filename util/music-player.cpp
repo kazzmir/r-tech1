@@ -438,4 +438,82 @@ OggPlayer::~OggPlayer(){
 
 #endif /* SDL */
 
+#ifdef USE_ALLEGRO5
+GMEPlayer::GMEPlayer(const char * path){
+    /* TODO */
+}
+
+void GMEPlayer::play(){
+    /* TODO */
+}
+
+void GMEPlayer::poll(){
+    /* TODO */
+}
+
+void GMEPlayer::pause(){
+    /* TODO */
+}
+
+void GMEPlayer::setVolume(double volume){
+    /* TODO */
+}
+
+GMEPlayer::~GMEPlayer(){
+    /* TODO */
+}
+
+#ifdef HAVE_OGG
+OggPlayer::OggPlayer(const char * path){
+    /* TODO */
+}
+
+void OggPlayer::play(){
+    /* TODO */
+}
+
+void OggPlayer::poll(){
+    /* TODO */
+}
+
+void OggPlayer::pause(){
+    /* TODO */
+}
+
+void OggPlayer::setVolume(double volume){
+    /* TODO */
+}
+
+OggPlayer::~OggPlayer(){
+    /* TODO */
+}
+
+#endif
+
+DumbPlayer::DumbPlayer(const char * path){
+    /* TODO */
+}
+
+void DumbPlayer::play(){
+    /* TODO */
+}
+
+void DumbPlayer::poll(){
+    /* TODO */
+}
+
+void DumbPlayer::pause(){
+    /* TODO */
+}
+
+void DumbPlayer::setVolume(double volume){
+    /* TODO */
+}
+
+DumbPlayer::~DumbPlayer(){
+    /* TODO */
+}
+
+#endif
+
 }

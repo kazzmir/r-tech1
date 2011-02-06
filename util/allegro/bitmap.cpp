@@ -782,15 +782,7 @@ int Bitmap::setGfxModeWindowed(int x, int y){
 int Bitmap::makeColor( int r, int g, int b ){
 	return ::makecol16( r, g, b );
 }
-	
-int Bitmap::darken( int color, double factor ){
-	int r = (int)((double)::getr16( color ) / factor);
-	int g = (int)((double)::getg16( color ) / factor);
-	int b = (int)((double)::getb16( color ) / factor);
 
-	return makeColor( r, g, b );
-}
-	
 void Bitmap::hsvToRGB( float h, float s, float v, int * r, int * g, int * b ){
 	::hsv_to_rgb( h, s, v, r, g, b );
 }
@@ -1115,6 +1107,7 @@ void Bitmap::StretchBy4( const Bitmap & where ){
 
 }
 
+#if 0
 void Bitmap::Stretch( const Bitmap & where ) const {
 	Stretch( where, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, 0, 0, where.getData().getBitmap()->w, where.getData().getBitmap()->h );
 	/*
@@ -1122,6 +1115,7 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 	::stretch_blit( getBitmap(), bmp, 0, 0, getBitmap()->w, getBitmap()->h, 0, 0, bmp->w, bmp->h );
 	*/
 }
+#endif
 	
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 	BITMAP * bmp = where.getData().getBitmap();
