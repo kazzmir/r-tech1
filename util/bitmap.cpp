@@ -1,8 +1,13 @@
+/*
 #ifdef USE_ALLEGRO
 #include <allegro.h>
 #endif
+*/
 
+#include "funcs.h"
 #include "bitmap.h"
+#include "trans-bitmap.h"
+#include "lit_bitmap.h"
 #include <string>
 #include <math.h>
 
@@ -30,6 +35,9 @@ const int Bitmap::SPRITE_TRANS = 3;
 #endif
 #ifdef USE_SDL
 #include "sdl/bitmap.cpp"
+#endif
+#ifdef USE_ALLEGRO5
+#include "allegro5/bitmap.cpp"
 #endif
 
 static inline int max(int a, int b){

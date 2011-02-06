@@ -186,6 +186,11 @@ static void close_window(){
 END_OF_FUNCTION(close_window)
 #endif
 
+#ifdef USE_ALLEGRO5
+static void initSystem(ostream & out){
+}
+#endif
+
 #ifdef USE_ALLEGRO
 static void initSystem(ostream & out){
     out << "Allegro version: " << ALLEGRO_VERSION_STR << endl;

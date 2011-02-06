@@ -4,6 +4,9 @@
 #ifdef USE_SDL
 #include "sdl/keyboard.cpp"
 #endif
+#ifdef USE_ALLEGRO5
+#include "allegro5/keyboard.cpp"
+#endif
 
 bool Keyboard::isNumber( int key ){
 	return key == Key_0 ||
