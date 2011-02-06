@@ -1,10 +1,15 @@
-// #include <allegro.h>
+#include <allegro.h>
+#ifdef _WIN32
+#include <winalleg.h>
+#endif
 
+/*
 #ifdef _WIN32
 #define BITMAP dummyBITMAP
 #include <windows.h>
 #undef BITMAP
 #endif
+*/
 
 struct BITMAP;
 
