@@ -11,11 +11,40 @@
 #include "allegro5/bitmap.h"
 #endif
 
+#include "exceptions/exception.h"
 #include <string>
 #include <vector>
 #include <iostream>
 
 class TranslucentBitmap;
+
+class BitmapException: public Exception::Base {
+public:
+    BitmapException(const std::string & file, int line, const std::string & reason):
+    Base(file, line),
+    reason(reason){
+    }
+
+    BitmapException(const BitmapException & copy):
+    Base(copy),
+    reason(copy.reason){
+    }
+
+    virtual void throwSelf() const {
+        throw *this;
+    }
+
+    virtual ~BitmapException() throw () {
+    }
+    
+protected:
+    virtual const std::string getReason() const {
+        return reason;
+    }
+
+    std::string reason;
+};
+
 
 class Bitmap{
 private:

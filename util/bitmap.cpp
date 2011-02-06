@@ -304,6 +304,18 @@ void Bitmap::Blit( const std::string & xpath ) const {
     duh.Blit(*this);
 }
 
+void Bitmap::Blit(const Bitmap & where) const {
+    this->Blit(0, 0, where);
+}
+
+void Bitmap::Blit(const int x, const int y, const Bitmap & where) const {
+    Blit(0, 0, x, y, where);
+}
+
+void Bitmap::Blit(const int mx, const int my, const int wx, const int wy, const Bitmap & where) const {
+    Blit(mx, my, getWidth(), getHeight(), wx, wy, where);
+}
+
 void Bitmap::BlitFromScreen(const int x, const int y) const {
     Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
 }
