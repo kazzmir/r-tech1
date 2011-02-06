@@ -13,33 +13,6 @@
 #include <string>
 #include <sstream>
 
-class BitmapException: public Exception::Base {
-public:
-    BitmapException(const std::string & file, int line, const std::string & reason):
-    Base(file, line),
-    reason(reason){
-    }
-
-    BitmapException(const BitmapException & copy):
-    Base(copy),
-    reason(copy.reason){
-    }
-
-    virtual void throwSelf() const {
-        throw *this;
-    }
-
-    virtual ~BitmapException() throw () {
-    }
-    
-protected:
-    virtual const std::string getReason() const {
-        return reason;
-    }
-
-    std::string reason;
-};
-
 static const int WINDOWED = 0;
 static const int FULLSCREEN = 1;
 /* bits per pixel */
@@ -947,18 +920,6 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 
         SPG_TransformX(src, dst, 0, xscale, yscale, myX, myY, useX, useY, SPG_TCOLORKEY);
     }
-}
-
-void Bitmap::Blit( const Bitmap & where ) const {
-    Blit(0, 0, where);
-}
-
-void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
-    Blit(0, 0, x, y, where);
-}
-
-void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const {
-    Blit(mx, my, getWidth(), getHeight(), wx, wy, where);
 }
 
 static void doBlit(SDL_Surface * mine, const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ){

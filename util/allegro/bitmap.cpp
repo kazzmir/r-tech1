@@ -3,11 +3,6 @@
 
 #ifdef _WIN32
 #include <winalleg.h>
-/*
-#define BITMAP dummyBITMAP
-#include <windows.h>
-#undef BITMAP
-*/
 #endif
 
 #include "../gif/algif.h"
@@ -1133,6 +1128,7 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
 	::stretch_blit( getData().getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
 }
 
+#if 0
 void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
 	BITMAP * bmp = where.getData().getBitmap();
 	/*
@@ -1145,11 +1141,14 @@ void Bitmap::Blit( const int x, const int y, const Bitmap & where ) const {
 	release_bitmap( bmp );
 	*/
 }
+#endif
 
+/*
 void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const Bitmap & where ) const {
 	BITMAP * bmp = where.getData().getBitmap();
 	::blit( getData().getBitmap(), bmp, mx, my, wx, wy, getData().getBitmap()->w, getData().getBitmap()->h );
 }
+*/
 
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
 	BITMAP * bmp = where.getData().getBitmap();
@@ -1159,10 +1158,6 @@ void Bitmap::Blit( const int mx, const int my, const int width, const int height
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
 	BITMAP * bmp = where.getData().getBitmap();
 	::masked_blit( getData().getBitmap(), bmp, mx, my, wx, wy, width, height );
-}
-
-void Bitmap::Blit( const Bitmap & where ) const {
-    this->Blit( 0, 0, where );
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
