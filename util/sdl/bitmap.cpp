@@ -1014,6 +1014,7 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
     }
 }
 
+/*
 void Bitmap::Stretch( const Bitmap & where ) const {
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
         Blit(where);
@@ -1021,6 +1022,7 @@ void Bitmap::Stretch( const Bitmap & where ) const {
         Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
     }
 }
+*/
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 
@@ -1200,13 +1202,7 @@ void TranslucentBitmap::fill(int color) const {
 }
 */
 
-int Bitmap::darken( int color, double factor ){
-    int r = (int)((double)getRed(color) / factor);
-	int g = (int)((double)getGreen(color) / factor);
-	int b = (int)((double)getBlue(color) / factor);
 
-	return makeColor(r, g, b);
-}
 
 void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
     /* TODO */

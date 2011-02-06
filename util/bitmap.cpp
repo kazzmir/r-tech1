@@ -320,6 +320,22 @@ void Bitmap::BlitFromScreen(const int x, const int y) const {
     Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
 }
 
+void Bitmap::Stretch( const Bitmap & where ) const {
+    if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
+        Blit(where);
+    } else {
+        Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
+    }
+}
+
+int Bitmap::darken( int color, double factor ){
+    int r = (int)((double)getRed(color) / factor);
+    int g = (int)((double)getGreen(color) / factor);
+    int b = (int)((double)getBlue(color) / factor);
+
+    return makeColor(r, g, b);
+}
+
 LitBitmap::LitBitmap(const Bitmap & b):
 Bitmap(b){
     int x1, y1, x2, y2;

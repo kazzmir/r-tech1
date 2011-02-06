@@ -36,6 +36,36 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
     *blue = _rgb_scale_5[(color >> rgb_b_shift_16) & 0x1F];
 }
 
+int Bitmap::MaskColor(){
+    static int mask = makeColor(255, 0, 255);
+    return mask;
+}
+
+static const int WINDOWED = 0;
+static const int FULLSCREEN = 1;
+
+Bitmap * Bitmap::Screen = NULL;
+
+Bitmap::Bitmap():
+own(NULL),
+mustResize(false),
+bit8MaskColor(0){
+    /* TODO */
+}
+
+Bitmap::Bitmap( const char * load_file ):
+own(NULL),
+mustResize(false),
+bit8MaskColor(0){
+    internalLoadFile(load_file);
+}
+
+Bitmap::Bitmap( const std::string & load_file ):
+own(NULL),
+mustResize(false){
+    internalLoadFile(load_file.c_str());
+}
+
 Bitmap::Bitmap(int width, int height):
 own(NULL),
 mustResize(false),
@@ -51,10 +81,37 @@ bit8MaskColor(0){
     *own = 1;
 }
 
+Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
+own(NULL),
+mustResize(false),
+bit8MaskColor(copy.bit8MaskColor){
+    if (deep_copy){
+        ALLEGRO_BITMAP * clone = al_clone_bitmap(copy.getData().getBitmap());
+        getData().setBitmap(clone);
+        own = new int;
+        *own = 1;
+    } else {
+        getData().setBitmap(copy.getData().getBitmap());
+        own = copy.own;
+        if (own){
+            *own += 1;
+        }
+    }
+}
+
 enum Format{
     PNG,
     GIF,
 };
+
+Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
+    /* TODO */
+    return Bitmap();
+}
+
+void Bitmap::replaceColor(int original, int replaced){
+    /* TODO */
+}
 
 static ALLEGRO_BITMAP * memoryGIF(const char * data, int length){
     ALLEGRO_FILE * memory = al_open_memfile((void *) data, length, "r");
@@ -83,6 +140,25 @@ static ALLEGRO_BITMAP * memoryGIF(const char * data, int length){
     ALLEGRO_BITMAP * out = NULL;
 
     return out;
+}
+
+void Bitmap::internalLoadFile(const char * path){
+    this->path = path;
+    ALLEGRO_BITMAP * loaded = al_load_bitmap(path);
+    getData().setBitmap(loaded);
+    /*
+    ALLEGRO_BITMAP * loaded = IMG_Load(path);
+    if (loaded){
+        getData().setSurface(optimizedSurface(loaded));
+        SDL_FreeSurface(loaded);
+    } else {
+        std::ostringstream out;
+        out << "Could not load file '" << path << "'";
+        throw BitmapException(__FILE__, __LINE__, out.str());
+    }
+    */
+    own = new int;
+    *own = 1;
 }
 
 static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, Format type){
@@ -176,11 +252,348 @@ int Bitmap::getHeight() const {
 }
 
 int Bitmap::setGraphicsMode(int mode, int width, int height){
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
+    initializeExtraStuff();
     return 0;
 }
 
 int Bitmap::getPixel(const int x, const int y) const {
     ALLEGRO_COLOR color = al_get_pixel(getData().getBitmap(), x, y);
     return pack565(color.r, color.g, color.b);
+}
+
+void Bitmap::putPixel(int x, int y, int pixel) const {
+    /* TODO */
+}
+
+void Bitmap::putPixelNormal(int x, int y, int col) const {
+    putPixel(x, y, col);
+}
+
+void Bitmap::fill(int color) const {
+    unsigned char red, green, blue;
+    unpack565(color, &red, &green, &blue);
+    al_set_target_bitmap(getData().getBitmap());
+    al_clear_to_color(al_map_rgb(red, green, blue));
+}
+
+void Bitmap::transBlender( int r, int g, int b, int a ){
+    /* TODO */
+    /*
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.currentBlender = ::transBlender;
+    */
+}
+
+void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
+    /* TODO */
+}
+
+void Bitmap::StretchBy2( const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::StretchBy4( const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
+    /* TODO */
+}
+
+void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
+    /* TODO */
+}
+
+void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::BlitMasked(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+    /* TODO */
+}
+
+void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
+    /* TODO */
+}
+
+void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
+    /* TODO */
+}
+
+void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::vLine( const int x1, const int y, const int x2, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::floodfill( const int x, const int y, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::circleFill(int x, int y, int radius, int color) const {
+    /* TODO */
+}
+
+void Bitmap::circle(int x, int y, int radius, int color) const {
+    /* TODO */
+}
+
+void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
+    /* TODO */
+}
+
+void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::applyTrans(const int color) const {
+    /* TODO */
+}
+
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
+    /* TODO */
+}
+
+void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void Bitmap::save( const std::string & str ) const {
+    /* TODO */
+}
+
+void Bitmap::readLine( std::vector< int > & line, int y ){
+    /* TODO */
+}
+
+void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
+    /* FIXME */
+    al_set_target_bitmap(where.getData().getBitmap());
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+    al_draw_bitmap(getData().getBitmap(), x, y, 0);
+}
+
+void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter,const Bitmap & where ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color) const {
+    /* TODO */
+}
+
+void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+    /* TODO */
+}
+
+void Bitmap::initializeExtraStuff(){
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
+}
+
+Bitmap & Bitmap::operator=(const Bitmap & copy){
+    releaseInternalBitmap();
+    path = copy.getPath();
+    getData().setBitmap(copy.getData().getBitmap());
+    // own = false;
+    own = copy.own;
+    if (own)
+        *own += 1;
+    return *this;
+}
+
+void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
+    /* TODO */
+}
+
+void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
+    /* TODO */
+}
+
+void Bitmap::destroyPrivateData(){
+    al_destroy_bitmap(getData().getBitmap());
+}
+
+int Bitmap::setGfxModeFullscreen(int x, int y){
+    return setGraphicsMode(FULLSCREEN, x, y);
+}
+
+int Bitmap::setGfxModeWindowed( int x, int y ){
+    return setGraphicsMode(WINDOWED, x, y);
+}
+
+int Bitmap::setGfxModeText(){
+    /* TODO */
+    return 0;
+}
+
+bool Bitmap::getError(){
+    /* TODO */
+    return false;
+}
+
+void Bitmap::addBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+
+void Bitmap::differenceBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+
+void Bitmap::multiplyBlender( int r, int g, int b, int a ){
+    /* TODO */
+}
+
+void Bitmap::drawingMode(int type){
+    /* TODO */
+}
+
+void Bitmap::shutdown(){
+    delete Screen;
+    Screen = NULL;
+    /*
+    delete Scaler;
+    Scaler = NULL;
+    delete Buffer;
+    Buffer = NULL;
+    */
 }

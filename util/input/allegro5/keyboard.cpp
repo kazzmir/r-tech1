@@ -132,3 +132,28 @@ const int Keyboard::Key_MENU = ALLEGRO_KEY_MENU;
 const int Keyboard::Key_SCRLOCK = ALLEGRO_KEY_SCROLLLOCK;
 const int Keyboard::Key_NUMLOCK = ALLEGRO_KEY_NUMLOCK;
 const int Keyboard::Key_CAPSLOCK = ALLEGRO_KEY_CAPSLOCK;
+    
+Keyboard::Keyboard():
+enableBuffer(false){
+}
+
+void Keyboard::disableKeyRepeat(){
+    /* TODO */
+}
+
+void Keyboard::enableKeyRepeat(){
+    /* TODO */
+}
+
+void Keyboard::readKeys(std::vector<int> & all_keys){
+    /* TODO */
+}
+
+bool Keyboard::keypressed(){
+    /* TODO */
+    return false;
+}
+
+void Keyboard::clear(){
+    /* TODO */
+}
