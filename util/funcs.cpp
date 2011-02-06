@@ -4,6 +4,9 @@
 #ifdef USE_SDL
 #include <SDL.h>
 #endif
+#ifdef USE_ALLEGRO5
+#include <allegro5/allegro.h>
+#endif
 #include "funcs.h"
 #include "globals.h"
 #include "debug.h"
@@ -94,6 +97,9 @@ void Util::rest( int x ){
 #endif
 #ifdef USE_SDL
     SDL_Delay(x);
+#endif
+#ifdef USE_ALLEGRO5
+    al_rest((double) x / 1000.0);
 #endif
 }
 
