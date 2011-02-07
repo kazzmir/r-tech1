@@ -192,10 +192,58 @@ END_OF_FUNCTION(close_window)
 #endif
 
 #ifdef USE_ALLEGRO5
+struct TimerInfo{
+    TimerInfo(void (*x)(), ALLEGRO_TIMER * y):
+        tick(x), timer(y){}
+
+    void (*tick)();
+    ALLEGRO_TIMER * timer;
+};
+
+static void * do_timer(void * info){
+    TimerInfo * timerInfo = (TimerInfo*) info;
+
+    ALLEGRO_EVENT_SOURCE * source = al_get_timer_event_source(timerInfo->timer);
+    ALLEGRO_EVENT_QUEUE * queue = al_create_event_queue();
+    al_register_event_source(queue, source);
+    while (true){
+        ALLEGRO_EVENT event;
+        al_wait_for_event(queue, &event);
+        timerInfo->tick();
+    }
+
+    al_destroy_event_queue(queue);
+    al_destroy_timer(timerInfo->timer);
+
+    delete timerInfo;
+}
+
+static Util::Thread::Id start_timer(void (*func)(), int frequency){
+    ALLEGRO_TIMER * timer = al_create_timer(ALLEGRO_BPS_TO_SECS(frequency));
+    if (timer == NULL){
+        Global::debug(0) << "Could not create timer" << endl;
+    }
+    al_start_timer(timer);
+    TimerInfo * info = new TimerInfo(func, timer);
+    Util::Thread::Id thread;
+    Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) do_timer, (void*) info);
+    return thread;
+}
+
 static void initSystem(ostream & out){
-    al_init();
+    out << "Allegro5 initialize " << (al_init() ? "Ok" : "Failed") << endl;
+    uint32_t version = al_get_allegro_version();
+    int major = version >> 24;
+    int minor = (version >> 16) & 255;
+    int revision = (version >> 8) & 255;
+    int release = version & 255;
+    out << "Allegro5 version " << major << "." << minor << "." << revision << "." << release << endl;
     al_init_image_addon();
     al_install_keyboard();
+    al_set_app_name("Paintown");
+
+    start_timer(inc_speed_counter, Global::TICS_PER_SECOND);
+    start_timer(inc_second_counter, 1);
 }
 #endif
 
