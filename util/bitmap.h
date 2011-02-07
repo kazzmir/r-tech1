@@ -81,6 +81,9 @@ public:
 #ifdef USE_SDL
 	explicit Bitmap(SDL_Surface * who, bool deep_copy = false );
 #endif
+#ifdef USE_ALLEGRO5
+	explicit Bitmap(ALLEGRO_BITMAP * who, bool deep_copy = false );
+#endif
 	Bitmap( const Bitmap & copy, bool deep_copy = false );
 	Bitmap( const Bitmap & copy, int sx, int sy );
 	Bitmap( const Bitmap & copy, int x, int y, int width, int height );
