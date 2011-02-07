@@ -41,6 +41,7 @@ Joystick * Joystick::create(){
 #endif
     return NULL;
 */
+    return NULL;
 }
 
 Joystick::Joystick(){
