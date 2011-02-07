@@ -161,6 +161,11 @@ static ALLEGRO_BITMAP * memoryGIF(const char * data, int length){
 void Bitmap::internalLoadFile(const char * path){
     this->path = path;
     ALLEGRO_BITMAP * loaded = al_load_bitmap(path);
+    if (loaded == NULL){
+        std::ostringstream out;
+        out << "Could not load file '" << path << "'";
+        throw BitmapException(__FILE__, __LINE__, out.str());
+    }
     getData().setBitmap(loaded);
     /*
     ALLEGRO_BITMAP * loaded = IMG_Load(path);
@@ -281,6 +286,11 @@ int Bitmap::setGraphicsMode(int mode, int width, int height){
         default: break;
     }
     ALLEGRO_DISPLAY * display = al_create_display(width, height);
+    if (display == NULL){
+        std::ostringstream out;
+        out << "Could not create display with dimensions " << width << ", " << height;
+        throw BitmapException(__FILE__, __LINE__, out.str());
+    }
     Screen = new Bitmap(al_get_backbuffer(display));
     Scaler = new Bitmap(width, height);
     return 0;
@@ -302,7 +312,7 @@ void Bitmap::putPixelNormal(int x, int y, int col) const {
 void Bitmap::fill(int color) const {
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
-    al_set_target_bitmap(getData().getBitmap());
+    // al_set_target_bitmap(getData().getBitmap());
     al_clear_to_color(al_map_rgb(red, green, blue));
 }
 
@@ -347,12 +357,15 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
     // double start = al_get_time();
-    al_set_target_bitmap(where.getData().getBitmap());
+    // al_set_target_bitmap(where.getData().getBitmap());
+    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    /*
+    if (&where != Screen){
+        al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
+    }
+    */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
-    if (&where == Screen){
-        al_flip_display();
-    }
     /*
     double end = al_get_time();
     Global::debug(0) << "Draw in " << (end - start) << " seconds" << std::endl;
@@ -388,6 +401,7 @@ void Bitmap::BlitMasked(const int mx, const int my, const int width, const int h
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+#if 0
     if (getWidth() != Screen->getWidth() || getHeight() != Screen->getHeight()){
         /*
         this->Blit( upper_left_x, upper_left_y, *Buffer );
@@ -400,6 +414,13 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
     } else {
         this->Blit(upper_left_x, upper_left_y, *Screen);
     }
+#endif
+    /*
+    if (&where == Screen){
+        al_flip_display();
+    }
+    */
+    al_flip_display();
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
@@ -407,8 +428,8 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    al_set_target_bitmap(where.getData().getBitmap());
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    // al_set_target_bitmap(where.getData().getBitmap());
+    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
 
@@ -490,8 +511,8 @@ void Bitmap::readLine( std::vector< int > & line, int y ){
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
     /* FIXME */
-    al_set_target_bitmap(where.getData().getBitmap());
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
+    // al_set_target_bitmap(where.getData().getBitmap());
+    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
 
