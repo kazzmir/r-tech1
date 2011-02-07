@@ -154,9 +154,8 @@ void Frame::draw(const int xaxis, const int yaxis, const Bitmap & work){
         bmp->Blit((int) scrollOffset.getDistanceFromCenterX(), (int) loc.getY(), temp);
         bmp->Blit((int) loc.getX(), (int) scrollOffset.getDistanceFromCenterY(), temp);
         bmp->Blit((int) loc.getX(), (int) loc.getY(), temp);
-        
-        renderSprite(temp, (int)(xaxis+offset.getDistanceFromCenterX()), (int)(yaxis+offset.getDistanceFromCenterY()), alpha, horizontalFlip, verticalFlip, work);
 
+        renderSprite(temp, (int)(xaxis+offset.getDistanceFromCenterX()), (int)(yaxis+offset.getDistanceFromCenterY()), alpha, horizontalFlip, verticalFlip, work);
     } else {
         renderSprite(*bmp, (int)(xaxis+offset.getDistanceFromCenterX()), (int)(yaxis+offset.getDistanceFromCenterY()), alpha, horizontalFlip, verticalFlip, work);
     }
