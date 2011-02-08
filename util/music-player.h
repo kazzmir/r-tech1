@@ -7,6 +7,10 @@
 #include "sdl/mixer/SDL_mixer.h"
 #endif
 
+#ifdef HAVE_MP3
+#include <mpg123.h>
+#endif
+
 struct DUH;
 struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
@@ -69,6 +73,27 @@ protected:
 #ifdef USE_ALLEGRO
     struct LOGG_Stream * stream;
 #endif
+};
+#endif
+
+#ifdef HAVE_MP3
+/* Interface for mp3s */
+class Mp3Player: public MusicPlayer {
+public:
+    Mp3Player(const char * path);
+    virtual void play();
+
+    virtual void poll();
+    virtual void pause();
+    virtual void setVolume(double volume);
+
+    virtual ~Mp3Player();
+protected:    
+#ifdef USE_SDL
+    static void mixer(void * arg, Uint8 * stream, int length);
+    void render(Uint8 * stream, int length);
+#endif
+    mpg123_handle *mp3;
 };
 #endif
 
