@@ -6,10 +6,10 @@
 // #include "defs.h"
 
 #include "configuration.h"
-#include "util/thread.h"
-#include "util/funcs.h"
-#include "util/file-system.h"
-#include "util/music-player.h"
+#include "thread.h"
+#include "funcs.h"
+#include "file-system.h"
+#include "music-player.h"
 
 using namespace std;
 
@@ -437,6 +437,7 @@ bool Music::internal_loadSong( const char * path ){
             musicPlayer->setVolume(volume);
         }
     } catch (const Exception::Base & ex){
+        Global::debug(0) << "Could not open music file '" << path << "' because " << ex.getTrace() << endl;
         //! FIXME Change from Base exception in the futer
         return false;
     }

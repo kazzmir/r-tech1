@@ -93,7 +93,8 @@ protected:
     static void mixer(void * arg, Uint8 * stream, int length);
     void render(Uint8 * stream, int length);
 #endif
-    mpg123_handle *mp3;
+    mpg123_handle * mp3;
+    double base_volume;
 };
 #endif
 

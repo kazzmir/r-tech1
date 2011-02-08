@@ -1,15 +1,17 @@
 #ifdef USE_ALLEGRO
 #include <allegro.h>
 #endif
+
 #include "music-player.h"
 #include "globals.h"
 #include "util/debug.h"
 #include <iostream>
 #include "configuration.h"
 #include "sound.h"
-
 #include "dumb/include/dumb.h"
 #include "gme/Music_Emu.h"
+#include "exceptions/exception.h"
+#include <sstream>
 
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
@@ -24,12 +26,13 @@
 
 #endif
 
+#ifdef HAVE_MP3
+#include <mpg123.h>
+#endif
+
 #ifdef USE_SDL
 #include "sdl/mixer/SDL_mixer.h"
 #endif
-
-#include "exceptions/exception.h"
-#include <sstream>
 
 namespace Util{
 
@@ -123,7 +126,7 @@ DumbPlayer::DumbPlayer(const char * path){
         player = al_start_duh(music_file, 2, 0, scaleVolume(volume), buf, Sound::FREQUENCY);
     } else {
         std::ostringstream error;
-        error << "Could not DUMB file load " << path;
+        error << "Could not load DUMB file " << path;
         throw MusicException(__FILE__, __LINE__, error.str());
     }
 }
@@ -487,9 +490,36 @@ mp3(NULL){
     if (mpg123_init() != MPG123_OK){
 	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
     }
-    int error = mpg123_open(mp3, path);
-    if (mp3 == NULL){
-	throw MusicException(__FILE__,__LINE__, "Problem loading file.");
+    try{
+        mp3 = mpg123_new(NULL, NULL);
+        if (mp3 == NULL){
+            throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
+        }
+        mpg123_format_none(mp3);
+        int error = mpg123_format(mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
+        if (error != MPG123_OK){
+            Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
+        }
+        error = mpg123_open(mp3, (char*) path);
+        if (error == -1){
+            std::ostringstream error;
+            error << "Could not open mpg123 file " << path << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, error.str());
+        }
+        // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
+
+        double base, really, rva;
+        mpg123_getvolume(mp3, &base, &really, &rva);
+        // Global::debug(0) << "mpg volume base " << base << " really " << really << " rva " << rva << std::endl;
+        base_volume = base;
+
+        long rate;
+        int channels, encoding;
+        mpg123_getformat(mp3, &rate, &channels, &encoding);
+        // Global::debug(0) << path << " rate " << rate << " channels " << channels << " encoding " << encoding << std::endl;
+    } catch (const MusicException & fail){
+        mpg123_exit();
+        throw;
     }
 }
 
@@ -517,11 +547,16 @@ void Mp3Player::pause(){
 }
 
 void Mp3Player::setVolume(double volume){
-    mpg123_volume(mp3, volume);
+    mpg123_volume(mp3, volume * base_volume / 5000);
 }
 
 Mp3Player::~Mp3Player(){
-    mpg123_close(mp3);
+    Mix_HookMusic(NULL, NULL);
+    if (mp3 != NULL){
+        mpg123_close(mp3);
+        mpg123_delete(mp3);
+        mp3 = NULL;
+    }
     mpg123_exit();
 }
 
