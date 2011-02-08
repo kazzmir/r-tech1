@@ -436,6 +436,59 @@ OggPlayer::~OggPlayer(){
 
 #endif /* OGG */
 
+#ifdef HAVE_MP3
+
+
+struct Mp3Info{
+    Mp3Player * mp3;
+};
+
+Mp3Player::Mp3Player(const char * path):
+mp3(NULL){
+    /* Initialize */
+    if (mpg123_init() != MPG123_OK){
+	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
+    }
+    int error = mpg123_open(mp3, path);
+    if (mp3 == NULL){
+	throw MusicException(__FILE__,__LINE__, "Problem loading file.");
+    }
+}
+
+void Mp3Player::mixer(void * arg, Uint8 * stream, int length){
+    Mp3Info * info = (Mp3Info *) arg;
+    Mp3Player * player = (Mp3Player *) info->mp3;
+    mpg123_read(player->mp3, stream, length, NULL);
+}
+
+void Mp3Player::render(Uint8 * stream, int length){
+}
+
+void Mp3Player::play(){
+    Mp3Info * me = new Mp3Info;
+    me->mp3 = this;
+    Mix_HookMusic(mixer, me);
+}
+
+void Mp3Player::poll(){
+    /* TODO */
+}
+
+void Mp3Player::pause(){
+    /* TODO */
+}
+
+void Mp3Player::setVolume(double volume){
+    mpg123_volume(mp3, volume);
+}
+
+Mp3Player::~Mp3Player(){
+    mpg123_close(mp3);
+    mpg123_exit();
+}
+
+#endif /* MP3 */
+
 #endif /* SDL */
 
 #ifdef USE_ALLEGRO5

@@ -384,6 +384,10 @@ static bool isOggFile(const char * path){
     return extension == "ogg";
 }
 
+static bool isMp3File(const char * path){
+    string extension = getExtension(path);
+    return extension == "mp3";
+}
 
 bool Music::internal_loadSong( const char * path ){
     if (!enabled){
@@ -417,6 +421,14 @@ bool Music::internal_loadSong( const char * path ){
             musicPlayer = new Util::OggPlayer(path);
             musicPlayer->play();
             playing = true;
+#endif
+
+#ifdef HAVE_MP3
+	} else if (isMp3File(path)){
+	    /* Utilize SDL mixer to handle mp3 */
+	    musicPlayer = new Util::Mp3Player(path);
+	    musicPlayer->play();
+	    playing = true;
 #endif
         } else {
             return false;
