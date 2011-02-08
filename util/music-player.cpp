@@ -238,6 +238,44 @@ OggPlayer::~OggPlayer(){
 }
 #endif /* OGG */
 
+
+#ifdef HAVE_MP3
+
+Mp3Player::Mp3Player(const char * path):
+mp3(NULL){
+    /* Initialize */
+    if (mpg123_init() != MPG123_OK){
+	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
+    }
+    int error = mpg123_open(mp3, path);
+    if (mp3 == NULL){
+	throw MusicException(__FILE__,__LINE__, "Problem loading file.");
+    }
+}
+
+void Mp3Player::play(){
+    /* TODO */
+}
+
+void Mp3Player::poll(){
+    /* TODO */
+}
+
+void Mp3Player::pause(){
+    /* TODO */
+}
+
+void Mp3Player::setVolume(double volume){
+    mpg123_volume(mp3, volume);
+}
+
+Mp3Player::~Mp3Player(){
+    mpg123_close(mp3);
+    mpg123_exit();
+}
+
+#endif /* MP3 */
+
 #endif /* ALlEGRO */
 
 #ifdef USE_SDL
@@ -542,6 +580,43 @@ OggPlayer::~OggPlayer(){
 }
 
 #endif
+
+#ifdef HAVE_MP3
+
+Mp3Player::Mp3Player(const char * path):
+mp3(NULL){
+    /* Initialize */
+    if (mpg123_init() != MPG123_OK){
+	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
+    }
+    int error = mpg123_open(mp3, path);
+    if (mp3 == NULL){
+	throw MusicException(__FILE__,__LINE__, "Problem loading file.");
+    }
+}
+
+void Mp3Player::play(){
+    /* TODO */
+}
+
+void Mp3Player::poll(){
+    /* TODO */
+}
+
+void Mp3Player::pause(){
+    /* TODO */
+}
+
+void Mp3Player::setVolume(double volume){
+    mpg123_volume(mp3, volume);
+}
+
+Mp3Player::~Mp3Player(){
+    mpg123_close(mp3);
+    mpg123_exit();
+}
+
+#endif /* MP3 */
 
 DumbPlayer::DumbPlayer(const char * path){
     /* TODO */
