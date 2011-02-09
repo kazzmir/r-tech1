@@ -250,7 +250,7 @@ mp3(NULL){
     if (mpg123_init() != MPG123_OK){
 	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
     }
-    int error = mpg123_open(mp3, path);
+    int error = mpg123_open(mp3, (char*) path);
     if (mp3 == NULL){
 	throw MusicException(__FILE__,__LINE__, "Problem loading file.");
     }
