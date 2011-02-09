@@ -93,6 +93,9 @@ protected:
     static void mixer(void * arg, Uint8 * stream, int length);
     void render(Uint8 * stream, int length);
 #endif
+#ifdef USE_ALLEGRO
+    AUDIOSTREAM * stream;
+#endif
     mpg123_handle * mp3;
     double base_volume;
 };
