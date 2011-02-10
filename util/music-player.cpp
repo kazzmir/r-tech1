@@ -265,7 +265,9 @@ mp3(NULL){
             throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
         }
         mpg123_format_none(mp3);
+        /* mpg123 didn't support unsigned before 1.7.0 */
         int error = mpg123_format(mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
+        mpg123_decoder(mp3, "generic");
         if (error != MPG123_OK){
             Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
         }
@@ -304,9 +306,17 @@ void Mp3Player::poll(){
         /* buffer * 4 for 16 bits per sample * 2 samples for stereo */
         size_t out = 0;
         mpg123_read(mp3, (unsigned char *) buffer, MPG123_BUFFER_SIZE * 4, &out);
+
+        /*
+        long rate;
+        int channels, encoding;
+        mpg123_getformat(mp3, &rate, &channels, &encoding);
+        Global::debug(0) << "rate " << rate << " channels " << channels << " encoding " << encoding << std::endl;
+        */
+
         // Global::debug(0) << "Decoded " << out << std::endl;
         for (int i = 0; i < MPG123_BUFFER_SIZE * 2; i++){
-            buffer[i] *= volume;
+            // buffer[i] *= volume;
             buffer[i] += 0x8000;
         }
         free_audio_stream_buffer(stream);
@@ -318,9 +328,12 @@ void Mp3Player::pause(){
 }
 
 void Mp3Player::setVolume(double volume){
+    /*
     this->volume = volume;
     // mpg123_volume(mp3, volume * base_volume / 5000);
     mpg123_volume(mp3, 0.0001);
+    */
+    // mpg123_volume(mp3, volume);
 }
 
 Mp3Player::~Mp3Player(){
@@ -577,6 +590,7 @@ mp3(NULL){
         }
         mpg123_format_none(mp3);
         int error = mpg123_format(mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
+        mpg123_decoder(mp3, "generic");
         if (error != MPG123_OK){
             Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
         }
@@ -607,6 +621,7 @@ void Mp3Player::mixer(void * arg, Uint8 * stream, int length){
     Mp3Info * info = (Mp3Info *) arg;
     Mp3Player * player = (Mp3Player *) info->mp3;
     mpg123_read(player->mp3, stream, length, NULL);
+    // Global::debug(0) << "decoder " << mpg123_current_decoder(player->mp3) << std::endl;
 }
 
 void Mp3Player::render(Uint8 * stream, int length){
@@ -627,7 +642,7 @@ void Mp3Player::pause(){
 }
 
 void Mp3Player::setVolume(double volume){
-    mpg123_volume(mp3, volume * base_volume / 5000);
+    mpg123_volume(mp3, volume);
 }
 
 Mp3Player::~Mp3Player(){
