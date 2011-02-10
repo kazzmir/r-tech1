@@ -423,7 +423,7 @@ bool Music::internal_loadSong( const char * path ){
             playing = true;
 #endif
 
-#ifdef HAVE_MP3
+#if defined(HAVE_MP3_MPG123) || defined(HAVE_MP3_MAD)
 	} else if (isMp3File(path)){
 	    /* Utilize SDL mixer to handle mp3 */
 	    musicPlayer = new Util::Mp3Player(path);

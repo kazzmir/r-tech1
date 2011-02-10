@@ -26,8 +26,12 @@
 
 #endif
 
-#ifdef HAVE_MP3
+#ifdef HAVE_MP3_MPG123
 #include <mpg123.h>
+#endif
+
+#ifdef HAVE_MP3_MAD
+#include <mad.h>
 #endif
 
 #ifdef USE_SDL
@@ -245,7 +249,7 @@ OggPlayer::~OggPlayer(){
 #endif /* OGG */
 
 
-#ifdef HAVE_MP3
+#ifdef HAVE_MP3_MPG123
 
 static const int MPG123_BUFFER_SIZE = 1 << 11;
 Mp3Player::Mp3Player(const char * path):
@@ -325,7 +329,35 @@ Mp3Player::~Mp3Player(){
     stop_audio_stream(stream);
 }
 
-#endif /* MP3 */
+#endif /* MP3_MPG123 */
+
+#ifdef HAVE_MP3_MAD
+    /* TODO */
+Mp3Player::Mp3Player(const char * path):
+stream(NULL){
+    /* TODO */
+}
+
+void Mp3Player::play(){
+    /* TODO */
+}
+
+void Mp3Player::poll(){
+    /* TODO */
+}
+
+void Mp3Player::pause(){
+    /* TODO */
+}
+
+void Mp3Player::setVolume(double volume){
+    /* TODO */
+}
+
+Mp3Player::~Mp3Player(){
+    /* TODO */
+}
+#endif /* MP3_MAD */
 
 #endif /* ALlEGRO */
 
@@ -525,7 +557,7 @@ OggPlayer::~OggPlayer(){
 
 #endif /* OGG */
 
-#ifdef HAVE_MP3
+#ifdef HAVE_MP3_MPG123
 
 
 struct Mp3Info{
@@ -608,7 +640,38 @@ Mp3Player::~Mp3Player(){
     mpg123_exit();
 }
 
-#endif /* MP3 */
+#endif /* MP3_MPG123 */
+
+#ifdef HAVE_MP3_MAD
+        /* TODO */
+Mp3Player::Mp3Player(const char * path){
+    music = Mix_LoadMUS(path);
+    if (music == NULL){
+        throw MusicException(__FILE__, __LINE__, "Could not load MP3 file");
+    }
+}
+
+void Mp3Player::play(){
+    Mix_PlayMusic(music, -1);
+}
+
+void Mp3Player::poll(){
+    /* TODO */
+}
+
+void Mp3Player::pause(){
+    Mix_PauseMusic();
+}
+
+void Mp3Player::setVolume(double volume){
+    this->volume = volume;
+    Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
+}
+
+Mp3Player::~Mp3Player(){
+    Mix_FreeMusic(music);
+}
+#endif /* MP3_MAD */
 
 #endif /* SDL */
 
@@ -664,7 +727,7 @@ OggPlayer::~OggPlayer(){
 
 #endif
 
-#ifdef HAVE_MP3
+#ifdef HAVE_MP3_MPG123
 
 Mp3Player::Mp3Player(const char * path):
 mp3(NULL){
@@ -699,7 +762,34 @@ Mp3Player::~Mp3Player(){
     mpg123_exit();
 }
 
-#endif /* MP3 */
+#endif /* MP3_MPG123 */
+
+#ifdef HAVE_MP3_MAD
+        /* TODO */
+Mp3Player::Mp3Player(const char * path){
+    /* TODO */
+}
+
+void Mp3Player::play(){
+    /* TODO */
+}
+
+void Mp3Player::poll(){
+    /* TODO */
+}
+
+void Mp3Player::pause(){
+    /* TODO */
+}
+
+void Mp3Player::setVolume(double volume){
+    /* TODO */
+}
+
+Mp3Player::~Mp3Player(){
+    /* TODO */
+}
+#endif /* MP3_MAD */
 
 DumbPlayer::DumbPlayer(const char * path){
     /* TODO */
