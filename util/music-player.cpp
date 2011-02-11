@@ -590,16 +590,31 @@ mp3(NULL){
         }
         mpg123_format_none(mp3);
         int error = mpg123_format(mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
-        mpg123_decoder(mp3, "generic");
         if (error != MPG123_OK){
             Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
         }
+        
+        /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
         error = mpg123_open(mp3, (char*) path);
         if (error == -1){
             std::ostringstream error;
             error << "Could not open mpg123 file " << path << " error code " << error;
             throw MusicException(__FILE__,__LINE__, error.str());
         }
+        
+        unsigned char tempBuffer[4096];
+	mpg123_read(mp3, tempBuffer, 4096, NULL);
+	mpg123_close(mp3);
+	
+	error = mpg123_open(mp3, (char*) path);
+        if (error == -1){
+            std::ostringstream error;
+            error << "Could not open mpg123 file " << path << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, error.str());
+        }
+        /* FIXME end */
+	
+        mpg123_decoder(mp3, "generic");
         // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
 
         double base, really, rva;
