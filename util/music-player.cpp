@@ -121,6 +121,71 @@ DUH * DumbPlayer::loadDumbFile(const char * path){
     return NULL;
 }
 
+/* shared by various implementations */
+#ifdef HAVE_MP3_MPG123
+/* initialize the mpg123 library and open up an mp3 file for reading */
+static void initializeMpg123(mpg123_handle ** mp3, const char * path){
+    /* Initialize */
+    if (mpg123_init() != MPG123_OK){
+	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
+    }
+    try{
+        *mp3 = mpg123_new(NULL, NULL);
+        if (*mp3 == NULL){
+            throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
+        }
+        mpg123_format_none(*mp3);
+        int error = mpg123_format(*mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
+        if (error != MPG123_OK){
+            Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
+        }
+        
+        /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
+        error = mpg123_open(*mp3, (char*) path);
+        if (error == -1){
+            std::ostringstream error;
+            error << "Could not open mpg123 file " << path << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, error.str());
+        }
+        
+        unsigned char tempBuffer[4096];
+	mpg123_read(*mp3, tempBuffer, 4096, NULL);
+	mpg123_close(*mp3);
+	
+	error = mpg123_open(*mp3, (char*) path);
+        if (error == -1){
+            std::ostringstream error;
+            error << "Could not open mpg123 file " << path << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, error.str());
+        }
+        /* FIXME end */
+	
+        mpg123_decoder(*mp3, "generic");
+        // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
+
+        /*
+        double base, really, rva;
+        mpg123_getvolume(*mp3, &base, &really, &rva);
+        // Global::debug(0) << "mpg volume base " << base << " really " << really << " rva " << rva << std::endl;
+        base_volume = base;
+
+        long rate;
+        int channels, encoding;
+        mpg123_getformat(*mp3, &rate, &channels, &encoding);
+        // Global::debug(0) << path << " rate " << rate << " channels " << channels << " encoding " << encoding << std::endl;
+        */
+    } catch (const MusicException & fail){
+        if (*mp3 != NULL){
+            mpg123_close(*mp3);
+            mpg123_delete(*mp3);
+            *mp3 = NULL;
+        }
+        mpg123_exit();
+        throw;
+    }
+}
+#endif
+
 #ifdef USE_ALLEGRO
 
 static int ALLEGRO_MONO = 0;
@@ -256,6 +321,7 @@ Mp3Player::Mp3Player(const char * path):
 stream(NULL),
 mp3(NULL){
     /* Initialize */
+#if 0
     if (mpg123_init() != MPG123_OK){
 	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
     }
@@ -294,6 +360,14 @@ mp3(NULL){
         mpg123_exit();
         throw;
     }
+#endif
+
+    initializeMpg123(&mp3, path);
+    long rate = 0;
+    int channels = 0, encoding = 0;
+    mpg123_getformat(mp3, &rate, &channels, &encoding);
+    stream = play_audio_stream(MPG123_BUFFER_SIZE, 16, ALLEGRO_STEREO, rate, 255, 128);
+    voice_set_priority(stream->voice, 255);
 }
 
 void Mp3Player::play(){
@@ -579,57 +653,7 @@ struct Mp3Info{
 
 Mp3Player::Mp3Player(const char * path):
 mp3(NULL){
-    /* Initialize */
-    if (mpg123_init() != MPG123_OK){
-	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
-    }
-    try{
-        mp3 = mpg123_new(NULL, NULL);
-        if (mp3 == NULL){
-            throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
-        }
-        mpg123_format_none(mp3);
-        int error = mpg123_format(mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
-        if (error != MPG123_OK){
-            Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
-        }
-        
-        /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
-        error = mpg123_open(mp3, (char*) path);
-        if (error == -1){
-            std::ostringstream error;
-            error << "Could not open mpg123 file " << path << " error code " << error;
-            throw MusicException(__FILE__,__LINE__, error.str());
-        }
-        
-        unsigned char tempBuffer[4096];
-	mpg123_read(mp3, tempBuffer, 4096, NULL);
-	mpg123_close(mp3);
-	
-	error = mpg123_open(mp3, (char*) path);
-        if (error == -1){
-            std::ostringstream error;
-            error << "Could not open mpg123 file " << path << " error code " << error;
-            throw MusicException(__FILE__,__LINE__, error.str());
-        }
-        /* FIXME end */
-	
-        mpg123_decoder(mp3, "generic");
-        // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
-
-        double base, really, rva;
-        mpg123_getvolume(mp3, &base, &really, &rva);
-        // Global::debug(0) << "mpg volume base " << base << " really " << really << " rva " << rva << std::endl;
-        base_volume = base;
-
-        long rate;
-        int channels, encoding;
-        mpg123_getformat(mp3, &rate, &channels, &encoding);
-        // Global::debug(0) << path << " rate " << rate << " channels " << channels << " encoding " << encoding << std::endl;
-    } catch (const MusicException & fail){
-        mpg123_exit();
-        throw;
-    }
+    initializeMpg123(&mp3, path);
 }
 
 void Mp3Player::mixer(void * arg, Uint8 * stream, int length){
