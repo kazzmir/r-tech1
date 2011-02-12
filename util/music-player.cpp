@@ -149,7 +149,12 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
         }
         
         unsigned char tempBuffer[4096];
-	mpg123_read(*mp3, tempBuffer, 4096, NULL);
+        error = mpg123_read(*mp3, tempBuffer, 4096, NULL);
+	if (error != MPG123_OK){
+            std::ostringstream error;
+            error << "Could not read mpg123 file " << path << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, error.str());
+        }
 	mpg123_close(*mp3);
 	
 	error = mpg123_open(*mp3, (char*) path);
