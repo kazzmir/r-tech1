@@ -148,8 +148,11 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
             throw MusicException(__FILE__,__LINE__, error.str());
         }
         
+        /* reading a frame is the only surefire way to get mpg123 to set the
+         * sampling_frequency which it needs to set the decoder a few lines below
+         */
         unsigned char tempBuffer[4096];
-        error = mpg123_read(*mp3, tempBuffer, 4096, NULL);
+        error = mpg123_read(*mp3, tempBuffer, sizeof(tempBuffer), NULL);
 	if (error != MPG123_OK){
             std::ostringstream error;
             error << "Could not read mpg123 file " << path << " error code " << error;
@@ -157,6 +160,7 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
         }
 	mpg123_close(*mp3);
 	
+        /* stream has progressed a little bit so reset it by opening it again */
 	error = mpg123_open(*mp3, (char*) path);
         if (error == -1){
             std::ostringstream error;
@@ -164,8 +168,16 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
             throw MusicException(__FILE__,__LINE__, error.str());
         }
         /* FIXME end */
-	
-        mpg123_decoder(*mp3, "generic");
+
+        /* some of the native decoders aren't stable in older versions of mpg123
+         * so just use generic for now. 1.13.1 should work better
+         */
+        error = mpg123_decoder(*mp3, "generic");
+        if (error != MPG123_OK){
+            std::ostringstream error;
+            error << "Could not use 'generic' mpg123 decoder for " << path << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, error.str());
+        }
         // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
 
         /*
