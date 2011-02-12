@@ -135,6 +135,11 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
             throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
         }
         mpg123_format_none(*mp3);
+
+        /* allegro wants unsigned samples but mpg123 can't actually provide unsigned
+         * samples even though it has an enum for it, MPG123_ENC_UNSIGNED_16. this
+         * was rectified in 1.13.0 or something, but for now signed samples are ok.
+         */
         int error = mpg123_format(*mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
         if (error != MPG123_OK){
             Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
