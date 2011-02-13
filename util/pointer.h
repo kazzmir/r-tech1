@@ -74,7 +74,10 @@ protected:
     Data * data;
 };
 
-/* Initializes its pointer to NULL and deletes the data in the destructor */
+/* Initializes its pointer to NULL and deletes the data in the destructor.
+ * how is this different from the ReferenceCount class above? its basically
+ * the same thing but only allows one owner at a time.
+ */
 template <class Data>
 class ClassPointer{
 public:
