@@ -12,6 +12,7 @@
 #include <algorithm>
 #include "funcs.h"
 #include "file-system.h"
+#include "thread.h"
 #include "system.h"
 #include "globals.h"
 #include <dirent.h>
@@ -33,6 +34,14 @@
 #endif
 
 using namespace std;
+
+/* some filesystem access can only be done by one thread at a time. specifically, sfl
+ * has its own allocator that is meant to be used in a single-threaded manner.
+ * rather than try to add locks to sfl we just wrap all sfl calls with a lock.
+ *
+ * initialize() must be called to initialize this lock
+ */
+Util::Thread::Lock lock;
 
 namespace Filesystem{
         
@@ -222,6 +231,7 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     al_findclose( &info );
     return files;
 #else
+    Util::Thread::acquireLock(&lock);
     vector<AbsolutePath> files;
     DIRST sflEntry;
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
@@ -233,6 +243,7 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     }
     close_dir(&sflEntry);
     // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
+    Util::Thread::releaseLock(&lock);
     return files;
 #endif
 }
@@ -245,6 +256,10 @@ static void append(vector<X> & destination, const vector<X> & source){
     }
     */
     copy(source.begin(), source.end(), back_insert_iterator<vector<X> >(destination));
+}
+    
+void initialize(){
+    Util::Thread::initializeLock(&lock);
 }
     
 static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
