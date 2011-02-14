@@ -444,6 +444,8 @@ bool Global::init(int gfx){
     
     Sound::initialize();
 
+    Filesystem::initialize();
+
     Bitmap::SCALE_X = GFX_X;
     Bitmap::SCALE_Y = GFX_Y;
 

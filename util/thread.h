@@ -10,8 +10,8 @@
 #endif
 
 #include "exceptions/exception.h"
-#include "util/load_exception.h"
-#include "util/token_exception.h"
+#include "load_exception.h"
+#include "token_exception.h"
 #include "mugen/exception.h"
 #include "debug.h"
 
