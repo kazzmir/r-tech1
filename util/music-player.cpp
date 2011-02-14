@@ -668,7 +668,6 @@ OggPlayer::~OggPlayer(){
 
 #ifdef HAVE_MP3_MPG123
 
-
 struct Mp3Info{
     Mp3Player * mp3;
 };
@@ -728,7 +727,7 @@ Mp3Player::Mp3Player(const char * path){
 }
 
 void Mp3Player::play(){
-    Mix_PlayMusic(music, -1);
+    Mix_PlayMusic(music, 0);
 }
 
 void Mp3Player::poll(){
