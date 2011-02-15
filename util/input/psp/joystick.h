@@ -21,7 +21,9 @@ public:
     friend class Joystick;
 protected:
     
-    Joystick::Event getKey(int button);
+    void doKeys();
+    JoystickInput buffer;
+    
     PSPJoystick();
     // joystick
     SceCtrlData joystick;
