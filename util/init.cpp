@@ -470,8 +470,6 @@ bool Global::init(int gfx){
     /* music */
     atexit(&dumb_exit);
 
-    Keyboard::disableKeyRepeat();
-
     out << "Initialize random number generator" << endl;
     /* initialize random number generator */
     srand(time(NULL));

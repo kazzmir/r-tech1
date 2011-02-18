@@ -108,13 +108,13 @@ bool TextInput::doInput(){
 void TextInput::enable(){
     InputManager::captureInput(*this);
     enabled = true;
-    Keyboard::enableKeyRepeat();
+    Keyboard::pushRepeatState(true);
 }
 
 void TextInput::disable(){
     InputManager::releaseInput(*this);
     enabled = false;
-    Keyboard::disableKeyRepeat();
+    Keyboard::popRepeatState();
 }
 
 string TextInput::getText(){
