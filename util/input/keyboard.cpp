@@ -8,6 +8,7 @@
 #include "allegro5/keyboard.cpp"
 #endif
 
+std::vector<bool> Keyboard::repeatState;
 bool Keyboard::isNumber( int key ){
 	return key == Key_0 ||
 	       key == Key_1 ||
@@ -384,6 +385,34 @@ std::vector<Keyboard::unicode_t> Keyboard::readText(){
         }
     }
     return out;
+}
+    
+void Keyboard::pushRepeatState(bool enabled){
+    if (enabled){
+        enableKeyRepeat();
+    } else {
+        disableKeyRepeat();
+    }
+    repeatState.push_back(enabled);
+}
+
+void Keyboard::popRepeatState(){
+    if (repeatState.size() > 0){
+        bool last = repeatState.back();
+        repeatState.pop_back();
+        bool enabled = true;
+        if (repeatState.size() > 0){
+            enabled = repeatState.back();
+        }
+
+        if (enabled != last){
+            if (enabled){
+                enableKeyRepeat();
+            } else {
+                disableKeyRepeat();
+            }
+        }
+    }
 }
 
 /*

@@ -98,9 +98,10 @@ public:
 
     // int readKey();
     void clear();
-
-    static void disableKeyRepeat();
-    static void enableKeyRepeat();
+    
+    /* sets the latest repeat state. popping the state restores the previous state */
+    static void pushRepeatState(bool enabled);
+    static void popRepeatState();
 
     void setDelay( const int key, const int delay );
     void setAllDelay( const int delay );
@@ -252,6 +253,9 @@ public:
     */
 
 protected:
+    static void disableKeyRepeat();
+    static void enableKeyRepeat();
+
     // std::map<int,int> my_keys;
     std::map<int,int> key_delay;
     // std::vector<Observer> observers;
@@ -259,6 +263,7 @@ protected:
     std::map<KeyType, KeyData> keyState;
     std::vector<KeyData> buffer;
     bool enableBuffer;
+    static std::vector<bool> repeatState;
 };
 
 #endif
