@@ -54,8 +54,8 @@ fontWidth(24),
 fontHeight(24),
 inTab(false),
 tabWidthMax(0),
-tabFontColor(Graphics::Bitmap::makeColor(255,255,255)),
-currentTabFontColor(Graphics::Bitmap::makeColor(0,0,255)){
+tabFontColor(Graphics::makeColor(255,255,255)),
+currentTabFontColor(Graphics::makeColor(0,0,255)){
     activeTabFontColor = new Effects::Gradient(50, tabFontColor, currentTabFontColor);
 }
 

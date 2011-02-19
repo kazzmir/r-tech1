@@ -63,7 +63,7 @@ static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsig
     int r = redX * redY / 256;
     int g = greenX * greenY / 256;
     int b = blueX * blueY / 256;
-    return transBlender(Bitmap::makeColor(r, g, b), y, n);
+    return transBlender(makeColor(r, g, b), y, n);
 }
 
 static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned int n){
@@ -84,7 +84,7 @@ static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned i
     g = Util::min(g, 255);
     b = Util::min(b, 255);
 
-    return Bitmap::makeColor(r, g, b);
+    return makeColor(r, g, b);
 }
 
 static inline int iabs(int x){
@@ -116,7 +116,7 @@ static inline unsigned int differenceBlender(unsigned int x, unsigned int y, uns
     if (b < 0){
         b = 0;
     }
-    return transBlender(Bitmap::makeColor(r, g, b), y, n);
+    return transBlender(makeColor(r, g, b), y, n);
 }
 
 static inline unsigned int burnBlender(unsigned int x, unsigned int y, unsigned int n){
@@ -141,7 +141,7 @@ static inline unsigned int burnBlender(unsigned int x, unsigned int y, unsigned 
     if (b < 0){
         g = 0;
     }
-    return transBlender(Bitmap::makeColor(r, g, b), y, n);
+    return transBlender(makeColor(r, g, b), y, n);
 }
 
 static inline unsigned int noBlender(unsigned int a, unsigned int b, unsigned int c){
@@ -211,7 +211,6 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
     return out;
 }
 
-Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
@@ -457,11 +456,11 @@ int Bitmap::getGreen(int c){
     return green;
 }
 
-int Bitmap::makeColor(int red, int blue, int green){
+int makeColor(int red, int blue, int green){
     return SDL_MapRGB(&format565, red, blue, green);
 }
 
-void Bitmap::initializeExtraStuff(){
+void initializeExtraStuff(){
     /* this is as good a place as any to initialize our format */
     format565.palette = 0;
     format565.BitsPerPixel = 16;
@@ -484,7 +483,7 @@ void Bitmap::initializeExtraStuff(){
 #endif
 }
 
-int Bitmap::setGraphicsMode(int mode, int width, int height){
+int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
 
     switch (mode){
@@ -634,16 +633,16 @@ Bitmap & Bitmap::operator=(const Bitmap & copy){
     return *this;
 }
         
-int Bitmap::setGfxModeText(){
+int setGfxModeText(){
     /* TODO */
     return 0;
 }
 
-int Bitmap::setGfxModeFullscreen(int x, int y){
+int setGfxModeFullscreen(int x, int y){
     return setGraphicsMode(FULLSCREEN, x, y);
 }
 	
-int Bitmap::setGfxModeWindowed( int x, int y ){
+int setGfxModeWindowed( int x, int y ){
     return setGraphicsMode(WINDOWED, x, y);
 }
 	
@@ -1327,7 +1326,7 @@ static void paintown_applyTrans16(SDL_Surface * dst, const int color){
     x2 = dst->clip_rect.x + dst->clip_rect.w;
 
     int bpp = dst->format->BytesPerPixel;
-    unsigned int mask = Bitmap::makeColor(255, 0, 255);
+    unsigned int mask = makeColor(255, 0, 255);
     for (int y = y1; y < y2; y++) {
         Uint8 * sourceLine = computeOffset(dst, x1, y);
 
@@ -1486,7 +1485,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
             return;
     }
 
-    unsigned int mask = Bitmap::makeColor(255, 0, 255);
+    unsigned int mask = makeColor(255, 0, 255);
     int bpp = src->format->BytesPerPixel;
     for (y = 0; y < h; y++) {
         Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
@@ -1676,7 +1675,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
 
         switch (mode){
             case SPRITE_NORMAL : {
-                unsigned int mask = Bitmap::makeColor(255, 0, 255);
+                unsigned int mask = makeColor(255, 0, 255);
                 int bpp = src->format->BytesPerPixel;
                 for (y = 0; y < h; y++) {
                     Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
@@ -1699,8 +1698,8 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
              }
              case SPRITE_LIT : {
                 int bpp = src->format->BytesPerPixel;
-                int litColor = Bitmap::makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
-                unsigned int mask = Bitmap::makeColor(255, 0, 255);
+                int litColor = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
+                unsigned int mask = makeColor(255, 0, 255);
                 for (y = 0; y < h; y++) {
                     Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
                     Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
@@ -1723,7 +1722,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
             }
             case SPRITE_TRANS : {
                 int bpp = src->format->BytesPerPixel;
-                unsigned int mask = Bitmap::makeColor(255, 0, 255);
+                unsigned int mask = makeColor(255, 0, 255);
                 for (y = 0; y < h; y++) {
                     Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
                     Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);

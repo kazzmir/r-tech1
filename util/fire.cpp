@@ -11,10 +11,10 @@ static int MAX_X = 320;
 static int MAX_Y = 240;
 
 Fire::Fire(){
-    Util::blend_palette(colors, 64, Graphics::Bitmap::makeColor(64, 0, 0), Graphics::Bitmap::makeColor(255, 0, 0));
-    Util::blend_palette(colors + 64, 64, Graphics::Bitmap::makeColor(255, 0, 0), Graphics::Bitmap::makeColor(255, 255, 0));
-    Util::blend_palette(colors + 64 + 64, 96, Graphics::Bitmap::makeColor(255, 255, 0), Graphics::Bitmap::makeColor(255, 255, 255));
-    Util::blend_palette(colors + 64 + 64 + 64 + 32, 32, Graphics::Bitmap::makeColor(255, 255, 255), Graphics::Bitmap::makeColor(255, 255, 255));
+    Util::blend_palette(colors, 64, Graphics::makeColor(64, 0, 0), Graphics::makeColor(255, 0, 0));
+    Util::blend_palette(colors + 64, 64, Graphics::makeColor(255, 0, 0), Graphics::makeColor(255, 255, 0));
+    Util::blend_palette(colors + 64 + 64, 96, Graphics::makeColor(255, 255, 0), Graphics::makeColor(255, 255, 255));
+    Util::blend_palette(colors + 64 + 64 + 64 + 32, 32, Graphics::makeColor(255, 255, 255), Graphics::makeColor(255, 255, 255));
 
     data = new unsigned char*[MAX_Y];
     for (int i = 0; i < MAX_Y; i++){

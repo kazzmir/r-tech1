@@ -10,7 +10,7 @@ Messages::Messages( int width, int height, int opaque ):
 width(width),
 height(height),
 opaque(opaque),
-borderColor(Graphics::Bitmap::makeColor(200,200,200)){
+borderColor(Graphics::makeColor(200,200,200)){
 }
 
 static vector< string > wrapStrings( const string & left, const string & right, const Font & font, int max, vector< string > accum ){
@@ -57,7 +57,7 @@ void Messages::addMessage( const std::string & s ){
 void Messages::draw( int x, int y, const Graphics::Bitmap & work, const Font & font ){
     // work.drawingMode( Bitmap::MODE_TRANS );
     Graphics::Bitmap::transBlender(0, 0, 0, this->opaque);
-    work.translucent().rectangleFill( x, y, x + width, y + height, Graphics::Bitmap::makeColor( 0, 0, 0 ) );
+    work.translucent().rectangleFill( x, y, x + width, y + height, Graphics::makeColor( 0, 0, 0 ) );
     // work.drawingMode( Bitmap::MODE_SOLID );
     // work.rectangle( x, y, x + width-1, y + height-1, Bitmap::makeColor( 255, 255, 255 ) );
     work.border(0, 1, borderColor);
@@ -77,7 +77,7 @@ void Messages::draw( int x, int y, const Graphics::Bitmap & work, const Font & f
         current_y -= font.getHeight() * (all.size() - 1);
         int my = current_y;
         for ( vector< string >::iterator str = all.begin(); str != all.end(); str++ ){
-            font.printf(2, my, Graphics::Bitmap::makeColor( 255, 255, 255 ), area, *str, 0);
+            font.printf(2, my, Graphics::makeColor( 255, 255, 255 ), area, *str, 0);
             my += font.getHeight();
 
         }

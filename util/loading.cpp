@@ -86,8 +86,8 @@ void stopLoading(Util::Thread::Id thread){
 
 static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & work){
     background.Blit(load_x, load_y, load_width, load_height, 0, 0, work);
-    Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 - Font::getDefaultFont().getHeight(), Graphics::Bitmap::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
-    Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2, Graphics::Bitmap::makeColor( 192, 192, 192 ), background, "Made by Jon Rafkind", 0 );
+    Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 - Font::getDefaultFont().getHeight(), Graphics::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
+    Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2, Graphics::makeColor( 192, 192, 192 ), background, "Made by Jon Rafkind", 0 );
     background.BlitToScreen();
     background.Blit(infobox_x, infobox_y, infoWidth, infoHeight, 0, 0, infoBackground);
 }
@@ -95,7 +95,7 @@ static void setupBackground(const Graphics::Bitmap & background, int load_x, int
 static vector<ppair> generateFontPixels(const Font & myFont, const string & message, int width, int height){
     Graphics::Bitmap letters(width, height);
     letters.fill( Graphics::Bitmap::MaskColor() );
-    myFont.printf( 0, 0, Graphics::Bitmap::makeColor(255, 255, 255), letters, message.c_str(), 0 ); 
+    myFont.printf( 0, 0, Graphics::makeColor(255, 255, 255), letters, message.c_str(), 0 ); 
 
     vector< ppair > pairs;
     /* store every pixel we need to draw */
@@ -128,7 +128,7 @@ public:
         if (Global::second_counter != last){
             work.clear();
             last = Global::second_counter;
-            font.printf(0, 0, Graphics::Bitmap::makeColor(192, 192, 192), work, "Waiting.. %d", 0, last - start);
+            font.printf(0, 0, Graphics::makeColor(192, 192, 192), work, "Waiting.. %d", 0, last - start);
             work.BlitAreaToScreen(x, y);
         }
     }
@@ -290,7 +290,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     const int MAX_COLOR = 200;
 
     /* blend from dark grey to light red */
-    Effects::Gradient gradient(MAX_COLOR, Graphics::Bitmap::makeColor(16, 16, 16), Graphics::Bitmap::makeColor(192, 8, 8));
+    Effects::Gradient gradient(MAX_COLOR, Graphics::makeColor(16, 16, 16), Graphics::makeColor(192, 8, 8));
 
     Global::speed_counter = 0;
 
@@ -421,10 +421,10 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
     original.BlitFromScreen(0, 0);
     Global::speed_counter = 0;
     int angle = 0;
-    int color1 = Graphics::Bitmap::makeColor(0, 0, 0);
-    int color2 = Graphics::Bitmap::makeColor(0x00, 0x99, 0xff);
-    int color3 = Graphics::Bitmap::makeColor(0xff, 0x22, 0x33);
-    int color4 = Graphics::Bitmap::makeColor(0x44, 0x77, 0x33);
+    int color1 = Graphics::makeColor(0, 0, 0);
+    int color2 = Graphics::makeColor(0x00, 0x99, 0xff);
+    int color3 = Graphics::makeColor(0xff, 0x22, 0x33);
+    int color4 = Graphics::makeColor(0x44, 0x77, 0x33);
     /* the length of this array is the number of circles to show */
     int colors[4] = {color1, color2, color3, color4};
     Graphics::Bitmap::transBlender(0, 0, 0, 64);
@@ -501,8 +501,8 @@ static void showLoadMessage(){
     Graphics::Bitmap work(110, 50);
     work.BlitFromScreen(screenX, screenY);
     Graphics::Bitmap top(110, 50);
-    top.fill(Graphics::Bitmap::makeColor(0, 0, 0));
-    Font::getDefaultFont(25, 25).printf(10, 5, Graphics::Bitmap::makeColor(192, 192, 192), top, "Loading", 0);
+    top.fill(Graphics::makeColor(0, 0, 0));
+    Font::getDefaultFont(25, 25).printf(10, 5, Graphics::makeColor(192, 192, 192), top, "Loading", 0);
     Graphics::Bitmap::transBlender(0, 0, 0, 200);
     top.translucent().draw(0, 0, work);
     work.BlitAreaToScreen(screenX, screenY);

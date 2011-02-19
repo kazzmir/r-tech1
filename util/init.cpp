@@ -117,7 +117,7 @@ static void handleSigSegV(int i, siginfo_t * sig, void * data){
     print_stack_trace();
 #endif
     // Global::shutdown_message = "Bug! Caught a memory violation. Shutting down..";
-    Graphics::Bitmap::setGfxModeText();
+    Graphics::setGfxModeText();
 #ifdef USE_ALLEGRO
     allegro_exit();
 #endif
@@ -165,7 +165,7 @@ static void registerSignals(){
 /* should probably call the janitor here or something */
 static void close_paintown(){
     Music::pause();
-    Graphics::Bitmap::setGfxModeText();
+    Graphics::setGfxModeText();
 #ifdef USE_ALLEGRO
     allegro_exit();
 #endif
@@ -446,8 +446,8 @@ bool Global::init(int gfx){
 
     Filesystem::initialize();
 
-    Graphics::Bitmap::SCALE_X = GFX_X;
-    Graphics::Bitmap::SCALE_Y = GFX_Y;
+    Graphics::SCALE_X = GFX_X;
+    Graphics::SCALE_Y = GFX_Y;
 
     Configuration::loadConfigurations();
     const int sx = Configuration::getScreenWidth();
@@ -459,7 +459,7 @@ bool Global::init(int gfx){
     }
     
     /* set up the screen */
-    int gfxCode = Graphics::Bitmap::setGraphicsMode(gfx, sx, sy);
+    int gfxCode = Graphics::setGraphicsMode(gfx, sx, sy);
     if (gfxCode == 0){
         out << "Set graphics mode: Ok" << endl;
     } else {
@@ -495,7 +495,7 @@ bool Global::init(int gfx){
     temp.BlitToScreen(sx / 2, sy / 2);
     */
     Graphics::Bitmap white(sx, sy);
-    white.fill(Graphics::Bitmap::makeColor(255, 255, 255));
+    white.fill(Graphics::makeColor(255, 255, 255));
     white.BlitToScreen();
 
     return true;

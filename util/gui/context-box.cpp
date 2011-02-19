@@ -8,12 +8,12 @@ static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
 
 static int selectedGradientStart(){
-    static int color = Graphics::Bitmap::makeColor(19, 167, 168);
+    static int color = Graphics::makeColor(19, 167, 168);
     return color;
 }
 
 static int selectedGradientEnd(){
-    static int color = Graphics::Bitmap::makeColor(27, 237, 239);
+    static int color = Graphics::makeColor(27, 237, 239);
     return color;
 }
 
@@ -284,7 +284,7 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
             }
             Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
             // Bitmap::drawingMode( Bitmap::MODE_TRANS );
-            const int color = Graphics::Bitmap::makeColor(255,255,255);
+            const int color = Graphics::makeColor(255,255,255);
             vFont.printf(location.getX() + startx, locationY, color, bmp.translucent(), context[currentOption]->getName(), 0 );
             // Bitmap::drawingMode( Bitmap::MODE_SOLID );
         }
@@ -317,7 +317,7 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
         }
         Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
         // Bitmap::drawingMode( Bitmap::MODE_TRANS );
-        const int color = Graphics::Bitmap::makeColor(255,255,255);
+        const int color = Graphics::makeColor(255,255,255);
         vFont.printf(location.getX() + startx, locationY, color, bmp.translucent(), context[currentOption]->getName(), 0 );
         // Bitmap::drawingMode( Bitmap::MODE_SOLID );
         currentOption--;

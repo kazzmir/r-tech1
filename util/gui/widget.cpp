@@ -107,12 +107,12 @@ void Widget::setColors(const Token * token){
         // This handles the body color of the widget
         int r,g,b;
         token->view() >> r >> g >> b >> colors.bodyAlpha;
-        colors.body = Graphics::Bitmap::makeColor(r,g,b);
+        colors.body = Graphics::makeColor(r,g,b);
     } else if ( *token == "position-border" ) {
         // This handles the border color of the widget
         int r,g,b;
         token->view() >> r >> g >> b >> colors.borderAlpha;
-        colors.border = Graphics::Bitmap::makeColor(r,g,b);
+        colors.border = Graphics::makeColor(r,g,b);
     } 
 }
         
@@ -244,6 +244,6 @@ void Widget::checkWorkArea(){
     }
 
     if (workArea){
-        workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
+        workArea->fill(Graphics::makeColor(255,0,255));
     }
 }

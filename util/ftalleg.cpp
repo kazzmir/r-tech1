@@ -71,7 +71,7 @@ namespace ftalleg{
         int green = c * 255 / (grays - 1);
         int blue = c * 255 / (grays - 1);
         //alpha = *c * 255 / (grays - 1);
-        return Graphics::Bitmap::makeColor(red,green,blue);
+        return Graphics::makeColor(red,green,blue);
     }
 	// Static count of instances of fonts to track library
 	static int instances = 0;
@@ -269,7 +269,7 @@ namespace ftalleg{
                         green = green * colorGreen / 255;
                         blue = blue * colorBlue / 255;
 
-                        finalColor = Graphics::Bitmap::makeColor(red, green, blue);
+                        finalColor = Graphics::makeColor(red, green, blue);
                         lastData = current;
                         lastColor = finalColor;
                         lastGrays = tempChar->grays;

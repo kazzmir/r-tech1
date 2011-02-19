@@ -14,14 +14,17 @@
 
 namespace Graphics{
 
+static Bitmap * Screen = NULL;
+/* bitmaps that should always be resized to the dimensions of the screen */
+static std::vector<Bitmap*> needResize;
+
 /* implementation independant definitions can go here */
 
 Bitmap * Bitmap::temporary_bitmap = NULL;
 Bitmap * Bitmap::temporary_bitmap2 = NULL;
 
-std::vector<Bitmap*> Bitmap::needResize;
-int Bitmap::SCALE_X = 0;
-int Bitmap::SCALE_Y = 0;
+int SCALE_X = 0;
+int SCALE_Y = 0;
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
 	
@@ -36,6 +39,8 @@ const int SPRITE_TRANS = 3;
 static inline int max(int a, int b){
     return a > b ? a : b;
 }
+	
+void initializeExtraStuff();
 
 Bitmap::~Bitmap(){
     if (mustResize){
@@ -123,20 +128,6 @@ void Bitmap::cymkToRGB(int c, int y, int m, int k, int * r, int * g, int * b){
     *r = (int)(fr * 255.0);
     *g = (int)(fg * 255.0);
     *b = (int)(fb * 255.0);
-}
-
-int Bitmap::getScreenWidth(){
-    if (Screen != 0){
-        return Screen->getWidth();
-    }
-    return 0;
-}
-
-int Bitmap::getScreenHeight(){
-    if (Screen != 0){
-        return Screen->getHeight();
-    }
-    return 0;
 }
         
 void Bitmap::updateOnResize(){
@@ -313,6 +304,22 @@ void Bitmap::BlitFromScreen(const int x, const int y) const {
     Screen->Blit(x, y, getWidth(), getHeight(), 0, 0, *this);
 }
 
+int Bitmap::getScreenWidth(){
+    if (Screen != 0){
+        return Screen->getWidth();
+    }
+    return 0;
+}
+
+int Bitmap::getScreenHeight(){
+    if (Screen != 0){
+        return Screen->getHeight();
+    }
+    return 0;
+}
+
+
+
 void Bitmap::Stretch( const Bitmap & where ) const {
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
         Blit(where);
@@ -321,10 +328,10 @@ void Bitmap::Stretch( const Bitmap & where ) const {
     }
 }
 
-int Bitmap::darken( int color, double factor ){
-    int r = (int)((double)getRed(color) / factor);
-    int g = (int)((double)getGreen(color) / factor);
-    int b = (int)((double)getBlue(color) / factor);
+int darken( int color, double factor ){
+    int r = (int)((double)Bitmap::getRed(color) / factor);
+    int g = (int)((double)Bitmap::getGreen(color) / factor);
+    int b = (int)((double)Bitmap::getBlue(color) / factor);
 
     return makeColor(r, g, b);
 }
