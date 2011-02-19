@@ -140,7 +140,7 @@ void LineEdit::render(const Graphics::Bitmap & work){
         roundRectFill( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->translucent().draw(location.getX(),location.getY(),work);
 
-        workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
+        workArea->fill(Graphics::makeColor(255,0,255));
 
         Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
         roundRect( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
@@ -150,7 +150,7 @@ void LineEdit::render(const Graphics::Bitmap & work){
         workArea->rectangleFill( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->translucent().draw(location.getX(),location.getY(),work);
 
-        workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
+        workArea->fill(Graphics::makeColor(255,0,255));
 
         Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
         workArea->rectangle( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
@@ -159,7 +159,7 @@ void LineEdit::render(const Graphics::Bitmap & work){
 
     // work.drawingMode( Bitmap::MODE_SOLID );
 
-    workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
+    workArea->fill(Graphics::makeColor(255,0,255));
 
     if (currentSetFont){
         currentSetFont->printf(textX,textY,textColor,*workArea, input.getText(), 0);

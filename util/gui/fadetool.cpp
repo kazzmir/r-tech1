@@ -12,8 +12,8 @@ lastState(FadeIn),
 fadeTime(0),
 fadeInTime(0),
 fadeOutTime(0),
-fadeInColor(Graphics::Bitmap::makeColor(0,0,0)),
-fadeOutColor(Graphics::Bitmap::makeColor(0,0,0)){
+fadeInColor(Graphics::makeColor(0,0,0)),
+fadeOutColor(Graphics::makeColor(0,0,0)){
 }
 
 FadeTool::~FadeTool(){
@@ -48,7 +48,7 @@ void FadeTool::parseDefaults(const Token * token){
                             inView >> r >> g >> b;
                         } catch (const TokenException & ex){
                         }
-                        setFadeInColor(Graphics::Bitmap::makeColor(r,b,g));
+                        setFadeInColor(Graphics::makeColor(r,b,g));
                     } else if (*tok == "time"){
                         int time=0;
                         try {

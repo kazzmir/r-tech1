@@ -53,7 +53,6 @@ int Bitmap::MaskColor(){
     return MASK_COLOR_16;
 }
 
-Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
@@ -479,7 +478,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     return bitmap;
 }
 
-void Bitmap::initializeExtraStuff(){
+void initializeExtraStuff(){
     /* nothing yet */
 }
 
@@ -706,7 +705,7 @@ void Bitmap::drawingMode( int mode ){
 	}
 }
 
-int Bitmap::setGraphicsMode( int mode, int width, int height ){
+int setGraphicsMode( int mode, int width, int height ){
     int ok = ::set_gfx_mode(mode, width, height, 0, 0);
     if ( ok == 0 ){
         if (SCALE_X == 0){
@@ -777,23 +776,23 @@ void Bitmap::readLine( vector< int > & vec, int y ){
 	}
 }
 
-int Bitmap::setGfxModeText(){
+int setGfxModeText(){
 	return setGraphicsMode(GFX_TEXT, 0, 0);
 }
 	
-int Bitmap::setGfxModeFullscreen(int x, int y){
+int setGfxModeFullscreen(int x, int y){
 	return setGraphicsMode(GFX_AUTODETECT_FULLSCREEN, x, y);
 }
 
-int Bitmap::setGfxModeWindowed(int x, int y){
+int setGfxModeWindowed(int x, int y){
 	return setGraphicsMode(GFX_AUTODETECT_WINDOWED, x, y);
 }
 	
-int Bitmap::makeColor( int r, int g, int b ){
-	return ::makecol16( r, g, b );
+int makeColor( int r, int g, int b ){
+    return ::makecol16( r, g, b );
 }
 
-void Bitmap::hsvToRGB( float h, float s, float v, int * r, int * g, int * b ){
+void hsvToRGB( float h, float s, float v, int * r, int * g, int * b ){
 	::hsv_to_rgb( h, s, v, r, g, b );
 }
         
@@ -1166,7 +1165,7 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
     if ( Scaler == NULL ){
-        this->Blit( upper_left_x, upper_left_y, *Bitmap::Screen );
+        this->Blit( upper_left_x, upper_left_y, *Screen );
     } else {
         if (upper_left_x != 0 || upper_left_y != 0){
             Bitmap buffer = temporaryBitmap(getWidth(), getHeight());
@@ -1776,7 +1775,7 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
             return;
     }
 
-    unsigned int mask = Bitmap::makeColor(255, 0, 255);
+    unsigned int mask = makeColor(255, 0, 255);
     // int bpp = src->format->BytesPerPixel;
     for (y = 0; y < h; y++) {
         PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);

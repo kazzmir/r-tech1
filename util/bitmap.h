@@ -27,6 +27,9 @@ extern const int SPRITE_TRANS;
 extern const int SPRITE_NO_FLIP;
 extern const int SPRITE_V_FLIP;
 extern const int SPRITE_H_FLIP;
+        
+extern int SCALE_X;
+extern int SCALE_Y;
 
 class BitmapException: public Exception::Base {
 public:
@@ -55,10 +58,17 @@ protected:
     std::string reason;
 };
 
+int makeColor( int r, int g, int b );
+int darken( int color, double factor );
+void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
+
+int setGfxModeText();
+int setGfxModeFullscreen( int x, int y );
+int setGfxModeWindowed( int x, int y );
+int setGraphicsMode(int mode, int width, int height);
 
 class Bitmap{
 private:
-	static Bitmap * Screen;
 	
         /* these constructors don't really matter, get rid of them at some point */
         Bitmap( const Bitmap & copy, int sx, int sy, double accuracy );
@@ -73,8 +83,6 @@ public:
             }
         };
 
-        static int SCALE_X;
-        static int SCALE_Y;
 	
 	/* default constructor makes 10x10 bitmap */
 	Bitmap();
@@ -151,7 +159,6 @@ public:
 	static void luminanceBlender( int r, int g, int b, int a );
 	static void invertBlender( int r, int g, int b, int a );
 	static void screenBlender( int r, int g, int b, int a );
-	static int setGraphicsMode( int mode, int width, int height );
         /* for testing */
 	static void setFakeGraphicsMode(int width, int height);
 
@@ -314,14 +321,8 @@ public:
         static void cleanupTemporaryBitmaps();
 
         static double getScale();
-	static int setGfxModeText();
-	static int setGfxModeFullscreen( int x, int y );
-	static int setGfxModeWindowed( int x, int y );
 
-	static int makeColor( int r, int g, int b );
-	static int darken( int color, double factor );
-	static void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
-
+	
         /*
          * Convert color values between the HSV and RGB color spaces. The RGB values
          * range from 0 to 255, hue is from 0 to 360, and saturation and value are
@@ -355,8 +356,6 @@ public:
 	static const int MODE_SOLID;
 
 protected:
-	static void initializeExtraStuff();
-
         /* release a reference count, and possibly destroy data */
         void releaseInternalBitmap();
 
@@ -385,8 +384,6 @@ protected:
         static Bitmap * temporary_bitmap2;
         int bit8MaskColor;
 
-        /* bitmaps that should always be resized to the dimensions of the screen */
-        static std::vector<Bitmap*> needResize;
 };
 
 }
