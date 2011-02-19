@@ -15,7 +15,7 @@ Sound * Resource::getSound(const Filesystem::RelativePath & path) throw (LoadExc
     return resource->_getSound(Filesystem::find(path));
 }
 
-Bitmap * Resource::getBitmap(const Filesystem::RelativePath & path) throw (LoadException){
+Graphics::Bitmap * Resource::getBitmap(const Filesystem::RelativePath & path) throw (LoadException){
     return resource->_getBitmap(Filesystem::find(path));
 }
 
@@ -29,7 +29,7 @@ Resource::~Resource(){
         delete (*it).second;
     }
     
-    for (std::map<std::string, Bitmap*>::iterator it = bitmaps.begin(); it != bitmaps.end(); it++){
+    for (std::map<std::string, Graphics::Bitmap*>::iterator it = bitmaps.begin(); it != bitmaps.end(); it++){
         delete (*it).second;
     }
 }
@@ -41,9 +41,9 @@ Sound * Resource::_getSound(const Filesystem::AbsolutePath & path) throw (LoadEx
     return sounds[path.path()];
 }
     
-Bitmap * Resource::_getBitmap(const Filesystem::AbsolutePath & path) throw (LoadException){
+Graphics::Bitmap * Resource::_getBitmap(const Filesystem::AbsolutePath & path) throw (LoadException){
     if (bitmaps[path.path()] == NULL){
-        bitmaps[path.path()] = new Bitmap(path.path());
+        bitmaps[path.path()] = new Graphics::Bitmap(path.path());
     }
 
     return bitmaps[path.path()];

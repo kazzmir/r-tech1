@@ -15,9 +15,9 @@ using namespace std;
 using namespace Gui;
 
 // Temporary solution
-static void renderSprite(const Bitmap & bmp, const int x, const int y, const int alpha, const bool hflip, const bool vflip, const Bitmap & work){
+static void renderSprite(const Graphics::Bitmap & bmp, const int x, const int y, const int alpha, const bool hflip, const bool vflip, const Graphics::Bitmap & work){
     if (alpha != 255){
-        Bitmap::transBlender( 0, 0, 0, alpha );
+        Graphics::Bitmap::transBlender( 0, 0, 0, alpha );
         if (hflip && !vflip){
             bmp.translucent().drawHFlip(x,y, work);
         } else if (!hflip && vflip){
@@ -99,7 +99,7 @@ alpha(255){
     }
 }
 
-Frame::Frame(Bitmap * bmp):
+Frame::Frame(Graphics::Bitmap * bmp):
 bmp(bmp),
 time(0),
 horizontalFlip(false),
@@ -129,7 +129,7 @@ static bool closeFloat(double a, double b){
     return fabs(a-b) < epsilon;
 }
 
-void Frame::draw(const int xaxis, const int yaxis, const Bitmap & work){
+void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work){
     if (!bmp){
         return;
     }
@@ -137,7 +137,7 @@ void Frame::draw(const int xaxis, const int yaxis, const Bitmap & work){
     if (!closeFloat(scrollOffset.getDistanceFromCenterX(), 0) || !closeFloat(scrollOffset.getDistanceFromCenterY(), 0)){
 
         // Lets do some scrolling
-        Bitmap temp = Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
+        Graphics::Bitmap temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
         //AnimationPoint loc;
         AbsolutePoint loc;
         if (scrollOffset.getRelativeX() < 0){
@@ -241,7 +241,7 @@ allowReset(true){
                 int number;
                 std::string temp;
                 token->view() >> number >> temp;
-                Bitmap *bmp = new Bitmap(Filesystem::find(Filesystem::RelativePath(basedir + temp)).path());
+                Graphics::Bitmap *bmp = new Graphics::Bitmap(Filesystem::find(Filesystem::RelativePath(basedir + temp)).path());
                 if (bmp->getError()){
                     delete bmp;
                 } else {
@@ -310,7 +310,7 @@ currentFrame(0),
 loop(0),
 allowReset(true){
     // add bitmap
-    Bitmap *bmp = new Bitmap(Filesystem::find(Filesystem::RelativePath(background)).path());
+    Graphics::Bitmap *bmp = new Graphics::Bitmap(Filesystem::find(Filesystem::RelativePath(background)).path());
     if (bmp->getError()){
         delete bmp;
         throw LoadException(__FILE__,__LINE__, "Problem loading file: " + background);
@@ -321,7 +321,7 @@ allowReset(true){
     frames.push_back(frame);
 }
 
-Animation::Animation(Bitmap * image):
+Animation::Animation(Graphics::Bitmap * image):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
@@ -359,7 +359,7 @@ void Animation::act(){
 	    }
     }
 }
-void Animation::draw(const Bitmap & work){
+void Animation::draw(const Graphics::Bitmap & work){
     /* should use sub-bitmaps here */
      // Set clip from the axis default is 0,0,bitmap width, bitmap height
     work.setClipRect(-(window.getPosition().getDistanceFromCenterX()),-(window.getPosition().getDistanceFromCenterY()),work.getWidth() - window.getPosition2().getDistanceFromCenterX(),work.getHeight() - window.getPosition2().getDistanceFromCenterY());

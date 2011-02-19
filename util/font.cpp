@@ -33,7 +33,7 @@ static vector< string > wrapStrings( const string & left, const string & right, 
 	}
 }
 
-void Font::printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const {
+void Font::printfWrapLine(int x, int & y, int color, const Graphics::Bitmap & work, int maxWidth, const char * line) const {
     vector< string > all;
     all = wrapStrings(string(line), "", *this, maxWidth, all );
     for ( vector< string >::iterator str = all.begin(); str != all.end(); str++ ){
@@ -85,7 +85,7 @@ void Font::printfWrapLine2(int x, int & y, int color, const Bitmap & work, int m
 }
 #endif
 
-void Font::printfWrap(int x, int y, int color, const Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const {
+void Font::printfWrap(int x, int y, int color, const Graphics::Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const {
     char buf[4096];
     va_list ap;
 
@@ -150,7 +150,7 @@ int AllegroFont::getSizeY() const {
     return 0;
 }
 
-void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const {
+void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
 
@@ -161,7 +161,7 @@ void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const B
     textout_ex(work.getData().getBitmap(), getInternalFont(), buf, x, y, color, -1);
 }
 	
-void AllegroFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
+void AllegroFont::printf( int x, int y, int color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
 
@@ -218,7 +218,7 @@ int FreeTypeFont::textLength( const char * text ) const {
     return this->font->getLength(string(text));
 }
 
-void FreeTypeFont::printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const string & str, int marker, ... ) const {
+void FreeTypeFont::printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
 
@@ -238,7 +238,7 @@ void FreeTypeFont::printf( int x, int y, int xSize, int ySize, int color, const 
 
 }
 	
-void FreeTypeFont::printf( int x, int y, int color, const Bitmap & work, const string & str, int marker, ... ) const {
+void FreeTypeFont::printf( int x, int y, int color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
 
@@ -299,8 +299,8 @@ int NullFont::getHeight() const {
     return 0;
 }
 
-void NullFont::printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const {
+void NullFont::printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const {
 }
 
-void NullFont::printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const {
+void NullFont::printf( int x, int y, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const {
 }

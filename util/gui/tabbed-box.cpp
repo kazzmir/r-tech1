@@ -54,8 +54,8 @@ fontWidth(24),
 fontHeight(24),
 inTab(false),
 tabWidthMax(0),
-tabFontColor(Bitmap::makeColor(255,255,255)),
-currentTabFontColor(Bitmap::makeColor(0,0,255)){
+tabFontColor(Graphics::Bitmap::makeColor(255,255,255)),
+currentTabFontColor(Graphics::Bitmap::makeColor(0,0,255)){
     activeTabFontColor = new Effects::Gradient(50, tabFontColor, currentTabFontColor);
 }
 
@@ -106,15 +106,15 @@ void TabbedBox::act(const Font & font){
     }
 }
         
-void TabbedBox::render(const Bitmap & work){
+void TabbedBox::render(const Graphics::Bitmap & work){
     /* nothing */
 }
 
 // Render
-void TabbedBox::render(const Bitmap & work, const Font & font){
+void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
     const int tabHeight = fontHeight + 5;
     // checkWorkArea();
-    Bitmap area(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
+    Graphics::Bitmap area(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
     // Check if we are using a rounded box
     if (location.getRadius() > 0){
         //roundRectFill( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
@@ -242,12 +242,12 @@ void TabbedBox::setSelectedTabFontColor(int color){
     activeTabFontColor = new Effects::Gradient(50, tabFontColor, currentTabFontColor);
 }
 
-void TabbedBox::renderTabs(const Bitmap & bmp, const Font & vFont){
+void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
     const int tabHeight = fontHeight + 5;
     // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
     
     int x = 0;
-    Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
+    Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
     
     for (std::vector<Gui::Tab *>::iterator i = tabs.begin(); i != tabs.end(); ++i){
         Gui::Tab * tab = *i;

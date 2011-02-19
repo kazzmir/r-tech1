@@ -34,6 +34,16 @@ using namespace std;
 #define debug cout<<"File: "<<__FILE__<<" Line: "<<__LINE__<<endl;
 #endif
 
+/* These have to go outside the Graphics namespace for some reason */
+/* defined at allegro/include/internal/aintern.h:457 */
+extern EXTERNAL_VARIABLE BLENDER_FUNC _blender_func16;
+/* defined at allegro/include/internal/aintern.h:466 */
+extern EXTERNAL_VARIABLE int _blender_col_16;
+/* defined at allegro/include/internal/aintern.h:470 */
+extern EXTERNAL_VARIABLE int _blender_alpha;
+
+namespace Graphics{
+
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter);
 static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int x, int y, const Bitmap::Filter & filter);
 static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
@@ -964,38 +974,38 @@ void TranslucentBitmap::fill(int color) const {
 */
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP, NULL);
+	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, NULL);
 	// ::draw_sprite( where.getData().getBitmap(), getBitmap(), x, y );
 }
 	
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, filter);
 }
 
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, NULL);
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 
 void Bitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, filter);
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, NULL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, filter);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_NORMAL, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 /*
@@ -1006,36 +1016,36 @@ void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & 
 
 void TranslucentBitmap::draw( const int x, const int y, const Bitmap & where ) const{
     // ::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, NULL);
 }
 
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const{
     // ::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, filter);
 }
 	
 void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, filter);
 }
 
 void TranslucentBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP, NULL);
+	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, NULL);
 }
 	
 void TranslucentBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP, filter);
+	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, filter);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, NULL);
+	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_TRANS, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, filter);
+	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
@@ -1195,35 +1205,35 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, NULL);
 }
 
 void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, filter);
 }
 	
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, NULL);
+	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_H_FLIP, filter);
+	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_H_FLIP, filter);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP, NULL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP, filter);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, Bitmap::SPRITE_LIT, Bitmap::SPRITE_V_FLIP | Bitmap::SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 /* this function should be in allegro but its not yet so just store it
@@ -1241,17 +1251,10 @@ void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bit
 #define PAINTOWN_IS_SPRITE_MASK(b,c)    ((unsigned long) (c) == (unsigned long) (b)->vtable->mask_color)
 #define PAINTOWN_DLSX_BLEND(b,n)       ((*(b))(_blender_col_16, (n), _blender_alpha))
 #define PAINTOWN_GET_PIXEL(p)           bmp_read16((uintptr_t) (p))
-#define PAINTOWN_DTS_BLEND(b,o,n)       ((*(b))((n), (o), _blender_alpha))
+#define PAINTOWN_DTS_BLEND(b,o,n)       ((*(b))((n), (o), ::_blender_alpha))
 #define PAINTOWN_PUT_PIXEL(p,c)         bmp_write16((uintptr_t) (p), (c))
 #define PAINTOWN_PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
 #define PAINTOWN_SET_ALPHA(a)           (_blender_alpha = (a))
-
-/* defined at allegro/include/internal/aintern.h:457 */
-extern EXTERNAL_VARIABLE BLENDER_FUNC _blender_func16;
-/* defined at allegro/include/internal/aintern.h:466 */
-extern EXTERNAL_VARIABLE int _blender_col_16;
-/* defined at allegro/include/internal/aintern.h:470 */
-extern EXTERNAL_VARIABLE int _blender_alpha;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter ){
     int x, y, w, h;
@@ -1264,10 +1267,10 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
     ASSERT(dst);
     ASSERT(src);
 
-    if ( flip & Bitmap::SPRITE_V_FLIP ){
+    if ( flip & SPRITE_V_FLIP ){
         y_dir = -1;
     }
-    if ( flip & Bitmap::SPRITE_H_FLIP ){
+    if ( flip & SPRITE_H_FLIP ){
         x_dir = -1;
     }
 
@@ -1283,7 +1286,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
         if (w <= 0)
             return;
 
-        if ( flip & Bitmap::SPRITE_H_FLIP ){
+        if ( flip & SPRITE_H_FLIP ){
             /* use backward drawing onto dst */
             sxbeg = src->w - (sxbeg + w);
             dxbeg += w - 1;
@@ -1298,7 +1301,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
         if (h <= 0)
             return;
 
-        if ( flip & Bitmap::SPRITE_V_FLIP ){
+        if ( flip & SPRITE_V_FLIP ){
             /* use backward drawing onto dst */
             sybeg = src->h - (sybeg + h);
             dybeg += h - 1;
@@ -1309,11 +1312,11 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
         sxbeg = 0;
         sybeg = 0;
         dxbeg = dx;
-        if ( flip & Bitmap::SPRITE_H_FLIP ){
+        if ( flip & SPRITE_H_FLIP ){
             dxbeg = dx + w - 1;
         }
         dybeg = dy;
-        if ( flip & Bitmap::SPRITE_V_FLIP ){
+        if ( flip & SPRITE_V_FLIP ){
             dybeg = dy + h - 1;
         }
     }
@@ -1385,13 +1388,13 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                 unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
                 if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
                     switch (mode){
-                        case Bitmap::SPRITE_NORMAL: {
+                        case SPRITE_NORMAL: {
                             if (filter){
                                 c = filter->filter(c);
                             }
                             break;
                         }
-                        case Bitmap::SPRITE_LIT : {
+                        case SPRITE_LIT : {
                             if (filter){
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
                             } else {
@@ -1399,7 +1402,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                             }
                             break;
                         }
-                        case Bitmap::SPRITE_TRANS : {
+                        case SPRITE_TRANS : {
                             if (filter){
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
                             } else {
@@ -1416,7 +1419,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
         bmp_unwrite_line(dst);
     } else {
         switch (mode){
-            case Bitmap::SPRITE_NORMAL : {
+            case SPRITE_NORMAL : {
                 for (y = 0; y < h; y++) {
                     PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
                     PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
@@ -1435,7 +1438,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
 
                 break;
             }
-            case Bitmap::SPRITE_LIT : {
+            case SPRITE_LIT : {
                 for (y = 0; y < h; y++) {
                     PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
                     PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
@@ -1454,7 +1457,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                 }
                 break;
             }
-            case Bitmap::SPRITE_TRANS : {
+            case SPRITE_TRANS : {
                 for (y = 0; y < h; y++) {
                     PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
                     PAINTOWN_PIXEL_PTR d = PAINTOWN_OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y * y_dir), dxbeg);
@@ -1615,10 +1618,10 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
     ASSERT(dst);
     ASSERT(src);
 
-    if ( flip & Bitmap::SPRITE_V_FLIP ){
+    if ( flip & SPRITE_V_FLIP ){
         y_dir = -1;
     }
-    if ( flip & Bitmap::SPRITE_H_FLIP ){
+    if ( flip & SPRITE_H_FLIP ){
         x_dir = -1;
     }
 
@@ -1634,7 +1637,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
         if (w <= 0)
             return;
 
-        if ( flip & Bitmap::SPRITE_H_FLIP ){
+        if ( flip & SPRITE_H_FLIP ){
             /* use backward drawing onto dst */
             sxbeg = src->w - (sxbeg + w);
             dxbeg += w - 1;
@@ -1649,7 +1652,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
         if (h <= 0)
             return;
 
-        if ( flip & Bitmap::SPRITE_V_FLIP ){
+        if ( flip & SPRITE_V_FLIP ){
             /* use backward drawing onto dst */
             sybeg = src->h - (sybeg + h);
             dybeg += h - 1;
@@ -1660,11 +1663,11 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
         sxbeg = 0;
         sybeg = 0;
         dxbeg = dx;
-        if ( flip & Bitmap::SPRITE_H_FLIP ){
+        if ( flip & SPRITE_H_FLIP ){
             dxbeg = dx + w - 1;
         }
         dybeg = dy;
-        if ( flip & Bitmap::SPRITE_V_FLIP ){
+        if ( flip & SPRITE_V_FLIP ){
             dybeg = dy + h - 1;
         }
     }
@@ -1686,8 +1689,8 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                 unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
                 if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
                     switch( mode ){
-                        case Bitmap::SPRITE_NORMAL : break;
-                        case Bitmap::SPRITE_LIT : {
+                        case SPRITE_NORMAL : break;
+                        case SPRITE_LIT : {
                             if (filter){
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
                             } else {
@@ -1695,7 +1698,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                             }
                             break;
                         }
-                        case Bitmap::SPRITE_TRANS : {
+                        case SPRITE_TRANS : {
                             if (filter){
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
                             } else {
@@ -1720,8 +1723,8 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                 unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
                 if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
                     switch( mode ){
-                        case Bitmap::SPRITE_NORMAL : break;
-                        case Bitmap::SPRITE_LIT : {
+                        case SPRITE_NORMAL : break;
+                        case SPRITE_LIT : {
                             if (filter){
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
                             } else {
@@ -1729,7 +1732,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                             }
                             break;
                         }
-                        case Bitmap::SPRITE_TRANS : {
+                        case SPRITE_TRANS : {
                             if (filter){
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
                             } else {
@@ -1788,4 +1791,6 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
             }
         }
     }
+}
+
 }

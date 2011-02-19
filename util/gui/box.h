@@ -21,7 +21,7 @@ public:
 
     // Render
     using Widget::render;
-    virtual void render(const Bitmap &);
+    virtual void render(const Graphics::Bitmap &);
 
     // Do a message Dialog centered with respect to the given width/height
     static void messageDialog(int width, int height, const std::string & message, int radius = 0);

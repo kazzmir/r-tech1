@@ -34,7 +34,7 @@ void Box::act(const Font & font){
 }
 
 // Render
-void Box::render(const Bitmap & work){
+void Box::render(const Graphics::Bitmap & work){
     checkWorkArea();
     // Check if we are using a rounded box
     if (location.getRadius() > 0){
@@ -44,7 +44,7 @@ void Box::render(const Bitmap & work){
         workArea->rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
     }
-    Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
+    Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
     // workArea->drawingMode( Bitmap::MODE_TRANS );
     workArea->translucent().draw(location.getX(), location.getY(), work);
     // work.drawingMode( Bitmap::MODE_SOLID );

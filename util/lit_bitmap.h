@@ -3,6 +3,8 @@
 
 #include "bitmap.h"
 
+namespace Graphics{
+
 class LitBitmap: public Bitmap {
 public:
     LitBitmap( const Bitmap & b );
@@ -22,5 +24,7 @@ public:
     virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
     virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 };
+
+}
 
 #endif

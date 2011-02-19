@@ -154,20 +154,20 @@ void Util::blend_palette(int * pal, int mp, int startColor, int endColor ) {
     ASSERT(mp != 0);
     */
 
-    int sc_r = Bitmap::getRed(startColor);
-    int sc_g = Bitmap::getGreen(startColor);
-    int sc_b = Bitmap::getBlue(startColor);
+    int sc_r = Graphics::Bitmap::getRed(startColor);
+    int sc_g = Graphics::Bitmap::getGreen(startColor);
+    int sc_b = Graphics::Bitmap::getBlue(startColor);
 
-    int ec_r = Bitmap::getRed(endColor);
-    int ec_g = Bitmap::getGreen(endColor);
-    int ec_b = Bitmap::getBlue(endColor);
+    int ec_r = Graphics::Bitmap::getRed(endColor);
+    int ec_g = Graphics::Bitmap::getGreen(endColor);
+    int ec_b = Graphics::Bitmap::getBlue(endColor);
 
     for ( int q = 0; q < mp; q++ ) {
         float j = (float)( q + 1 ) / (float)( mp );
         int f_r = (int)( 0.5 + (float)( sc_r ) + (float)( ec_r-sc_r ) * j );
         int f_g = (int)( 0.5 + (float)( sc_g ) + (float)( ec_g-sc_g ) * j );
         int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
-        pal[q] = Bitmap::makeColor( f_r, f_g, f_b );
+        pal[q] = Graphics::Bitmap::makeColor( f_r, f_g, f_b );
     }
 }
 
@@ -288,26 +288,26 @@ int Util::getPipe(int files[2]){
 }
 #endif
 
-void Util::showError(const Bitmap & screen, const Exception::Base & exception, const string & info){
+void Util::showError(const Graphics::Bitmap & screen, const Exception::Base & exception, const string & info){
     screen.BlitFromScreen(0, 0);
-    Bitmap error(screen.getWidth() - 100, screen.getHeight() - 100);
-    error.fill(Bitmap::darken(Bitmap::makeColor(160, 0, 0), 3));
-    error.border(1, 2, Bitmap::makeColor(240, 0, 0));
+    Graphics::Bitmap error(screen.getWidth() - 100, screen.getHeight() - 100);
+    error.fill(Graphics::Bitmap::darken(Graphics::Bitmap::makeColor(160, 0, 0), 3));
+    error.border(1, 2, Graphics::Bitmap::makeColor(240, 0, 0));
     const Font & font = Font::getFont(Global::DEFAULT_FONT, 17, 17);
     int y = 10;
     std::ostringstream out;
     out << info;
     out << " " << exception.getTrace();
-    font.printfWrap(10, 10, Bitmap::makeColor(240, 240, 240), error, error.getWidth() - 20, out.str(), 0);
+    font.printfWrap(10, 10, Graphics::Bitmap::makeColor(240, 240, 240), error, error.getWidth() - 20, out.str(), 0);
     Global::debug(0) << out.str() << std::endl;
 
-    Bitmap::transBlender(0, 0, 0, 220);
+    Graphics::Bitmap::transBlender(0, 0, 0, 220);
     error.translucent().draw(50, 50, screen);
     screen.BlitToScreen();
 }
 
 void Util::showError(const Exception::Base & exception, const std::string & info){
-    Bitmap screen(GFX_X, GFX_Y);
+    Graphics::Bitmap screen(GFX_X, GFX_Y);
     showError(screen, exception, info);
 }
 

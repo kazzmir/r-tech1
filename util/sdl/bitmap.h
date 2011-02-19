@@ -1,5 +1,6 @@
 struct SDL_Surface;
 
+namespace Graphics{
 struct BitmapData{
     BitmapData():
         surface(0),
@@ -32,3 +33,4 @@ struct BitmapData{
     mutable int clip_left, clip_right;
     mutable int clip_top, clip_bottom;
 };
+}

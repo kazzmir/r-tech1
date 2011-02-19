@@ -107,20 +107,20 @@ void Widget::setColors(const Token * token){
         // This handles the body color of the widget
         int r,g,b;
         token->view() >> r >> g >> b >> colors.bodyAlpha;
-        colors.body = Bitmap::makeColor(r,g,b);
+        colors.body = Graphics::Bitmap::makeColor(r,g,b);
     } else if ( *token == "position-border" ) {
         // This handles the border color of the widget
         int r,g,b;
         token->view() >> r >> g >> b >> colors.borderAlpha;
-        colors.border = Bitmap::makeColor(r,g,b);
+        colors.border = Graphics::Bitmap::makeColor(r,g,b);
     } 
 }
         
-void Widget::render(const Bitmap & bitmap, const Font & font){
+void Widget::render(const Graphics::Bitmap & bitmap, const Font & font){
     render(bitmap);
 }
 
-void Widget::arc( const Bitmap & work, int x, int y, double startAngle, int radius, int color ){
+void Widget::arc( const Graphics::Bitmap & work, int x, int y, double startAngle, int radius, int color ){
     int q = 0;// for counters
     double d_q = 0.0;// for percentage of loop completed
     double d_q_plus_one = 0.0;
@@ -194,7 +194,7 @@ void Widget::arc( const Bitmap & work, int x, int y, double startAngle, int radi
     }
 }
 
-void Widget::roundRect( const Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color ){
+void Widget::roundRect( const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color ){
     const int width = x2 - x1;
     const int height = y2 - y1;
     radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
@@ -209,7 +209,7 @@ void Widget::roundRect( const Bitmap & work, int radius, int x1, int y1, int x2,
     arc(work, x1+radius, y1+height-radius, S_PI/2-0.119, radius, color);
 }
 
-void Widget::roundRectFill( const Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color ){
+void Widget::roundRectFill( const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color ){
     const int width = x2 - x1;
     const int height = y2 - y1;
     radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
@@ -234,16 +234,16 @@ void Widget::checkWorkArea(){
     */
 
     if ( ! workArea ){
-        workArea = new Bitmap(location.getWidth(), location.getHeight());
+        workArea = new Graphics::Bitmap(location.getWidth(), location.getHeight());
     } else if (location.getWidth() < workArea->getWidth() || location.getHeight() < workArea->getHeight()){
         delete workArea;
-        workArea = new Bitmap(location.getWidth(), location.getHeight());
+        workArea = new Graphics::Bitmap(location.getWidth(), location.getHeight());
     } else if (location.getWidth() > workArea->getWidth() || location.getHeight() > workArea->getHeight()){
         delete workArea;
-        workArea = new Bitmap(location.getWidth(), location.getHeight());
+        workArea = new Graphics::Bitmap(location.getWidth(), location.getHeight());
     }
 
     if (workArea){
-        workArea->fill(Bitmap::makeColor(255,0,255));
+        workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
     }
 }

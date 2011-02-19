@@ -5,7 +5,10 @@
 #include <vector>
 // #include "ftalleg.h"
 
+namespace Graphics{
 class Bitmap;
+}
+
 struct FONT;
 namespace ftalleg{
     class freetype;
@@ -31,9 +34,9 @@ public:
 	virtual int getHeight( const std::string & str ) const = 0;
 	virtual int getHeight() const = 0;
 
-	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
-	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const = 0;
-	virtual void printfWrap( int x, int y, int color, const Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const = 0;
+	virtual void printf( int x, int y, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const = 0;
+	virtual void printfWrap( int x, int y, int color, const Graphics::Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const;
 
 	static const Font & getDefaultFont();
 	static const Font & getDefaultFont(int width, int height);
@@ -44,7 +47,7 @@ public:
 	// static std::vector< ftalleg::freetype * > cacheFreeType; 
 protected:
 
-        void printfWrapLine(int x, int & y, int color, const Bitmap & work, int maxWidth, const char * line) const;
+        void printfWrapLine(int x, int & y, int color, const Graphics::Bitmap & work, int maxWidth, const char * line) const;
 };
 
 class NullFont: public Font {
@@ -61,8 +64,8 @@ public:
     virtual int getHeight( const std::string & str ) const;
     virtual int getHeight() const;
 
-    virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
-    virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+    virtual void printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const;
+    virtual void printf( int x, int y, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const;
 
 };
 
@@ -77,8 +80,8 @@ public:
 	virtual int getHeight( const std::string & str ) const;
 	virtual int textLength( const char * text ) const;
 	
-	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
-	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
 	virtual int getSizeX() const;
@@ -103,8 +106,8 @@ public:
 	virtual int getHeight( const std::string & str ) const;
 	virtual int textLength( const char * text ) const;
 	
-	virtual void printf( int x, int y, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
-	virtual void printf( int x, int y, int xSize, int ySize, int color, const Bitmap & work, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const;
+	virtual void printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const;
 	
 	virtual void setSize( const int x, const int y );
 	virtual int getSizeX() const;

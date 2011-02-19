@@ -13,7 +13,9 @@ namespace Exception{
     class Base;
 }
 
+namespace Graphics{
 class Bitmap;
+}
 
 namespace Util{
 
@@ -92,7 +94,7 @@ int getPipe(int files[2]);
 
 void limitPrintf(char * buffer, int size, const char * format, va_list args);
 
-void showError(const Bitmap & screen, const Exception::Base & exception, const std::string & info);
+void showError(const Graphics::Bitmap & screen, const Exception::Base & exception, const std::string & info);
 /* will create a screen of size GFX_X, GFX_Y */
 void showError(const Exception::Base & exception, const std::string & info);
 

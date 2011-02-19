@@ -419,12 +419,12 @@ bool Coordinate::operator!=( const Coordinate & coord){
             !(position2 == coord.position2));
 }
 
-bool Coordinate::operator==( const Bitmap & bmp){
+bool Coordinate::operator==( const Graphics::Bitmap & bmp){
     return ( (getWidth() == bmp.getWidth()) &&
             (getHeight() == bmp.getHeight()));
 }
 
-bool Coordinate::operator!=( const Bitmap & bmp){
+bool Coordinate::operator!=( const Graphics::Bitmap & bmp){
     return !(*this == bmp);
 }
 

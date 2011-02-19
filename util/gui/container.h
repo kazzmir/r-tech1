@@ -4,7 +4,9 @@
 #include <list>
 #include "rectarea.h"
 
+namespace Graphics{
 class Bitmap;
+}
 class Font;
 
 namespace Gui{
@@ -23,7 +25,7 @@ public:
     void act(const Font & font);
 
     // Render
-    void render(const Bitmap &);
+    void render(const Graphics::Bitmap &);
 
     // Add widget
     void add(Widget *widget);

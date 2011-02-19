@@ -131,35 +131,35 @@ void LineEdit::act(const Font & font){
 }
 
 // Draw
-void LineEdit::render(const Bitmap & work){
+void LineEdit::render(const Graphics::Bitmap & work){
 
     checkWorkArea();
     // Check if we are using a rounded box
     if (location.getRadius()>0) {
-        Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
+        Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
         roundRectFill( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->translucent().draw(location.getX(),location.getY(),work);
 
-        workArea->fill(Bitmap::makeColor(255,0,255));
+        workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
 
-        Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
+        Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
         roundRect( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
         workArea->translucent().draw(location.getX(),location.getY(),work);
     } else {
-        Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
+        Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
         workArea->rectangleFill( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->translucent().draw(location.getX(),location.getY(),work);
 
-        workArea->fill(Bitmap::makeColor(255,0,255));
+        workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
 
-        Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
+        Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
         workArea->rectangle( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
         workArea->translucent().draw(location.getX(),location.getY(),work);
     }
 
     // work.drawingMode( Bitmap::MODE_SOLID );
 
-    workArea->fill(Bitmap::makeColor(255,0,255));
+    workArea->fill(Graphics::Bitmap::makeColor(255,0,255));
 
     if (currentSetFont){
         currentSetFont->printf(textX,textY,textColor,*workArea, input.getText(), 0);

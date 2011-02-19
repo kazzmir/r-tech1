@@ -1,9 +1,11 @@
 #ifndef gui_fadetool_h
 #define gui_fadetool_h
 
-/*! FADE UTILITY */
+/*! Fade utility */
 
+namespace Graphics{
 class Bitmap;
+}
 class Token;
 
 namespace Gui{
@@ -30,7 +32,7 @@ public:
 	void act();
 	
 	// Fade to whatever state it is at
-	virtual void draw(const Bitmap &);
+	virtual void draw(const Graphics::Bitmap &);
 	
 	inline const State & getState() const { 
             return currentState; 

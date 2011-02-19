@@ -1,7 +1,9 @@
 #ifndef _paintown_gui_coordinate_h
 #define _paintown_gui_coordinate_h
 
+namespace Graphics{
 class Bitmap;
+}
 
 namespace Gui {
 
@@ -187,8 +189,8 @@ class Coordinate {
 
         bool operator==( const Coordinate &);
         bool operator!=( const Coordinate &);
-        bool operator==( const Bitmap &);
-        bool operator!=( const Bitmap &);
+        bool operator==( const Graphics::Bitmap &);
+        bool operator!=( const Graphics::Bitmap &);
 
         /* moves the positions so that `center' is in the middle but the
          * width/height is maintained

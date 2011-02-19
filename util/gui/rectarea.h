@@ -1,7 +1,9 @@
 #ifndef _paintown_gui_rectarea_h
 #define _paintown_gui_rectarea_h
 
+namespace Graphics{
 class Bitmap;
+}
 
 namespace Gui{
 
@@ -14,8 +16,8 @@ struct RectArea{
 	inline int getY2() const { return y + height; }
 	bool operator==( const RectArea &);
     bool operator!=( const RectArea &);
-	bool operator==( const Bitmap &);
-	bool operator!=( const Bitmap &);
+	bool operator==( const Graphics::Bitmap &);
+	bool operator!=( const Graphics::Bitmap &);
 	bool empty();
 	int x;
 	int y;

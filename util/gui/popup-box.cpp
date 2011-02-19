@@ -28,7 +28,7 @@ void PopupBox::act(const Font & font){
     doFade();
 }
 
-void PopupBox::render(const Bitmap & work){
+void PopupBox::render(const Graphics::Bitmap & work){
     board.render(work);
 }
 

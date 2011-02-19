@@ -9,7 +9,10 @@
 #include "trans-bitmap.h"
 #include "lit_bitmap.h"
 #include <string>
+#include <stdio.h>
 #include <math.h>
+
+namespace Graphics{
 
 /* implementation independant definitions can go here */
 
@@ -22,23 +25,13 @@ int Bitmap::SCALE_Y = 0;
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
 	
-const int Bitmap::SPRITE_NO_FLIP = 0;
-const int Bitmap::SPRITE_V_FLIP = 1;
-const int Bitmap::SPRITE_H_FLIP = 2;
+const int SPRITE_NO_FLIP = 0;
+const int SPRITE_V_FLIP = 1;
+const int SPRITE_H_FLIP = 2;
 	
-const int Bitmap::SPRITE_NORMAL = 1;
-const int Bitmap::SPRITE_LIT = 2;
-const int Bitmap::SPRITE_TRANS = 3;
-
-#ifdef USE_ALLEGRO
-#include "allegro/bitmap.cpp"
-#endif
-#ifdef USE_SDL
-#include "sdl/bitmap.cpp"
-#endif
-#ifdef USE_ALLEGRO5
-#include "allegro5/bitmap.cpp"
-#endif
+const int SPRITE_NORMAL = 1;
+const int SPRITE_LIT = 2;
+const int SPRITE_TRANS = 3;
 
 static inline int max(int a, int b){
     return a > b ? a : b;
@@ -371,3 +364,17 @@ TranslucentBitmap::~TranslucentBitmap(){
 void TranslucentBitmap::fill(int color) const {
     Bitmap::applyTrans(color);
 }
+
+}
+
+
+#ifdef USE_ALLEGRO
+#include "allegro/bitmap.cpp"
+#endif
+#ifdef USE_SDL
+#include "sdl/bitmap.cpp"
+#endif
+#ifdef USE_ALLEGRO5
+#include "allegro5/bitmap.cpp"
+#endif
+
