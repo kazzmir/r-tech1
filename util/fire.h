@@ -1,7 +1,9 @@
 #ifndef _paintown_fire_93c6678306f3542737be4288dc09cfa9
 #define _paintown_fire_93c6678306f3542737be4288dc09cfa9
 
+namespace Graphics{
 class Bitmap;
+}
 
 namespace Paintown{
 
@@ -16,7 +18,7 @@ public:
     Fire();
 
     void update();
-    void draw(const Bitmap & work);
+    void draw(const Graphics::Bitmap & work);
 
     virtual ~Fire();
 

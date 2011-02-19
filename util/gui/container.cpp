@@ -37,7 +37,7 @@ void Container::act(const Font & font){
 }
 
 // Render
-void Container::render(const Bitmap & work)
+void Container::render(const Graphics::Bitmap & work)
 {
 	work.setClipRect(position.x,position.y,position.getX2(),position.getY2());
 	std::list<Widget *>::iterator i = widgets.begin(), end = widgets.end();

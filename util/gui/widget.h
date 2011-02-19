@@ -4,7 +4,9 @@
 #include "rectarea.h"
 #include "coordinate.h"
 
+namespace Graphics{
 class Bitmap;
+}
 class Token;
 class Font;
 
@@ -46,18 +48,18 @@ class Widget{
         virtual void act(const Font &)=0;
         
         // Render
-        virtual void render(const Bitmap &) = 0;
+        virtual void render(const Graphics::Bitmap &) = 0;
         /* default behavior is just to call render() */
-        virtual void render(const Bitmap &, const Font &);
+        virtual void render(const Graphics::Bitmap &, const Font &);
     
     protected:
-        void arc( const Bitmap &, int x, int y, double startAngle, int radius, int color );
-        void roundRect( const Bitmap &, int radius, int x1, int y1, int x2, int y2, int color );
-        void roundRectFill( const Bitmap &, int radius, int x1, int y1, int x2, int y2, int color );
+        void arc( const Graphics::Bitmap &, int x, int y, double startAngle, int radius, int color );
+        void roundRect( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, int color );
+        void roundRectFill( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, int color );
         
         void checkWorkArea();
         
-        Bitmap *workArea;
+        Graphics::Bitmap *workArea;
 };
 
 }

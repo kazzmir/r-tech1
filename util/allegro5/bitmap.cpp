@@ -2,6 +2,8 @@
 #include <allegro5/allegro_memfile.h>
 #include "util/debug.h"
 
+namespace Graphics{
+
 static const int rgb_r_shift_16 = 0;
 static const int rgb_g_shift_16 = 5;
 static const int rgb_b_shift_16 = 11;
@@ -670,4 +672,6 @@ void Bitmap::shutdown(){
     delete Buffer;
     Buffer = NULL;
     */
+}
+
 }

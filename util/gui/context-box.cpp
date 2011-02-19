@@ -8,12 +8,12 @@ static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
 
 static int selectedGradientStart(){
-    static int color = Bitmap::makeColor(19, 167, 168);
+    static int color = Graphics::Bitmap::makeColor(19, 167, 168);
     return color;
 }
 
 static int selectedGradientEnd(){
-    static int color = Bitmap::makeColor(27, 237, 239);
+    static int color = Graphics::Bitmap::makeColor(27, 237, 239);
     return color;
 }
 
@@ -104,10 +104,10 @@ void ContextBox::act(const Font & font){
     selectedGradient.update();
 }
 
-void ContextBox::render(const Bitmap & work){
+void ContextBox::render(const Graphics::Bitmap & work){
 }
 
-void ContextBox::render(const Bitmap & work, const Font & font){
+void ContextBox::render(const Graphics::Bitmap & work, const Font & font){
 
     if (!renderOnlyText){
 	board.render(work);
@@ -232,7 +232,7 @@ void ContextBox::calculateText(const Font & vFont){
     }
 }
 
-void ContextBox::drawText(const Bitmap & bmp, const Font & vFont){
+void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
     if (context.empty()){
         return;
     }
@@ -249,8 +249,8 @@ void ContextBox::drawText(const Bitmap & bmp, const Font & vFont){
     while (locationY < location.getX2() + vFont.getHeight()){
         const int startx = (location.getWidth()/2)-(vFont.textLength(context[currentOption]->getName().c_str())/2);
         if (count == 0){
-            Bitmap::transBlender(0, 0, 0, fadeAlpha);
-            TranslucentBitmap translucent(bmp);
+            Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
+            Graphics::TranslucentBitmap translucent(bmp);
             // Bitmap::drawingMode( Bitmap::MODE_TRANS );
             const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
             vFont.printf(location.getX() + startx, locationY, color, translucent, context[currentOption]->getName(), 0 );
@@ -282,9 +282,9 @@ void ContextBox::drawText(const Bitmap & bmp, const Font & vFont){
             if (textAlpha < 0){
                 textAlpha = 0;
             }
-            Bitmap::transBlender(0, 0, 0, textAlpha);
+            Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
             // Bitmap::drawingMode( Bitmap::MODE_TRANS );
-            const int color = Bitmap::makeColor(255,255,255);
+            const int color = Graphics::Bitmap::makeColor(255,255,255);
             vFont.printf(location.getX() + startx, locationY, color, bmp.translucent(), context[currentOption]->getName(), 0 );
             // Bitmap::drawingMode( Bitmap::MODE_SOLID );
         }
@@ -315,9 +315,9 @@ void ContextBox::drawText(const Bitmap & bmp, const Font & vFont){
         if (textAlpha < 0){
             textAlpha = 0;
         }
-        Bitmap::transBlender(0, 0, 0, textAlpha);
+        Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
         // Bitmap::drawingMode( Bitmap::MODE_TRANS );
-        const int color = Bitmap::makeColor(255,255,255);
+        const int color = Graphics::Bitmap::makeColor(255,255,255);
         vFont.printf(location.getX() + startx, locationY, color, bmp.translucent(), context[currentOption]->getName(), 0 );
         // Bitmap::drawingMode( Bitmap::MODE_SOLID );
         currentOption--;

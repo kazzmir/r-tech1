@@ -1,6 +1,11 @@
 #ifndef _paintown_bitmap_h_
 #define _paintown_bitmap_h_
 
+#include "exceptions/exception.h"
+#include <string>
+#include <vector>
+#include <iostream>
+
 #ifdef USE_ALLEGRO
 #include "allegro/bitmap.h"
 #endif
@@ -11,12 +16,17 @@
 #include "allegro5/bitmap.h"
 #endif
 
-#include "exceptions/exception.h"
-#include <string>
-#include <vector>
-#include <iostream>
+namespace Graphics{
 
 class TranslucentBitmap;
+
+extern const int SPRITE_NORMAL;
+extern const int SPRITE_LIT;
+extern const int SPRITE_TRANS;
+
+extern const int SPRITE_NO_FLIP;
+extern const int SPRITE_V_FLIP;
+extern const int SPRITE_H_FLIP;
 
 class BitmapException: public Exception::Base {
 public:
@@ -344,14 +354,6 @@ public:
 	static const int MODE_TRANS;
 	static const int MODE_SOLID;
 
-	static const int SPRITE_NO_FLIP;
-	static const int SPRITE_V_FLIP;
-	static const int SPRITE_H_FLIP;
-
-	static const int SPRITE_NORMAL;
-	static const int SPRITE_LIT;
-	static const int SPRITE_TRANS;
-
 protected:
 	static void initializeExtraStuff();
 
@@ -386,5 +388,7 @@ protected:
         /* bitmaps that should always be resized to the dimensions of the screen */
         static std::vector<Bitmap*> needResize;
 };
+
+}
 
 #endif

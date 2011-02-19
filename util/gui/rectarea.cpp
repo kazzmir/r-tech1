@@ -38,12 +38,12 @@ bool RectArea::operator!=( const RectArea &rect){
             (height != rect.height));
 }
 
-bool RectArea::operator==( const Bitmap &bmp){
+bool RectArea::operator==( const Graphics::Bitmap &bmp){
     return ( (width == bmp.getWidth()) &&
             (height == bmp.getHeight()));
 }
 
-bool RectArea::operator!=( const Bitmap &bmp){
+bool RectArea::operator!=( const Graphics::Bitmap &bmp){
     return ( (width != bmp.getWidth()) ||
             (height != bmp.getHeight()));
 }

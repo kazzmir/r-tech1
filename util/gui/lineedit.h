@@ -83,7 +83,7 @@ public:
 
     //! Draw
     using Widget::render;
-    void render(const Bitmap &);
+    void render(const Graphics::Bitmap &);
 
     //! set Focus
     void setFocused(bool focus);

@@ -39,8 +39,8 @@ class TabbedBox : public Widget{
         
         //! Render
         using Widget::render;
-        virtual void render(const Bitmap &);
-        virtual void render(const Bitmap &, const Font &);
+        virtual void render(const Graphics::Bitmap &);
+        virtual void render(const Graphics::Bitmap &, const Font &);
         
         //! Add tab
         virtual void addTab(const std::string &, const std::vector<ContextItem *> & list);
@@ -117,7 +117,7 @@ class TabbedBox : public Widget{
         int tabWidthMax;
         
         /*! Render tab */
-        void renderTabs(const Bitmap &, const Font &);
+        void renderTabs(const Graphics::Bitmap &, const Font &);
 	
 	/*! Font Color */
 	int tabFontColor;

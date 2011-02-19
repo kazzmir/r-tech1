@@ -8,21 +8,23 @@
 #include "coordinate.h"
 
 class Token;
+namespace Graphics{
 class Bitmap;
+}
 
 namespace Gui{
 
 // To hold images by number easier to access and reuse
-typedef std::map< int, Bitmap *> imageMap;
+typedef std::map< int, Graphics::Bitmap *> imageMap;
 
 class Frame{
 public:
     Frame(const Token *token, imageMap &images) throw (LoadException);
-    Frame(Bitmap *);
+    Frame(Graphics::Bitmap *);
     virtual ~Frame();
     virtual void act(double xvel, double yvel);
-    virtual void draw(int xaxis, int yaxis, const Bitmap &);
-    Bitmap *bmp;
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    Graphics::Bitmap *bmp;
     RelativePoint offset;
     RelativePoint scrollOffset;
     int time;
@@ -37,11 +39,11 @@ public:
     /*! Load only a single bitmap (for bacwards compatibility of backgrounds in menu) */
     Animation(const std::string &) throw (LoadException);
     /* use an existing bitmap */
-    Animation(Bitmap * image);
+    Animation(Graphics::Bitmap * image);
     virtual ~Animation();
     // Logic
     virtual void act();
-    virtual void draw(const Bitmap &);
+    virtual void draw(const Graphics::Bitmap &);
     virtual void forwardFrame();
     virtual void backFrame();
 

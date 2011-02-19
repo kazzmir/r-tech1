@@ -71,7 +71,7 @@ namespace ftalleg{
         int green = c * 255 / (grays - 1);
         int blue = c * 255 / (grays - 1);
         //alpha = *c * 255 / (grays - 1);
-        return Bitmap::makeColor(red,green,blue);
+        return Graphics::Bitmap::makeColor(red,green,blue);
     }
 	// Static count of instances of fonts to track library
 	static int instances = 0;
@@ -233,11 +233,11 @@ namespace ftalleg{
 	}
         */
 
-        void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Bitmap & bitmap, const int & color){
+        void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Graphics::Bitmap & bitmap, const int & color){
             unsigned char * line = tempChar->line;
-            int colorRed = Bitmap::getRed(color);
-            int colorGreen = Bitmap::getGreen(color);
-            int colorBlue = Bitmap::getBlue(color);
+            int colorRed = Graphics::Bitmap::getRed(color);
+            int colorGreen = Graphics::Bitmap::getGreen(color);
+            int colorBlue = Graphics::Bitmap::getBlue(color);
 
             /* cache the last color, there is a good chance it will be reused */
             unsigned char lastData = -1;
@@ -255,9 +255,9 @@ namespace ftalleg{
                     } else {
                         int col = fixColor(current, tempChar->grays);
 
-                        int red = Bitmap::getRed(col);
-                        int green = Bitmap::getGreen(col);
-                        int blue = Bitmap::getBlue(col);
+                        int red = Graphics::Bitmap::getRed(col);
+                        int green = Graphics::Bitmap::getGreen(col);
+                        int blue = Graphics::Bitmap::getBlue(col);
 
                         if ((red < 50) ||
                             (green < 50) ||
@@ -269,7 +269,7 @@ namespace ftalleg{
                         green = green * colorGreen / 255;
                         blue = blue * colorBlue / 255;
 
-                        finalColor = Bitmap::makeColor(red, green, blue);
+                        finalColor = Graphics::Bitmap::makeColor(red, green, blue);
                         lastData = current;
                         lastColor = finalColor;
                         lastGrays = tempChar->grays;
@@ -292,7 +292,7 @@ namespace ftalleg{
         }
 
 	// Render a character from the lookup table
-        void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Bitmap & bitmap, const int &color){
+        void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Graphics::Bitmap & bitmap, const int &color){
 
             // pixeler putter = getPutPixel();
 
@@ -428,7 +428,7 @@ namespace ftalleg{
         }
 
 	//! Render font to a bitmap
-        void freetype::render(int x, int y, const int & color, const Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...) {
+        void freetype::render(int x, int y, const int & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...) {
             if (faceLoaded){
                 int rend_x = 0;
                 int rend_y = 0;

@@ -55,7 +55,7 @@ num_quads( 0 ){
 		quads[i] = NULL;
 }
 
-EQuad::EQuad( const Bitmap * who, int min_size, int mask_pixel, int _min_x, int _min_y, EQuad * _parent ):
+EQuad::EQuad( const Graphics::Bitmap * who, int min_size, int mask_pixel, int _min_x, int _min_y, EQuad * _parent ):
 width( who->getWidth() ),
 height( who->getHeight() ),
 full( false ),
@@ -63,7 +63,7 @@ min_x( _min_x ),
 min_y( _min_y ),
 parent( _parent ){
 
-	Bitmap * b1, * b2, * b3, * b4;
+    Graphics::Bitmap * b1, * b2, * b3, * b4;
 	EQuad * quad1, * quad2, * quad3, * quad4;
 	quad1 = quad2 = quad3 = quad4 = NULL;
 
@@ -74,26 +74,26 @@ parent( _parent ){
 		int h = who->getHeight() >> 1;
 
 		// b1 = create_sub_Bitmap( who, 0, 0, w, h );
-		b1 = new Bitmap( *who, 0, 0, w, h );
+		b1 = new Graphics::Bitmap( *who, 0, 0, w, h );
 		quad1 = new EQuad( b1, min_size, mask_pixel, 0, 0, this );
 		// destroy_Bitmap( b1 );
 		delete b1;
 
 		// b2 = create_sub_Bitmap( who, w, 0, w, h );
-		b2 = new Bitmap( *who, w, 0, w, h );
+		b2 = new Graphics::Bitmap( *who, w, 0, w, h );
 		quad2 = new EQuad( b2, min_size, mask_pixel, w, 0, this );
 		delete b2;
 		// destroy_Bitmap( b2 );
 		
 
 		// b3 = create_sub_Bitmap( who, 0, h, w, h );
-		b3 = new Bitmap( *who, 0, h, w, h );
+		b3 = new Graphics::Bitmap( *who, 0, h, w, h );
 		quad3 = new EQuad( b3, min_size, mask_pixel, 0, h, this );
 		delete b3;
 		// destroy_Bitmap( b3 );
 
 		// b4 = create_sub_Bitmap( who, w, h, w, h );
-		b4 = new Bitmap( *who, w, h, w, h );
+		b4 = new Graphics::Bitmap( *who, w, h, w, h );
 		quad4 = new EQuad( b4, min_size, mask_pixel, w, h, this );
 		delete b4;
 		// destroy_Bitmap( b4 );
@@ -299,7 +299,7 @@ bool EQuad::empty(){
 
 }
 
-void EQuad::draw( const Bitmap & work, int x, int y, int color, bool flipped ){
+void EQuad::draw( const Graphics::Bitmap & work, int x, int y, int color, bool flipped ){
 	
 	int mx = x + getMinX();
 	int my = y + getMinY();
@@ -339,7 +339,7 @@ void EQuad::draw( const Bitmap & work, int x, int y, int color, bool flipped ){
 		*/
 }
 
-void EQuad::draw( const Bitmap & work, int x, int y, int color, EQuad * who ){
+void EQuad::draw( const Graphics::Bitmap & work, int x, int y, int color, EQuad * who ){
 
 	bool cy = false;
 	for ( int i = 0; i < numQuads(); i++ )
@@ -498,7 +498,7 @@ EQuad::~EQuad(){
 }
 
 long long ECollide::totalTime = 0;
-void ECollide::initECollide( const Bitmap * who, int mask_pixel ){
+void ECollide::initECollide( const Graphics::Bitmap * who, int mask_pixel ){
 	/*
 	TimeDifference dif;
 	dif.startTime();
@@ -513,7 +513,7 @@ void ECollide::initECollide( const Bitmap * who, int mask_pixel ){
 	*/
 }
 
-ECollide::ECollide( const Bitmap * who, int mask_pixel ){
+ECollide::ECollide( const Graphics::Bitmap * who, int mask_pixel ){
 	initECollide( who, mask_pixel );
 	/*
 	head_quad = new EQuad( who, MIN_SIZE, mask_pixel, 0, 0, NULL );
@@ -522,7 +522,7 @@ ECollide::ECollide( const Bitmap * who, int mask_pixel ){
 
 }
 
-ECollide::ECollide( const Bitmap & who, int mask_pixel ){
+ECollide::ECollide( const Graphics::Bitmap & who, int mask_pixel ){
 
 	initECollide( &who, mask_pixel );
 
@@ -697,7 +697,7 @@ int ECollide::getHeight() const{
 }
 */
 	
-void ECollide::draw( const Bitmap & work, int x, int y, int color, bool flipped ){
+void ECollide::draw( const Graphics::Bitmap & work, int x, int y, int color, bool flipped ){
 
 	head_quad->draw( work, x, y, color, flipped );
 
@@ -707,7 +707,7 @@ int ECollide::numQuads() const{
 	return head_quad->totalQuads();
 }
 	
-void ECollide::draw( const Bitmap & work, int x, int y, int color, EQuad * who ){
+void ECollide::draw( const Graphics::Bitmap & work, int x, int y, int color, EQuad * who ){
 	if ( head_quad == who )
 		head_quad->draw( work, x, y, color );
 	else	head_quad->draw( work, x, y, color, who );

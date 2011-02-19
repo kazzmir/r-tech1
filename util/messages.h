@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 
+namespace Graphics{
 class Bitmap;
+}
 class Font;
 
 class Messages{
@@ -21,7 +23,7 @@ public:
 
 	virtual void addMessage( const std::string & s );
 
-	virtual void draw( int x, int y, const Bitmap & work, const Font & font );
+	virtual void draw( int x, int y, const Graphics::Bitmap & work, const Font & font );
 
 	virtual ~Messages();
 

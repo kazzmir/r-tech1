@@ -35,8 +35,8 @@ class ContextBox : public Widget {
         virtual void act(const Font &);
         //! Render
         using Widget::render;
-        virtual void render(const Bitmap &);
-        virtual void render(const Bitmap &, const Font & font);
+        virtual void render(const Graphics::Bitmap &);
+        virtual void render(const Graphics::Bitmap &, const Font & font);
         //! Next
         virtual bool next(const Font &);
         //! Previous
@@ -96,7 +96,7 @@ class ContextBox : public Widget {
 	
 	void calculateText(const Font & font);
 	
-	void drawText(const Bitmap &, const Font & font);
+	void drawText(const Graphics::Bitmap &, const Font & font);
 	
 	enum FadeState{
 	    NotActive,

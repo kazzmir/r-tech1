@@ -5,18 +5,16 @@
 #include "funcs.h"
 #include <math.h>
 
-class Bitmap;
-
 namespace Paintown{
 
 static int MAX_X = 320;
 static int MAX_Y = 240;
 
 Fire::Fire(){
-    Util::blend_palette(colors, 64, Bitmap::makeColor(64, 0, 0), Bitmap::makeColor(255, 0, 0));
-    Util::blend_palette(colors + 64, 64, Bitmap::makeColor(255, 0, 0), Bitmap::makeColor(255, 255, 0));
-    Util::blend_palette(colors + 64 + 64, 96, Bitmap::makeColor(255, 255, 0), Bitmap::makeColor(255, 255, 255));
-    Util::blend_palette(colors + 64 + 64 + 64 + 32, 32, Bitmap::makeColor(255, 255, 255), Bitmap::makeColor(255, 255, 255));
+    Util::blend_palette(colors, 64, Graphics::Bitmap::makeColor(64, 0, 0), Graphics::Bitmap::makeColor(255, 0, 0));
+    Util::blend_palette(colors + 64, 64, Graphics::Bitmap::makeColor(255, 0, 0), Graphics::Bitmap::makeColor(255, 255, 0));
+    Util::blend_palette(colors + 64 + 64, 96, Graphics::Bitmap::makeColor(255, 255, 0), Graphics::Bitmap::makeColor(255, 255, 255));
+    Util::blend_palette(colors + 64 + 64 + 64 + 32, 32, Graphics::Bitmap::makeColor(255, 255, 255), Graphics::Bitmap::makeColor(255, 255, 255));
 
     data = new unsigned char*[MAX_Y];
     for (int i = 0; i < MAX_Y; i++){
@@ -149,7 +147,7 @@ void Fire::update(){
     }
 }
 
-void Fire::draw(const Bitmap & work){
+void Fire::draw(const Graphics::Bitmap & work){
     // Bitmap::drawingMode(Bitmap::MODE_TRANS);
     for (int y = 0; y < MAX_Y; y++){
         for (int x = 0; x < MAX_X; x++){
