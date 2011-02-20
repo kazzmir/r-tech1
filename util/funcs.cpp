@@ -154,13 +154,13 @@ void Util::blend_palette(int * pal, int mp, int startColor, int endColor ) {
     ASSERT(mp != 0);
     */
 
-    int sc_r = Graphics::Bitmap::getRed(startColor);
-    int sc_g = Graphics::Bitmap::getGreen(startColor);
-    int sc_b = Graphics::Bitmap::getBlue(startColor);
+    int sc_r = Graphics::getRed(startColor);
+    int sc_g = Graphics::getGreen(startColor);
+    int sc_b = Graphics::getBlue(startColor);
 
-    int ec_r = Graphics::Bitmap::getRed(endColor);
-    int ec_g = Graphics::Bitmap::getGreen(endColor);
-    int ec_b = Graphics::Bitmap::getBlue(endColor);
+    int ec_r = Graphics::getRed(endColor);
+    int ec_g = Graphics::getGreen(endColor);
+    int ec_b = Graphics::getBlue(endColor);
 
     for ( int q = 0; q < mp; q++ ) {
         float j = (float)( q + 1 ) / (float)( mp );

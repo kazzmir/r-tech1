@@ -175,7 +175,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
 static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int x, int y, Bitmap::Filter * filter);
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
-int Bitmap::MaskColor(){
+int MaskColor(){
     static int mask = makeColor(255, 0, 255);
     return mask;
 }
@@ -432,7 +432,7 @@ int Bitmap::getHeight() const {
     return 0;
 }
 
-int Bitmap::getRed(int c){
+int getRed(int c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
@@ -440,7 +440,7 @@ int Bitmap::getRed(int c){
     return red;
 }
 
-int Bitmap::getBlue(int c){
+int getBlue(int c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
@@ -448,7 +448,7 @@ int Bitmap::getBlue(int c){
     return blue;
 }
 
-int Bitmap::getGreen(int c){
+int getGreen(int c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
