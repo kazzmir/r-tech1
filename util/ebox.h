@@ -112,8 +112,8 @@ class ECollide{
 public:
 	ECollide( EQuad * const head );
 	// ECollide( Graphics::BITMAP * who, int mask_pixel = Bitmap::MaskColor );
-	ECollide( const Graphics::Bitmap * who, int mask_pixel = Graphics::Bitmap::MaskColor() );
-	ECollide( const Graphics::Bitmap & who, int mask_pixel = Graphics::Bitmap::MaskColor() );
+	ECollide( const Graphics::Bitmap * who, int mask_pixel = Graphics::MaskColor() );
+	ECollide( const Graphics::Bitmap & who, int mask_pixel = Graphics::MaskColor() );
 	ECollide( const ECollide & e );
 	ECollide( const ECollide * e );
 	ECollide( int width, int height );

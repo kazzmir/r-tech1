@@ -49,7 +49,7 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int x, 
 static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 static void paintown_applyTrans16(BITMAP * dst, const int color);
 
-int Bitmap::MaskColor(){
+int MaskColor(){
     return MASK_COLOR_16;
 }
 
@@ -494,15 +494,15 @@ int Bitmap::getHeight() const{
 	return getData().getBitmap()->h;
 }
 	
-int Bitmap::getRed( int x ){
+int getRed( int x ){
 	return ::getr( x );
 }
 
-int Bitmap::getBlue( int x ){
+int getBlue( int x ){
 	return ::getb( x );
 }
 
-int Bitmap::getGreen( int x ){
+int getGreen( int x ){
 	return ::getg( x );
 }
 

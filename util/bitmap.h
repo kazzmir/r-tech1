@@ -58,6 +58,7 @@ protected:
     std::string reason;
 };
 
+/* create a color from components */
 int makeColor( int r, int g, int b );
 int darken( int color, double factor );
 void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
@@ -66,6 +67,13 @@ int setGfxModeText();
 int setGfxModeFullscreen( int x, int y );
 int setGfxModeWindowed( int x, int y );
 int setGraphicsMode(int mode, int width, int height);
+
+/* get color components */
+int getRed(int x);
+int getBlue(int x);
+int getGreen(int x);
+
+int MaskColor();
 
 class Bitmap{
 private:
@@ -333,10 +341,6 @@ public:
         /* convert cymk to rgb. values should be in the range 0-255 */
         static void cymkToRGB(int c, int y, int m, int k, int * r, int * g, int * b);
 
-	static int getRed( int x );
-	static int getBlue( int x );
-	static int getGreen( int x );
-
 	/* Add two RGB16 colors together
          *  r = c1.r + c2.r
          *  g = c1.g + c2.g
@@ -351,7 +355,6 @@ public:
 	*/
 
 	// static const int MaskColor = MASK_COLOR_16;
-	static int MaskColor();
 	static const int MODE_TRANS;
 	static const int MODE_SOLID;
 

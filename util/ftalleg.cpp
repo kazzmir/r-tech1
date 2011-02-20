@@ -235,9 +235,9 @@ namespace ftalleg{
 
         void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Graphics::Bitmap & bitmap, const int & color){
             unsigned char * line = tempChar->line;
-            int colorRed = Graphics::Bitmap::getRed(color);
-            int colorGreen = Graphics::Bitmap::getGreen(color);
-            int colorBlue = Graphics::Bitmap::getBlue(color);
+            int colorRed = Graphics::getRed(color);
+            int colorGreen = Graphics::getGreen(color);
+            int colorBlue = Graphics::getBlue(color);
 
             /* cache the last color, there is a good chance it will be reused */
             unsigned char lastData = -1;
@@ -255,9 +255,9 @@ namespace ftalleg{
                     } else {
                         int col = fixColor(current, tempChar->grays);
 
-                        int red = Graphics::Bitmap::getRed(col);
-                        int green = Graphics::Bitmap::getGreen(col);
-                        int blue = Graphics::Bitmap::getBlue(col);
+                        int red = Graphics::getRed(col);
+                        int green = Graphics::getGreen(col);
+                        int blue = Graphics::getBlue(col);
 
                         if ((red < 50) ||
                             (green < 50) ||
