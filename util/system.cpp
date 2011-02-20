@@ -11,42 +11,37 @@
 #endif
 
 #ifndef WINDOWS
-static bool isReadable(const std::string & path){
-#ifndef WII
-    if (access(path.c_str(), R_OK) == 0){
-        return true;
-    } else {
-        return false;
-    }
-#else
-    
-    /*
-    std::ifstream file(path.c_str());
-    return file.good();
-    */
-    /*
-    FILE * test = fopen(path.c_str(), "rb");
-    printf("open of '%s' was %p\n", path.c_str(), test);
-    if (test != NULL){
-        fclose(test);
-        return true;
-    }
-    return false;
-    */
 
-    /* stat doesn't seem to work on the wii */
+/* devkitpro doesn't have an implementation of access() yet. if it gets one this function
+ * can be removed.
+ */
+#ifdef WII
+int access(const char * path, int mode){
     struct stat information;
-    int ok = stat(path.c_str(), &information);
+    int ok = stat(path, &information);
     // printf("stat of '%s' is %d\n", path.c_str(), ok);
     if (ok == 0){
-        return ((information.st_mode & S_IRUSR) == S_IRUSR) ||
-               ((information.st_mode & S_IRGRP) == S_IRGRP) ||
-               ((information.st_mode & S_IROTH) == S_IROTH);
+        if (mode == R_OK){
+            if (((information.st_mode & S_IRUSR) == S_IRUSR) ||
+                ((information.st_mode & S_IRGRP) == S_IRGRP) ||
+                ((information.st_mode & S_IROTH) == S_IROTH)){
+                return 0;
+            } else {
+            /* handle other modes if they become useful to us */
+                return -1;
+            }
+       } else {
+           return -1;
+       }
     } else {
         // perror("stat");
-        return false;
+        return -1;
     }
+}
 #endif
+
+static bool isReadable(const std::string & path){
+    return access(path.c_str(), R_OK) == 0;
 }
 
 bool System::isDirectory(const std::string & path){
