@@ -189,7 +189,9 @@ void Music::_fadeOut(){
 bool Music::loadSong( const char * song ){
     bool loaded = false;
     LOCK;{
-        loaded = instance->internal_loadSong(song);
+        if (instance != NULL){
+            loaded = instance->internal_loadSong(song);
+        }
     }
     UNLOCK;
     return loaded;
