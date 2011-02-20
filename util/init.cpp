@@ -17,6 +17,7 @@
 #ifndef WINDOWS
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 #endif
 
 #ifdef LINUX
@@ -434,8 +435,22 @@ bool Global::init(int gfx){
     out << "Build date " << __DATE__ << " " << __TIME__ << endl;
 
 #ifdef WII
-    fatInitDefault();
+    /* <WinterMute> fatInitDefault will set working dir to argv[0] passed by launcher,
+     * or root of first device mounted
+     */
+    out << "Fat init " << (fatInitDefault() == 0 ? "Ok" : "Failed") << endl;
 #endif
+    /*
+    char buffer[512];
+    if (getcwd(buffer, 512) != 0){
+        printf("Working directory '%s'\n", buffer);
+    }
+    */
+
+    if (!Filesystem::exists(Util::getDataPath2())){
+        Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
+        return false;
+    }
 
     /* do implementation specific setup */
     initSystem(out);

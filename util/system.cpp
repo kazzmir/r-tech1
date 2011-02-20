@@ -1,6 +1,8 @@
 #include <string>
 #include "system.h"
 #include <stdint.h>
+#include <stdio.h>
+#include <fstream>
 
 #ifndef WINDOWS
 #include <unistd.h>
@@ -17,8 +19,33 @@ static bool isReadable(const std::string & path){
         return false;
     }
 #else
-    /* FIXME */
-    return true;
+    
+    /*
+    std::ifstream file(path.c_str());
+    return file.good();
+    */
+    /*
+    FILE * test = fopen(path.c_str(), "rb");
+    printf("open of '%s' was %p\n", path.c_str(), test);
+    if (test != NULL){
+        fclose(test);
+        return true;
+    }
+    return false;
+    */
+
+    /* stat doesn't seem to work on the wii */
+    struct stat information;
+    int ok = stat(path.c_str(), &information);
+    // printf("stat of '%s' is %d\n", path.c_str(), ok);
+    if (ok == 0){
+        return ((information.st_mode & S_IRUSR) == S_IRUSR) ||
+               ((information.st_mode & S_IRGRP) == S_IRGRP) ||
+               ((information.st_mode & S_IROTH) == S_IROTH);
+    } else {
+        // perror("stat");
+        return false;
+    }
 #endif
 }
 
