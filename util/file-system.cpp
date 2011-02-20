@@ -620,16 +620,19 @@ bool InsensitivePath::operator==(const Path & path) const {
     return Util::upperCaseAll(this->path()) == Util::upperCaseAll(path.path());
 }
 
+/* will read upto 'length' bytes unless a null byte is seen first */
 string EndianReader::readStringX(int length){
     ostringstream out;
     uint8_t letter = readByte1();
     while (letter != 0 && length > 0){
         out << letter;
         letter = readByte1();
+        length -= 1;
     }
     return out.str();
 }
 
+/* unconditionally reads 'length' bytes */
 std::string EndianReader::readString2(int length){
     ostringstream out;
     vector<uint8_t> bytes = readBytes(length);
