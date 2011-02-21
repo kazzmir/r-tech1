@@ -657,6 +657,10 @@ void EndianReader::seek(streampos where){
 int EndianReader::position(){
     return stream.tellg();
 }
+            
+void EndianReader::readBytes(uint8_t * out, int length){
+    stream.read((char*) out, length);
+}
 
 vector<uint8_t> EndianReader::readBytes(int length){
     vector<uint8_t> bytes;

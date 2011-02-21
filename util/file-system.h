@@ -212,6 +212,7 @@ namespace Filesystem{
 
             virtual std::string readStringX(int length);
             virtual std::string readString2(int length);
+            virtual void readBytes(uint8_t * out, int length);
 
             virtual void seekEnd(std::streamoff where);
             virtual void seek(std::streampos where);
