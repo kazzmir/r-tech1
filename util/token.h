@@ -103,8 +103,11 @@ public:
     template <typename X1, typename X2>
     bool match(const std::string & subject, X1 & obj1, X2 & obj2) const {
         TokenMatcher matcher = getMatcher(subject);
+        return matcher.match(obj1, obj2);
+        /*
         return matcher.match(obj1) &&
                matcher.match(obj2);
+               */
     }
 
     template <typename X1, typename X2, typename X3>
