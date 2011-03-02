@@ -458,7 +458,7 @@ bool Global::initNoGraphics(){
 
     dumb_register_stdfiles();
     
-    Sound::initialize();
+    // Sound::initialize();
 
     Filesystem::initialize();
 
