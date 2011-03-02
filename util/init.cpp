@@ -426,8 +426,74 @@ static void initSystem(ostream & out){
 }
 #endif
 
-bool Global::init(int gfx){
+/* mostly used for testing purposes */
+bool Global::initNoGraphics(){
+    /* copy/pasting the init code isn't ideal, maybe fix it later */
+    ostream & out = Global::debug(0);
+    out << "-- BEGIN init --" << endl;
+    out << "Data path is " << Util::getDataPath2().path() << endl;
+    out << "Paintown version " << Global::getVersionString() << endl;
+    out << "Build date " << __DATE__ << " " << __TIME__ << endl;
 
+#ifdef WII
+    /* <WinterMute> fatInitDefault will set working dir to argv[0] passed by launcher,
+     * or root of first device mounted
+     */
+    out << "Fat init " << (fatInitDefault() == 0 ? "Ok" : "Failed") << endl;
+#endif
+    /*
+    char buffer[512];
+    if (getcwd(buffer, 512) != 0){
+        printf("Working directory '%s'\n", buffer);
+    }
+    */
+
+    if (!Filesystem::exists(Util::getDataPath2())){
+        Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
+        return false;
+    }
+
+    /* do implementation specific setup */
+    initSystem(out);
+
+    dumb_register_stdfiles();
+    
+    Sound::initialize();
+
+    Filesystem::initialize();
+
+    Graphics::SCALE_X = GFX_X;
+    Graphics::SCALE_Y = GFX_Y;
+
+    Configuration::loadConfigurations();
+    const int sx = Configuration::getScreenWidth();
+    const int sy = Configuration::getScreenHeight();
+    Graphics::Bitmap::setFakeGraphicsMode(sx, sy);
+       
+    /* music */
+    atexit(&dumb_exit);
+
+    out << "Initialize random number generator" << endl;
+    /* initialize random number generator */
+    srand(time(NULL));
+
+    registerSignals();
+
+#ifdef HAVE_NETWORKING
+    out << "Initialize network" << endl;
+    Network::init();
+    atexit(Network::closeAll);
+#endif
+
+    /* this mutex is used to show the loading screen while the game loads */
+    // Util::Thread::initializeLock(&Loader::loading_screen_mutex);
+
+    out << "-- END init --" << endl;
+
+    return true;
+}
+
+bool Global::init(int gfx){
     ostream & out = Global::debug( 0 );
     out << "-- BEGIN init --" << endl;
     out << "Data path is " << Util::getDataPath2().path() << endl;
