@@ -8,6 +8,7 @@
 #include "debug.h"
 #include "funcs.h"
 #include "thread.h"
+#include "init.h"
 #include "input/keyboard.h"
 #include "input/joystick.h"
 #include "input/input-manager.h"
@@ -224,6 +225,30 @@ void EventManager::dispatch(Event type){
             throw ShutdownException();
         }
         default : break;
+    }
+}
+
+void standardLoop(Logic & logic, Draw & draw){
+    Global::speed_counter = 0;
+    double runCounter = 0;
+    while (!logic.done()){
+        runCounter += logic.ticks(Global::speed_counter);
+        Global::speed_counter = 0;
+        bool need_draw = false;
+        while (runCounter >= 1.0){
+            need_draw = true;
+            InputManager::poll();
+            runCounter -= 1;
+            logic.run();
+        }
+
+        if (need_draw && !logic.done()){
+            draw.draw();
+        }
+
+        while (Global::speed_counter == 0){
+            rest(1);
+        }
     }
 }
 

@@ -61,6 +61,27 @@ private:
     bool bufferKeys;
 };
 
+/* implement these classes to get the standard run loop */
+class Logic{
+public:
+    /* run a cycle of logic */
+    virtual void run() = 0;
+    /* the run loop should finish */
+    virtual bool done() = 0;
+
+    /* return a number of logic ticks for a given number of ticks on
+     * a real system.
+     */
+    virtual double ticks(double systemTicks) = 0;
+};
+
+class Draw{
+public:
+    virtual void draw() = 0;
+};
+
+void standardLoop(Logic & logic, Draw & draw);
+
 }
 
 #endif
