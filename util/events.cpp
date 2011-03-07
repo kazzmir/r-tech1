@@ -240,6 +240,10 @@ void standardLoop(Logic & logic, Draw & draw){
             InputManager::poll();
             runCounter -= 1;
             logic.run();
+
+            if (Global::shutdown()){
+                throw ShutdownException();
+            }
         }
 
         if (need_draw && !logic.done()){
