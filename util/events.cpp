@@ -237,6 +237,12 @@ public:
     }
 };
 
+Logic::~Logic(){
+}
+
+Draw::~Draw(){
+}
+
 void standardLoop(Logic & logic, Draw & draw){
     Global::speed_counter = 0;
     double runCounter = 0;

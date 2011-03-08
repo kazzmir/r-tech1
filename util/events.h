@@ -73,11 +73,14 @@ public:
      * a real system.
      */
     virtual double ticks(double systemTicks) = 0;
+
+    virtual ~Logic();
 };
 
 class Draw{
 public:
     virtual void draw() = 0;
+    virtual ~Draw();
 };
 
 void standardLoop(Logic & logic, Draw & draw);
