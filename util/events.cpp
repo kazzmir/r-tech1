@@ -248,27 +248,29 @@ void standardLoop(Logic & logic, Draw & draw){
     double runCounter = 0;
     try{
         while (!logic.done()){
-            runCounter += logic.ticks(Global::speed_counter);
-            Global::speed_counter = 0;
-            bool need_draw = false;
-            while (runCounter >= 1.0){
-                need_draw = true;
-                InputManager::poll();
-                runCounter -= 1;
-                logic.run();
+            if (Global::speed_counter > 0){
+                runCounter += logic.ticks(Global::speed_counter);
+                Global::speed_counter = 0;
+                bool need_draw = false;
+                while (runCounter >= 1.0){
+                    need_draw = true;
+                    InputManager::poll();
+                    runCounter -= 1;
+                    logic.run();
 
-                if (Global::shutdown()){
-                    throw ShutdownException();
+                    if (Global::shutdown()){
+                        throw ShutdownException();
+                    }
+
+                    if (logic.done()){
+                        /* quit the loop immediately */
+                        throw LoopDone();
+                    }
                 }
 
-                if (logic.done()){
-                    /* quit the loop immediately */
-                    throw LoopDone();
+                if (need_draw){
+                    draw.draw();
                 }
-            }
-
-            if (need_draw){
-                draw.draw();
             }
 
             while (Global::speed_counter == 0){
