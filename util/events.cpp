@@ -228,31 +228,48 @@ void EventManager::dispatch(Event type){
     }
 }
 
+class LoopDone: public std::exception {
+public:
+    LoopDone(){
+    }
+
+    ~LoopDone() throw () {
+    }
+};
+
 void standardLoop(Logic & logic, Draw & draw){
     Global::speed_counter = 0;
     double runCounter = 0;
-    while (!logic.done()){
-        runCounter += logic.ticks(Global::speed_counter);
-        Global::speed_counter = 0;
-        bool need_draw = false;
-        while (runCounter >= 1.0){
-            need_draw = true;
-            InputManager::poll();
-            runCounter -= 1;
-            logic.run();
+    try{
+        while (!logic.done()){
+            runCounter += logic.ticks(Global::speed_counter);
+            Global::speed_counter = 0;
+            bool need_draw = false;
+            while (runCounter >= 1.0){
+                need_draw = true;
+                InputManager::poll();
+                runCounter -= 1;
+                logic.run();
 
-            if (Global::shutdown()){
-                throw ShutdownException();
+                if (Global::shutdown()){
+                    throw ShutdownException();
+                }
+
+                if (logic.done()){
+                    /* quit the loop immediately */
+                    throw LoopDone();
+                }
+            }
+
+            if (need_draw){
+                draw.draw();
+            }
+
+            while (Global::speed_counter == 0){
+                rest(1);
             }
         }
-
-        if (need_draw && !logic.done()){
-            draw.draw();
-        }
-
-        while (Global::speed_counter == 0){
-            rest(1);
-        }
+    } catch (const LoopDone & done){
     }
 }
 
