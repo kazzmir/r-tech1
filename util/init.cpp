@@ -50,6 +50,7 @@
 #include "music.h"
 #include "loading.h"
 #include "input/keyboard.h"
+#include "message-queue.h"
 
 #ifdef WII
 #include <fat.h>
@@ -566,7 +567,7 @@ bool Global::init(int gfx){
 #endif
 
     /* this mutex is used to show the loading screen while the game loads */
-    // Util::Thread::initializeLock(&Loader::loading_screen_mutex);
+    Util::Thread::initializeLock(&Global::messageLock);
 
     out << "-- END init --" << endl;
 

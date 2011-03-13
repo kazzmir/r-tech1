@@ -2,6 +2,8 @@
 #include <string>
 #include "message-queue.h"
 #include "thread.h"
+    
+Util::Thread::Lock Global::messageLock;
 
 MessageQueue::MessageQueue(){
     Util::Thread::initializeLock(&lock);

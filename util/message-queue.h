@@ -5,6 +5,10 @@
 #include <string>
 #include "thread.h"
 
+namespace Global{
+extern Util::Thread::Lock messageLock;
+}
+
 /* multithreaded message queue.
  * someone puts messages in, someone takes them out.
  * FIFO order
