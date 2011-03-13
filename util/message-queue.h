@@ -6,7 +6,7 @@
 #include "thread.h"
 
 namespace Global{
-extern Util::Thread::Lock messageLock;
+    extern Util::Thread::Lock messageLock;
 }
 
 /* multithreaded message queue.
