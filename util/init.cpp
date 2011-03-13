@@ -82,11 +82,13 @@ const int Global::FULLSCREEN = 1;
 
 /* game counter, controls FPS */
 static void inc_speed_counter(){
-    /* probably put input polling here, InputManager::poll() */
+    /* probably put input polling here, InputManager::poll(). no, don't do that.
+     * polling is done in the standardLoop now.
+     */
     Global::speed_counter += 1;
 }
 #ifdef USE_ALLEGRO
-END_OF_FUNCTION( inc_speed_counter )
+END_OF_FUNCTION(inc_speed_counter)
 #endif
 
 /* if you need to count seconds for some reason.. */
@@ -94,7 +96,7 @@ static void inc_second_counter() {
     Global::second_counter += 1;
 }
 #ifdef USE_ALLEGRO
-END_OF_FUNCTION( inc_second_counter )
+END_OF_FUNCTION(inc_second_counter)
 #endif
 
 #if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
