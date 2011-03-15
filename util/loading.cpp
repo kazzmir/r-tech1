@@ -5,6 +5,7 @@
 
 /* FIXME: get rid of this dependancy */
 #include "paintown-engine/level/utils.h"
+
 #include "messages.h"
 #include "loading.h"
 #include "file-system.h"
@@ -17,12 +18,12 @@
 #include "thread.h"
 #include "message-queue.h"
 #include "init.h"
+#include "events.h"
 
 using namespace std;
 
 namespace Loader{
 
-// Util::Thread::Lock loading_screen_mutex;
 volatile bool done_loading = true;
 
 typedef struct pair{
@@ -55,35 +56,6 @@ private:
 
 void * loadingScreenSimple1(void * arg);
 
-#if 0
-void startLoading(Util::Thread::Id * thread, void * arg, Kind kind){
-    bool create = false;
-    Util::Thread::acquireLock(&loading_screen_mutex);
-    create = done_loading;
-    done_loading = false;
-    Util::Thread::releaseLock(&loading_screen_mutex);
-
-    /* prevent multiple loading threads from being made */
-    if (create){
-        switch (kind){
-            case Default: Util::Thread::createThread(thread, NULL, (Util::Thread::ThreadFunction) loadingScreen, arg); break;
-            case SimpleCircle: Util::Thread::createThread(thread, NULL, (Util::Thread::ThreadFunction) loadingScreenSimple1, arg); break;
-        }
-    }
-}
-
-void stopLoading(Util::Thread::Id thread){
-    bool needJoin = false;
-    Util::Thread::acquireLock( &loading_screen_mutex );
-    needJoin = ! done_loading;
-    done_loading = true;
-    Util::Thread::releaseLock( &loading_screen_mutex );
-    if (needJoin){
-        Util::Thread::joinThread(thread);
-    }
-}
-#endif
-
 static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & work){
     background.Blit(load_x, load_y, load_width, load_height, 0, 0, work);
     Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 - Font::getDefaultFont().getHeight(), Graphics::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
@@ -92,6 +64,7 @@ static void setupBackground(const Graphics::Bitmap & background, int load_x, int
     background.Blit(infobox_x, infobox_y, infoWidth, infoHeight, 0, 0, infoBackground);
 }
 
+/* converts a bitmap with some text on it into a sequence of points */
 static vector<ppair> generateFontPixels(const Font & myFont, const string & message, int width, int height){
     Graphics::Bitmap letters(width, height);
     letters.fill(Graphics::MaskColor());
@@ -99,14 +72,14 @@ static vector<ppair> generateFontPixels(const Font & myFont, const string & mess
 
     vector< ppair > pairs;
     /* store every pixel we need to draw */
-    for ( int x = 0; x < letters.getWidth(); x++ ){
-        for ( int y = 0; y < letters.getHeight(); y++ ){
+    for (int x = 0; x < letters.getWidth(); x++){
+        for (int y = 0; y < letters.getHeight(); y++){
             int pixel = letters.getPixel(x, y);
             if (pixel != Graphics::MaskColor()){
                 ppair p;
                 p.x = x;
                 p.y = y;
-                pairs.push_back( p );
+                pairs.push_back(p);
             }
         }
     }
@@ -138,20 +111,12 @@ public:
     unsigned int last;
 };
 
-/* FIXME: get rid of this method */
-#if 0
-void * loadingScreen(void * arg){
+static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & levelInfo){
     int load_x = 80;
     int load_y = 220;
     const int infobox_width = 300;
     const int infobox_height = 150;
-    Info info;
     const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
-    const Font & infoFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
-    Level::LevelInfo levelInfo;
-    if (arg != NULL){
-        levelInfo = *(Level::LevelInfo*) arg;
-    }
 
     if (levelInfo.getPositionX() != -1){
         load_x = levelInfo.getPositionX();
@@ -165,76 +130,96 @@ void * loadingScreen(void * arg){
     int load_width = myFont.textLength(levelInfo.loadingMessage().c_str());
     int load_height = myFont.getHeight(levelInfo.loadingMessage().c_str());
 
-    const int infobox_x = load_x;
-    const int infobox_y = load_y + load_height * 2;
-
-    Global::debug( 2 ) << "loading screen" << endl;
-
-    Bitmap work( load_width, load_height );
-
-    vector<ppair> pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
+    Global::debug(2) << "loading screen" << endl;
 
     Messages infobox(infobox_width, infobox_height);
-    Bitmap infoWork(infobox_width, infobox_height);
-    Bitmap infoBackground(infobox_width, infobox_height);
 
     const int MAX_COLOR = 200;
 
     /* blend from dark grey to light red */
-    Effects::Gradient gradient(MAX_COLOR, Bitmap::makeColor(16, 16, 16), Bitmap::makeColor(192, 8, 8));
-
-    Global::speed_counter = 0;
-
-    if (levelInfo.getBackground() != 0){
-        setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
-    } else {
-        setupBackground(Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
-    }
-
-    Util::ThreadBoolean quit(done_loading, loading_screen_mutex);
+    Effects::Gradient gradient(MAX_COLOR, Graphics::makeColor(16, 16, 16), Graphics::makeColor(192, 8, 8));
 
     TimeCounter counter;
 
-    bool firstDraw = true;
+    struct State{
+        bool drawInfo;
+    };
 
-    while ( ! quit.get() ){
-
-        /* true if a logic loop has passed */
-        bool draw = firstDraw;
-
-        /* will be true if any new info messages appeared */
-        bool drawInfo = firstDraw;
-        firstDraw = false;
-        if ( Global::speed_counter > 0 ){
-            double think = Global::speed_counter;	
-            Global::speed_counter = 0;
-            draw = true;
-
-            while ( think > 0 ){
-                gradient.backward();
-                think -= 1;
-            }
-
-            /* if no new messages appeared this will be false */
-            drawInfo = info.transferMessages(infobox);
-        } else {
-            Util::rest( 1 );
+    class Logic: public Util::Logic {
+    public:
+        Logic(LoadingContext & context, State & state, Effects::Gradient & gradient, Messages & infoBox):
+        context(context),
+        state(state),
+        gradient(gradient),
+        infobox(infoBox){
         }
 
-        if (draw){
-            for ( vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++ ){
+        LoadingContext & context;
+        State & state;
+        Effects::Gradient & gradient;
+        Info info;
+        Messages & infobox;
+
+        void run(){
+            gradient.backward();
+            state.drawInfo = info.transferMessages(infobox) || state.drawInfo;
+        }
+
+        double ticks(double system){
+            return system;
+        }
+
+        bool done(){
+            return context.done();
+        }
+    };
+
+    class Draw: public Util::Draw {
+    public:
+        Draw(const Level::LevelInfo & levelInfo, State & state, Messages & infobox, Effects::Gradient & gradient, int load_width, int load_height, int infobox_width, int infobox_height, int load_x, int load_y):
+            gradient(gradient),
+            state(state),
+            infobox(infobox),
+            work(load_width, load_height),
+            infoWork(infobox_width, infobox_height),
+            infoBackground(infobox_width, infobox_height),
+            infobox_x(load_x),
+            infobox_y(load_y + load_height * 2),
+            load_x(load_x),
+            load_y(load_y){
+
+            const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
+            pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
+
+            if (levelInfo.getBackground() != 0){
+                setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
+            } else {
+                setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
+            }
+        }
+
+        Effects::Gradient & gradient;
+        State & state;
+        Messages & infobox;
+        Graphics::Bitmap work;
+        Graphics::Bitmap infoWork;
+        Graphics::Bitmap infoBackground;
+        vector<ppair> pairs;
+        const int infobox_x;
+        const int infobox_y;
+        const int load_x;
+        const int load_y;
+
+        void draw(){
+            for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
                 int color = gradient.current(it->x);
                 work.putPixel(it->x, it->y, color);
             }
 
-            // counter.draw(200, 100);
-
-            /* we might not have to draw the whole info box again if no new
-             * messages appeared.
-             */
-            if (drawInfo){
+            if (state.drawInfo){
                 infoBackground.Blit(infoWork);
 
+                const Font & infoFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
                 /* cheesy hack to change the font size. the font
                  * should store the size and change it on its own
                  */
@@ -242,68 +227,22 @@ void * loadingScreen(void * arg){
                 infobox.draw(0, 0, infoWork, infoFont);
                 Font::getFont(Global::DEFAULT_FONT, 24, 24);
                 infoWork.BlitAreaToScreen(infobox_x, infobox_y);
+                state.drawInfo = false;
             }
             /* work already contains the correct background */
             // work.Blit( load_x, load_y, *Bitmap::Screen );
             work.BlitAreaToScreen(load_x, load_y);
         }
-    }
+    };
 
-    return NULL;
-}
-#endif
+    State state;
+    state.drawInfo = true;
+    Logic logic(context, state, gradient, infobox);
+    Draw draw(levelInfo, state, infobox, gradient, load_width, load_height, infobox_width, infobox_height, load_x, load_y);
 
-static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & levelInfo){
-    int load_x = 80;
-    int load_y = 220;
-    const int infobox_width = 300;
-    const int infobox_height = 150;
-    Info info;
-    const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
-    const Font & infoFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
+    Util::standardLoop(logic, draw);
 
-    if (levelInfo.getPositionX() != -1){
-        load_x = levelInfo.getPositionX();
-    }
-    
-    if (levelInfo.getPositionY() != -1){
-        load_y = levelInfo.getPositionY();
-    }
-
-    // const char * the_string = (arg != NULL) ? (const char *) arg : "Loading...";
-    int load_width = myFont.textLength(levelInfo.loadingMessage().c_str());
-    int load_height = myFont.getHeight(levelInfo.loadingMessage().c_str());
-
-    const int infobox_x = load_x;
-    const int infobox_y = load_y + load_height * 2;
-
-    Global::debug(2) << "loading screen" << endl;
-
-    Graphics::Bitmap work(load_width, load_height);
-
-    vector<ppair> pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
-
-    Messages infobox(infobox_width, infobox_height);
-    Graphics::Bitmap infoWork(infobox_width, infobox_height);
-    Graphics::Bitmap infoBackground(infobox_width, infobox_height);
-
-    const int MAX_COLOR = 200;
-
-    /* blend from dark grey to light red */
-    Effects::Gradient gradient(MAX_COLOR, Graphics::makeColor(16, 16, 16), Graphics::makeColor(192, 8, 8));
-
-    Global::speed_counter = 0;
-
-    if (levelInfo.getBackground() != 0){
-        setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
-    } else {
-        setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
-    }
-
-    TimeCounter counter;
-
-    bool firstDraw = true;
-
+#if 0
     while (! context.done()){
 
         /* true if a logic loop has passed */
@@ -355,65 +294,8 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
             work.BlitAreaToScreen(load_x, load_y);
         }
     }
-}
-
-/* shows some circles rotating around a center point */
-/* FIXME: get rid of this method */
-#if 0
-void * loadingScreenSimple1(void * arg){
-    Bitmap work(40, 40);
-    Bitmap original(40, 40);
-    original.BlitFromScreen(0, 0);
-    Util::ThreadBoolean quit(done_loading, loading_screen_mutex);
-    Global::speed_counter = 0;
-    int angle = 0;
-    int color1 = Bitmap::makeColor(0, 0, 0);
-    int color2 = Bitmap::makeColor(0x00, 0x99, 0xff);
-    int color3 = Bitmap::makeColor(0xff, 0x22, 0x33);
-    int color4 = Bitmap::makeColor(0x44, 0x77, 0x33);
-    /* the length of this array is the number of circles to show */
-    int colors[4] = {color1, color2, color3, color4};
-    Bitmap::transBlender(0, 0, 0, 64);
-    /* speed of rotation */
-    int speed = 7;
-    while (! quit.get()){
-        bool draw = false;
-
-        if (Global::speed_counter > 0){
-            double think = Global::speed_counter;	
-            Global::speed_counter = 0;
-            draw = true;
-
-            while (think > 0){
-                angle += speed;
-                think -= 1;
-            }
-        } else {
-            Util::rest(1);
-        }
-
-        if (draw){
-            int max = sizeof(colors) / sizeof(int);
-            double middleX = work.getWidth() / 2;
-            double middleY = work.getHeight() / 2;
-            original.Blit(work);
-            for (int i = 0; i < max; i++){
-                double x = cos(Util::radians(angle + 360 / max * i)) * 15;
-                double y = sin(Util::radians(angle + 360 / max * i)) * 15;
-                /* ghost circle */
-                work.translucent().circleFill(middleX + x, middleY + y, 2, colors[i]);
-                x = cos(Util::radians(angle + speed + 360 / max * i)) * 15;
-                y = sin(Util::radians(angle + speed + 360 / max * i)) * 15;
-                /* real circle */
-                work.circleFill(middleX + x, middleY + y, 2, colors[i]);
-            }
-            work.BlitAreaToScreen(0, 0);
-        }
-    }
-
-    return NULL;
-}
 #endif
+}
 
 static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelInfo & levelInfo){
     Graphics::Bitmap work(40, 40);
