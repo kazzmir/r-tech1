@@ -58,7 +58,7 @@
 
 using namespace std;
 
-volatile int Global::speed_counter = 0;
+volatile int Global::speed_counter2 = 0;
 
 /* enough seconds for 136 years */
 volatile unsigned int Global::second_counter = 0;
@@ -86,7 +86,7 @@ static void inc_speed_counter(){
     /* probably put input polling here, InputManager::poll(). no, don't do that.
      * polling is done in the standardLoop now.
      */
-    Global::speed_counter += 1;
+    Global::speed_counter2 += 1;
 }
 #ifdef USE_ALLEGRO
 END_OF_FUNCTION(inc_speed_counter)
@@ -268,7 +268,7 @@ static void initSystem(ostream & out){
     /* 16 bit color depth */
     set_color_depth(16);
 
-    LOCK_VARIABLE( speed_counter );
+    LOCK_VARIABLE( speed_counter2 );
     LOCK_VARIABLE( second_counter );
     LOCK_FUNCTION( (void *)inc_speed_counter );
     LOCK_FUNCTION( (void *)inc_second_counter );
