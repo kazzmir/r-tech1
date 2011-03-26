@@ -117,7 +117,7 @@ void TextInput::disable(){
     Keyboard::popRepeatState();
 }
 
-string TextInput::getText(){
+string TextInput::getText() const {
     return text.str();
 }
 

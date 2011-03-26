@@ -39,7 +39,7 @@ public:
         blockingKeys = true;
     }
 
-    std::string getText();
+    std::string getText() const;
     void setText(const std::string & text);
 
     void clearInput();
