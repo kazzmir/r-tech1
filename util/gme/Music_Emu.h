@@ -7,7 +7,7 @@
 #include "Gme_File.h"
 class Multi_Buffer;
 
-struct Music_Emu : public Gme_File {
+class Music_Emu : public Gme_File {
 public:
 // Basic functionality (see Gme_File.h for file loading/track info functions)
 
