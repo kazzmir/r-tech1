@@ -37,8 +37,10 @@ changeCounter(0){
     cursorTime.reset();
 }
 
-LineEdit::~LineEdit()
-{
+LineEdit::~LineEdit(){
+    if (focused){
+        input.disable();
+    }
 }
     
 void LineEdit::hookKey(int key, void (*callback)(void *), void * arg){

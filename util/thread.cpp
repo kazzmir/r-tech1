@@ -3,6 +3,22 @@
 namespace Util{
 
 namespace Thread{
+
+LockObject::LockObject(){
+    initializeLock(&lock);
+}
+
+void LockObject::acquire(){
+    acquireLock(&lock);
+}
+
+void LockObject::release(){
+    releaseLock(&lock);
+}
+
+LockObject::~LockObject(){
+    destroyLock(&lock);
+}
     
 bool isUninitialized(Id thread){
     return thread == uninitializedValue;
