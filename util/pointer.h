@@ -30,6 +30,14 @@ public:
         return *this;
     }
 
+    ReferenceCount & operator=(Data * what){
+        release();
+        count = new int;
+        *count = 1;
+        data = what;
+        return *this;
+    }
+
     Data * operator->() const {
         return data;
     }
