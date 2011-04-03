@@ -46,6 +46,19 @@ namespace Thread{
     bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg);
     void joinThread(Id thread);
     void cancelThread(Id thread);
+
+    /* wraps a Lock in a c++ class */
+    class LockObject{
+    public:
+        LockObject();
+
+        void acquire();
+        void release();
+
+        virtual ~LockObject();
+
+        Lock lock;
+    };
 }
 
 class WaitThread{
