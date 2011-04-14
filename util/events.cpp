@@ -244,13 +244,13 @@ Draw::~Draw(){
 }
 
 void standardLoop(Logic & logic, Draw & draw){
-    Global::speed_counter3 = 0;
+    Global::speed_counter4 = 0;
     double runCounter = 0;
     try{
         while (!logic.done()){
-            if (Global::speed_counter3 > 0){
-                runCounter += logic.ticks(Global::speed_counter3);
-                Global::speed_counter3 = 0;
+            if (Global::speed_counter4 > 0){
+                runCounter += logic.ticks(Global::speed_counter4);
+                Global::speed_counter4 = 0;
                 bool need_draw = false;
                 while (runCounter >= 1.0){
                     need_draw = true;
@@ -273,7 +273,7 @@ void standardLoop(Logic & logic, Draw & draw){
                 }
             }
 
-            while (Global::speed_counter3 == 0){
+            while (Global::speed_counter4 == 0){
                 rest(1);
             }
         }
