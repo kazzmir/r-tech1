@@ -7,7 +7,7 @@
 #define GFX_Y 480
 
 namespace Global{
-    extern volatile int speed_counter3;
+    extern volatile int speed_counter4;
     extern volatile unsigned int second_counter;
 
     extern const double LOGIC_MULTIPLIER;
