@@ -46,7 +46,6 @@
 #include "font.h"
 #include "sound.h"
 #include "configuration.h"
-#include "script/script.h"
 #include "music.h"
 #include "loading.h"
 #include "input/keyboard.h"
