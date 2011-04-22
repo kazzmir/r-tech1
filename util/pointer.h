@@ -1,6 +1,8 @@
 #ifndef _paintown_util_pointer_h
 #define _paintown_util_pointer_h
 
+#include <stdlib.h>
+
 namespace Util{
 
 /* Some helpful pointer classes, probably equivalent to stuff in boost
@@ -23,10 +25,18 @@ public:
     }
 
     ReferenceCount & operator=(const ReferenceCount<Data> & him){
+        /* this object might have a link to `him' so if we release first
+         * then `him' will get deleted before we can capture his data.
+         * we need to increase his count first and then release our data
+         * to insure that `him' will still be alive.
+         */
+        int * temp_count = him.count;
+        *temp_count += 1;
+        Data * temp_data = him.data;
         release();
-        data = him.data;
-        count = him.count;
-        *count += 1;
+        data = temp_data;
+        count = temp_count;
+
         return *this;
     }
 
@@ -36,6 +46,10 @@ public:
         *count = 1;
         data = what;
         return *this;
+    }
+
+    bool operator!() const {
+        return !this->data;
     }
 
     Data * operator->() const {
