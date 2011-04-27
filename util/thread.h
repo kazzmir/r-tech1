@@ -148,12 +148,17 @@ public:
 
     virtual X get(){
         X out;
+        Exception::Base * failed = NULL;
         Thread::semaphoreDecrease(&future);
         if (exception != NULL){
-            exception->throwSelf();
+            failed = exception;
+            // exception->throwSelf();
         }
         out = thing;
         Thread::semaphoreIncrease(&future);
+        if (failed){
+            failed->throwSelf();
+        }
         return out;
     }
 
