@@ -54,7 +54,12 @@ public:
     static std::vector<Value> stack;
 
 protected:
-    /* number of things pushed onto the stack by this object */
+    /* number of things pushed onto the stack by this object. note this is
+     * not the number of items on the stack because if there are multiple
+     * parameter objects then each one could have pushed 1 object on. thus
+     * the stack will have 2 things in it but each parameter will have an
+     * 'items' count of 1.
+     */
     int items;
 };
 
