@@ -39,7 +39,7 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
     *blue = _rgb_scale_5[(color >> rgb_b_shift_16) & 0x1F];
 }
 
-int Bitmap::MaskColor(){
+int MaskColor(){
     static int mask = makeColor(255, 0, 255);
     return mask;
 }
@@ -47,7 +47,6 @@ int Bitmap::MaskColor(){
 static const int WINDOWED = 0;
 static const int FULLSCREEN = 1;
 
-Bitmap * Bitmap::Screen = NULL;
 static Bitmap * Scaler = NULL;
 
 Bitmap::Bitmap():
@@ -244,25 +243,25 @@ int Bitmap::getWidth() const {
     return 0;
 }
 
-int Bitmap::getRed(int color){
+int getRed(int color){
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
     return red;
 }
 
-int Bitmap::getGreen(int color){
+int getGreen(int color){
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
     return green;
 }
 
-int Bitmap::getBlue(int color){
+int getBlue(int color){
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
     return blue;
 }
 
-int Bitmap::makeColor(int red, int blue, int green){
+int makeColor(int red, int blue, int green){
     return pack565(red, blue, green);
 }
 
@@ -274,7 +273,11 @@ int Bitmap::getHeight() const {
     return 0;
 }
 
-int Bitmap::setGraphicsMode(int mode, int width, int height){
+void initializeExtraStuff(){
+    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
+}
+
+int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
     switch (mode){
         case FULLSCREEN: {
@@ -602,9 +605,6 @@ void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const
     /* TODO */
 }
 
-void Bitmap::initializeExtraStuff(){
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-}
 
 Bitmap & Bitmap::operator=(const Bitmap & copy){
     releaseInternalBitmap();
@@ -629,15 +629,15 @@ void Bitmap::destroyPrivateData(){
     al_destroy_bitmap(getData().getBitmap());
 }
 
-int Bitmap::setGfxModeFullscreen(int x, int y){
+int setGfxModeFullscreen(int x, int y){
     return setGraphicsMode(FULLSCREEN, x, y);
 }
 
-int Bitmap::setGfxModeWindowed( int x, int y ){
+int setGfxModeWindowed( int x, int y ){
     return setGraphicsMode(WINDOWED, x, y);
 }
 
-int Bitmap::setGfxModeText(){
+int setGfxModeText(){
     /* TODO */
     return 0;
 }
