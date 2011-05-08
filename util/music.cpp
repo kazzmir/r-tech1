@@ -137,7 +137,9 @@ void Music::doPlay(){
                 break;
             }
         }
-        musicPlayer->poll();
+        if (musicPlayer != NULL){
+            musicPlayer->poll();
+        }
     }
 }
 
