@@ -15,9 +15,10 @@ namespace Gui{
 struct ColorInfo{
     ColorInfo():
         body(0),
-        bodyAlpha(0),
+        /* alpha 0 is invisible, 255 is opaque. set something in the middle as default */
+        bodyAlpha(128),
         border(0),
-        borderAlpha(0){
+        borderAlpha(128){
         }
 
     int body;
