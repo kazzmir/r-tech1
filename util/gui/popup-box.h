@@ -28,10 +28,16 @@ class PopupBox : public Widget {
 	virtual void open();
 	//! Close box
 	virtual void close();
+
         //! Is active?
 	virtual inline bool isActive(){
 	    return (this->fadeState != Closed);
 	}
+
+        virtual inline bool isOpen(){
+            return this->fadeState == Open;
+        }
+
         //!set fadespeed
         virtual inline void setFadeSpeed(int speed){
             this->fadeSpeed = speed;
