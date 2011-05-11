@@ -35,7 +35,8 @@ class PopupBox : public Widget {
 	}
 
         virtual inline bool isOpen(){
-            return this->fadeState == Open;
+            return this->fadeState == Open ||
+                   this->fadeState == FadeIn;
         }
 
         //!set fadespeed
