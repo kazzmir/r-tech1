@@ -242,7 +242,8 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
     const int x2 = board.getArea().getX2()-(int)(board.getArea().getRadius()/2);
     const int y2 = board.getArea().getY2()-2;//(board.getArea().radius/2);
             
-    bmp.setClipRect(x1, y1, x2, y2);
+    // bmp.setClipRect(x1, y1, x2, y2);
+    Graphics::Bitmap area(bmp, x1, y1, x2 - x1, y2 - y1);
     int locationY = cursorLocation;
     int currentOption = current;
     int count = 0;
@@ -250,10 +251,10 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
         const int startx = (location.getWidth()/2)-(vFont.textLength(context[currentOption]->getName().c_str())/2);
         if (count == 0){
             Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
-            Graphics::TranslucentBitmap translucent(bmp);
+            Graphics::TranslucentBitmap translucent(area);
             // Bitmap::drawingMode( Bitmap::MODE_TRANS );
             const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
-            vFont.printf(location.getX() + startx, locationY, color, translucent, context[currentOption]->getName(), 0 );
+            vFont.printf(location.getX() + startx - x1, locationY - y1, color, translucent, context[currentOption]->getName(), 0 );
             if (context[currentOption]->isAdjustable()){
                 const int triangleSize = 14;
                 int cx = (location.getX() + startx) - 15;
@@ -285,11 +286,11 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
             Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
             // Bitmap::drawingMode( Bitmap::MODE_TRANS );
             const int color = Graphics::makeColor(255,255,255);
-            vFont.printf(location.getX() + startx, locationY, color, bmp.translucent(), context[currentOption]->getName(), 0 );
+            vFont.printf(location.getX() + startx - x1, locationY - y1, color, area.translucent(), context[currentOption]->getName(), 0 );
             // Bitmap::drawingMode( Bitmap::MODE_SOLID );
         }
         if (context.size() == 1){
-            bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
+            // area.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
             return;
         }
         currentOption++;
@@ -316,10 +317,8 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
             textAlpha = 0;
         }
         Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
-        // Bitmap::drawingMode( Bitmap::MODE_TRANS );
         const int color = Graphics::makeColor(255,255,255);
-        vFont.printf(location.getX() + startx, locationY, color, bmp.translucent(), context[currentOption]->getName(), 0 );
-        // Bitmap::drawingMode( Bitmap::MODE_SOLID );
+        vFont.printf(location.getX() + startx - x1, locationY - y1, color, area.translucent(), context[currentOption]->getName(), 0 );
         currentOption--;
         locationY -= (int)(vFont.getHeight()/FONT_SPACER);
         count++;
@@ -327,6 +326,6 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
             break;
         }*/
     }
-    bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
+    // bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
 }
 

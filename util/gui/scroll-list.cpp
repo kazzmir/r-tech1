@@ -1,7 +1,6 @@
-#include "util/bitmap.h"
-
+#include "../bitmap.h"
 #include "scroll-list.h"
-#include "util/font.h"
+#include "../font.h"
 
 using namespace Gui;
 
@@ -27,29 +26,35 @@ selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 useGradient(false),
 useHighlight(false){}
 
-ScrollList::ScrollList(const ScrollList &):
-currentIndex(0),
-fontSpacingX(0),
-fontSpacingY(0),
-currentPosition(0),
-scrollWait(0),
+ScrollList::ScrollList(const ScrollList & copy):
+currentIndex(copy.currentIndex),
+fontSpacingX(copy.fontSpacingX),
+fontSpacingY(copy.fontSpacingY),
+currentPosition(copy.currentPosition),
+scrollWait(copy.scrollWait),
 selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
-useGradient(false),
-useHighlight(false){}
+useGradient(copy.useGradient),
+useHighlight(copy.useHighlight){}
 
 ScrollList::~ScrollList(){}
 
-ScrollList & ScrollList::operator=(const ScrollList &){
+ScrollList & ScrollList::operator=(const ScrollList & copy){
     return *this;
 }
 
-void ScrollList::act(){}
+void ScrollList::act(){
+}
 
-void ScrollList::render(const Graphics::Bitmap &, const Font & font){}
+void ScrollList::render(const Graphics::Bitmap &, const Font & font){
+}
 
-void ScrollList::addText(const std::string &){}
+void ScrollList::addText(const std::string & text){
+    this->text.push_back(text);
+}
 
-void ScrollList::addText(const std::vector< std::string > &){}
+void ScrollList::addText(const std::vector<std::string> & texts){
+    this->text.insert(text.end(), texts.begin(), texts.end());
+}
 
 bool ScrollList::next(){
     return true;
