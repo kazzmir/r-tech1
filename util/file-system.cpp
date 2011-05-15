@@ -216,6 +216,15 @@ vector<AbsolutePath> findDirectories(const RelativePath & path){
     return dirs;
 }
 
+/* a/b/c/ -> a/b/c */
+static string removeTrailingSlash(string str){
+    while (str.size() > 0 && str[str.size() - 1] == '/'){
+        str = str.erase(str.size() - 1);
+    }
+    return str;
+}
+
+
 vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
 #ifdef USE_ALLEGRO
     struct al_ffblk info;
@@ -234,6 +243,7 @@ vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find
     Util::Thread::acquireLock(&lock);
     vector<AbsolutePath> files;
     DIRST sflEntry;
+    // bool ok = open_dir(&sflEntry, removeTrailingSlash(dataPath.path()).c_str());
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
     while (ok){
         if (file_matches(sflEntry.file_name, find.c_str())){

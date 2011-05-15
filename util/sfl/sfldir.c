@@ -243,6 +243,12 @@ populate_entry (DIRST *dir)
 #else
     full_path = xstrcpy (NULL, dir-> dir_name, "/", dir-> file_name, NULL);
     rc = stat (full_path , &stat_buf);
+    if (rc == -1){
+        /* might be a broken symbolic link, in that case just read it. the
+         * application will fail when it tries to read data from the file.
+         */
+        rc = lstat(full_path, &stat_buf);
+    }
     mem_free (full_path);
     if (rc == -1)
         return (FALSE);
