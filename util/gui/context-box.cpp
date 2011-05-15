@@ -3,6 +3,7 @@
 
 #include "context-box.h"
 #include "util/font.h"
+#include <math.h>
 
 static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
@@ -232,7 +233,60 @@ void ContextBox::calculateText(const Font & vFont){
     }
 }
 
-void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
+/* draws the text, fading the items according to the distance from the
+ * current selection.
+ */
+void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction){
+    while (y < max_y && y > min_y){
+        int pick = current;
+        while (pick < 0){
+            pick += context.size();
+        }
+        pick = pick % context.size();
+
+        ContextItem * option = context[pick];
+        const int startx = middle_x - font.textLength(option->getName().c_str())/2;
+
+        /* draw current selection, make it glow */
+        if (current == selected){
+            Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
+            Graphics::TranslucentBitmap translucent(area);
+            const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
+            font.printf(x + startx, y, color, translucent, option->getName(), 0 );
+            if (option->isAdjustable()){
+                const int triangleSize = 14;
+                int cx = startx - 15;
+                int cy = (int)(y + (font.getHeight()/FONT_SPACER) / 2 + 2);
+
+                /* do the triangles need to be translucent? */
+                translucent.equilateralTriangle(cx, cy, 180, triangleSize, option->getLeftColor());
+
+                cx = (x + startx + font.textLength(option->getName().c_str()))+15;
+                translucent.equilateralTriangle(cx, cy, 0, triangleSize, option->getRightColor());
+            }
+        } else {
+            /* draw some other item, and fade it */
+            int count = fabs(current - selected);
+            /* TODO: maybe scale by the number of total items instead of using 35 */
+            int textAlpha = fadeAlpha - (count * 35);
+            if (textAlpha < 0){
+                textAlpha = 0;
+            }
+            Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
+            const int color = Graphics::makeColor(255,255,255);
+            font.printf(x + startx, y, color, area.translucent(), option->getName(), 0);
+        }
+
+        if (context.size() == 1){
+            return;
+        }
+
+        current += direction;
+        y += direction * font.getHeight() / FONT_SPACER;
+    }
+}
+
+void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
     if (context.empty()){
         return;
     }
@@ -242,11 +296,21 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
     const int x2 = board.getArea().getX2()-(int)(board.getArea().getRadius()/2);
     const int y2 = board.getArea().getY2()-2;//(board.getArea().radius/2);
             
-    // bmp.setClipRect(x1, y1, x2, y2);
     Graphics::Bitmap area(bmp, x1, y1, x2 - x1, y2 - y1);
-    int locationY = cursorLocation;
+
+    int min_y = location.getX() - font.getHeight() - y1;
+    int max_y = location.getX2() + font.getHeight() - y1;
+
+    /* draw from the current selection down */
+    doDraw(0, cursorLocation - y1, area.getWidth() / 2, min_y, max_y, font, current, current, area, 1);
+
+    /* draw above the current selection */
+    doDraw(0, cursorLocation - y1 - font.getHeight() / FONT_SPACER, area.getWidth() / 2, min_y, max_y, font, current - 1, current, area, -1);
+
+#if 0
     int currentOption = current;
     int count = 0;
+    /* draw the current selection and everything below it */
     while (locationY < location.getX2() + vFont.getHeight()){
         const int startx = (location.getWidth()/2)-(vFont.textLength(context[currentOption]->getName().c_str())/2);
         if (count == 0){
@@ -307,6 +371,8 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
     currentOption = current;
     currentOption--;
     count = 0;
+
+    /* this draws the stuff above the current selection */
     while (locationY > location.getX() - vFont.getHeight()){
         if (currentOption < 0){
             currentOption = context.size()-1;
@@ -327,5 +393,6 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & vFont){
         }*/
     }
     // bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
+#endif
 }
 
