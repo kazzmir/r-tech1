@@ -96,6 +96,7 @@ class ContextBox : public Widget {
 	
 	void calculateText(const Font & font);
 	
+        void doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction);
 	void drawText(const Graphics::Bitmap &, const Font & font);
 	
 	enum FadeState{
