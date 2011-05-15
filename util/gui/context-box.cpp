@@ -266,7 +266,7 @@ void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
             }
         } else {
             /* draw some other item, and fade it */
-            int count = fabs(current - selected);
+            int count = (int) fabs((double) current - (double) selected);
             /* TODO: maybe scale by the number of total items instead of using 35 */
             int textAlpha = fadeAlpha - (count * 35);
             if (textAlpha < 0){
