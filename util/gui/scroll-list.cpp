@@ -24,7 +24,8 @@ currentPosition(0),
 scrollWait(0),
 selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 useGradient(false),
-useHighlight(false){}
+useHighlight(false),
+allowWrap(true){}
 
 ScrollList::ScrollList(const ScrollList & copy):
 currentIndex(copy.currentIndex),
@@ -34,7 +35,8 @@ currentPosition(copy.currentPosition),
 scrollWait(copy.scrollWait),
 selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 useGradient(copy.useGradient),
-useHighlight(copy.useHighlight){}
+useHighlight(copy.useHighlight),
+allowWrap(true){}
 
 ScrollList::~ScrollList(){}
 
@@ -56,10 +58,42 @@ void ScrollList::addText(const std::vector<std::string> & texts){
     this->text.insert(text.end(), texts.begin(), texts.end());
 }
 
+void ScrollList::setPosition(const Gui::Coordinate & location){
+    this->position = location;
+}
+
 bool ScrollList::next(){
+    currentIndex++;
+    if (currentIndex >= text.size()){
+	if (allowWrap){
+	    currentIndex = 0;
+	    return true;
+	} else {
+	    currentIndex = text.size()-1;
+	    return false;
+	}
+    }
     return true;
 }
 
 bool ScrollList::previous(){
+    if (currentIndex > 0){
+	currentIndex--;
+    } else if (currentIndex == 0){
+	if (allowWrap){
+	    currentIndex = text.size()-1;
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+    return true;
+}
+
+bool ScrollList::setCurrentIndex(unsigned int index){
+    if (index >= text.size()){
+	return false;
+    }
+    currentIndex = index;
     return true;
 }
