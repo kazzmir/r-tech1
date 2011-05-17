@@ -145,6 +145,9 @@ private:
     
     //! Is wrappable
     bool allowWrap;
+
+    /* how much to scroll by */
+    double scroll;
 };
 
 }

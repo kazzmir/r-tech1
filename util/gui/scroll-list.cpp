@@ -3,11 +3,16 @@
 #include "scroll-list.h"
 #include "../font.h"
 #include <math.h>
+#include "../debug.h"
 
 namespace Gui{
 
 static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
+
+double SCROLL_STEP = 20;
+double SCROLL_MOTION = 2;
+const int SCROLL_WAIT = 4;
 
 static int selectedGradientStart(){
     static int color = Graphics::makeColor(19, 167, 168);
@@ -34,7 +39,8 @@ scrollWait(0),
 selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 useGradient(false),
 useHighlight(false),
-allowWrap(true){}
+allowWrap(true),
+scroll(0){}
 
 ScrollList::ScrollList(const ScrollList & copy):
 currentIndex(copy.currentIndex),
@@ -45,7 +51,8 @@ scrollWait(copy.scrollWait),
 selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 useGradient(copy.useGradient),
 useHighlight(copy.useHighlight),
-allowWrap(true){}
+allowWrap(true),
+scroll(0){}
 
 ScrollList::~ScrollList(){}
 
@@ -54,6 +61,26 @@ ScrollList & ScrollList::operator=(const ScrollList & copy){
 }
 
 void ScrollList::act(){
+    if (scrollWait == 0){
+        if (scroll > SCROLL_MOTION){
+            scroll -= SCROLL_MOTION;
+        } else if (scroll < -SCROLL_MOTION){
+            scroll += SCROLL_MOTION;
+        } else {
+            scroll = 0;
+            currentPosition = currentIndex;
+        }
+    } else {
+        scrollWait -= 1;
+    }
+
+    /*
+    if (scrollWait > 0){
+        scrollWait -= 1;
+    } else {
+        currentPosition = currentIndex;
+    }
+    */
 }
 
 /* this is the smooth scroll stuff from context-box */
@@ -112,8 +139,12 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 }
 
 void ScrollList::render(const Graphics::Bitmap & where, const Font & font){
+
+    SCROLL_STEP = font.getHeight() / 2;
+    SCROLL_MOTION = SCROLL_STEP / 8;
     
-    int y = where.getHeight() / 2;
+    // Global::debug(0) << "Scroll is " << scroll << std::endl;
+    int y = where.getHeight() / 2 + scroll - font.getHeight() / 2;
     int min_y = 0 - font.getHeight() / FONT_SPACER;
     int max_y = where.getHeight();
 
@@ -154,6 +185,10 @@ void ScrollList::setPosition(const Gui::Coordinate & location){
 
 bool ScrollList::next(){
     currentIndex++;
+    scroll = SCROLL_STEP;
+    if (scrollWait == 0){
+        scrollWait = SCROLL_WAIT;
+    }
     if (currentIndex >= text.size()){
 	if (allowWrap){
 	    currentIndex = 0;
@@ -167,6 +202,10 @@ bool ScrollList::next(){
 }
 
 bool ScrollList::previous(){
+    scroll = -SCROLL_STEP;
+    if (scrollWait == 0){
+        scrollWait = SCROLL_WAIT;
+    }
     if (currentIndex > 0){
 	currentIndex--;
     } else if (currentIndex == 0){
