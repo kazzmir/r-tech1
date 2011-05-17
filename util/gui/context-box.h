@@ -6,21 +6,24 @@
 
 #include "widget.h"
 #include "popup-box.h"
+#include "scroll-list.h"
 
 #include "../gradient.h"
 #include "../file-system.h"
 
 namespace Gui{
     
-class ContextItem{
-    public:
-	ContextItem();
-	virtual ~ContextItem();
-	
-	virtual const std::string getName() = 0;
-	virtual bool isAdjustable();
-        virtual int getLeftColor();
-        virtual int getRightColor();
+class ContextItem: public ScrollItem {
+public:
+    ContextItem();
+    virtual ~ContextItem();
+    
+    virtual const std::string getName() const = 0;
+    virtual bool isAdjustable();
+    virtual int getLeftColor();
+    virtual int getRightColor();
+    virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font) const;
+    virtual int size() const;
 };
 
 class ContextBox : public Widget {
@@ -50,10 +53,7 @@ class ContextBox : public Widget {
 	//! Close context box
 	virtual void close();
         //! Set context list
-        virtual inline void setList(const std::vector<ContextItem *> & list){
-            this->context = list;
-            this->current = 0;
-        }
+        virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
         //! Set current font
         /*
 	virtual inline void setFont(const Filesystem::RelativePath & font, int width, int height){
@@ -64,7 +64,7 @@ class ContextBox : public Widget {
         */
         //! Get current index
         virtual inline unsigned int getCurrentIndex(){
-            return this->current;
+            return this->list.getCurrentIndex();
         }
         //! Is active?
 	virtual inline bool isActive(){
@@ -106,13 +106,14 @@ class ContextBox : public Widget {
 	    FadeOut,
 	};
         //! Current index
-        unsigned int current;
+        // unsigned int current;
 	
 	//! Current fade state
 	FadeState fadeState;
 
         //! Context list
-        std::vector<ContextItem *> context;
+        // std::vector<ContextItem *> context;
+        ScrollList list;
 	
 	//! Current font
         /*

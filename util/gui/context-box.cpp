@@ -19,12 +19,15 @@ static int selectedGradientEnd(){
 }
 
 using namespace std;
-using namespace Gui;
+
+namespace Gui{
 
 ContextItem::ContextItem(){
 }
+
 ContextItem::~ContextItem(){
 }
+
 bool ContextItem::isAdjustable(){
     return false;
 }
@@ -35,8 +38,15 @@ int ContextItem::getRightColor(){
     return 0;
 }
 
+void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font & font) const {
+    font.printf(x, y, Graphics::makeColor(255, 255, 255), where, getName(), 0);
+}
+
+int ContextItem::size() const {
+    return 0;
+}
+
 ContextBox::ContextBox():
-current(0),
 fadeState(NotActive),
 /*
 fontWidth(0),
@@ -52,11 +62,11 @@ useGradient(true),
 renderOnlyText(false){
 }
 ContextBox::ContextBox( const ContextBox & copy ):
-current(0),
 fadeState(NotActive),
 selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 renderOnlyText(false){
-    this->context = copy.context;
+    this->list = copy.list;
+    // this->context = copy.context;
     /*
     this->font = copy.font;
     this->fontWidth = copy.fontWidth;
@@ -73,9 +83,9 @@ renderOnlyText(false){
 ContextBox::~ContextBox(){
 }
 ContextBox & ContextBox::operator=( const ContextBox & copy){
-    this->current = 0;
     this->fadeState = NotActive;
-    this->context = copy.context;
+    this->list = copy.list;
+    // this->context = copy.context;
     /*
     this->font = copy.font;
     this->fontWidth = copy.fontWidth;
@@ -96,7 +106,8 @@ void ContextBox::act(const Font & font){
     board.act(font);
     
     // Calculate text info
-    calculateText(font);
+    // calculateText(font);
+    list.act();
     
     // do fade
     doFade();
@@ -109,7 +120,6 @@ void ContextBox::render(const Graphics::Bitmap & work){
 }
 
 void ContextBox::render(const Graphics::Bitmap & work, const Font & font){
-
     if (!renderOnlyText){
 	board.render(work);
     }
@@ -121,9 +131,9 @@ bool ContextBox::next(const Font & font){
 	return false;
     }
 
+    list.next();
+
     /*
-    const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
-    */
     cursorLocation += (int)(font.getHeight()/FONT_SPACER);
 
     if (current < context.size()-1){
@@ -131,6 +141,7 @@ bool ContextBox::next(const Font & font){
     } else {
         current = 0;
     }
+    */
     return true;
 }
 
@@ -139,9 +150,9 @@ bool ContextBox::previous(const Font & font){
 	return false;
     }
 
+    list.previous();
+
     /*
-    const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
-    */
     cursorLocation -= (int)(font.getHeight()/FONT_SPACER);
 
     if (current > 0){
@@ -149,6 +160,7 @@ bool ContextBox::previous(const Font & font){
     } else {
         current = context.size()-1;
     }
+    */
     return true;
 }
 
@@ -213,6 +225,7 @@ void ContextBox::doFade(){
 }
 
 void ContextBox::calculateText(const Font & vFont){
+    /*
     if (context.empty()){
         return;
     } 
@@ -231,12 +244,14 @@ void ContextBox::calculateText(const Font & vFont){
 	    scrollWait--;
 	}
     }
+    */
 }
 
 /* draws the text, fading the items according to the distance from the
  * current selection.
  */
 void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction){
+#if 0
     while (y < max_y && y > min_y){
         int pick = current;
         while (pick < 0){
@@ -284,12 +299,22 @@ void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
         current += direction;
         y += direction * font.getHeight() / FONT_SPACER;
     }
+#endif
+}
+
+void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
+    for (vector<Util::ReferenceCount<ContextItem> >::const_iterator it = list.begin(); it != list.end(); it++){
+        const Util::ReferenceCount<ContextItem> & item = *it;
+        this->list.addItem(item.convert<ScrollItem>());
+    }
 }
 
 void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
+    /*
     if (context.empty()){
         return;
     }
+    */
     // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
     const int x1 = board.getArea().getX()+(int)(board.getArea().getRadius()/2);
     const int y1 = board.getArea().getY()+2;//(board.getArea().radius/2);
@@ -301,11 +326,15 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
     int min_y = location.getX() - font.getHeight() - y1;
     int max_y = location.getX2() + font.getHeight() - y1;
 
+    list.render(area, font);
+
+#if 0
     /* draw from the current selection down */
     doDraw(0, cursorLocation - y1, area.getWidth() / 2, min_y, max_y, font, current, current, area, 1);
 
     /* draw above the current selection */
     doDraw(0, cursorLocation - y1 - font.getHeight() / FONT_SPACER, area.getWidth() / 2, min_y, max_y, font, current - 1, current, area, -1);
+#endif
 
 #if 0
     int currentOption = current;
@@ -396,3 +425,4 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
 #endif
 }
 
+}

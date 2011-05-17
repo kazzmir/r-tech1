@@ -138,7 +138,7 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
 }
 
 // Add tab
-void TabbedBox::addTab(const std::string & name, const std::vector<ContextItem *> & list){
+void TabbedBox::addTab(const std::string & name, const std::vector<Util::ReferenceCount<ContextItem> > & list){
     for (std::vector<Tab *>::iterator i = tabs.begin(); i != tabs.end(); ++i){
 	Tab * tab = *i;
 	if (tab->name == name){

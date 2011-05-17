@@ -1,8 +1,9 @@
 #include "../bitmap.h"
+#include "../trans-bitmap.h"
 #include "scroll-list.h"
 #include "../font.h"
 
-using namespace Gui;
+namespace Gui{
 
 static const int GradientMax = 50;
 
@@ -14,6 +15,12 @@ static int selectedGradientStart(){
 static int selectedGradientEnd(){
     static int color = Graphics::makeColor(27, 237, 239);
     return color;
+}
+    
+ScrollItem::ScrollItem(){
+}
+
+ScrollItem::~ScrollItem(){
 }
 
 ScrollList::ScrollList():
@@ -47,7 +54,21 @@ ScrollList & ScrollList::operator=(const ScrollList & copy){
 void ScrollList::act(){
 }
 
-void ScrollList::render(const Graphics::Bitmap &, const Font & font){
+void ScrollList::render(const Graphics::Bitmap & where, const Font & font){
+    int y = 0;
+    int x = 5;
+    int current = currentIndex;
+    while (y < where.getHeight()){
+        Util::ReferenceCount<ScrollItem> & item = this->text[current];
+        if (current == currentIndex){
+            Graphics::Bitmap::transBlender(0, 0, 0, 255);
+        } else {
+            Graphics::Bitmap::transBlender(0, 0, 0, 128);
+        }
+        item->draw(x, y, where.translucent(), font);
+        y += font.getHeight();
+        current = (current + 1 + this->text.size()) % this->text.size();
+    }
 }
 
 void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> & text){
@@ -96,4 +117,6 @@ bool ScrollList::setCurrentIndex(unsigned int index){
     }
     currentIndex = index;
     return true;
+}
+
 }

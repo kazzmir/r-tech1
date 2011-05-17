@@ -18,10 +18,10 @@ class ScrollItem{
 public:
     ScrollItem();
 
-    void draw(int x, int y, const Graphics::Bitmap & where) const;
+    virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font) const = 0;
 
     /* size in pixels, used for justification */
-    virtual int size() const;
+    virtual int size() const = 0;
 
     virtual ~ScrollItem();
 };
@@ -78,7 +78,7 @@ public:
     virtual bool setCurrentIndex(unsigned int index);
     
     //! Get current index
-    virtual inline unsigned int getCurrentIndex() const{
+    virtual inline unsigned int getCurrentIndex() const {
         return this->currentIndex;
     }
 
