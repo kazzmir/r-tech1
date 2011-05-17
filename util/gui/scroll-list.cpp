@@ -11,7 +11,7 @@ static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
 
 double SCROLL_STEP = 20;
-double SCROLL_MOTION = 2;
+const double SCROLL_MOTION = 1.2;
 const int SCROLL_WAIT = 4;
 
 static int selectedGradientStart(){
@@ -63,9 +63,11 @@ ScrollList & ScrollList::operator=(const ScrollList & copy){
 void ScrollList::act(){
     if (scrollWait == 0){
         if (scroll > SCROLL_MOTION){
-            scroll -= SCROLL_MOTION;
+            // scroll -= SCROLL_MOTION;
+            scroll /= SCROLL_MOTION;
         } else if (scroll < -SCROLL_MOTION){
-            scroll += SCROLL_MOTION;
+            // scroll += SCROLL_MOTION;
+            scroll /= SCROLL_MOTION;
         } else {
             scroll = 0;
             currentPosition = currentIndex;
@@ -141,7 +143,7 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 void ScrollList::render(const Graphics::Bitmap & where, const Font & font){
 
     SCROLL_STEP = font.getHeight() / 2;
-    SCROLL_MOTION = SCROLL_STEP / 8;
+    // SCROLL_MOTION = SCROLL_STEP / 8;
     
     // Global::debug(0) << "Scroll is " << scroll << std::endl;
     int y = where.getHeight() / 2 + scroll - font.getHeight() / 2;
