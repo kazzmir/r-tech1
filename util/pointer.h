@@ -48,6 +48,23 @@ public:
         return *this;
     }
 
+    /* use this if you need to convert between classes in a heirarchy.
+     * Base
+     * Child: public Base
+     * ReferenceCount<Base> base;
+     * ReferenceCount<Child> child;
+     * base = child; is illegal but
+     * base = child.convert<Base>(); is ok
+     */
+    template <class Convert>
+    ReferenceCount<Convert> convert() const {
+        ReferenceCount<Convert> what;
+        what.count = count;
+        *what.count += 1;
+        what.data = (Convert*) data;
+        return what;
+    }
+
     bool operator!() const {
         return !this->data;
     }
@@ -92,6 +109,10 @@ protected:
         }
     }
 
+    /* this has to be public to make the convert() function work but pretend
+     * its private!
+     */
+public:
     int * count;
     Data * data;
 };

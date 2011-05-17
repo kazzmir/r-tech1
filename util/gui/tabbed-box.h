@@ -6,6 +6,7 @@
 
 #include "widget.h"
 #include "../file-system.h"
+#include "../pointer.h"
 
 #include "../gradient.h"
 
@@ -43,7 +44,7 @@ class TabbedBox : public Widget{
         virtual void render(const Graphics::Bitmap &, const Font &);
         
         //! Add tab
-        virtual void addTab(const std::string &, const std::vector<ContextItem *> & list);
+        virtual void addTab(const std::string &, const std::vector<Util::ReferenceCount<ContextItem> > & list);
         
         //! Up
         virtual void up(const Font &);
