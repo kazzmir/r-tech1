@@ -22,8 +22,8 @@ public:
     virtual bool isAdjustable();
     virtual int getLeftColor();
     virtual int getRightColor();
-    virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font) const;
-    virtual int size() const;
+    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font) const;
+    virtual int size(const Font & font) const;
 };
 
 class ContextBox : public Widget {

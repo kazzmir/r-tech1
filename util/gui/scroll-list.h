@@ -18,10 +18,10 @@ class ScrollItem{
 public:
     ScrollItem();
 
-    virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font) const = 0;
+    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font) const = 0;
 
     /* size in pixels, used for justification */
-    virtual int size() const = 0;
+    virtual int size(const Font & font) const = 0;
 
     virtual ~ScrollItem();
 };
@@ -113,6 +113,8 @@ public:
     }
     
 private:
+    /* smooth drawing */
+    void doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction);
 
     //! Text
     std::vector<Util::ReferenceCount<ScrollItem> > text;

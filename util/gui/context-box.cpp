@@ -38,12 +38,12 @@ int ContextItem::getRightColor(){
     return 0;
 }
 
-void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font & font) const {
-    font.printf(x, y, Graphics::makeColor(255, 255, 255), where, getName(), 0);
+void ContextItem::draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font) const {
+    font.printf(x, y, color, where, getName(), 0);
 }
 
-int ContextItem::size() const {
-    return 0;
+int ContextItem::size(const Font & font) const {
+    return font.textLength(getName().c_str());
 }
 
 ContextBox::ContextBox():
