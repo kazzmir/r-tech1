@@ -7,10 +7,24 @@
 #include "coordinate.h"
 
 #include "../gradient.h"
+#include "../pointer.h"
 
 class Font;
 
 namespace Gui{
+
+/* pure virtual class */
+class ScrollItem{
+public:
+    ScrollItem();
+
+    void draw(int x, int y, const Graphics::Bitmap & where) const;
+
+    /* size in pixels, used for justification */
+    virtual int size() const;
+
+    virtual ~ScrollItem();
+};
 
 class ScrollList {
 public:
@@ -29,11 +43,11 @@ public:
     //! Render
     virtual void render(const Graphics::Bitmap &, const Font & font);
 
-    //! Add text
-    virtual void addText(const std::string &);
+    //! Add item
+    virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
 
     //! Add vector of text
-    virtual void addText(const std::vector< std::string > &);
+    virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);
     
     //! Set Position
     virtual void setPosition(const Gui::Coordinate &);
@@ -101,7 +115,7 @@ public:
 private:
 
     //! Text
-    std::vector<std::string> text;
+    std::vector<Util::ReferenceCount<ScrollItem> > text;
 
     //! Current index
     unsigned int currentIndex;

@@ -50,11 +50,11 @@ void ScrollList::act(){
 void ScrollList::render(const Graphics::Bitmap &, const Font & font){
 }
 
-void ScrollList::addText(const std::string & text){
+void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> & text){
     this->text.push_back(text);
 }
 
-void ScrollList::addText(const std::vector<std::string> & texts){
+void ScrollList::addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & texts){
     this->text.insert(text.end(), texts.begin(), texts.end());
 }
 
