@@ -14,6 +14,7 @@ Box::Box(){
 
 Box::Box( const Box & b ){
     this->location = b.location;
+    this->transforms = b.transforms;
     this->workArea = b.workArea;
 }
 
@@ -23,6 +24,7 @@ Box::~Box(){
 
 Box &Box::operator=( const Box &copy){
     location = copy.location;
+    transforms = copy.transforms;
     workArea = copy.workArea;
 
     return *this;
