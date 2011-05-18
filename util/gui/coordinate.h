@@ -129,12 +129,6 @@ class Coordinate {
         virtual inline double getZ() const{
             return this->z;
         }
-        virtual inline void setRadius(double radius){
-            this->radius = radius;
-        }
-        virtual inline double getRadius() const{
-            return this->radius;
-        }
         
         virtual int getX() const;
         virtual int getY() const;
@@ -224,7 +218,6 @@ class Coordinate {
         RelativePoint position;
         RelativePoint position2;
         double z;
-        double radius;
 };
 
 }

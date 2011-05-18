@@ -316,9 +316,9 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
     }
     */
     // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
-    const int x1 = board.getArea().getX()+(int)(board.getArea().getRadius()/2);
+    const int x1 = board.getArea().getX()+(int)(board.getTransforms().getRadius()/2);
     const int y1 = board.getArea().getY()+2;//(board.getArea().radius/2);
-    const int x2 = board.getArea().getX2()-(int)(board.getArea().getRadius()/2);
+    const int x2 = board.getArea().getX2()-(int)(board.getTransforms().getRadius()/2);
     const int y2 = board.getArea().getY2()-2;//(board.getArea().radius/2);
             
     Graphics::Bitmap area(bmp, x1, y1, x2 - x1, y2 - y1);

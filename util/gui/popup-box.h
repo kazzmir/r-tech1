@@ -47,6 +47,10 @@ class PopupBox : public Widget {
         virtual inline const Coordinate & getArea(){
             return this->board.location;
         }
+        //! Get current box transformations
+        virtual inline const Gui::Transformations & getTransforms(){
+	    return this->board.transforms;
+	}
     private:
 	
 	void doFade();
