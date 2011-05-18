@@ -50,6 +50,7 @@ Widget::Widget() : workArea(0)
 		
 Widget::Widget( const Widget & w ){
     this->location = w.location;
+    this->transforms = w.transforms;
     this->workArea = w.workArea;
 }
 
@@ -61,8 +62,9 @@ Widget::~Widget(){
 
 // copy
 Widget &Widget::operator=( const Widget &copy){
-    location = copy.location;
-    workArea = copy.workArea;
+    this->location = copy.location;
+    this->transforms = copy.transforms;
+    this->workArea = copy.workArea;
 
     return *this;
 }

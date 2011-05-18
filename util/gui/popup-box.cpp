@@ -36,6 +36,7 @@ void PopupBox::open(){
     // Set the fade stuff
     fadeState = FadeIn;
     board.location = location;
+    board.transforms = transforms;
     board.colors = colors;
     board.location.center(location);
     board.colors.borderAlpha = board.colors.bodyAlpha = 0;

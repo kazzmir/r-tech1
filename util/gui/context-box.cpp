@@ -175,6 +175,7 @@ void ContextBox::open(){
     fadeState = FadeIn;
     //board.position = position;
     board.location = location;
+    board.transforms = transforms;
     board.colors = colors;
     board.open();
     fadeAlpha = 0;
