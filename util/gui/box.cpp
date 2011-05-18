@@ -37,9 +37,9 @@ void Box::act(const Font & font){
 void Box::render(const Graphics::Bitmap & work){
     checkWorkArea();
     // Check if we are using a rounded box
-    if (location.getRadius() > 0){
-        roundRectFill(*workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
-        roundRect(*workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+    if (transforms.getRadius() > 0){
+        roundRectFill(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
+        roundRect(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
     } else {
         workArea->rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );

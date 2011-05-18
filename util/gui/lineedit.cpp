@@ -137,15 +137,15 @@ void LineEdit::render(const Graphics::Bitmap & work){
 
     checkWorkArea();
     // Check if we are using a rounded box
-    if (location.getRadius()>0) {
+    if (transforms.getRadius()>0) {
         Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
-        roundRectFill( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
+        roundRectFill( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->translucent().draw(location.getX(),location.getY(),work);
 
         workArea->fill(Graphics::makeColor(255,0,255));
 
         Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
-        roundRect( *workArea, (int)location.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
+        roundRect( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
         workArea->translucent().draw(location.getX(),location.getY(),work);
     } else {
         Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );

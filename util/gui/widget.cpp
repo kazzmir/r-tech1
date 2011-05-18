@@ -27,6 +27,22 @@ static inline int Max(int x, int y){ return (((x) > (y)) ? (x) : (y)); }
 //! mid (borrowed from allegro)
 static inline int Mid(int x,int y,int z){ return (Max((x), Min((y), (z)))); }
 
+Transformations::Transformations():
+radius(0){
+}
+
+Transformations::Transformations(const Transformations & transforms):
+radius(transforms.radius){
+}
+
+Transformations::~Transformations(){
+}
+
+Transformations & Transformations::operator=(const Transformations & transforms){
+    this->radius = transforms.radius;
+    return *this;
+}
+
 Widget::Widget() : workArea(0)
 {
 	// Nothing yet
@@ -83,9 +99,9 @@ void Widget::setCoordinates(const Token * token){
                 RelativePoint dimensions(x2,y2);
                 location = Coordinate(pos, dimensions);
             } else if (*coordToken == "radius"){
-                double radius;
+		double radius = 0;
                 coordToken->view() >> radius;
-                location.setRadius(radius);
+		transforms.setRadius(radius);
             } else if (*coordToken == "z"){
                 double z;
                 coordToken->view() >> z;

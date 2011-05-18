@@ -27,10 +27,33 @@ struct ColorInfo{
     int borderAlpha;
 };
 
+/*! Trasformations for widgets 
+ *  Eventually this could be expanded and used as something to perform changes on widgets but for now it remains to be just a place holder
+ *  ************************
+ *  radius - rounded corners
+ */
+class Transformations{
+public:
+    Transformations();
+    Transformations(const Transformations &);
+    virtual ~Transformations();
+    
+    Transformations & operator=(const Transformations &);
+    
+    virtual inline void setRadius(double radius){
+	this->radius = radius;
+    }
+    virtual inline double getRadius() const{
+	return this->radius;
+    }
+private:
+    double radius;
+};
+
 class Widget{
     public:
         Widget();
-        Widget( const Widget & w );
+        Widget( const Widget &);
         virtual ~Widget();
         
         // copy
@@ -44,6 +67,9 @@ class Widget{
         
         //! Colors
         ColorInfo colors;
+	
+	//! Transformations
+	Transformations transforms;
         
         // Logic
         virtual void act(const Font &)=0;

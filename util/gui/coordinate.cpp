@@ -273,29 +273,25 @@ double RelativePoint::getRelativeY() const{
 }
 
 Coordinate::Coordinate():
-z(0),
-radius(0){
+z(0){
 }
 
 Coordinate::Coordinate(AbsolutePoint & position, AbsolutePoint & position2):
 position(position),
 position2(position2),
-z(0),
-radius(0){
+z(0){
 }
 
 Coordinate::Coordinate(const RelativePoint & position, const RelativePoint & position2):
 position(position),
 position2(position2),
-z(0),
-radius(0){
+z(0){
 }
 
 Coordinate::Coordinate(const Coordinate & copy):
 position(copy.position),
 position2(copy.position2),
-z(copy.z),
-radius(copy.radius){
+z(copy.z){
 }
 
 Coordinate::~Coordinate(){
@@ -305,7 +301,6 @@ const Coordinate & Coordinate::operator=(const Coordinate & copy){
     this->position = copy.position;
     this->position2 = copy.position2;
     this->z = copy.z;
-    this->radius = copy.radius;
     
     return *this;
 }
