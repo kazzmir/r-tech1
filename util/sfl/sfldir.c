@@ -247,7 +247,9 @@ populate_entry (DIRST *dir)
         /* might be a broken symbolic link, in that case just read it. the
          * application will fail when it tries to read data from the file.
          */
+#if !defined(WII) && !defined(MINPSPW)
         rc = lstat(full_path, &stat_buf);
+#endif
     }
     mem_free (full_path);
     if (rc == -1)
