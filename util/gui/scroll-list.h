@@ -18,7 +18,7 @@ class ScrollItem{
 public:
     ScrollItem();
 
-    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font) const = 0;
+    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font, int distance) const = 0;
 
     /* size in pixels, used for justification */
     virtual int size(const Font & font) const = 0;

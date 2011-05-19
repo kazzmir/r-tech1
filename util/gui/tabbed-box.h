@@ -7,8 +7,8 @@
 #include "widget.h"
 #include "../file-system.h"
 #include "../pointer.h"
-
 #include "../gradient.h"
+#include "context-box.h"
 
 class Token;
 
@@ -20,9 +20,9 @@ class ContextItem;
 class Tab{
     public:
         Tab();
-        ~Tab();
+        virtual ~Tab();
         std::string name;
-        Gui::ContextBox * context;
+        Gui::ContextBox context;
         bool active;
 };
 
@@ -45,6 +45,7 @@ class TabbedBox : public Widget{
         
         //! Add tab
         virtual void addTab(const std::string &, const std::vector<Util::ReferenceCount<ContextItem> > & list);
+        virtual void addTab(Tab * tab);
         
         //! Up
         virtual void up(const Font &);

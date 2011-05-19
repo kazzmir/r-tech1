@@ -12,18 +12,21 @@
 #include "../file-system.h"
 
 namespace Gui{
-    
+
+class ContextBox;
 class ContextItem: public ScrollItem {
 public:
-    ContextItem();
+    ContextItem(const ContextBox & parent);
     virtual ~ContextItem();
     
     virtual const std::string getName() const = 0;
     virtual bool isAdjustable();
     virtual int getLeftColor();
     virtual int getRightColor();
-    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font) const;
+    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font, int distance) const;
     virtual int size(const Font & font) const;
+protected:
+    const ContextBox & parent;
 };
 
 class ContextBox : public Widget {
@@ -78,6 +81,10 @@ class ContextBox : public Widget {
         //!set fade alpha
         virtual inline void setFadeAlpha(int alpha){
             this->fadeAlpha = alpha;
+        }
+
+        virtual inline int getFadeAlpha() const {
+            return this->fadeAlpha;
         }
         
         //! use gradient?

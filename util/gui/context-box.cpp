@@ -22,7 +22,8 @@ using namespace std;
 
 namespace Gui{
 
-ContextItem::ContextItem(){
+ContextItem::ContextItem(const ContextBox & parent):
+parent(parent){
 }
 
 ContextItem::~ContextItem(){
@@ -38,8 +39,18 @@ int ContextItem::getRightColor(){
     return 0;
 }
 
-void ContextItem::draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font) const {
-    font.printf(x, y, color, where, getName(), 0);
+void ContextItem::draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font, int distance) const {
+    if (distance == 0){
+        Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
+        font.printf(x, y, color, where.translucent(), getName(), 0);
+    } else {
+        int alpha = parent.getFadeAlpha() - fabs(distance) * 35;
+        if (alpha < 0){
+            alpha = 0;
+        }
+        Graphics::Bitmap::transBlender(0, 0, 0, alpha);
+        font.printf(x, y, Graphics::makeColor(255, 255, 255), where.translucent(), getName(), 0);
+    }
 }
 
 int ContextItem::size(const Font & font) const {
@@ -194,14 +205,14 @@ void ContextBox::doFade(){
     switch ( fadeState ){
 	case FadeIn: {
 	    if (fadeAlpha < 255){
-		fadeAlpha += (fadeSpeed+2);
+            fadeAlpha += (fadeSpeed+2);
 	    }
 
 	    if (fadeAlpha >= 255){
-		fadeAlpha = 255;
-                if (board.isActive()){
-                    fadeState = Active;
-                }
+            fadeAlpha = 255;
+            if (board.isActive()){
+                fadeState = Active;
+            }
 	    }
 	    break;
 	}
