@@ -8,12 +8,14 @@
 namespace Gui{
 
 static const double FONT_SPACER = 1.3;
-static const int GradientMax = 50;
+// static const int GradientMax = 50;
 
 double SCROLL_STEP = 20;
 const double SCROLL_MOTION = 1.2;
+
 const int SCROLL_WAIT = 4;
 
+/*
 static int selectedGradientStart(){
     static int color = Graphics::makeColor(19, 167, 168);
     return color;
@@ -23,6 +25,7 @@ static int selectedGradientEnd(){
     static int color = Graphics::makeColor(27, 237, 239);
     return color;
 }
+*/
     
 ScrollItem::ScrollItem(){
 }
@@ -36,8 +39,8 @@ fontSpacingX(0),
 fontSpacingY(0),
 currentPosition(0),
 scrollWait(0),
-selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
-useGradient(false),
+// selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
+// useGradient(false),
 useHighlight(false),
 allowWrap(true),
 scroll(0){}
@@ -48,8 +51,8 @@ fontSpacingX(copy.fontSpacingX),
 fontSpacingY(copy.fontSpacingY),
 currentPosition(copy.currentPosition),
 scrollWait(copy.scrollWait),
-selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
-useGradient(copy.useGradient),
+// selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
+// useGradient(copy.useGradient),
 useHighlight(copy.useHighlight),
 allowWrap(true),
 scroll(0){}
@@ -102,8 +105,8 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
         if (current == selected){
             Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
             Graphics::TranslucentBitmap translucent(area);
-            const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
-            option->draw(x + startx, y, color, area, font, 0);
+            // const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
+            option->draw(x + startx, y, area, font, 0);
 #if 0
             if (option->isAdjustable()){
                 const int triangleSize = 14;
@@ -129,8 +132,8 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
             }
             Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
             */
-            const int color = Graphics::makeColor(255,255,255);
-            option->draw(x + startx, y, color, area, font, count);
+            // const int color = Graphics::makeColor(255,255,255);
+            option->draw(x + startx, y, area, font, count);
             // font.printf(x + startx, y, color, area.translucent(), option->getName(), 0);
         }
 

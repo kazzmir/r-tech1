@@ -16,8 +16,8 @@ public:
     void reset();
 
     /* get current color */
-    int current();
-    int current(int offset);
+    int current() const;
+    int current(int offset) const;
 
     virtual ~Gradient();
 

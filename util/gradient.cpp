@@ -29,11 +29,11 @@ void Gradient::reset(){
     index = 0;
 }
 
-int Gradient::current(){
+int Gradient::current() const {
     return colors[index];
 }
     
-int Gradient::current(int offset){
+int Gradient::current(int offset) const {
     return colors[(index + offset + size) % size];
 }
 
