@@ -44,7 +44,7 @@ void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font 
         Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
         font.printf(x, y, parent.getSelectedColor(), where.translucent(), getName(), 0);
     } else {
-        int alpha = parent.getFadeAlpha() - fabs(distance) * 35;
+        int alpha = parent.getFadeAlpha() - fabs((double) distance) * 35;
         if (alpha < 0){
             alpha = 0;
         }
