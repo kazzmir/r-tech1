@@ -103,7 +103,7 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
             Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
             Graphics::TranslucentBitmap translucent(area);
             const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
-            option->draw(x + startx, y, color, translucent, font);
+            option->draw(x + startx, y, color, area, font, 0);
 #if 0
             if (option->isAdjustable()){
                 const int triangleSize = 14;
@@ -119,15 +119,18 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 #endif
         } else {
             /* draw some other item, and fade it */
-            int count = (int) fabs((double) current - (double) selected);
+            int count = current - selected;
+            // int count = (int) fabs((double) current - (double) selected);
             /* TODO: maybe scale by the number of total items instead of using 35 */
+            /*
             int textAlpha = fadeAlpha - (count * 35);
             if (textAlpha < 0){
                 textAlpha = 0;
             }
             Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
+            */
             const int color = Graphics::makeColor(255,255,255);
-            option->draw(x + startx, y, color, area.translucent(), font);
+            option->draw(x + startx, y, color, area, font, count);
             // font.printf(x + startx, y, color, area.translucent(), option->getName(), 0);
         }
 

@@ -38,14 +38,14 @@ static void roundTab( const Bitmap & work, int radius, int x1, int y1, int x2, i
 #endif
 
 Tab::Tab():
-context(new ContextBox()),
+// context(new ContextBox()),
 active(false){
     // Set alpha to 0 as we are not interested in the box
-    context->setRenderOnlyText(true);
+    context.setRenderOnlyText(true);
 }
 
 Tab::~Tab(){
-    delete context;
+    // delete context;
 }
 
 TabbedBox::TabbedBox():
@@ -74,7 +74,7 @@ TabbedBox::~TabbedBox(){
     }
     
     if (activeTabFontColor){
-	delete activeTabFontColor;
+        delete activeTabFontColor;
     }
 }
 
@@ -88,21 +88,21 @@ TabbedBox &TabbedBox::operator=( const TabbedBox &copy){
 // Logic
 void TabbedBox::act(const Font & font){
     if (!tabs.empty()){
-	// const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
-	//tabWidthMax = location.getWidth()/tabs.size();
-	const int width = font.textLength(tabs[current]->name.c_str()) + 5;
-	tabWidthMax = (location.getWidth() - width) / (tabs.size() - 1);
+        // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
+        //tabWidthMax = location.getWidth()/tabs.size();
+        const int width = font.textLength(tabs[current]->name.c_str()) + 5;
+        tabWidthMax = (location.getWidth() - width) / (tabs.size() - 1);
     } else {
-	return;
+        return;
     }
     if (!tabs[current]->active){
-	tabs[current]->active = true;
+        tabs[current]->active = true;
     }
-    tabs[current]->context->act(font);
+    tabs[current]->context.act(font);
     if (inTab){
-	if (activeTabFontColor){
-	    activeTabFontColor->update();
-	}
+        if (activeTabFontColor){
+            activeTabFontColor->update();
+        }
     }
 }
         
@@ -122,12 +122,12 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
     } else {
         area.translucent().rectangleFill(0, tabHeight+1, location.getWidth()-1, location.getHeight()-1, colors.body );
         //area.translucent().rectangle(0, tabHeight, location.getWidth()-1, location.getHeight()-1, colors.border );
-	area.translucent().vLine(tabHeight,0,location.getHeight()-1,colors.border);
-	area.translucent().hLine(0,location.getHeight()-1,location.getWidth()-1,colors.border);
-	area.translucent().vLine(tabHeight,location.getWidth()-1,location.getHeight()-1,colors.border);
+        area.translucent().vLine(tabHeight,0,location.getHeight()-1,colors.border);
+        area.translucent().hLine(0,location.getHeight()-1,location.getWidth()-1,colors.border);
+        area.translucent().vLine(tabHeight,location.getWidth()-1,location.getHeight()-1,colors.border);
     }
     
-    tabs[current]->context->render(area, font);
+    tabs[current]->context.render(area, font);
     
     renderTabs(area, font);
     
@@ -140,24 +140,35 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
 // Add tab
 void TabbedBox::addTab(const std::string & name, const std::vector<Util::ReferenceCount<ContextItem> > & list){
     for (std::vector<Tab *>::iterator i = tabs.begin(); i != tabs.end(); ++i){
-	Tab * tab = *i;
-	if (tab->name == name){
-	    return;
-	}
+        Tab * tab = *i;
+        if (tab->name == name){
+            return;
+        }
     }
     Tab * tab = new Tab();
     tab->name = name;
-    tab->context->setList(list);
+    tab->context.setList(list);
     // tab->context->setFont(font, fontWidth, fontHeight);
+    addTab(tab);
+    /*
     const int modifier = fontHeight * .35;
-    tab->context->location.setPosition(Gui::AbsolutePoint(0, fontHeight + modifier));
-    tab->context->location.setPosition2(Gui::AbsolutePoint(location.getWidth(), location.getHeight()- modifier));
-    tab->context->open();
+    tab->context.location.setPosition(Gui::AbsolutePoint(0, fontHeight + modifier));
+    tab->context.location.setPosition2(Gui::AbsolutePoint(location.getWidth(), location.getHeight()- modifier));
+    tab->context.open();
+    tabs.push_back(tab);
+    */
+}
+
+void TabbedBox::addTab(Tab * tab){
+    const int modifier = fontHeight * .35;
+    tab->context.location.setPosition(Gui::AbsolutePoint(0, fontHeight + modifier));
+    tab->context.location.setPosition2(Gui::AbsolutePoint(location.getWidth(), location.getHeight()- modifier));
+    tab->context.open();
     tabs.push_back(tab);
 }
 
 void TabbedBox::moveTab(int direction){
-    tabs[current]->context->close();
+    tabs[current]->context.close();
     tabs[current]->active = false;
     current = (unsigned int) ((int)current + direction + (int) tabs.size()) % tabs.size();
     /*
@@ -167,7 +178,7 @@ void TabbedBox::moveTab(int direction){
         current--;
     }
     */
-    tabs[current]->context->open();
+    tabs[current]->context.open();
     tabs[current]->active = true;
 }
 
@@ -178,7 +189,7 @@ void TabbedBox::up(const Font & font){
     if (!inTab){
         moveTab(-1);
     } else {
-        tabs[current]->context->previous(font);
+        tabs[current]->context.previous(font);
     }
 }
 
@@ -189,7 +200,7 @@ void TabbedBox::down(const Font & font){
     if (!inTab){
         moveTab(1);
     } else {
-        tabs[current]->context->next(font);
+        tabs[current]->context.next(font);
     }
 }
 
@@ -200,7 +211,7 @@ void TabbedBox::left(const Font & font){
     if (!inTab){
         moveTab(-1);
     } else {
-        tabs[current]->context->adjustLeft();
+        tabs[current]->context.adjustLeft();
     }
 }
 
@@ -211,7 +222,7 @@ void TabbedBox::right(const Font & font){
     if (!inTab){
         moveTab(1);
     } else {
-        tabs[current]->context->adjustRight();
+        tabs[current]->context.adjustRight();
     }
 }
 
@@ -223,13 +234,13 @@ unsigned int TabbedBox::getCurrentIndex() const {
     if (tabs.size() == 0){
         return 0;
     }
-    return this->tabs[current]->context->getCurrentIndex();
+    return this->tabs[current]->context.getCurrentIndex();
 }
 
 void TabbedBox::setTabFontColor(int color){
     tabFontColor = color;
     if (activeTabFontColor){
-	delete activeTabFontColor;
+        delete activeTabFontColor;
     }
     activeTabFontColor = new Effects::Gradient(50, tabFontColor, currentTabFontColor);
 }
@@ -237,7 +248,7 @@ void TabbedBox::setTabFontColor(int color){
 void TabbedBox::setSelectedTabFontColor(int color){
     currentTabFontColor = color;
     if (activeTabFontColor){
-	delete activeTabFontColor;
+        delete activeTabFontColor;
     }
     activeTabFontColor = new Effects::Gradient(50, tabFontColor, currentTabFontColor);
 }
@@ -261,7 +272,7 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
 	    }
 	}
 	
-	if (tab->context->transforms.getRadius() > 0){
+	if (tab->context.transforms.getRadius() > 0){
         } else {
             if (tab->active){
 		if (!inTab){
