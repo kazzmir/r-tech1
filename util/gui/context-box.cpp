@@ -39,10 +39,10 @@ int ContextItem::getRightColor(){
     return 0;
 }
 
-void ContextItem::draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font, int distance) const {
+void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const {
     if (distance == 0){
         Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
-        font.printf(x, y, color, where.translucent(), getName(), 0);
+        font.printf(x, y, parent.getSelectedColor(), where.translucent(), getName(), 0);
     } else {
         int alpha = parent.getFadeAlpha() - fabs(distance) * 35;
         if (alpha < 0){
@@ -173,6 +173,10 @@ bool ContextBox::previous(const Font & font){
     }
     */
     return true;
+}
+        
+int ContextBox::getSelectedColor() const {
+    return useGradient ? selectedGradient.current() : selectedGradientStart();
 }
 
 void ContextBox::adjustLeft(){

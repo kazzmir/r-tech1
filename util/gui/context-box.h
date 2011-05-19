@@ -23,7 +23,7 @@ public:
     virtual bool isAdjustable();
     virtual int getLeftColor();
     virtual int getRightColor();
-    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font, int distance) const;
+    virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const;
     virtual int size(const Font & font) const;
 protected:
     const ContextBox & parent;
@@ -57,8 +57,11 @@ class ContextBox : public Widget {
 	virtual void close();
         //! Set context list
         virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
-        //! Set current font
+        
+        virtual int getSelectedColor() const;
+
         /*
+        //! Set current font
 	virtual inline void setFont(const Filesystem::RelativePath & font, int width, int height){
 	    this->font = font;
 	    this->fontWidth = width;

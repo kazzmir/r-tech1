@@ -6,7 +6,6 @@
 
 #include "coordinate.h"
 
-#include "../gradient.h"
 #include "../pointer.h"
 
 class Font;
@@ -18,7 +17,10 @@ class ScrollItem{
 public:
     ScrollItem();
 
-    virtual void draw(int x, int y, int color, const Graphics::Bitmap & where, const Font & font, int distance) const = 0;
+    /* distance is how far from the selected item we are. 0 means we are the selected item.
+     * distance can be positive or negative.
+     */
+    virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const = 0;
 
     /* size in pixels, used for justification */
     virtual int size(const Font & font) const = 0;
@@ -82,6 +84,7 @@ public:
         return this->currentIndex;
     }
 
+    /*
     //! Set gradient
     virtual inline void setGradient(bool use){
 	this->useGradient = use;
@@ -91,6 +94,7 @@ public:
     virtual inline bool gradientActive() const {
 	return this->useGradient;
     }
+    */
     
     //! Set highlight
     virtual inline void setHighlight(bool use){
@@ -135,10 +139,10 @@ private:
     int scrollWait;
 
     //! Gradient for selected cursor
-    Effects::Gradient selectedGradient;
+    // Effects::Gradient selectedGradient;
 
     //! Use gradient
-    bool useGradient;
+    // bool useGradient;
 
     //! Use highlight
     bool useHighlight;
