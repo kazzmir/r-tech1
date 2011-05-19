@@ -10,8 +10,8 @@ namespace Gui{
 static const double FONT_SPACER = 1.3;
 // static const int GradientMax = 50;
 
+const double EPSILON = 0.001;
 double SCROLL_STEP = 20;
-const double SCROLL_MOTION = 1.2;
 
 const int SCROLL_WAIT = 4;
 
@@ -39,6 +39,7 @@ fontSpacingX(0),
 fontSpacingY(0),
 currentPosition(0),
 scrollWait(0),
+scrollMotion(1.2),
 // selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 // useGradient(false),
 useHighlight(false),
@@ -65,12 +66,12 @@ ScrollList & ScrollList::operator=(const ScrollList & copy){
 
 void ScrollList::act(){
     if (scrollWait == 0){
-        if (scroll > SCROLL_MOTION){
+        if (scroll > EPSILON){
             // scroll -= SCROLL_MOTION;
-            scroll /= SCROLL_MOTION;
-        } else if (scroll < -SCROLL_MOTION){
+            scroll /= scrollMotion;
+        } else if (scroll < -EPSILON){
             // scroll += SCROLL_MOTION;
-            scroll /= SCROLL_MOTION;
+            scroll /= scrollMotion;
         } else {
             scroll = 0;
             currentPosition = currentIndex;

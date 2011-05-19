@@ -56,18 +56,18 @@ public:
     
     //! Set font spacing
     inline virtual void setFontSpacing(int x, int y){
-	this->fontSpacingX = x;
-	this->fontSpacingY = y;
+        this->fontSpacingX = x;
+        this->fontSpacingY = y;
     }
     
     //! Set font spacing X
     inline virtual void setFontSpacingX(int x){
-	this->fontSpacingX = x;
+        this->fontSpacingX = x;
     }
     
     //! Set font spacing X
     inline virtual void setFontSpacingY(int y){
-	this->fontSpacingY = y;
+        this->fontSpacingY = y;
     }
 
     //! Next
@@ -95,25 +95,35 @@ public:
 	return this->useGradient;
     }
     */
+    virtual inline double getScrollMotion() const {
+        return scrollMotion;
+    }
+
+    virtual inline void setScrollMotion(double what){
+        if (what < 1.01){
+            what = 1.01;
+        }
+        scrollMotion = what;
+    }
     
     //! Set highlight
     virtual inline void setHighlight(bool use){
-	this->useHighlight = use;
+        this->useHighlight = use;
     }
     
     //! Get highlight
     virtual inline bool highlightActive() const {
-	return this->useHighlight;
+        return this->useHighlight;
     }
     
     //! Set wrap
     virtual inline void setWrap(bool wrap){
-	this->allowWrap = wrap;
+        this->allowWrap = wrap;
     }
     
     //! Get wrap
     virtual inline bool getWrap() const {
-	return this->allowWrap;
+        return this->allowWrap;
     }
     
 private:
@@ -137,6 +147,9 @@ private:
 
     //! Scroll wait
     int scrollWait;
+
+    /* speed at which the menu scrolls */
+    double scrollMotion;
 
     //! Gradient for selected cursor
     // Effects::Gradient selectedGradient;
