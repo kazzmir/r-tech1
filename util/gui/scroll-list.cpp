@@ -42,7 +42,8 @@ scrollMotion(1.2),
 // useGradient(false),
 useHighlight(false),
 allowWrap(true),
-scroll(0){}
+scroll(0),
+justification(CenterJustify){}
 
 ScrollList::ScrollList(const ScrollList & copy):
 currentIndex(copy.currentIndex),
@@ -87,8 +88,17 @@ void ScrollList::act(){
     */
 }
 
+int ScrollList::justify(int left, int right, int size) const {
+    switch (justification){
+        case LeftJustify: return left;
+        case RightJustify: return right - size;
+        case CenterJustify: return (left + right) / 2 - size / 2;
+    }
+    return 0;
+}
+
 /* this is the smooth scroll stuff from context-box */
-void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction){
+void ScrollList::doDraw(int x, int y, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction) const {
     while (y < max_y && y > min_y){
         /* circuluar */
         int pick = current;
@@ -99,7 +109,7 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 
         Util::ReferenceCount<ScrollItem> option = text[pick];
         /* center justification */
-        const int startx = middle_x - option->size(font) / 2;
+        const int startx = justify(1, area.getWidth() - 1, option->size(font));
 
         /* the selected option will have a distance of 0 */
         int distance = current - selected;
@@ -114,7 +124,7 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
     }
 }
 
-void ScrollList::render(const Graphics::Bitmap & where, const Font & font){
+void ScrollList::render(const Graphics::Bitmap & where, const Font & font) const {
     /* middle of the bitmap offset by the scroll amount. */
     int y = where.getHeight() / 2 + scroll * font.getHeight() / 2 - font.getHeight() / 2;
 
@@ -123,10 +133,10 @@ void ScrollList::render(const Graphics::Bitmap & where, const Font & font){
     int max_y = where.getHeight();
 
     /* draw down starting from the current selection */
-    doDraw(0, y, where.getWidth() / 2, min_y, max_y, font, currentIndex, currentIndex, where, 1);
+    doDraw(0, y, min_y, max_y, font, currentIndex, currentIndex, where, 1);
 
     /* then draw up, skipping the current selection */
-    doDraw(0, y - font.getHeight() / FONT_SPACER, where.getWidth() / 2, min_y, max_y, font, currentIndex - 1, currentIndex, where, -1);
+    doDraw(0, y - font.getHeight() / FONT_SPACER, min_y, max_y, font, currentIndex - 1, currentIndex, where, -1);
 }
 
 void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> & text){
@@ -142,8 +152,8 @@ void ScrollList::setPosition(const Gui::Coordinate & location){
 }
 
 bool ScrollList::next(){
+    /* FIXME: probably if the current index goes past the boundary we shouldn't scroll */
     currentIndex++;
-    // scroll = SCROLL_STEP;
     scroll = 1;
     if (scrollWait == 0){
         scrollWait = SCROLL_WAIT;
@@ -161,7 +171,6 @@ bool ScrollList::next(){
 }
 
 bool ScrollList::previous(){
-    // scroll = -SCROLL_STEP;
     scroll = -1;
     if (scrollWait == 0){
         scrollWait = SCROLL_WAIT;
