@@ -90,6 +90,7 @@ void ScrollList::act(){
 /* this is the smooth scroll stuff from context-box */
 void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction){
     while (y < max_y && y > min_y){
+        /* circuluar */
         int pick = current;
         while (pick < 0){
             pick += text.size();
@@ -97,16 +98,12 @@ void ScrollList::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
         pick = pick % text.size();
 
         Util::ReferenceCount<ScrollItem> option = text[pick];
+        /* center justification */
         const int startx = middle_x - option->size(font) / 2;
 
-        /* draw current selection, make it glow */
-        if (current == selected){
-            option->draw(x + startx, y, area, font, 0);
-        } else {
-            /* draw some other item, and fade it */
-            int count = current - selected;
-            option->draw(x + startx, y, area, font, count);
-        }
+        /* the selected option will have a distance of 0 */
+        int distance = current - selected;
+        option->draw(x + startx, y, area, font, distance);
 
         if (text.size() == 1){
             return;
@@ -123,7 +120,7 @@ void ScrollList::render(const Graphics::Bitmap & where, const Font & font){
 
     /* allow options to be drawn a little off the bitmap */
     int min_y = 0 - font.getHeight() / FONT_SPACER;
-    int max_y = where.getHeight() + font.getHeight() / FONT_SPACER;
+    int max_y = where.getHeight();
 
     /* draw down starting from the current selection */
     doDraw(0, y, where.getWidth() / 2, min_y, max_y, font, currentIndex, currentIndex, where, 1);
