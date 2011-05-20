@@ -36,6 +36,12 @@ public:
 
     virtual ~ScrollList();
 
+    enum Justify{
+        LeftJustify,
+        RightJustify,
+        CenterJustify
+    };
+
     //! copy
     ScrollList & operator=(const ScrollList &);
 
@@ -43,7 +49,7 @@ public:
     virtual void act();
 
     //! Render
-    virtual void render(const Graphics::Bitmap &, const Font & font);
+    virtual void render(const Graphics::Bitmap &, const Font & font) const;
 
     //! Add item
     virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
@@ -125,10 +131,16 @@ public:
     virtual inline bool getWrap() const {
         return this->allowWrap;
     }
+
+    virtual inline void setJustification(Justify what){
+        this->justification = what;
+    }
     
 private:
+    int justify(int left, int right, int size) const;
+
     /* smooth drawing */
-    void doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction);
+    void doDraw(int x, int y, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction) const;
 
     //! Text
     std::vector<Util::ReferenceCount<ScrollItem> > text;
@@ -165,6 +177,8 @@ private:
 
     /* how much to scroll by */
     double scroll;
+
+    Justify justification;
 };
 
 }
