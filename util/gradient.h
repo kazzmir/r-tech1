@@ -6,6 +6,7 @@ namespace Effects{
 class Gradient{
 public:
     Gradient(int size, int startColor, int endColor);
+    Gradient(const Gradient & copy);
 
     /* move to next color. update is an alias for `forward' */
     void update();

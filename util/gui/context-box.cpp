@@ -22,6 +22,11 @@ using namespace std;
 
 namespace Gui{
 
+Effects::Gradient standardGradient(){
+    Effects::Gradient standard(GradientMax, selectedGradientStart(), selectedGradientEnd());
+    return standard;
+}
+
 ContextItem::ContextItem(const ContextBox & parent):
 parent(parent){
 }
@@ -68,13 +73,13 @@ fadeAlpha(0),
 cursorCenter(0),
 cursorLocation(0),
 scrollWait(4),
-selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
+selectedGradient(standardGradient()),
 useGradient(true),
 renderOnlyText(false){
 }
 ContextBox::ContextBox( const ContextBox & copy ):
 fadeState(NotActive),
-selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
+selectedGradient(standardGradient()),
 renderOnlyText(false){
     this->list = copy.list;
     // this->context = copy.context;

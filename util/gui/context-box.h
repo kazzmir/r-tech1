@@ -13,6 +13,8 @@
 
 namespace Gui{
 
+Effects::Gradient standardGradient();
+
 class ContextBox;
 class ContextItem: public ScrollItem {
 public:
