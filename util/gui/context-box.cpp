@@ -329,6 +329,10 @@ void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > &
         this->list.addItem(item.convert<ScrollItem>());
     }
 }
+        
+void ContextBox::addItem(const Util::ReferenceCount<ContextItem> & item){
+    this->list.addItem(item.convert<ScrollItem>());
+}
 
 void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
     /*

@@ -18,12 +18,15 @@ class ContextBox;
 class ContextItem;
 
 class Tab{
-    public:
-        Tab();
-        virtual ~Tab();
-        std::string name;
-        Gui::ContextBox context;
-        bool active;
+public:
+    Tab();
+    virtual ~Tab();
+
+    void addOption(const Util::ReferenceCount<ContextItem> & item);
+
+    std::string name;
+    Gui::ContextBox context;
+    bool active;
 };
 
 class TabbedBox : public Widget{

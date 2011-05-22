@@ -59,6 +59,7 @@ class ContextBox : public Widget {
 	virtual void close();
         //! Set context list
         virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
+        virtual void addItem(const Util::ReferenceCount<ContextItem> & item);
         
         virtual int getSelectedColor() const;
 
