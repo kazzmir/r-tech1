@@ -111,6 +111,14 @@ public:
         }
         scrollMotion = what;
     }
+
+    virtual inline void setScrollWaitTime(int what){
+        scrollWaitTime = what;
+    }
+
+    virtual inline int getScrollWaitTime() const {
+        return scrollWaitTime;
+    }
     
     //! Set highlight
     virtual inline void setHighlight(bool use){
@@ -159,6 +167,7 @@ private:
 
     //! Scroll wait
     int scrollWait;
+    int scrollWaitTime;
 
     /* speed at which the menu scrolls */
     double scrollMotion;

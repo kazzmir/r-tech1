@@ -12,6 +12,16 @@ index(0){
     Util::blend_palette(colors, size / 2, startColor, endColor);
     Util::blend_palette(colors + size / 2, size / 2, endColor, startColor);
 }
+    
+Gradient::Gradient(const Gradient & copy):
+colors(NULL),
+size(copy.size),
+index(copy.index){
+    colors = new int[size];
+    for (int i = 0; i < size; i++){
+        colors[i] = copy.colors[i];
+    }
+}
 
 void Gradient::forward(){
     index = (index + 1) % size;

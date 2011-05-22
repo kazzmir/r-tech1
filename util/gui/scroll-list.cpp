@@ -11,7 +11,6 @@ static const double FONT_SPACER = 1.3;
 // static const int GradientMax = 50;
 
 const double EPSILON = 0.01;
-const int SCROLL_WAIT = 4;
 
 /*
 static int selectedGradientStart(){
@@ -37,6 +36,7 @@ fontSpacingX(0),
 fontSpacingY(0),
 currentPosition(0),
 scrollWait(0),
+scrollWaitTime(4),
 scrollMotion(1.2),
 // selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 // useGradient(false),
@@ -156,7 +156,7 @@ bool ScrollList::next(){
     currentIndex++;
     scroll = 1;
     if (scrollWait == 0){
-        scrollWait = SCROLL_WAIT;
+        scrollWait = scrollWaitTime;
     }
     if (currentIndex >= text.size()){
         if (allowWrap){
@@ -173,7 +173,7 @@ bool ScrollList::next(){
 bool ScrollList::previous(){
     scroll = -1;
     if (scrollWait == 0){
-        scrollWait = SCROLL_WAIT;
+        scrollWait = scrollWaitTime;
     }
     if (currentIndex > 0){
         currentIndex--;
