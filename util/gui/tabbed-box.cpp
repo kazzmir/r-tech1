@@ -47,6 +47,10 @@ active(false){
 Tab::~Tab(){
     // delete context;
 }
+    
+void Tab::addOption(const Util::ReferenceCount<ContextItem> & item){
+    context.addItem(item);
+}
 
 TabbedBox::TabbedBox():
 current(0),

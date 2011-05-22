@@ -99,6 +99,11 @@ int ScrollList::justify(int left, int right, int size) const {
 
 /* this is the smooth scroll stuff from context-box */
 void ScrollList::doDraw(int x, int y, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction) const {
+    /* sanity check */
+    if (text.size() == 0){
+        return;
+    }
+
     while (y < max_y && y > min_y){
         /* circuluar */
         int pick = current;

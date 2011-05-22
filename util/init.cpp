@@ -441,7 +441,7 @@ bool Global::initNoGraphics(){
     /* <WinterMute> fatInitDefault will set working dir to argv[0] passed by launcher,
      * or root of first device mounted
      */
-    out << "Fat init " << (fatInitDefault() != 0 ? "Ok" : "Failed") << endl;
+    out << "Fat init " << (fatInitDefault() == true ? "Ok" : "Failed") << endl;
 #endif
     /*
     char buffer[512];
