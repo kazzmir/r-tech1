@@ -1792,4 +1792,8 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
     }
 }
 
+Bitmap getScreenBuffer(){
+    return Bitmap(Screen->getWidth(), Screen->getHeight());
+}
+
 }

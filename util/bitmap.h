@@ -389,6 +389,11 @@ protected:
 
 };
 
+/* creates a bitmap that can be used as a buffer for the screen.
+ * on opengl/allegro5 systems this will return the current backbuffer
+ */
+Bitmap getScreenBuffer();
+
 }
 
 #endif
