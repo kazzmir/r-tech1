@@ -317,7 +317,7 @@ void Bitmap::putPixelNormal(int x, int y, int col) const {
 void Bitmap::fill(int color) const {
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
-    // al_set_target_bitmap(getData().getBitmap());
+    al_set_target_bitmap(getData().getBitmap());
     al_clear_to_color(al_map_rgb(red, green, blue));
 }
 
@@ -362,7 +362,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
     // double start = al_get_time();
-    // al_set_target_bitmap(where.getData().getBitmap());
+    al_set_target_bitmap(where.getData().getBitmap());
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     /*
     if (&where != Screen){
@@ -433,7 +433,7 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    // al_set_target_bitmap(where.getData().getBitmap());
+    al_set_target_bitmap(where.getData().getBitmap());
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
@@ -516,7 +516,7 @@ void Bitmap::readLine( std::vector< int > & line, int y ){
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
     /* FIXME */
-    // al_set_target_bitmap(where.getData().getBitmap());
+    al_set_target_bitmap(where.getData().getBitmap());
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
@@ -672,6 +672,10 @@ void Bitmap::shutdown(){
     delete Buffer;
     Buffer = NULL;
     */
+}
+
+Bitmap getScreenBuffer(){
+    return *Screen;
 }
 
 }

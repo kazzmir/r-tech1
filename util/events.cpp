@@ -9,6 +9,7 @@
 #include "funcs.h"
 #include "thread.h"
 #include "init.h"
+#include "parameter.h"
 #include "input/keyboard.h"
 #include "input/joystick.h"
 #include "input/input-manager.h"
@@ -246,6 +247,8 @@ Draw::~Draw(){
 void standardLoop(Logic & logic, Draw & draw){
     Global::speed_counter4 = 0;
     double runCounter = 0;
+    Graphics::Bitmap screen(Graphics::getScreenBuffer());
+    Parameter<Graphics::Bitmap*> use(&screen);
     try{
         while (!logic.done()){
             if (Global::speed_counter4 > 0){

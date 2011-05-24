@@ -46,10 +46,8 @@ void Box::render(const Graphics::Bitmap & work){
         workArea->rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
     }
-    Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
-    // workArea->drawingMode( Bitmap::MODE_TRANS );
+    Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
     workArea->translucent().draw(location.getX(), location.getY(), work);
-    // work.drawingMode( Bitmap::MODE_SOLID );
 }
 
 void Box::messageDialog(int centerWidth, int centerHeight, const std::string & message, int radius){

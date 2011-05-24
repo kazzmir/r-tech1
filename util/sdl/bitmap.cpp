@@ -1859,4 +1859,8 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
     }
 }
 
+Bitmap getScreenBuffer(){
+    return Bitmap(Screen->getWidth(), Screen->getHeight());
+}
+
 }

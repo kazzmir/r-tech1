@@ -251,7 +251,7 @@ void Widget::checkWorkArea(){
     }
     */
 
-    if ( ! workArea ){
+    if (! workArea){
         workArea = new Graphics::Bitmap(location.getWidth(), location.getHeight());
     } else if (location.getWidth() < workArea->getWidth() || location.getHeight() < workArea->getHeight()){
         delete workArea;

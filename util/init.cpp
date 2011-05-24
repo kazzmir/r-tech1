@@ -241,7 +241,7 @@ static void initSystem(ostream & out){
     int revision = (version >> 8) & 255;
     int release = version & 255;
     out << "Allegro5 version " << major << "." << minor << "." << revision << "." << release << endl;
-    al_init_image_addon();
+    out << "Allegro5 image addon " << al_init_image_addon() << endl;
     al_install_keyboard();
     al_set_app_name("Paintown");
 
