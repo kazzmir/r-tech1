@@ -52,12 +52,21 @@ namespace Thread{
     public:
         LockObject();
 
-        void acquire();
-        void release();
+        void acquire() const;
+        void release() const;
 
         virtual ~LockObject();
 
         Lock lock;
+    };
+
+    /* acquires/releases the lock in RAII fashion */
+    class ScopedLock{
+    public:
+        ScopedLock(const LockObject & lock);
+        ~ScopedLock();
+    private:
+        const LockObject & lock;
     };
 }
 

@@ -1014,6 +1014,10 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 
+    if (destWidth == 0 || destHeight == 0){
+        return;
+    }
+
     Bitmap subSource(*this, sourceX, sourceY, sourceWidth, sourceHeight);
     Bitmap subDestination(where, destX, destY, destWidth, destHeight);
 
