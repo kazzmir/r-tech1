@@ -36,6 +36,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include "file-system.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include "thread.h"
 	
 #define GLYPH_PI	3.14159265358979323846
 #define GLYPH_SQRT2	1.41421356237309504880
@@ -167,6 +168,8 @@ namespace ftalleg {
 			//! Current character
 			character *currentChar;
                         */
+
+                        Util::Thread::LockObject lock;
 			
 			//! Lookup Table by size
 			std::map<int, std::map<signed long, character*> >fontTable;

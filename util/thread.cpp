@@ -8,16 +8,26 @@ LockObject::LockObject(){
     initializeLock(&lock);
 }
 
-void LockObject::acquire(){
-    acquireLock(&lock);
+void LockObject::acquire() const {
+    /* quick hack to get around annoying constness */
+    acquireLock((Lock*) &lock);
 }
 
-void LockObject::release(){
-    releaseLock(&lock);
+void LockObject::release() const {
+    releaseLock((Lock*) &lock);
 }
 
 LockObject::~LockObject(){
     destroyLock(&lock);
+}
+
+ScopedLock::ScopedLock(const LockObject & lock):
+lock(lock){
+    lock.acquire();
+}
+
+ScopedLock::~ScopedLock(){
+    lock.release();
 }
     
 bool isUninitialized(Id thread){

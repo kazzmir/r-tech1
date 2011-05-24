@@ -87,7 +87,7 @@ namespace ftalleg{
         }
 
 	fontSize::fontSize() {
-		width = height = italics = angle = 0;
+            width = height = italics = angle = 0;
 	}
 
 	fontSize::~fontSize() {
@@ -409,6 +409,7 @@ namespace ftalleg{
 
 	//! Get text length
         int freetype::getLength(const std::string & text) {
+            Util::Thread::ScopedLock locked(lock);
             int length=0;
             std::map<int, std::map<signed long, character*> >::iterator ft;
             ft = fontTable.find(size.createKey());
@@ -494,6 +495,7 @@ namespace ftalleg{
         }
 			
         int freetype::calculateMaximumHeight(){
+            Util::Thread::ScopedLock locked(lock);
             /* uhh, comment out the printf's ?? */
             std::map<int, std::map<signed long, character*> >::iterator ft;
             ft = fontTable.find(size.createKey());
@@ -515,24 +517,24 @@ namespace ftalleg{
             return top;
         }
 
-
-	int freetype::height( long code ) const {
-		std::map<int, std::map<signed long, character*> >::const_iterator ft;
-		ft = fontTable.find( size.createKey() );
-		if ( ft != fontTable.end() ){
-			std::map<signed long, character*>::const_iterator p;
-			p = (ft->second).find( code );
-			if ( p != (ft->second).end() ){
-				const character * temp = p->second;
-				// printf( "%c top = %d rows = %d\n", (char) code, temp.top, temp.rows );
-				return temp->top + temp->rows;
-			}
-                } else {
-                    throw Exception("Internal inconsistency");
+        int freetype::height(long code) const {
+            Util::Thread::ScopedLock locked(lock);
+            std::map<int, std::map<signed long, character*> >::const_iterator ft;
+            ft = fontTable.find(size.createKey());
+            if (ft != fontTable.end()){
+                std::map<signed long, character*>::const_iterator p;
+                p = (ft->second).find( code );
+                if ( p != (ft->second).end() ){
+                    const character * temp = p->second;
+                    // printf( "%c top = %d rows = %d\n", (char) code, temp.top, temp.rows );
+                    return temp->top + temp->rows;
                 }
+            } else {
+                throw Exception("Internal inconsistency");
+            }
 
-                return 0;
-	}
+            return 0;
+        }
 
 	int freetype::calculateHeight( const std::string & str ) const {
 		int max = 0;
@@ -549,18 +551,20 @@ namespace ftalleg{
 
 	//! Set size
 	void freetype::setSize( unsigned int w, unsigned int h){
-		if ( w != size.width || h != size.height ){
-			if (internalFix)return;
-			if (w<=0 || h<=0)return;
-			size.width = w;
-			size.height = h;
-			createIndex();
-			// maximumHeight = calculateMaximumHeight();
-		}
+            Util::Thread::ScopedLock locked(lock);
+            if ( w != size.width || h != size.height ){
+                if (internalFix)return;
+                if (w<=0 || h<=0)return;
+                size.width = w;
+                size.height = h;
+                createIndex();
+                // maximumHeight = calculateMaximumHeight();
+            }
 	}
 
 	//! Set italics
 	void freetype::setItalics(int i){
+            Util::Thread::ScopedLock locked(lock);
 		if(internalFix)return;
 		if(i<-45)i=(-45);
 		else if(i>45)i=45;
@@ -581,7 +585,7 @@ namespace ftalleg{
 	//! Get Height
 	int freetype::getHeight( const std::string & str ) const {
             // return size.height;
-            return calculateHeight( str );
+            return calculateHeight(str);
         }
 
 	//! Get Italics
