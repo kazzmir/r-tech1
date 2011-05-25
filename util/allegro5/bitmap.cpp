@@ -320,7 +320,7 @@ int Bitmap::getHeight() const {
 }
 
 void initializeExtraStuff(){
-    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
+    // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
 }
 
 int setGraphicsMode(int mode, int width, int height){

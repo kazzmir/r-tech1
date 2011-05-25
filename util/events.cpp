@@ -244,11 +244,9 @@ Logic::~Logic(){
 Draw::~Draw(){
 }
 
-void standardLoop(Logic & logic, Draw & draw){
+static void doStandardLoop(Logic & logic, Draw & draw){
     Global::speed_counter4 = 0;
     double runCounter = 0;
-    Graphics::Bitmap screen(Graphics::getScreenBuffer());
-    Parameter<Graphics::Bitmap*> use(&screen);
     try{
         while (!logic.done()){
             if (Global::speed_counter4 > 0){
@@ -281,6 +279,19 @@ void standardLoop(Logic & logic, Draw & draw){
             }
         }
     } catch (const LoopDone & done){
+    }
+}
+
+void standardLoop(Logic & logic, Draw & draw){
+    /* if a screen already exists (because we have nested standardLoops) then
+     * leave this parameter alone, otherwise set a new parameter.
+     */
+    if (Parameter<Graphics::Bitmap*>::current() == NULL){
+        Graphics::Bitmap screen(Graphics::getScreenBuffer());
+        Parameter<Graphics::Bitmap*> use(&screen);
+        doStandardLoop(logic, draw);
+    } else {
+        doStandardLoop(logic, draw);
     }
 }
 

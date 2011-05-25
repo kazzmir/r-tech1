@@ -110,7 +110,8 @@ namespace ftalleg{
     freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y):
     font(NULL),
     width(x),
-    height(y){
+    height(y),
+    original_size(x){
         if (instances == 0){
             al_init_font_addon();
             al_init_ttf_addon();
@@ -145,7 +146,8 @@ namespace ftalleg{
     }
             
     void freetype::setSize(unsigned int w, unsigned int h){
-        /* FIXME */
+        width = w;
+        height = h;
     }
 
     void freetype::getSize(int * w, int * h) const {
@@ -180,8 +182,18 @@ namespace ftalleg{
         va_end(ap);
 
         std::string fixedText(str.str());
+        /*
+        ALLEGRO_TRANSFORM transform;
+        al_identity_transform(&transform);
+        al_scale_transform(&transform, (float) width / original_size, (float) height / original_size);
+        al_use_transform(&transform);
+        */
         al_set_target_bitmap(bmp.getData().getBitmap());
         al_draw_text(font, color, x, y, 0, fixedText.c_str());
+        /*
+        al_identity_transform(&transform);
+        al_use_transform(&transform);
+        */
     }
 #else
 	//! Constructor
