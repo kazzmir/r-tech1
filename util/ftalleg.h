@@ -153,6 +153,7 @@ namespace ftalleg {
             ALLEGRO_FONT * font;
             int width;
             int height;
+            int original_size;
         };
 #else
 	//!  Freetype based font system
