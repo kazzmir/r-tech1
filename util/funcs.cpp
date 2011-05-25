@@ -148,29 +148,6 @@ vector<Filesystem::AbsolutePath> Util::getFiles(const Filesystem::AbsolutePath &
 }
 */
 
-void Util::blend_palette(int * pal, int mp, int startColor, int endColor ) {
-    /*
-    ASSERT(pal);
-    ASSERT(mp != 0);
-    */
-
-    int sc_r = Graphics::getRed(startColor);
-    int sc_g = Graphics::getGreen(startColor);
-    int sc_b = Graphics::getBlue(startColor);
-
-    int ec_r = Graphics::getRed(endColor);
-    int ec_g = Graphics::getGreen(endColor);
-    int ec_b = Graphics::getBlue(endColor);
-
-    for ( int q = 0; q < mp; q++ ) {
-        float j = (float)( q + 1 ) / (float)( mp );
-        int f_r = (int)( 0.5 + (float)( sc_r ) + (float)( ec_r-sc_r ) * j );
-        int f_g = (int)( 0.5 + (float)( sc_g ) + (float)( ec_g-sc_g ) * j );
-        int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
-        pal[q] = Graphics::makeColor( f_r, f_g, f_b );
-    }
-}
-
 string Util::trim(const std::string & str){
     string s;
     size_t startpos = str.find_first_not_of(" \t");

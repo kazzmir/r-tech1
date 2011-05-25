@@ -190,7 +190,7 @@ void Bitmap::load( const std::string & str ){
     internalLoadFile( str.c_str() );
 }
 
-void Bitmap::border( int min, int max, int color ) const {
+void Bitmap::border( int min, int max, Color color ) const {
     int w = getWidth();
     int h = getHeight();
     for (int i = min; i < max; i++){
@@ -220,11 +220,11 @@ void Bitmap::draw(const int x, const int y, const int startWidth, const int star
     sub.draw(x + startWidth, y + startHeight, filter, where);
 }
 
-void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int color ) const{
-    this->hLine( x1, y, x2, color );
+void Bitmap::horizontalLine( const int x1, const int y, const int x2, const Graphics::Color color ) const{
+    this->hLine(x1, y, x2, color);
 }
         
-void Bitmap::equilateralTriangle(int x, int y, int angle, int size, int color) const {
+void Bitmap::equilateralTriangle(int x, int y, int angle, int size, Color color) const {
     double radians = Util::radians(angle);
     int x1 = x + size / 2 * cos(radians + 2 * Util::pi / 3);
     int y1 = y + size / 2 * sin(radians + 2 * Util::pi / 3);
@@ -240,7 +240,7 @@ Bitmap Bitmap::greyScale(){
 
     for (int x = 0; x < getWidth(); x++){
         for (int y = 0; y < getHeight(); y++){
-	    int pixel = getPixel(x, y);
+	    Color pixel = getPixel(x, y);
             int val = (int)((0.299*getRed(pixel) + 0.587*getGreen(pixel) + 0.114*getBlue(pixel) + 0.5) + 16);
             if (val > 255){
                 val = 255;
@@ -260,21 +260,21 @@ bool Bitmap::inRange(int x, int y) const {
 }
 
 void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
-    int mask = MaskColor();
-    for ( int x = 0; x < getWidth(); x++ ){
-        for ( int y = 0; y < getHeight(); y++ ){
-            if ( getPixel( x,y ) == mask ){
-                where.putPixel( x+_x, y+_y, mask );
+    Color mask = MaskColor();
+    for (int x = 0; x < getWidth(); x++){
+        for (int y = 0; y < getHeight(); y++){
+            if (getPixel(x,y) == mask){
+                where.putPixel(x+_x, y+_y, mask);
             }
         }
     }
 }
         
-void Bitmap::set8BitMaskColor(int color){
+void Bitmap::set8BitMaskColor(Color color){
     bit8MaskColor = color;
 }
         
-int Bitmap::get8BitMaskColor(){
+Color Bitmap::get8BitMaskColor(){
     return bit8MaskColor;
 }
 
@@ -318,7 +318,9 @@ int Bitmap::getScreenHeight(){
     return 0;
 }
 
-
+void Bitmap::clear() const {
+    fill(makeColor(0, 0, 0));
+}
 
 void Bitmap::Stretch( const Bitmap & where ) const {
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
@@ -328,7 +330,7 @@ void Bitmap::Stretch( const Bitmap & where ) const {
     }
 }
 
-int darken( int color, double factor ){
+Color darken(Color color, double factor ){
     int r = (int)((double)getRed(color) / factor);
     int g = (int)((double)getGreen(color) / factor);
     int b = (int)((double)getBlue(color) / factor);
@@ -368,12 +370,34 @@ Bitmap(){
 TranslucentBitmap::~TranslucentBitmap(){
 }
 
-void TranslucentBitmap::fill(int color) const {
+void TranslucentBitmap::fill(Color color) const {
     Bitmap::applyTrans(color);
 }
 
+void blend_palette(Color * pal, int mp, Color startColor, Color endColor){
+    /*
+    ASSERT(pal);
+    ASSERT(mp != 0);
+    */
+
+    int sc_r = Graphics::getRed(startColor);
+    int sc_g = Graphics::getGreen(startColor);
+    int sc_b = Graphics::getBlue(startColor);
+
+    int ec_r = Graphics::getRed(endColor);
+    int ec_g = Graphics::getGreen(endColor);
+    int ec_b = Graphics::getBlue(endColor);
+
+    for ( int q = 0; q < mp; q++ ) {
+        float j = (float)( q + 1 ) / (float)( mp );
+        int f_r = (int)( 0.5 + (float)( sc_r ) + (float)( ec_r-sc_r ) * j );
+        int f_g = (int)( 0.5 + (float)( sc_g ) + (float)( ec_g-sc_g ) * j );
+        int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
+        pal[q] = Graphics::makeColor( f_r, f_g, f_b );
+    }
 }
 
+}
 
 #ifdef USE_ALLEGRO
 #include "allegro/bitmap.cpp"

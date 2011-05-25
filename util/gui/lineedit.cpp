@@ -27,7 +27,7 @@ textY(0),
 cursorX(0),
 cursorY(0),
 cursorIndex(0),
-textColor(0),
+textColor(Graphics::makeColor(0, 0, 0)),
 textSizeH(0),
 limit(0),
 blinkRate(500),
@@ -164,7 +164,7 @@ void LineEdit::render(const Graphics::Bitmap & work){
     workArea->fill(Graphics::makeColor(255,0,255));
 
     if (currentSetFont){
-        currentSetFont->printf(textX,textY,textColor,*workArea, input.getText(), 0);
+        currentSetFont->printf(textX, textY, textColor, *workArea, input.getText(), 0);
     }
 
     if (focused){
@@ -321,12 +321,12 @@ void LineEdit::setInputType(const inputType i){
 }
 		
 // Set textColor
-void LineEdit::setTextColor(const int color){
+void LineEdit::setTextColor(const Graphics::Color color){
     textColor = color;
 }
 
 //! Set textColor
-void LineEdit::setCursorColor(const int color){
+void LineEdit::setCursorColor(const Graphics::Color color){
     textColor = color;
 }
 

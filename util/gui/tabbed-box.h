@@ -81,10 +81,10 @@ class TabbedBox : public Widget{
         virtual unsigned int getCurrentIndex() const;
 	
 	//! Set tab font colors
-	virtual void setTabFontColor(int color);
+	virtual void setTabFontColor(Graphics::Color color);
 	
 	//! Set selected tab font color
-	virtual void setSelectedTabFontColor(int color);
+	virtual void setSelectedTabFontColor(Graphics::Color color);
         
         //! Empty
         virtual inline bool empty() const {
@@ -125,10 +125,10 @@ class TabbedBox : public Widget{
         void renderTabs(const Graphics::Bitmap &, const Font &);
 	
 	/*! Font Color */
-	int tabFontColor;
+        Graphics::Color tabFontColor;
 	
 	/*! Current Tab Font Color */
-	int currentTabFontColor;
+        Graphics::Color currentTabFontColor;
 	
 	/*! Gradient for selected Font */
 	Effects::Gradient  * activeTabFontColor;

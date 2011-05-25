@@ -3,16 +3,20 @@
 
 #include "rectarea.h"
 #include "coordinate.h"
+#include "util/bitmap.h"
 
 namespace Graphics{
 class Bitmap;
 }
+
 class Token;
 class Font;
 
 namespace Gui{
     
 struct ColorInfo{
+    ColorInfo();
+#if 0
     ColorInfo():
         body(0),
         /* alpha 0 is invisible, 255 is opaque. set something in the middle as default */
@@ -20,10 +24,11 @@ struct ColorInfo{
         border(0),
         borderAlpha(128){
         }
+#endif
 
-    int body;
+    Graphics::Color body;
     int bodyAlpha;
-    int border;
+    Graphics::Color border;
     int borderAlpha;
 };
 
@@ -80,9 +85,9 @@ class Widget{
         virtual void render(const Graphics::Bitmap &, const Font &);
     
     protected:
-        void arc( const Graphics::Bitmap &, int x, int y, double startAngle, int radius, int color );
-        void roundRect( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, int color );
-        void roundRectFill( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, int color );
+        void arc( const Graphics::Bitmap &, int x, int y, double startAngle, int radius, Graphics::Color color );
+        void roundRect( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, Graphics::Color color );
+        void roundRectFill( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, Graphics::Color color );
         
         void checkWorkArea();
         

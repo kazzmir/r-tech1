@@ -1,5 +1,6 @@
 #include <sstream>
 #include <allegro5/allegro_memfile.h>
+#include <allegro5/allegro_primitives.h>
 #include "util/debug.h"
 
 namespace Graphics{
@@ -39,8 +40,12 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
     *blue = _rgb_scale_5[(color >> rgb_b_shift_16) & 0x1F];
 }
 
-int MaskColor(){
-    static int mask = makeColor(255, 0, 255);
+Color makeColorAlpha(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha){
+    return al_map_rgba(red, blue, green, alpha);
+}
+
+Color MaskColor(){
+    static Color mask = makeColorAlpha(255, 0, 255, 0);
     return mask;
 }
 
@@ -52,27 +57,28 @@ static Bitmap * Scaler = NULL;
 Bitmap::Bitmap():
 own(NULL),
 mustResize(false),
-bit8MaskColor(0){
+bit8MaskColor(makeColor(0, 0, 0)){
     /* TODO */
 }
 
 Bitmap::Bitmap( const char * load_file ):
 own(NULL),
 mustResize(false),
-bit8MaskColor(0){
+bit8MaskColor(makeColor(0, 0, 0)){
     internalLoadFile(load_file);
 }
 
 Bitmap::Bitmap( const std::string & load_file ):
 own(NULL),
-mustResize(false){
+mustResize(false),
+bit8MaskColor(makeColor(0, 0, 0)){
     internalLoadFile(load_file.c_str());
 }
 
 Bitmap::Bitmap(ALLEGRO_BITMAP * who, bool deep_copy):
 own(NULL),
 mustResize(false),
-bit8MaskColor(0){
+bit8MaskColor(makeColor(0, 0, 0)){
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(who);
         getData().setBitmap(clone);
@@ -86,7 +92,7 @@ bit8MaskColor(0){
 Bitmap::Bitmap(int width, int height):
 own(NULL),
 mustResize(false),
-bit8MaskColor(0){
+bit8MaskColor(makeColor(0, 0, 0)){
     ALLEGRO_BITMAP * bitmap = al_create_bitmap(width, height);
     if (bitmap == NULL){
         std::ostringstream out;
@@ -126,7 +132,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     return Bitmap();
 }
 
-void Bitmap::replaceColor(int original, int replaced){
+void Bitmap::replaceColor(Color original, Color replaced){
     /* TODO */
 }
 
@@ -199,7 +205,7 @@ static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, F
 Bitmap::Bitmap(const char * data, int length):
 own(NULL),
 mustResize(false),
-bit8MaskColor(0){
+bit8MaskColor(makeColor(0, 0, 0)){
     Format type = GIF;
     getData().setBitmap(load_bitmap_from_memory(data, length, type));
     if (getData().getBitmap() == NULL){
@@ -243,26 +249,26 @@ int Bitmap::getWidth() const {
     return 0;
 }
 
-int getRed(int color){
+int getRed(Color color){
     unsigned char red, green, blue;
-    unpack565(color, &red, &green, &blue);
+    al_unmap_rgb(color, &red, &green, &blue);
     return red;
 }
 
-int getGreen(int color){
+int getGreen(Color color){
     unsigned char red, green, blue;
-    unpack565(color, &red, &green, &blue);
+    al_unmap_rgb(color, &red, &green, &blue);
     return green;
 }
 
-int getBlue(int color){
+int getBlue(Color color){
     unsigned char red, green, blue;
-    unpack565(color, &red, &green, &blue);
+    al_unmap_rgb(color, &red, &green, &blue);
     return blue;
 }
 
-int makeColor(int red, int blue, int green){
-    return pack565(red, blue, green);
+Color makeColor(int red, int blue, int green){
+    return al_map_rgb(red, blue, green);
 }
 
 int Bitmap::getHeight() const {
@@ -301,26 +307,31 @@ int setGraphicsMode(int mode, int width, int height){
     return 0;
 }
 
-int Bitmap::getPixel(const int x, const int y) const {
-    ALLEGRO_COLOR color = al_get_pixel(getData().getBitmap(), x, y);
-    return pack565(color.r, color.g, color.b);
+Color Bitmap::getPixel(const int x, const int y) const {
+    return al_get_pixel(getData().getBitmap(), x, y);
+    // Color color = al_get_pixel(getData().getBitmap(), x, y);
+    // return pack565(color.r, color.g, color.b);
 }
 
-void Bitmap::putPixel(int x, int y, int pixel) const {
+void Bitmap::putPixel(int x, int y, Color pixel) const {
     /* TODO */
 }
 
-void Bitmap::putPixelNormal(int x, int y, int col) const {
+void Bitmap::putPixelNormal(int x, int y, Color col) const {
     putPixel(x, y, col);
 }
 
-void Bitmap::fill(int color) const {
+void Bitmap::fill(Color color) const {
+    /*
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
     al_set_target_bitmap(getData().getBitmap());
     al_clear_to_color(al_map_rgb(red, green, blue));
+    */
+    al_set_target_bitmap(getData().getBitmap());
+    al_clear_to_color(color);
 }
-
+	
 void Bitmap::transBlender( int r, int g, int b, int a ){
     /* TODO */
     /*
@@ -434,7 +445,8 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     al_set_target_bitmap(where.getData().getBitmap());
-    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ALPHA);
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
 
@@ -442,63 +454,69 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
     /* TODO */
 }
 
-void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+void Bitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
     /* TODO */
 }
 
-void Bitmap::vLine( const int x1, const int y, const int x2, const int color ) const {
+void Bitmap::vLine( const int x1, const int y, const int x2, const Color color ) const {
     /* TODO */
 }
 
-void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     /* TODO */
 }
 
-void Bitmap::floodfill( const int x, const int y, const int color ) const {
+void Bitmap::floodfill( const int x, const int y, const Color color ) const {
     /* TODO */
 }
 
-void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
+void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const Color color ) const {
     /* TODO */
 }
 
-void Bitmap::circleFill(int x, int y, int radius, int color) const {
+void Bitmap::circleFill(int x, int y, int radius, Color color) const {
     /* TODO */
 }
 
-void Bitmap::circle(int x, int y, int radius, int color) const {
+void Bitmap::circle(int x, int y, int radius, Color color) const {
     /* TODO */
 }
 
-void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
+    al_set_target_bitmap(getData().getBitmap());
+    al_draw_rectangle(x1, y1, x2, y2, color, 0);
+}
+
+void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const {
+    /*
+    unsigned char red, green, blue;
+    unpack565(color, &red, &green, &blue);
+    */
+    al_set_target_bitmap(getData().getBitmap());
+    al_draw_filled_rectangle(x1, y1, x2, y2, color);
+}
+
+void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const {
     /* TODO */
 }
 
-void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
+void Bitmap::polygon( const int * verts, const int nverts, const Color color ) const {
     /* TODO */
 }
 
-void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
+void Bitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
     /* TODO */
 }
 
-void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
+void Bitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
     /* TODO */
 }
 
-void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+void Bitmap::applyTrans(const Color color) const {
     /* TODO */
 }
 
-void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
-    /* TODO */
-}
-
-void Bitmap::applyTrans(const int color) const {
-    /* TODO */
-}
-
-void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, Color edge_color) const {
     /* TODO */
 }
 
@@ -510,7 +528,7 @@ void Bitmap::save( const std::string & str ) const {
     /* TODO */
 }
 
-void Bitmap::readLine( std::vector< int > & line, int y ){
+void Bitmap::readLine(std::vector<Color> & line, int y){
     /* TODO */
 }
 
@@ -581,27 +599,27 @@ void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter,co
     /* TODO */
 }
 
-void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
     /* TODO */
 }
 
-void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
+void TranslucentBitmap::circleFill(int x, int y, int radius, Color color) const {
     /* TODO */
 }
 
-void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
+void TranslucentBitmap::putPixelNormal(int x, int y, Color color) const {
     /* TODO */
 }
 
-void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
     /* TODO */
 }
 
-void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color) const {
+void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, Color color) const {
     /* TODO */
 }
 
-void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
     /* TODO */
 }
 
@@ -679,3 +697,36 @@ Bitmap getScreenBuffer(){
 }
 
 }
+
+static bool sameColor(Graphics::Color color1, Graphics::Color color2){
+    unsigned char r1, g1, b1, a1;
+    unsigned char r2, g2, b2, a2;
+    al_unmap_rgba(color1, &r1, &g1, &b1, &a1);
+    al_unmap_rgba(color2, &r2, &g2, &b2, &a2);
+    return r1 == r2 &&
+           g1 == g2 &&
+           b1 == b2 &&
+           a1 == a2;
+}
+
+static uint32_t quantify(const ALLEGRO_COLOR & color){
+    unsigned char red, green, blue, alpha;
+    al_unmap_rgba(color, &red, &green, &blue, &alpha);
+    return (red << 24) |
+           (green << 16) |
+           (blue << 8) |
+           alpha;
+}
+
+bool operator<(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
+    return quantify(color1) < quantify(color2);
+}
+
+bool operator!=(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
+    return !(color1 == color2);
+}
+
+bool operator==(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
+    return sameColor(color1, color2);
+}
+

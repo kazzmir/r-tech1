@@ -64,10 +64,10 @@ public:
     void setInputType(const inputType i = inputGeneral);
 
     //! Set textColor
-    void setTextColor(const int color);
+    void setTextColor(const Graphics::Color color);
 
     //! Set textColor
-    void setCursorColor(const int color);
+    void setCursorColor(const Graphics::Color color);
 
     //! Set font
     void setFont(const Font *f);
@@ -137,7 +137,7 @@ protected:
     unsigned int cursorIndex;
 
     //! Text color
-    int textColor;
+    Graphics::Color textColor;
 
     //! Text size Height check in case it changes
     int textSizeH;

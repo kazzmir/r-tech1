@@ -65,8 +65,6 @@ int clamp(int value, int min, int max);
 /* return a number between min/max */
 int rnd( int min, int max );
 
-void blend_palette( int * pal, int mp, int sc, int ec );
-
 /* rest in milliseconds */
 void rest( int x );
 

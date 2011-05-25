@@ -27,3 +27,7 @@ struct BitmapData{
 
     BITMAP * bitmap;
 };
+
+namespace Graphics{
+    typedef int Color;
+}

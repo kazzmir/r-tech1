@@ -1,11 +1,13 @@
 #ifndef _paintown_gradient_h
 #define _paintown_gradient_h
 
+#include "util/bitmap.h"
+
 namespace Effects{
 
 class Gradient{
 public:
-    Gradient(int size, int startColor, int endColor);
+    Gradient(int size, Graphics::Color startColor, Graphics::Color endColor);
     Gradient(const Gradient & copy);
 
     /* move to next color. update is an alias for `forward' */
@@ -17,13 +19,13 @@ public:
     void reset();
 
     /* get current color */
-    int current() const;
-    int current(int offset) const;
+    Graphics::Color current() const;
+    Graphics::Color current(int offset) const;
 
     virtual ~Gradient();
 
 protected:
-    int * colors;
+    Graphics::Color * colors;
     unsigned int size;
     unsigned int index;
 };

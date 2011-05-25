@@ -13,10 +13,10 @@ public:
 
 	EQuad( EQuad * const head );
 	EQuad( int w, int h, EQuad * _parent );
-	EQuad( const Graphics::Bitmap * who, int min_size, int mask_pixel, int min_x, int min_y, EQuad * _parent );
+	EQuad( const Graphics::Bitmap * who, int min_size, Graphics::Color mask_pixel, int min_x, int min_y, EQuad * _parent );
 
-	void draw( const Graphics::Bitmap & work, int x, int y, int color, bool flipped = false );
-	void draw( const Graphics::Bitmap & work, int x, int y, int color, EQuad * who );
+	void draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped = false );
+	void draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, EQuad * who );
 
 	inline int getWidth() const{
 		return width;
@@ -112,14 +112,14 @@ class ECollide{
 public:
 	ECollide( EQuad * const head );
 	// ECollide( Graphics::BITMAP * who, int mask_pixel = Bitmap::MaskColor );
-	ECollide( const Graphics::Bitmap * who, int mask_pixel = Graphics::MaskColor() );
-	ECollide( const Graphics::Bitmap & who, int mask_pixel = Graphics::MaskColor() );
+	ECollide( const Graphics::Bitmap * who, Graphics::Color mask_pixel = Graphics::MaskColor());
+	ECollide( const Graphics::Bitmap & who, Graphics::Color mask_pixel = Graphics::MaskColor());
 	ECollide( const ECollide & e );
 	ECollide( const ECollide * e );
 	ECollide( int width, int height );
 
-	void draw( const Graphics::Bitmap & work, int x, int y, int color, bool flipped = false );
-	void draw( const Graphics::Bitmap & work, int x, int y, int color, EQuad * who );
+	void draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped = false );
+	void draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, EQuad * who );
 
 	bool Collision( ECollide * col, int mx, int my, int ax, int ay, bool my_xflipped = false, bool my_yflipped = false, bool him_xflipped = false, bool him_flipped = false );
 	bool Collision( int mx, int my, int ax, int ay, bool xflipped = false, bool yflipped = false );
@@ -156,7 +156,7 @@ public:
 	~ECollide();
 
 private:
-	void initECollide( const Graphics::Bitmap * who, int mask_pixel );
+	void initECollide( const Graphics::Bitmap * who, Graphics::Color mask_pixel );
 	void initQuad( EQuad * const head );
 
 

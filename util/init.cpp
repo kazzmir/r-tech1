@@ -8,6 +8,7 @@
 #ifdef USE_ALLEGRO5
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 #endif
 
 #ifdef USE_SDL
@@ -242,6 +243,7 @@ static void initSystem(ostream & out){
     int release = version & 255;
     out << "Allegro5 version " << major << "." << minor << "." << revision << "." << release << endl;
     out << "Allegro5 image addon " << al_init_image_addon() << endl;
+    al_init_primitives_addon();
     al_install_keyboard();
     al_set_app_name("Paintown");
 

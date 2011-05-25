@@ -74,7 +74,7 @@ static vector<ppair> generateFontPixels(const Font & myFont, const string & mess
     /* store every pixel we need to draw */
     for (int x = 0; x < letters.getWidth(); x++){
         for (int y = 0; y < letters.getHeight(); y++){
-            int pixel = letters.getPixel(x, y);
+            Graphics::Color pixel = letters.getPixel(x, y);
             if (pixel != Graphics::MaskColor()){
                 ppair p;
                 p.x = x;
@@ -212,7 +212,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
 
         void draw(){
             for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
-                int color = gradient.current(it->x);
+                Graphics::Color color = gradient.current(it->x);
                 work.putPixel(it->x, it->y, color);
             }
 
@@ -349,12 +349,12 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
         int & angle;
         const int speed;
 
-        int color1;
-        int color2;
-        int color3;
-        int color4;
+        Graphics::Color color1;
+        Graphics::Color color2;
+        Graphics::Color color3;
+        Graphics::Color color4;
         /* the length of this array is the number of circles to show */
-        int colors[4];
+        Graphics::Color colors[4];
 
         void draw(){
             int max = sizeof(colors) / sizeof(int);

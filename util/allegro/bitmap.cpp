@@ -963,7 +963,7 @@ void Bitmap::clear(){
 */
 
 void Bitmap::fill( int color ) const{
-	::clear_to_color( getData().getBitmap(), color );
+    ::clear_to_color( getData().getBitmap(), color );
 }
 
 /*
@@ -1547,7 +1547,7 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
     for (int i = 0; i < width; i++){
         alphas[i] = (unsigned char)((double)(edge_alpha - focus_alpha) * (double)i / (double)width + focus_alpha);
     }
-    Util::blend_palette(colors, width, focus_color, edge_color);
+    blend_palette(colors, width, focus_color, edge_color);
 
     int min_y, max_y, min_x, max_x;
     if (dst->clip){

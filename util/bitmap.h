@@ -59,8 +59,8 @@ protected:
 };
 
 /* create a color from components */
-int makeColor( int r, int g, int b );
-int darken( int color, double factor );
+Color makeColor(int r, int g, int b);
+Color darken(Color color, double factor);
 void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
 
 int setGfxModeText();
@@ -69,11 +69,11 @@ int setGfxModeWindowed( int x, int y );
 int setGraphicsMode(int mode, int width, int height);
 
 /* get color components */
-int getRed(int x);
-int getBlue(int x);
-int getGreen(int x);
+int getRed(Color x);
+int getBlue(Color x);
+int getGreen(Color x);
 
-int MaskColor();
+Color MaskColor();
 
 class Bitmap{
 private:
@@ -86,7 +86,7 @@ public:
         /* equivalent to a GPU shader */
         class Filter{
         public:
-            virtual unsigned int filter(unsigned int pixel) const = 0;
+            virtual Color filter(Color pixel) const = 0;
             virtual ~Filter(){
             }
         };
@@ -151,9 +151,9 @@ public:
 	void detach();
 
         /* replace all pixels that have value `original' with `replaced' */
-        void replaceColor(int original, int replaced);
-        void set8BitMaskColor(int color);
-        int get8BitMaskColor();
+        void replaceColor(Color original, Color replaced);
+        void set8BitMaskColor(Color color);
+        Color get8BitMaskColor();
 
 	static void transBlender( int r, int g, int b, int a );
 	static void multiplyBlender( int r, int g, int b, int a );
@@ -187,31 +187,31 @@ public:
         /* convert to a grey scale version */
         virtual Bitmap greyScale();
 
-	virtual void triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const;
+	virtual void triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const;
 
         /* draws an equilateral triangle centered at (x,y) pointing at `angle'
          * where each side has `size' pixels using the color.
          */
-        virtual void equilateralTriangle(int x, int y, int angle, int size, int color) const;
-	virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
-	virtual void ellipseFill( int x, int y, int rx, int ry, int color ) const;
+        virtual void equilateralTriangle(int x, int y, int angle, int size, Color color) const;
+	virtual void ellipse( int x, int y, int rx, int ry, Color color ) const;
+	virtual void ellipseFill( int x, int y, int rx, int ry, Color color ) const;
 
-        virtual void light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const;
-        virtual void applyTrans(const int color) const;
+        virtual void light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, Color edge_color) const;
+        virtual void applyTrans(const Color color) const;
 
-	virtual void border( int min, int max, int color ) const;
-	virtual void rectangle( int x1, int y1, int x2, int y2, int color ) const;
-	virtual void rectangleFill( int x1, int y1, int x2, int y2, int color ) const;
-	virtual void circleFill( int x, int y, int radius, int color ) const;
-	virtual void circle( int x, int y, int radius, int color ) const;
-	virtual void line( const int x1, const int y1, const int x2, const int y2, const int color ) const;
+	virtual void border( int min, int max, Color color ) const;
+	virtual void rectangle( int x1, int y1, int x2, int y2, Color color ) const;
+	virtual void rectangleFill( int x1, int y1, int x2, int y2, Color color ) const;
+	virtual void circleFill( int x, int y, int radius, Color color ) const;
+	virtual void circle( int x, int y, int radius, Color color ) const;
+	virtual void line( const int x1, const int y1, const int x2, const int y2, const Color color ) const;
 		
-	virtual void floodfill( const int x, const int y, const int color ) const;
-	virtual void horizontalLine( const int x1, const int y, const int x2, const int color ) const;
-	virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
-	virtual void vLine( const int y1, const int x, const int y2, const int color ) const;
-	virtual void polygon( const int * verts, const int nverts, const int color ) const;
-	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const;
+	virtual void floodfill( const int x, const int y, const Color color ) const;
+	virtual void horizontalLine( const int x1, const int y, const int x2, const Color color ) const;
+	virtual void hLine( const int x1, const int y, const int x2, const Color color ) const;
+	virtual void vLine( const int y1, const int x, const int y2, const Color color ) const;
+	virtual void polygon( const int * verts, const int nverts, const Color color ) const;
+	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
 
 	virtual void draw(const int x, const int y, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;
@@ -264,11 +264,9 @@ public:
         static int getScreenWidth();
         static int getScreenHeight();
 
-	virtual void fill( int color ) const;
+	virtual void fill(Color color) const;
 
-	inline void clear() const{
-		this->fill( 0 );
-	}
+	virtual void clear() const;
 	
         inline void clearToMask() const{
 		this->fill(MaskColor());
@@ -284,16 +282,16 @@ public:
             return data;
 	}
 	
-	virtual void readLine( std::vector< int > & vec, int y );
-	int getPixel( const int x, const int y ) const;
+	virtual void readLine( std::vector<Color> & vec, int y );
+	Color getPixel( const int x, const int y ) const;
 
         /* true if the point is within the bounds of the bitmap */
         bool inRange(int x, int y) const;
 
         /* uses _putpixel16 underneath which ignores translucent behavior */
-	void putPixel( int x, int y, int col ) const;
+	void putPixel( int x, int y, Color col ) const;
         /* respects the current trans mode */
-	virtual void putPixelNormal(int x, int y, int col) const;
+	virtual void putPixelNormal(int x, int y, Color col) const;
 
 	/*
 	inline int getPixel( int x, int y ) const{
@@ -385,7 +383,7 @@ protected:
         std::string path;
         static Bitmap * temporary_bitmap;
         static Bitmap * temporary_bitmap2;
-        int bit8MaskColor;
+        Color bit8MaskColor;
 
 };
 
@@ -393,6 +391,9 @@ protected:
  * on opengl/allegro5 systems this will return the current backbuffer
  */
 Bitmap getScreenBuffer();
+
+void blend_palette(Color * pal, int mp, Color sc, Color ec);
+// bool sameColors(Color color1, Color color2);
 
 }
 

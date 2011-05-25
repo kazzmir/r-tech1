@@ -15,3 +15,11 @@ struct BitmapData{
 
     ALLEGRO_BITMAP * bitmap;
 };
+
+namespace Graphics{
+    typedef ALLEGRO_COLOR Color;
+}
+
+bool operator<(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);
+bool operator!=(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);
+bool operator==(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);

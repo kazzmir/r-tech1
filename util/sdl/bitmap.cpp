@@ -1014,7 +1014,8 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 
-    if (destWidth == 0 || destHeight == 0){
+    if (destWidth <= 0 || destHeight <= 0 ||
+        sourceWidth <= 0 || sourceHeight <= 0){
         return;
     }
 
@@ -1805,7 +1806,7 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
     for (int i = 0; i < width; i++){
         alphas[i] = (unsigned char)((double)(edge_alpha - focus_alpha) * (double)i / (double)width + focus_alpha);
     }
-    Util::blend_palette(colors, width, focus_color, edge_color);
+    blend_palette(colors, width, focus_color, edge_color);
 
     if (SDL_MUSTLOCK(dst)){
         SDL_LockSurface(dst);

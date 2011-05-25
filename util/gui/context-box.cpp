@@ -8,13 +8,13 @@
 static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
 
-static int selectedGradientStart(){
-    static int color = Graphics::makeColor(19, 167, 168);
+static Graphics::Color selectedGradientStart(){
+    static Graphics::Color color = Graphics::makeColor(19, 167, 168);
     return color;
 }
 
-static int selectedGradientEnd(){
-    static int color = Graphics::makeColor(27, 237, 239);
+static Graphics::Color selectedGradientEnd(){
+    static Graphics::Color color = Graphics::makeColor(27, 237, 239);
     return color;
 }
 
@@ -180,7 +180,7 @@ bool ContextBox::previous(const Font & font){
     return true;
 }
         
-int ContextBox::getSelectedColor() const {
+Graphics::Color ContextBox::getSelectedColor() const {
     return useGradient ? selectedGradient.current() : selectedGradientStart();
 }
 
