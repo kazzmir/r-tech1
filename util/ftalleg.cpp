@@ -135,12 +135,12 @@ namespace ftalleg{
          * allegro5 the screen buffer will be the actual screen so no allocation
          * will occur.
          */
-        al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
+        // al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
         return al_get_font_line_height(font);
     }
 
     int freetype::getLength(const std::string & text) const {
-        al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
+        // al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
         return al_get_text_width(font, text.c_str());
     }
             
