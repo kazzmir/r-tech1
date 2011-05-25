@@ -77,6 +77,10 @@ public:
         return *data;
     }
 
+    bool operator<(const ReferenceCount<Data> & him) const {
+        return data < him.data;
+    }
+
     bool operator==(const ReferenceCount<Data> & him) const {
         return data == him.data;
     }
