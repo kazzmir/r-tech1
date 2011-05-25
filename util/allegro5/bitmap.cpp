@@ -699,6 +699,7 @@ void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
 
 void Bitmap::destroyPrivateData(){
     al_destroy_bitmap(getData().getBitmap());
+    al_set_target_bitmap(Screen->getData().getBitmap());
 }
 
 int setGfxModeFullscreen(int x, int y){
