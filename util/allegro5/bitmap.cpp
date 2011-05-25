@@ -40,14 +40,54 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
     *blue = _rgb_scale_5[(color >> rgb_b_shift_16) & 0x1F];
 }
 
+struct BlendingData{
+    BlendingData():
+        red(0), green(0), blue(0), alpha(0){
+        }
+
+    int red, green, blue, alpha;
+};
+
+static BlendingData globalBlend;
+
 Color makeColorAlpha(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha){
     return al_map_rgba(red, blue, green, alpha);
 }
 
 Color MaskColor(){
-    static Color mask = makeColorAlpha(255, 0, 255, 0);
+    static Color mask = makeColorAlpha(0, 0, 0, 0);
     return mask;
 }
+
+Color getBlendColor(){
+    return makeColorAlpha(255, 255, 255, globalBlend.alpha);
+}
+
+class Blender{
+public:
+    Blender(){
+    }
+
+    virtual ~Blender(){
+        /* default is to draw the source and ignore the destination */
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    }
+};
+
+class MaskedBlender: public Blender {
+public:
+    MaskedBlender(){
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    }
+};
+
+class TransBlender: public Blender {
+public:
+    TransBlender(){
+        // al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+    }
+};
 
 static const int WINDOWED = 0;
 static const int FULLSCREEN = 1;
@@ -304,6 +344,8 @@ int setGraphicsMode(int mode, int width, int height){
     }
     Screen = new Bitmap(al_get_backbuffer(display));
     Scaler = new Bitmap(width, height);
+    /* default drawing mode */
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     return 0;
 }
 
@@ -314,7 +356,8 @@ Color Bitmap::getPixel(const int x, const int y) const {
 }
 
 void Bitmap::putPixel(int x, int y, Color pixel) const {
-    /* TODO */
+    al_set_target_bitmap(getData().getBitmap());
+    al_put_pixel(x, y, pixel);
 }
 
 void Bitmap::putPixelNormal(int x, int y, Color col) const {
@@ -332,15 +375,11 @@ void Bitmap::fill(Color color) const {
     al_clear_to_color(color);
 }
 	
-void Bitmap::transBlender( int r, int g, int b, int a ){
-    /* TODO */
-    /*
+void Bitmap::transBlender(int r, int g, int b, int a){
     globalBlend.red = r;
     globalBlend.green = g;
     globalBlend.blue = b;
     globalBlend.alpha = a;
-    globalBlend.currentBlender = ::transBlender;
-    */
 }
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
@@ -380,7 +419,8 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
         al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
     }
     */
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+
+    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
     /*
     double end = al_get_time();
@@ -444,9 +484,10 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
+    // TransBlender blender;
+    MaskedBlender blender;
     al_set_target_bitmap(where.getData().getBitmap());
     /* any source pixels with an alpha value of 0 will be masked */
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ALPHA);
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
 
@@ -475,11 +516,13 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 }
 
 void Bitmap::circleFill(int x, int y, int radius, Color color) const {
-    /* TODO */
+    al_set_target_bitmap(getData().getBitmap());
+    al_draw_filled_circle(x, y, radius, color);
 }
 
 void Bitmap::circle(int x, int y, int radius, Color color) const {
-    /* TODO */
+    al_set_target_bitmap(getData().getBitmap());
+    al_draw_circle(x, y, radius, color, 0);
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
@@ -533,10 +576,9 @@ void Bitmap::readLine(std::vector<Color> & line, int y){
 }
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
-    /* FIXME */
+    TransBlender blender;
     al_set_target_bitmap(where.getData().getBitmap());
-    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE);
-    al_draw_bitmap(getData().getBitmap(), x, y, 0);
+    al_draw_tinted_bitmap(getData().getBitmap(), getBlendColor(), x, y, 0);
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
@@ -607,8 +649,20 @@ void TranslucentBitmap::circleFill(int x, int y, int radius, Color color) const 
     /* TODO */
 }
 
+Color doTransBlend(const Color & color, int alpha){
+    float red, green, blue;
+    float alpha_f = alpha / 255.0;
+    al_unmap_rgb_f(color, &red, &green, &blue);
+    red *= alpha_f;
+    green *= alpha_f;
+    blue *= alpha_f;
+    return al_map_rgb_f(red, green, blue);
+}
+
 void TranslucentBitmap::putPixelNormal(int x, int y, Color color) const {
-    /* TODO */
+    TransBlender blender;
+    al_set_target_bitmap(getData().getBitmap());
+    al_put_pixel(x, y, doTransBlend(color, globalBlend.alpha));
 }
 
 void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {

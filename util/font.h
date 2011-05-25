@@ -111,10 +111,10 @@ public:
 	virtual int getSizeY() const;
 
 private:
-	ftalleg::freetype * font;
-	int sizeX;
-	int sizeY;
-    bool own;
+        ftalleg::freetype * font;
+        int sizeX;
+        int sizeY;
+        bool own;
 };
 
 #endif

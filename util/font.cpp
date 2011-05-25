@@ -200,18 +200,18 @@ const Font & Font::getFont( const Filesystem::AbsolutePath & name, const int x, 
 }
 
 FreeTypeFont::FreeTypeFont(const Filesystem::AbsolutePath & str ):
-sizeX( 16 ),
-sizeY( 16 ),
+sizeX(16),
+sizeY(16),
 own(true){
-	this->font = new ftalleg::freetype(str, getSizeX(), getSizeY() );
+    this->font = new ftalleg::freetype(str, getSizeX(), getSizeY() );
 }
 
 int FreeTypeFont::getHeight( const string & str ) const {
-	return this->font->getHeight( str );
+    return this->font->getHeight(str);
 }
 
 int FreeTypeFont::getHeight() const {
-	return getHeight( "A" );
+    return getHeight("A");
 }
 
 int FreeTypeFont::textLength( const char * text ) const {
@@ -229,13 +229,9 @@ void FreeTypeFont::printf( int x, int y, int xSize, int ySize, Graphics::Color c
     int old_x = 0;
     int old_y = 0;
     this->font->getSize(&old_x, &old_y);
-
     this->font->setSize(xSize, ySize);
-
-    this->font->render( x, y, color, work, ftalleg::freetype::ftLeft, string( buf ), 0 );
-
+    this->font->render(x, y, color, work, ftalleg::freetype::ftLeft, string(buf), 0);
     this->font->setSize(old_x, old_y);
-
 }
 	
 void FreeTypeFont::printf( int x, int y, Graphics::Color color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
