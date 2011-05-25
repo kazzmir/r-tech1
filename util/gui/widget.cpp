@@ -27,6 +27,14 @@ static inline int Max(int x, int y){ return (((x) > (y)) ? (x) : (y)); }
 //! mid (borrowed from allegro)
 static inline int Mid(int x,int y,int z){ return (Max((x), Min((y), (z)))); }
 
+ColorInfo::ColorInfo():
+body(Graphics::makeColor(0, 0, 0)),
+/* alpha 0 is invisible, 255 is opaque. set something in the middle as default */
+bodyAlpha(128),
+border(Graphics::makeColor(0, 0, 0)),
+borderAlpha(128){
+}
+
 Transformations::Transformations():
 radius(0){
 }
@@ -138,7 +146,7 @@ void Widget::render(const Graphics::Bitmap & bitmap, const Font & font){
     render(bitmap);
 }
 
-void Widget::arc( const Graphics::Bitmap & work, int x, int y, double startAngle, int radius, int color ){
+void Widget::arc(const Graphics::Bitmap & work, int x, int y, double startAngle, int radius, Graphics::Color color){
     int q = 0;// for counters
     double d_q = 0.0;// for percentage of loop completed
     double d_q_plus_one = 0.0;
@@ -182,7 +190,7 @@ void Widget::arc( const Graphics::Bitmap & work, int x, int y, double startAngle
             round_double(d_arc_point_x , arc_point_x);
             round_double(d_arc_point_y , arc_point_y);
 
-            work.putPixel(arc_point_x,arc_point_y,color);
+            work.putPixel(arc_point_x, arc_point_y, color);
         }
     }
     if (d_arc_distance_between_points > 1.0) {
@@ -212,7 +220,7 @@ void Widget::arc( const Graphics::Bitmap & work, int x, int y, double startAngle
     }
 }
 
-void Widget::roundRect( const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color ){
+void Widget::roundRect(const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, Graphics::Color color){
     const int width = x2 - x1;
     const int height = y2 - y1;
     radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
@@ -227,7 +235,7 @@ void Widget::roundRect( const Graphics::Bitmap & work, int radius, int x1, int y
     arc(work, x1+radius, y1+height-radius, S_PI/2-0.119, radius, color);
 }
 
-void Widget::roundRectFill( const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color ){
+void Widget::roundRectFill(const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, Graphics::Color color){
     const int width = x2 - x1;
     const int height = y2 - y1;
     radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
@@ -262,6 +270,6 @@ void Widget::checkWorkArea(){
     }
 
     if (workArea){
-        workArea->fill(Graphics::makeColor(255,0,255));
+        workArea->fill(Graphics::MaskColor());
     }
 }

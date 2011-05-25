@@ -59,7 +59,7 @@ namespace ftalleg{
 
 	// typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
 
-    static int fixColor(const unsigned char c, short grays){
+    static Graphics::Color fixColor(const unsigned char c, short grays){
         // Safety checks
         // assert(c != 0);
         assert(grays != 1);
@@ -233,7 +233,7 @@ namespace ftalleg{
 	}
         */
 
-        void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Graphics::Bitmap & bitmap, const int & color){
+        void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Graphics::Bitmap & bitmap, const Graphics::Color & color){
             unsigned char * line = tempChar->line;
             int colorRed = Graphics::getRed(color);
             int colorGreen = Graphics::getGreen(color);
@@ -242,18 +242,19 @@ namespace ftalleg{
             /* cache the last color, there is a good chance it will be reused */
             unsigned char lastData = -1;
             short lastGrays = -1;
-            int lastColor = -1;
+            Graphics::Color black = Graphics::makeColor(0, 0, 0);
+            Graphics::Color lastColor = black;
 
             for (int y = 0; y < tempChar->rows; y++){
                 unsigned char * buffer = line;
                 for (int x = 0; x < tempChar->width; x++){
-                    int finalColor = 0;
+                    Graphics::Color finalColor = black;
                     unsigned char current = *buffer;
                     buffer++;
                     if (current == lastData && lastGrays == tempChar->grays){
                         finalColor = lastColor;
                     } else {
-                        int col = fixColor(current, tempChar->grays);
+                        Graphics::Color col = fixColor(current, tempChar->grays);
 
                         int red = Graphics::getRed(col);
                         int green = Graphics::getGreen(col);
@@ -292,7 +293,7 @@ namespace ftalleg{
         }
 
 	// Render a character from the lookup table
-        void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Graphics::Bitmap & bitmap, const int &color){
+        void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Graphics::Bitmap & bitmap, const Graphics::Color &color){
 
             // pixeler putter = getPutPixel();
 
@@ -429,7 +430,7 @@ namespace ftalleg{
         }
 
 	//! Render font to a bitmap
-        void freetype::render(int x, int y, const int & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...) {
+        void freetype::render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...) {
             if (faceLoaded){
                 int rend_x = 0;
                 int rend_y = 0;

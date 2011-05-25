@@ -4,20 +4,20 @@
 namespace Effects{
 
 /* this class does virtually no error checking. great job */
-Gradient::Gradient(int size, int startColor, int endColor):
+Gradient::Gradient(int size, Graphics::Color startColor, Graphics::Color endColor):
 colors(0),
 size(size),
 index(0){
-    colors = new int[size];
-    Util::blend_palette(colors, size / 2, startColor, endColor);
-    Util::blend_palette(colors + size / 2, size / 2, endColor, startColor);
+    colors = new Graphics::Color[size];
+    Graphics::blend_palette(colors, size / 2, startColor, endColor);
+    Graphics::blend_palette(colors + size / 2, size / 2, endColor, startColor);
 }
     
 Gradient::Gradient(const Gradient & copy):
 colors(NULL),
 size(copy.size),
 index(copy.index){
-    colors = new int[size];
+    colors = new Graphics::Color[size];
     for (int i = 0; i < size; i++){
         colors[i] = copy.colors[i];
     }
@@ -39,11 +39,11 @@ void Gradient::reset(){
     index = 0;
 }
 
-int Gradient::current() const {
+Graphics::Color Gradient::current() const {
     return colors[index];
 }
     
-int Gradient::current(int offset) const {
+Graphics::Color Gradient::current(int offset) const {
     return colors[(index + offset + size) % size];
 }
 

@@ -11,13 +11,13 @@ public:
     TranslucentBitmap();
     virtual ~TranslucentBitmap();
 
-    virtual void putPixelNormal(int x, int y, int col) const;
-    virtual void rectangleFill(int x1, int y1, int x2, int y2, int color) const;
-    virtual void rectangle(int x1, int y1, int x2, int y2, int color) const;
-    virtual void fill(int color) const;
-    virtual void hLine( const int x1, const int y, const int x2, const int color ) const;
-    virtual void circleFill( int x, int y, int radius, int color ) const;
-    virtual void ellipse( int x, int y, int rx, int ry, int color ) const;
+    virtual void putPixelNormal(int x, int y, Color col) const;
+    virtual void rectangleFill(int x1, int y1, int x2, int y2, Color color) const;
+    virtual void rectangle(int x1, int y1, int x2, int y2, Color color) const;
+    virtual void fill(Color color) const;
+    virtual void hLine( const int x1, const int y, const int x2, const Color color ) const;
+    virtual void circleFill( int x, int y, int radius, Color color ) const;
+    virtual void ellipse( int x, int y, int rx, int ry, Color color ) const;
 
     using Bitmap::draw;
     virtual void draw(const int x, const int y, const Bitmap & where) const;

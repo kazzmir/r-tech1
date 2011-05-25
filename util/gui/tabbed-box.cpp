@@ -241,7 +241,7 @@ unsigned int TabbedBox::getCurrentIndex() const {
     return this->tabs[current]->context.getCurrentIndex();
 }
 
-void TabbedBox::setTabFontColor(int color){
+void TabbedBox::setTabFontColor(Graphics::Color color){
     tabFontColor = color;
     if (activeTabFontColor){
         delete activeTabFontColor;
@@ -249,7 +249,7 @@ void TabbedBox::setTabFontColor(int color){
     activeTabFontColor = new Effects::Gradient(50, tabFontColor, currentTabFontColor);
 }
 
-void TabbedBox::setSelectedTabFontColor(int color){
+void TabbedBox::setSelectedTabFontColor(Graphics::Color color){
     currentTabFontColor = color;
     if (activeTabFontColor){
         delete activeTabFontColor;

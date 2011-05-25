@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "bitmap.h"
 
 namespace Graphics{
 class Bitmap;
@@ -31,7 +32,7 @@ protected:
 	int width;
 	int height;
     int opaque;
-    int borderColor;
+    Graphics::Color borderColor;
 	std::vector< std::string > messages;
 };
 

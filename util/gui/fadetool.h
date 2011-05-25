@@ -1,6 +1,8 @@
 #ifndef gui_fadetool_h
 #define gui_fadetool_h
 
+#include "util/bitmap.h"
+
 /*! Fade utility */
 
 namespace Graphics{
@@ -49,16 +51,18 @@ public:
 	inline int getFadeOutTime() const { 
             return fadeOutTime; 
         }
-	inline void setFadeInColor( int c ){ 
+	inline void setFadeInColor(Graphics::Color c){ 
             fadeInColor = c; 
         }
-	inline int getFadeInColor() const { 
+
+	inline Graphics::Color getFadeInColor() const { 
             return fadeInColor; 
         }
-	inline void setFadeOutColor( int c ){ 
+
+	inline void setFadeOutColor(Graphics::Color c ){ 
             fadeInColor = c; 
         }
-	inline int getFadeOutColor() const { 
+	inline Graphics::Color getFadeOutColor() const { 
             return fadeInColor; 
         }
 private:
@@ -68,9 +72,8 @@ private:
 	int fadeTime;
 	int fadeInTime;
 	int fadeOutTime;
-	int fadeInColor;
-	int fadeOutColor;
-	
+        Graphics::Color fadeInColor;
+        Graphics::Color fadeOutColor;
 };
 
 }

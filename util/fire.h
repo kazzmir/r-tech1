@@ -1,6 +1,8 @@
 #ifndef _paintown_fire_93c6678306f3542737be4288dc09cfa9
 #define _paintown_fire_93c6678306f3542737be4288dc09cfa9
 
+#include "bitmap.h"
+
 namespace Graphics{
 class Bitmap;
 }
@@ -30,7 +32,7 @@ protected:
     unsigned char ** data;
     /* enough to fill an unsigned char */
     static const int MAX_COLORS = 256;
-    int colors[MAX_COLORS];
+    Graphics::Color colors[MAX_COLORS];
     static const int MAX_HOTSPOTS = 10;
     double hotspots[MAX_HOTSPOTS];
     double directions[MAX_HOTSPOTS];

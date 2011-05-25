@@ -37,6 +37,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "thread.h"
+#include "color.h"
 	
 #define GLYPH_PI	3.14159265358979323846
 #define GLYPH_SQRT2	1.41421356237309504880
@@ -183,7 +184,7 @@ namespace ftalleg {
 			void createIndex();
 			
 			//! Render a character from the lookup table (utilizing the workBitmap)
-			void drawCharacter(signed long unicode, int &x1, int &y1, const Graphics::Bitmap & bitmap, const int & color);
+			void drawCharacter(signed long unicode, int &x1, int &y1, const Graphics::Bitmap & bitmap, const Graphics::Color & color);
 
 			int height( long code ) const;
 			int calculateHeight( const std::string & str ) const;
@@ -216,7 +217,7 @@ namespace ftalleg {
 			int getLength(const std::string & text);
 			
 			//! Render font to a bitmap
-			void render(int x, int y, const int & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...);
+			void render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...);
 			
 			//! Set size
 			void setSize( unsigned int w, unsigned int h);

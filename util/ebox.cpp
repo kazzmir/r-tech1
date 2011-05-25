@@ -55,7 +55,7 @@ num_quads( 0 ){
 		quads[i] = NULL;
 }
 
-EQuad::EQuad( const Graphics::Bitmap * who, int min_size, int mask_pixel, int _min_x, int _min_y, EQuad * _parent ):
+EQuad::EQuad( const Graphics::Bitmap * who, int min_size, Graphics::Color mask_pixel, int _min_x, int _min_y, EQuad * _parent ):
 width( who->getWidth() ),
 height( who->getHeight() ),
 full( false ),
@@ -145,7 +145,7 @@ parent( _parent ){
 		for ( int x = 0; x < who->getWidth(); x++ ){
 			for ( int y = 0; y < who->getHeight(); y++ ){
 				// int pixel = _getpixel16( who, x, y );
-				int pixel = who->getPixel( x, y );
+                            Graphics::Color pixel = who->getPixel( x, y );
 				if ( pixel != mask_pixel ){
 					++total;
 				}
@@ -299,7 +299,7 @@ bool EQuad::empty(){
 
 }
 
-void EQuad::draw( const Graphics::Bitmap & work, int x, int y, int color, bool flipped ){
+void EQuad::draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped ){
 	
 	int mx = x + getMinX();
 	int my = y + getMinY();
@@ -339,7 +339,7 @@ void EQuad::draw( const Graphics::Bitmap & work, int x, int y, int color, bool f
 		*/
 }
 
-void EQuad::draw( const Graphics::Bitmap & work, int x, int y, int color, EQuad * who ){
+void EQuad::draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, EQuad * who ){
 
 	bool cy = false;
 	for ( int i = 0; i < numQuads(); i++ )
@@ -498,7 +498,7 @@ EQuad::~EQuad(){
 }
 
 long long ECollide::totalTime = 0;
-void ECollide::initECollide( const Graphics::Bitmap * who, int mask_pixel ){
+void ECollide::initECollide( const Graphics::Bitmap * who, Graphics::Color mask_pixel ){
 	/*
 	TimeDifference dif;
 	dif.startTime();
@@ -513,7 +513,7 @@ void ECollide::initECollide( const Graphics::Bitmap * who, int mask_pixel ){
 	*/
 }
 
-ECollide::ECollide( const Graphics::Bitmap * who, int mask_pixel ){
+ECollide::ECollide( const Graphics::Bitmap * who, Graphics::Color mask_pixel ){
 	initECollide( who, mask_pixel );
 	/*
 	head_quad = new EQuad( who, MIN_SIZE, mask_pixel, 0, 0, NULL );
@@ -522,7 +522,7 @@ ECollide::ECollide( const Graphics::Bitmap * who, int mask_pixel ){
 
 }
 
-ECollide::ECollide( const Graphics::Bitmap & who, int mask_pixel ){
+ECollide::ECollide( const Graphics::Bitmap & who, Graphics::Color mask_pixel ){
 
 	initECollide( &who, mask_pixel );
 
@@ -697,7 +697,7 @@ int ECollide::getHeight() const{
 }
 */
 	
-void ECollide::draw( const Graphics::Bitmap & work, int x, int y, int color, bool flipped ){
+void ECollide::draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped ){
 
 	head_quad->draw( work, x, y, color, flipped );
 
@@ -707,7 +707,7 @@ int ECollide::numQuads() const{
 	return head_quad->totalQuads();
 }
 	
-void ECollide::draw( const Graphics::Bitmap & work, int x, int y, int color, EQuad * who ){
+void ECollide::draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, EQuad * who ){
 	if ( head_quad == who )
 		head_quad->draw( work, x, y, color );
 	else	head_quad->draw( work, x, y, color, who );

@@ -33,4 +33,6 @@ struct BitmapData{
     mutable int clip_left, clip_right;
     mutable int clip_top, clip_bottom;
 };
+
+typedef int Color;
 }
