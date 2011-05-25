@@ -42,6 +42,10 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include <sstream>
 #include <cassert>
 #include <exception>
+#ifdef USE_ALLEGRO5
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#endif
 
 namespace ftalleg{
 
@@ -102,6 +106,84 @@ namespace ftalleg{
 		return ((width+10) * (height+20) * (italics+250));
 	}
 
+#ifdef USE_ALLEGRO5
+    freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y):
+    font(NULL),
+    width(x),
+    height(y){
+        if (instances == 0){
+            al_init_font_addon();
+            al_init_ttf_addon();
+        }
+        instances += 1;
+
+        font = al_load_font(str.path().c_str(), x, 0);
+    }
+
+    freetype::~freetype(){
+        if (font != NULL){
+            al_destroy_font(font);
+        }
+        instances -= 1;
+        if (instances == 0){
+            al_shutdown_font_addon();
+        }
+    }
+	
+    int freetype::getHeight(const std::string & str) const {
+        /* sort of a hack but we need to set the display to the screen. with
+         * allegro5 the screen buffer will be the actual screen so no allocation
+         * will occur.
+         */
+        al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
+        return al_get_font_line_height(font);
+    }
+
+    int freetype::getLength(const std::string & text) const {
+        al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
+        return al_get_text_width(font, text.c_str());
+    }
+            
+    void freetype::setSize(unsigned int w, unsigned int h){
+        /* FIXME */
+    }
+
+    void freetype::getSize(int * w, int * h) const {
+        *w = width;
+        *h = height;
+    }
+            
+    void freetype::render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...){
+        std::ostringstream str;
+
+        /* use vsnprintf/Util::limitPrintf here? */
+
+        // Get extra arguments
+        va_list ap;
+        va_start(ap, marker);
+        for(unsigned int i = 0; i<text.length();++i) {
+            if (text[i] == '%') {
+                if(text[i+1]=='s') {
+                    str << va_arg(ap, char *);
+                    ++i;
+                } else if(text[i+1]=='d'||text[i+1]=='i') {
+                    str << va_arg(ap, signed int);
+                    ++i;
+                } else if(text[i+1]=='c') {
+                    str << (char)va_arg(ap, int);
+                    ++i;
+                } else str << text[i];
+            } else {
+                str << text[i];
+            }
+        }
+        va_end(ap);
+
+        std::string fixedText(str.str());
+        al_set_target_bitmap(bmp.getData().getBitmap());
+        al_draw_text(font, color, x, y, 0, fixedText.c_str());
+    }
+#else
 	//! Constructor
         freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ):
             face(NULL){
@@ -593,6 +675,7 @@ namespace ftalleg{
 	int freetype::getItalics(){
             return size.italics;
 	}
+#endif
 }
 
 #endif /* FONT_BASE_CPP */
