@@ -188,7 +188,6 @@ int InputManager::_readKey(){
 
 void InputManager::_poll(){
     /* FIXME: not sure if its a good idea to put the event manager here */
-    Util::EventManager eventManager;
     /*
     if (bufferKeys){
         eventManager.enableKeyBuffer();

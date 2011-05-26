@@ -8,6 +8,11 @@
 
 #include <vector>
 
+#ifdef USE_ALLEGRO5
+struct ALLEGRO_EVENT_SOURCE;
+struct ALLEGRO_EVENT_QUEUE;
+#endif
+
 #ifdef USE_SDL
 #include <SDL.h>
 #endif
@@ -55,6 +60,10 @@ private:
 #endif
 #ifdef USE_ALLEGRO
     virtual void runAllegro(Keyboard & keyboard, Joystick *);
+#endif
+#ifdef USE_ALLEGRO5
+    virtual void runAllegro5(Keyboard & keyboard, Joystick *);
+    ALLEGRO_EVENT_QUEUE * queue;
 #endif
 
     std::vector<KeyType> keys;

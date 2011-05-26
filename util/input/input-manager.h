@@ -6,6 +6,7 @@
 #include "input.h"
 #include "input-map.h"
 #include "util/funcs.h"
+#include "util/events.h"
 #include "keyboard.h"
 #include "exceptions/exception.h"
 
@@ -278,6 +279,7 @@ private:
     void * capture;
     Joystick * joystick;
     Keyboard keyboard;
+    Util::EventManager eventManager;
     // std::vector<int> bufferedKeys;
     // bool bufferKeys;
 };
