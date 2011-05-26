@@ -93,22 +93,29 @@ namespace ftalleg{
 	fontSize::fontSize() {
             width = height = italics = angle = 0;
 	}
+            
+        fontSize::fontSize(int width, int height):
+            width(width),
+            height(height),
+            italics(0),
+            angle(0){
+            }
 
 	fontSize::~fontSize() {
 	}
 
 	bool fontSize::operator<(const fontSize &fs) const {
-		return (width<fs.width || height<fs.height || italics<fs.italics);
+            return (width<fs.width || height<fs.height || italics<fs.italics);
 	}
 
         /* im not sure this is a very unique key.. */
 	int fontSize::createKey() const {
-		return ((width+10) * (height+20) * (italics+250));
+            return ((width+10) * (height+20) * (italics+250));
 	}
 
 #ifdef USE_ALLEGRO5
-    freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y):
-    font(NULL),
+    freetype::freetype(const Filesystem::AbsolutePath & path, const int x, const int y):
+    path(path),
     width(x),
     height(y),
     original_size(x){
@@ -118,44 +125,62 @@ namespace ftalleg{
         }
         instances += 1;
 
-        font = al_load_font(str.path().c_str(), x, 0);
+        fonts[width] = al_load_font(path.path().c_str(), width, 0);
     }
 
     freetype::~freetype(){
-        if (font != NULL){
+        for (std::map<int, ALLEGRO_FONT*>::iterator it = fonts.begin(); it != fonts.end(); it++){
+            ALLEGRO_FONT * font = it->second;
             al_destroy_font(font);
         }
+
         instances -= 1;
         if (instances == 0){
             al_shutdown_font_addon();
         }
     }
+
+    ALLEGRO_FONT * freetype::currentFont() const {
+        std::map<int, ALLEGRO_FONT*>::const_iterator find = fonts.find(width);
+        if (find == fonts.end()){
+            throw Exception("inconsistency error");
+        }
+        return find->second;
+    }
 	
     int freetype::getHeight(const std::string & str) const {
+        Util::Thread::ScopedLock locked(lock);
         /* sort of a hack but we need to set the display to the screen. with
          * allegro5 the screen buffer will be the actual screen so no allocation
          * will occur.
          */
         // al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
-        return al_get_font_line_height(font);
+        return al_get_font_line_height(currentFont());
     }
 
     int freetype::getLength(const std::string & text) const {
+        Util::Thread::ScopedLock locked(lock);
         // al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
-        return al_get_text_width(font, text.c_str());
+        return al_get_text_width(currentFont(), text.c_str());
     }
             
     void freetype::setSize(unsigned int w, unsigned int h){
+        Util::Thread::ScopedLock locked(lock);
         width = w;
         height = h;
+        if (fonts[width] == NULL){
+            fonts[width] = al_load_font(path.path().c_str(), width, 0);
+        }
     }
 
     void freetype::getSize(int * w, int * h) const {
+        Util::Thread::ScopedLock locked(lock);
         *w = width;
         *h = height;
     }
             
     void freetype::render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...){
+        Util::Thread::ScopedLock locked(lock);
         std::ostringstream str;
 
         /* use vsnprintf/Util::limitPrintf here? */
@@ -189,7 +214,7 @@ namespace ftalleg{
         al_use_transform(&transform);
         */
         al_set_target_bitmap(bmp.getData().getBitmap());
-        al_draw_text(font, color, x, y, 0, fixedText.c_str());
+        al_draw_text(currentFont(), color, x, y, 0, fixedText.c_str());
         /*
         al_identity_transform(&transform);
         al_use_transform(&transform);

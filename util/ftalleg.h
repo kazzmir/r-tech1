@@ -121,6 +121,7 @@ namespace ftalleg {
         class fontSize{
         public:
             fontSize();
+            fontSize(int width, int height);
             ~fontSize();
             FT_UInt width;
             FT_UInt height;
@@ -150,10 +151,14 @@ namespace ftalleg {
             void getSize(int * w, int * h) const;
             void render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...);
         private:
-            ALLEGRO_FONT * font;
+            ALLEGRO_FONT * currentFont() const;
+
+            const Filesystem::AbsolutePath path;
             int width;
             int height;
             int original_size;
+            Util::Thread::LockObject lock;
+            std::map<int, ALLEGRO_FONT*> fonts;
         };
 #else
 	//!  Freetype based font system
@@ -197,7 +202,6 @@ namespace ftalleg {
             */
 
             Util::Thread::LockObject lock;
-
 
             //! Lookup Table by size
             std::map<int, std::map<signed long, character*> >fontTable;
