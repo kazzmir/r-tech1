@@ -146,7 +146,12 @@ void Widget::render(const Graphics::Bitmap & bitmap, const Font & font){
     render(bitmap);
 }
 
+/* draws a quarter arc */
 void Widget::arc(const Graphics::Bitmap & work, int x, int y, double startAngle, int radius, Graphics::Color color){
+
+    work.arc(x, y, startAngle, startAngle + S_PI / 2, radius, color);
+
+#if 0
     int q = 0;// for counters
     double d_q = 0.0;// for percentage of loop completed
     double d_q_plus_one = 0.0;
@@ -218,6 +223,7 @@ void Widget::arc(const Graphics::Bitmap & work, int x, int y, double startAngle,
             work.line(arc_point_x,arc_point_y, arc_point2_x, arc_point2_y,color);
         }
     }
+#endif
 }
 
 void Widget::roundRect(const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, Graphics::Color color){
@@ -229,10 +235,25 @@ void Widget::roundRect(const Graphics::Bitmap & work, int radius, int x1, int y1
     work.line(x1, y1+radius,x1, y1+height-radius, color);
     work.line(x1+width, y1+radius,x1+width, y1+height-radius, color);
 
+    /* upper left. draw from 180 to 270 */
+    arc(work, x1+radius, y1+radius, S_PI / 2, radius, color);
+    /* upper right. draw from 90 to 0 */
+    arc(work, x1+radius + (width - radius *2), y1+radius, S_PI, radius, color);
+    /* lower right. draw from 0 to 270 */
+    arc(work, x1+width-radius, y1+height-radius, 3 * S_PI / 2, radius ,color);
+    /* lower left. draw from 180 to 270 */
+    arc(work, x1+radius, y1+height-radius, 0, radius, color);
+
+
+#if 0
     arc(work, x1+radius, y1+radius, S_PI-1.115, radius, color);
+    /* upper right */
     arc(work, x1+radius + (width - radius *2), y1+radius, -S_PI/2 +0.116, radius, color);
+    /* lower right */
     arc(work, x1+width-radius, y1+height-radius, -0.110, radius ,color);
+    /* lower left */
     arc(work, x1+radius, y1+height-radius, S_PI/2-0.119, radius, color);
+#endif
 }
 
 void Widget::roundRectFill(const Graphics::Bitmap & work, int radius, int x1, int y1, int x2, int y2, Graphics::Color color){

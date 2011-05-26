@@ -366,6 +366,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
     try{
         while (!logic.done()){
             if (Global::speed_counter4 > 0){
+                // Global::debug(0) << "Speed counter " << Global::speed_counter4 << std::endl;
                 runCounter += logic.ticks(Global::speed_counter4);
                 Global::speed_counter4 = 0;
                 bool need_draw = false;
