@@ -503,8 +503,10 @@ void Bitmap::vLine( const int x1, const int y, const int x2, const Color color )
     /* TODO */
 }
 
+static const double S_PI = 3.14159265358979323846;
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
-    /* TODO */
+    al_set_target_bitmap(getData().getBitmap());
+    al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 0);
 }
 
 void Bitmap::floodfill( const int x, const int y, const Color color ) const {

@@ -1165,9 +1165,18 @@ void Bitmap::polygon( const int * verts, const int nverts, const int color ) con
     SPG_PolygonFilled(getData().getSurface(), nverts, points, color);
     delete[] points;
 }
-	
+
+static const double S_PI = 3.14159265358979323846;
+static const double RAD_TO_DEG = 180.0/S_PI;
+static const double DEG_TO_RAD = S_PI/180.0;
+
+static double toDegrees(double radians){
+    return RAD_TO_DEG * radians;
+}
+
+/* 0 = right. pi/2 = up. pi = left. 3pi/2 = down */
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    SPG_Arc(getData().getSurface(), x, y, radius, ang1, ang2, color);
+    SPG_Arc(getData().getSurface(), x, y, radius, toDegrees(ang1 + S_PI/2), toDegrees(ang2 + S_PI/2), color);
 }
 	
 void Bitmap::fill(int color) const {
