@@ -186,6 +186,7 @@ void WaitThread::kill(){
 WaitThread::~WaitThread(){
     /* FIXME: Should we join the thread? */
     /* pthread_join(thread); */
+    Thread::joinThread(thread);
 }
 
 ThreadBoolean::ThreadBoolean(volatile bool & what, Thread::Lock & lock):

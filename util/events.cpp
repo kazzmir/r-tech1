@@ -1,6 +1,7 @@
 #ifdef USE_SDL
 #include <SDL.h>
 #endif
+#include <vector>
 #include "bitmap.h"
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
@@ -13,6 +14,8 @@
 #include "input/keyboard.h"
 #include "input/joystick.h"
 #include "input/input-manager.h"
+
+template <class Value> std::vector<Value> Util::Parameter<Value>::stack;
 
 namespace Util{
 
