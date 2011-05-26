@@ -169,7 +169,7 @@ void EventManager::runAllegro(Keyboard & keyboard, Joystick * joystick){
 
 #ifdef USE_ALLEGRO5
 static void handleKeyDown(Keyboard & keyboard, const ALLEGRO_EVENT & event){
-    keyboard.press(event.keyboard.keycode, 0);
+    keyboard.press(event.keyboard.keycode, event.keyboard.unichar);
 }
 
 static void handleKeyUp(Keyboard & keyboard, const ALLEGRO_EVENT & event){
@@ -182,12 +182,20 @@ void EventManager::runAllegro5(Keyboard & keyboard, Joystick * joystick){
     ALLEGRO_EVENT event;
     while (al_get_next_event(queue, &event)){
         switch (event.type){
+            /*
             case ALLEGRO_EVENT_KEY_DOWN: {
+                Global::debug(0) << "Key down " << event.keyboard.keycode << std::endl;
                 handleKeyDown(keyboard, event);
                 break;
             }
+            */
             case ALLEGRO_EVENT_KEY_UP: {
                 handleKeyUp(keyboard, event);
+                break;
+            }
+            case ALLEGRO_EVENT_KEY_CHAR : {
+                // Global::debug(0) << "Key char " << event.keyboard.keycode << " unicode " << event.keyboard.unichar << std::endl;
+                handleKeyDown(keyboard, event);
                 break;
             }
         }

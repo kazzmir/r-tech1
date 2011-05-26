@@ -51,8 +51,8 @@ Transformations & Transformations::operator=(const Transformations & transforms)
     return *this;
 }
 
-Widget::Widget() : workArea(0)
-{
+Widget::Widget():
+workArea(NULL){
 	// Nothing yet
 }
 		
@@ -63,9 +63,9 @@ Widget::Widget( const Widget & w ){
 }
 
 Widget::~Widget(){
-	if ( workArea ){
-		delete workArea;
-	}
+    if (workArea){
+        delete workArea;
+    }
 }
 
 // copy
@@ -253,11 +253,11 @@ static void foobar(int a, int b){
 }
 
 void Widget::checkWorkArea(){
-    /*
-    if (location.getWidth() < 0 || location.getHeight() < 0){
-        foobar(location.getWidth(), location.getHeight());
+    if (location.getWidth() <= 0 || location.getHeight() <= 0){
+        delete workArea;
+        workArea = NULL;
+        return;
     }
-    */
 
     if (! workArea){
         workArea = new Graphics::Bitmap(location.getWidth(), location.getHeight());
