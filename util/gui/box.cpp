@@ -38,16 +38,18 @@ void Box::act(const Font & font){
 // Render
 void Box::render(const Graphics::Bitmap & work){
     checkWorkArea();
-    // Check if we are using a rounded box
-    if (transforms.getRadius() > 0){
-        roundRectFill(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
-        roundRect(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
-    } else {
-        workArea->rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea->rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
+    if (workArea != NULL){
+        // Check if we are using a rounded box
+        if (transforms.getRadius() > 0){
+            roundRectFill(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
+            roundRect(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+        } else {
+            workArea->rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
+            workArea->rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
+        }
+        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
+        workArea->translucent().draw(location.getX(), location.getY(), work);
     }
-    Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
-    workArea->translucent().draw(location.getX(), location.getY(), work);
 }
 
 void Box::messageDialog(int centerWidth, int centerHeight, const std::string & message, int radius){
