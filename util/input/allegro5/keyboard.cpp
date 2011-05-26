@@ -146,14 +146,25 @@ void Keyboard::enableKeyRepeat(){
 }
 
 void Keyboard::readKeys(std::vector<int> & all_keys){
-    /* TODO */
+    for (std::map<KeyType, KeyData>::iterator it = keyState.begin(); it != keyState.end(); it++){
+        KeyType key = it->first;
+        const KeyData & data = it->second;
+        if (data.enabled){
+            all_keys.push_back(key);
+        }
+    }
 }
 
 bool Keyboard::keypressed(){
     /* TODO */
     return false;
 }
+    
+void Keyboard::poll(){
+    buffer.clear();
+}
 
 void Keyboard::clear(){
-    /* TODO */
+    buffer.clear();
+    keyState.clear();
 }

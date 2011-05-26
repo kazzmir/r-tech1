@@ -1,6 +1,9 @@
 #ifdef USE_SDL
 #include <SDL.h>
 #endif
+#ifdef USE_ALLEGRO5
+#include <allegro5/allegro.h>
+#endif
 #include <vector>
 #include "bitmap.h"
 #include "events.h"
@@ -21,6 +24,10 @@ namespace Util{
 
 EventManager::EventManager():
 bufferKeys(false){
+#ifdef USE_ALLEGRO5
+    queue = al_create_event_queue();
+    al_register_event_source(queue, al_get_keyboard_event_source());
+#endif
 }
 
 #ifdef USE_SDL
@@ -160,11 +167,106 @@ void EventManager::runAllegro(Keyboard & keyboard, Joystick * joystick){
 }
 #endif
 
+#ifdef USE_ALLEGRO5
+static void handleKeyDown(Keyboard & keyboard, const ALLEGRO_EVENT & event){
+    keyboard.press(event.keyboard.keycode, 0);
+}
+
+static void handleKeyUp(Keyboard & keyboard, const ALLEGRO_EVENT & event){
+    keyboard.release(event.keyboard.keycode);
+}
+
+void EventManager::runAllegro5(Keyboard & keyboard, Joystick * joystick){
+    keyboard.poll();
+
+    ALLEGRO_EVENT event;
+    while (al_get_next_event(queue, &event)){
+        switch (event.type){
+            case ALLEGRO_EVENT_KEY_DOWN: {
+                handleKeyDown(keyboard, event);
+                break;
+            }
+            case ALLEGRO_EVENT_KEY_UP: {
+                handleKeyUp(keyboard, event);
+                break;
+            }
+        }
+    }
+
+    /*
+    if (joystick){
+        joystick->poll();
+    }
+    SDL_Event event;
+    while (SDL_PollEvent(&event) == 1){
+        switch (event.type){
+            case SDL_QUIT : {
+                dispatch(CloseWindow);
+                break;
+            }
+            case SDL_KEYDOWN : {
+                handleKeyDown(keyboard, event);
+                 // dispatch(Key, event.key.keysym.sym);
+                 break;
+            }
+            case SDL_KEYUP : {
+                handleKeyUp(keyboard, event);
+                break;
+            }
+            case SDL_JOYBUTTONDOWN: {
+                if (joystick != NULL){
+                    handleJoystickButtonDown(joystick, event);
+                }
+                break;
+            }
+            case SDL_JOYHATMOTION : {
+                if (joystick != NULL){
+                    handleJoystickHat(joystick, event);
+                }
+                break;
+            }
+            case SDL_JOYBUTTONUP: {
+                if (joystick != NULL){
+                    handleJoystickButtonUp(joystick, event);
+                }
+                break;
+            }
+            case SDL_JOYAXISMOTION: {
+                if (joystick != NULL){
+                    handleJoystickAxis(joystick, event);
+                }
+                break;
+            }
+            case SDL_VIDEORESIZE : {
+                int width = event.resize.w;
+                int height = event.resize.h;
+                / * to keep the perspective correct
+                 * 640/480 = 1.33333
+                 * /
+                if (width > height){
+                    height = (int)((double) width / 1.3333333333);
+                } else {
+                    width = (int)((double) height * 1.3333333333);
+                }
+                dispatch(ResizeScreen, width, height);
+                break;
+            }
+            default : {
+                break;
+            }
+        }
+    }
+    */
+}
+#endif
+
 void EventManager::run(Keyboard & keyboard, Joystick * joystick){
 #ifdef USE_SDL
     runSDL(keyboard, joystick);
 #elif USE_ALLEGRO
     runAllegro(keyboard, joystick);
+#elif USE_ALLEGRO5
+    runAllegro5(keyboard, joystick);
 #endif
 }
 
@@ -185,6 +287,9 @@ void EventManager::waitForThread(WaitThread & thread){
 }
 
 EventManager::~EventManager(){
+#ifdef USE_ALLEGRO5
+    al_destroy_event_queue(queue);
+#endif
 }
     
 void EventManager::enableKeyBuffer(){
