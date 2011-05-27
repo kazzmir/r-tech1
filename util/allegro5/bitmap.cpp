@@ -213,18 +213,8 @@ void Bitmap::internalLoadFile(const char * path){
         out << "Could not load file '" << path << "'";
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
+    al_convert_mask_to_alpha(loaded, al_map_rgb(255, 0, 255));
     getData().setBitmap(loaded);
-    /*
-    ALLEGRO_BITMAP * loaded = IMG_Load(path);
-    if (loaded){
-        getData().setSurface(optimizedSurface(loaded));
-        SDL_FreeSurface(loaded);
-    } else {
-        std::ostringstream out;
-        out << "Could not load file '" << path << "'";
-        throw BitmapException(__FILE__, __LINE__, out.str());
-    }
-    */
     own = new int;
     *own = 1;
 }
