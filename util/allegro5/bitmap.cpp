@@ -407,7 +407,11 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
-    /* TODO */
+    /* FIXME */
+    MaskedBlender blender;
+    al_set_target_bitmap(who.getData().getBitmap());
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
 
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
@@ -492,7 +496,12 @@ void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
 }
 
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    /* TODO */
+    /* FIXME */
+    MaskedBlender blender;
+    al_set_target_bitmap(where.getData().getBitmap());
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, 0);
+
 }
 
 void Bitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
@@ -701,7 +710,7 @@ void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
 
 void Bitmap::destroyPrivateData(){
     al_destroy_bitmap(getData().getBitmap());
-    al_set_target_bitmap(Screen->getData().getBitmap());
+    // al_set_target_bitmap(Screen->getData().getBitmap());
 }
 
 int setGfxModeFullscreen(int x, int y){

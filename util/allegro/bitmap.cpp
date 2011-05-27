@@ -9,6 +9,7 @@
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
 #include "../trans-bitmap.h"
+#include "../init.h"
 #include <stdarg.h>
 #include <vector>
 #include <string>
@@ -1793,7 +1794,7 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
 }
 
 Bitmap getScreenBuffer(){
-    return Bitmap(Screen->getWidth(), Screen->getHeight());
+    return Bitmap(GFX_X, GFX_Y);
 }
 
 }

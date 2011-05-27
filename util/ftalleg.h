@@ -153,6 +153,7 @@ namespace ftalleg {
         private:
             ALLEGRO_FONT * currentFont() const;
 
+            Graphics::Bitmap alive;
             const Filesystem::AbsolutePath path;
             int width;
             int height;
