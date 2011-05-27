@@ -579,7 +579,7 @@ bool Global::init(int gfx){
     font.printf(0, 0, Bitmap::makeColor(255, 255, 255), temp, "Loading", 0);
     temp.BlitToScreen(sx / 2, sy / 2);
     */
-    Graphics::Bitmap white(sx, sy);
+    Graphics::Bitmap white(Graphics::getScreenBuffer());
     white.fill(Graphics::makeColor(255, 255, 255));
     white.BlitToScreen();
 
