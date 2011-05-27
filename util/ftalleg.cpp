@@ -115,6 +115,7 @@ namespace ftalleg{
 
 #ifdef USE_ALLEGRO5
     freetype::freetype(const Filesystem::AbsolutePath & path, const int x, const int y):
+    alive(5, 5),
     path(path),
     width(x),
     height(y),
@@ -154,13 +155,13 @@ namespace ftalleg{
          * allegro5 the screen buffer will be the actual screen so no allocation
          * will occur.
          */
-        // al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
+        al_set_target_bitmap(alive.getData().getBitmap());
         return al_get_font_line_height(currentFont());
     }
 
     int freetype::getLength(const std::string & text) const {
         Util::Thread::ScopedLock locked(lock);
-        // al_set_target_bitmap(Graphics::getScreenBuffer().getData().getBitmap());
+        al_set_target_bitmap(alive.getData().getBitmap());
         return al_get_text_width(currentFont(), text.c_str());
     }
             

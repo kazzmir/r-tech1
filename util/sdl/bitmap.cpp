@@ -4,6 +4,7 @@
 #include "../funcs.h"
 #include "../../util/debug.h"
 #include "../system.h"
+#include "../init.h"
 #include "sprig/sprig.h"
 #include "stretch/SDL_stretch.h"
 #include <SDL.h>
@@ -1874,7 +1875,7 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
 }
 
 Bitmap getScreenBuffer(){
-    return Bitmap(Screen->getWidth(), Screen->getHeight());
+    return Bitmap(GFX_X, GFX_Y);
 }
 
 }
