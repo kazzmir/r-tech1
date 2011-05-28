@@ -5,6 +5,8 @@
 
 namespace Graphics{
 
+/* it doesnt look like we need to pack colors into 16-bit values */
+#if 0
 static const int rgb_r_shift_16 = 0;
 static const int rgb_g_shift_16 = 5;
 static const int rgb_b_shift_16 = 11;
@@ -39,6 +41,7 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
     *green = _rgb_scale_6[(color >> rgb_g_shift_16) & 0x3F];
     *blue = _rgb_scale_5[(color >> rgb_b_shift_16) & 0x1F];
 }
+#endif
 
 struct BlendingData{
     BlendingData():
@@ -474,7 +477,7 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
-    /* TODO */
+    al_flip_display();
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
@@ -750,6 +753,10 @@ void Bitmap::shutdown(){
 
 Bitmap getScreenBuffer(){
     return *Screen;
+}
+
+void resetDisplay(){
+    al_set_target_bitmap(Screen->getData().getBitmap());
 }
 
 }

@@ -137,7 +137,7 @@ void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work
     if (!closeFloat(scrollOffset.getDistanceFromCenterX(), 0) || !closeFloat(scrollOffset.getDistanceFromCenterY(), 0)){
 
         // Lets do some scrolling
-        Graphics::Bitmap temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
+        // Graphics::Bitmap temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
         //AnimationPoint loc;
         AbsolutePoint loc;
         if (scrollOffset.getRelativeX() < 0){
@@ -150,12 +150,40 @@ void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work
         } else if (scrollOffset.getRelativeY() > 0){
             loc.setY(scrollOffset.getDistanceFromCenterY() - bmp->getHeight());
         }
+
+        /*
         bmp->Blit((int) scrollOffset.getDistanceFromCenterX(), (int) scrollOffset.getDistanceFromCenterY(), temp);
         bmp->Blit((int) scrollOffset.getDistanceFromCenterX(), (int) loc.getY(), temp);
         bmp->Blit((int) loc.getX(), (int) scrollOffset.getDistanceFromCenterY(), temp);
         bmp->Blit((int) loc.getX(), (int) loc.getY(), temp);
 
         renderSprite(temp, (int)(xaxis+offset.getDistanceFromCenterX()), (int)(yaxis+offset.getDistanceFromCenterY()), alpha, horizontalFlip, verticalFlip, work);
+        */
+
+        double x = xaxis+offset.getDistanceFromCenterX();
+        double y = yaxis+offset.getDistanceFromCenterY();
+
+        renderSprite(*bmp,
+                    (int)(x + scrollOffset.getDistanceFromCenterX()),
+                    (int)(y + scrollOffset.getDistanceFromCenterY()),
+                    alpha, horizontalFlip, verticalFlip, work);
+
+        renderSprite(*bmp,
+                    (int)(x + loc.getX()),
+                    (int)(y + scrollOffset.getDistanceFromCenterY()),
+                    alpha, horizontalFlip, verticalFlip, work);
+
+        renderSprite(*bmp,
+                    (int)(x + scrollOffset.getDistanceFromCenterX()),
+                    (int)(y + loc.getY()),
+                    alpha, horizontalFlip, verticalFlip, work);
+
+        renderSprite(*bmp,
+                    (int)(x + loc.getX()),
+                    (int)(y + loc.getY()),
+                    alpha, horizontalFlip, verticalFlip, work);
+
+
     } else {
         renderSprite(*bmp, (int)(xaxis+offset.getDistanceFromCenterX()), (int)(yaxis+offset.getDistanceFromCenterY()), alpha, horizontalFlip, verticalFlip, work);
     }

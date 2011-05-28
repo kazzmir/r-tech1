@@ -392,6 +392,9 @@ protected:
  */
 Bitmap getScreenBuffer();
 
+/* sets the current target bitmap to the screen (on allegro5) */
+void resetDisplay();
+
 void blend_palette(Color * pal, int mp, Color sc, Color ec);
 // bool sameColors(Color color1, Color color2);
 

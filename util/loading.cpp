@@ -12,6 +12,7 @@
 #include "font.h"
 #include "funcs.h"
 #include "gradient.h"
+#include "parameter.h"
 #include "thread.h"
 #include "globals.h"
 #include <vector>
@@ -312,7 +313,7 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
         int & angle;
 
         double ticks(double system){
-            return system;
+            return system / 2;
         }
 
         bool done(){
@@ -320,14 +321,14 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
         }
 
         void run(){
-            angle += speed;
+            angle += speed * 2;
         }
     };
 
     class Draw: public Util::Draw {
     public:
         Draw(int & angle, const int speed):
-        work(40, 40),
+        work(*Util::Parameter<Graphics::Bitmap*>::current(), 0, 0, 40, 40),
         original(40, 40),
         angle(angle),
         speed(speed){
@@ -355,6 +356,10 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
         Graphics::Color color4;
         /* the length of this array is the number of circles to show */
         Graphics::Color colors[4];
+
+        ~Draw(){
+            Graphics::resetDisplay();
+        }
 
         void draw(){
             int max = sizeof(colors) / sizeof(int);
