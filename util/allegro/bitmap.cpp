@@ -1793,11 +1793,6 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
     }
 }
 
-Bitmap getScreenBuffer(){
-    return Bitmap(GFX_X, GFX_Y);
 }
 
-void resetDisplay(){
-}
-
-}
+#include "../software-renderer/bitmap.cpp"

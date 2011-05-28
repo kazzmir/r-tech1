@@ -248,7 +248,7 @@ static void initSystem(ostream & out){
     al_set_app_name("Paintown");
 
     start_timer(inc_speed_counter, Global::TICS_PER_SECOND);
-    // start_timer(inc_second_counter, 1);
+    start_timer(inc_second_counter, 1);
 }
 #endif
 
