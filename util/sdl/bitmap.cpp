@@ -1874,11 +1874,6 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
     }
 }
 
-Bitmap getScreenBuffer(){
-    return Bitmap(GFX_X, GFX_Y);
 }
 
-void resetDisplay(){
-}
-
-}
+#include "../software-renderer/bitmap.cpp"

@@ -80,7 +80,7 @@ public:
 class MaskedBlender: public Blender {
 public:
     MaskedBlender(){
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
     }
 };
 
@@ -401,8 +401,8 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
     /* FIXME */
-    MaskedBlender blender;
     al_set_target_bitmap(who.getData().getBitmap());
+    MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
@@ -417,6 +417,8 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
     }
     */
 
+    /* FIXME: deal with mx, my, width, height */
+
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
     /*
@@ -426,27 +428,48 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
-    /* TODO */
+    al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    /* TODO */
+    /* FIXME: deal with filter */
+    al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    /* FIXME: deal with filter */
+    al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    /* FIXME: deal with filter */
+    al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
+    /* any source pixels with an alpha value of 0 will be masked */
+    al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::BlitMasked(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
@@ -482,16 +505,16 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     // TransBlender blender;
-    MaskedBlender blender;
     al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 }
 
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
     /* FIXME */
-    MaskedBlender blender;
     al_set_target_bitmap(where.getData().getBitmap());
+    MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
 
@@ -580,8 +603,8 @@ void Bitmap::readLine(std::vector<Color> & line, int y){
 }
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
-    TransBlender blender;
     al_set_target_bitmap(where.getData().getBitmap());
+    TransBlender blender;
     al_draw_tinted_bitmap(getData().getBitmap(), getBlendColor(), x, y, 0);
 }
 
@@ -664,8 +687,8 @@ Color doTransBlend(const Color & color, int alpha){
 }
 
 void TranslucentBitmap::putPixelNormal(int x, int y, Color color) const {
-    TransBlender blender;
     al_set_target_bitmap(getData().getBitmap());
+    TransBlender blender;
     al_put_pixel(x, y, doTransBlend(color, globalBlend.alpha));
 }
 
@@ -749,6 +772,28 @@ void Bitmap::shutdown(){
     delete Buffer;
     Buffer = NULL;
     */
+}
+
+StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent):
+Bitmap(parent, 0, 0, parent.getWidth(), parent.getHeight()),
+width(width),
+height(height),
+where(parent){
+}
+
+void StretchedBitmap::start(){
+    ALLEGRO_TRANSFORM transform;
+    al_set_target_bitmap(getData().getBitmap());
+    al_identity_transform(&transform);
+    al_scale_transform(&transform, getWidth() / width, getHeight() / height);
+    al_use_transform(&transform);
+}
+
+void StretchedBitmap::finish(){
+    ALLEGRO_TRANSFORM transform;
+    al_set_target_bitmap(getData().getBitmap());
+    al_identity_transform(&transform);
+    al_use_transform(&transform);
 }
 
 Bitmap getScreenBuffer(){

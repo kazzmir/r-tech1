@@ -85,6 +85,8 @@ static vector<ppair> generateFontPixels(const Font & myFont, const string & mess
         }
     }
 
+    Graphics::resetDisplay();
+
     return pairs;
 }
 
@@ -117,6 +119,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     int load_y = 220;
     const int infobox_width = 300;
     const int infobox_height = 150;
+    Graphics::resetDisplay();
     const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
 
     if (levelInfo.getPositionX() != -1){
@@ -242,6 +245,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     Draw draw(levelInfo, state, infobox, gradient, load_width, load_height, infobox_width, infobox_height, load_x, load_y);
 
     Util::standardLoop(logic, draw);
+    Graphics::resetDisplay();
 
 #if 0
     while (! context.done()){
