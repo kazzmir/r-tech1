@@ -166,15 +166,21 @@ namespace ftalleg{
          * will occur.
          */
         // al_set_target_bitmap(alive.getData().getBitmap());
+        ALLEGRO_BITMAP * target = al_get_target_bitmap();
         al_set_target_bitmap(NULL);
-        return al_get_font_line_height(currentMemoryFont());
+        int height = al_get_font_line_height(currentMemoryFont());
+        al_set_target_bitmap(target);
+        return height;
     }
 
     int freetype::getLength(const std::string & text) const {
         Util::Thread::ScopedLock locked(lock);
         // al_set_target_bitmap(alive.getData().getBitmap());
+        ALLEGRO_BITMAP * target = al_get_target_bitmap();
         al_set_target_bitmap(NULL);
-        return al_get_text_width(currentMemoryFont(), text.c_str());
+        int width = al_get_text_width(currentMemoryFont(), text.c_str());
+        al_set_target_bitmap(target);
+        return width;
     }
             
     void freetype::setSize(unsigned int w, unsigned int h){

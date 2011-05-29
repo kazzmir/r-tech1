@@ -1,4 +1,5 @@
 #include <sstream>
+#include <allegro5/allegro5.h>
 #include <allegro5/allegro_memfile.h>
 #include <allegro5/allegro_primitives.h>
 #include "util/debug.h"
@@ -192,12 +193,39 @@ bit8MaskColor(copy.bit8MaskColor){
     }
 }
 
-void changeTarget(const Bitmap & who){
-    al_set_target_bitmap(who.getData().getBitmap());
+void Bitmap::convertToVideo(){
+    ALLEGRO_BITMAP * original = getData().getBitmap();
+    ALLEGRO_BITMAP * copy = al_clone_bitmap(original);
+    if (copy == NULL){
+        throw BitmapException(__FILE__, __LINE__, "Could not create video bitmap");
+    }
+    releaseInternalBitmap();
+    getData().setBitmap(copy);
+    own = new int;
+    *own = 1;
 }
 
-void changeTarget(const Bitmap * who){
-    changeTarget(*who);
+void changeTarget(const Bitmap & from, const Bitmap & who){
+    al_set_target_bitmap(who.getData().getBitmap());
+    if ((al_get_bitmap_flags(who.getData().getBitmap()) & ALLEGRO_VIDEO_BITMAP) &&
+        (al_get_bitmap_flags(from.getData().getBitmap()) & ALLEGRO_MEMORY_BITMAP)){
+        ((Bitmap&) from).convertToVideo();
+        if (&from == &who){
+            al_set_target_bitmap(who.getData().getBitmap());
+        }
+    }
+}
+
+void changeTarget(const Bitmap * from, const Bitmap & who){
+    changeTarget(*from, who);
+}
+
+void changeTarget(const Bitmap & from, const Bitmap * who){
+    changeTarget(from, *who);
+}
+
+void changeTarget(const Bitmap * from, const Bitmap * who){
+    changeTarget(*from, *who);
 }
 
 enum Format{
@@ -403,7 +431,7 @@ Color Bitmap::getPixel(const int x, const int y) const {
 
 void Bitmap::putPixel(int x, int y, Color pixel) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(this);
+    changeTarget(this, this);
     al_put_pixel(x, y, pixel);
 }
 
@@ -419,7 +447,7 @@ void Bitmap::fill(Color color) const {
     al_set_target_bitmap(getData().getBitmap());
     al_clear_to_color(al_map_rgb(red, green, blue));
     */
-    changeTarget(this);
+    changeTarget(this, this);
     al_clear_to_color(color);
 }
 	
@@ -457,7 +485,7 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME */
-    changeTarget(who);
+    changeTarget(this, who);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
@@ -466,7 +494,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     // double start = al_get_time();
-    changeTarget(where);
+    changeTarget(this, where);
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     /*
     if (&where != Screen){
@@ -486,7 +514,7 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_HORIZONTAL);
@@ -495,7 +523,7 @@ void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
 void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME: deal with filter */
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_HORIZONTAL);
@@ -503,7 +531,7 @@ void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap &
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL);
@@ -512,7 +540,7 @@ void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME: deal with filter */
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL);
@@ -520,7 +548,7 @@ void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap 
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL);
@@ -529,7 +557,7 @@ void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME: deal with filter */
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL);
@@ -560,20 +588,20 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
         al_flip_display();
     }
     */
-    changeTarget(Screen);
+    changeTarget(this, Screen);
     al_flip_display();
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(Screen);
+    changeTarget(this, Screen);
     al_flip_display();
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     // TransBlender blender;
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
@@ -582,7 +610,7 @@ void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME */
-    changeTarget(where);
+    changeTarget(this, where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData().getBitmap(), x, y, 0);
@@ -600,7 +628,7 @@ void Bitmap::vLine(const int y1, const int x, const int y2, const Color color) c
 static const double S_PI = 3.14159265358979323846;
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(this);
+    changeTarget(this, this);
     al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 1);
 }
 
@@ -643,7 +671,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(this);
+    changeTarget(this, this);
     al_draw_filled_pieslice(x, y, radius, ang1 - S_PI/2, ang2 - ang1, color);
     // al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 0);
 }
@@ -668,19 +696,19 @@ void TranslucentBitmap::line( const int x1, const int y1, const int x2, const in
 
 void Bitmap::circleFill(int x, int y, int radius, Color color) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(this);
+    changeTarget(this, this);
     al_draw_filled_circle(x, y, radius, color);
 }
 
 void Bitmap::circle(int x, int y, int radius, Color color) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(this);
+    changeTarget(this, this);
     al_draw_circle(x, y, radius, color, 0);
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(this);
+    changeTarget(this, this);
     al_draw_rectangle(x1, y1, x2, y2, color, 0);
 }
 
@@ -690,7 +718,7 @@ void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const 
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
     */
-    changeTarget(this);
+    changeTarget(this, this);
     al_draw_filled_rectangle(x1, y1, x2, y2, color);
 }
 
@@ -732,7 +760,7 @@ void Bitmap::readLine(std::vector<Color> & line, int y){
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
     // Util::Thread::ScopedLock locked(*allegroLock);
-    changeTarget(where);
+    changeTarget(this, where);
     TransBlender blender;
     al_draw_tinted_bitmap(getData().getBitmap(), getBlendColor(), x, y, 0);
 }
@@ -935,7 +963,7 @@ where(parent){
 
 void StretchedBitmap::start(){
     ALLEGRO_TRANSFORM transform;
-    changeTarget(this);
+    changeTarget(this, this);
     al_identity_transform(&transform);
     al_scale_transform(&transform, getWidth() / width, getHeight() / height);
     al_use_transform(&transform);
@@ -943,7 +971,7 @@ void StretchedBitmap::start(){
 
 void StretchedBitmap::finish(){
     ALLEGRO_TRANSFORM transform;
-    changeTarget(this);
+    changeTarget(this, this);
     al_identity_transform(&transform);
     al_use_transform(&transform);
 }
@@ -953,7 +981,8 @@ Bitmap getScreenBuffer(){
 }
 
 void resetDisplay(){
-    changeTarget(Screen);
+    al_set_target_bitmap(Screen->getData().getBitmap());
+    // changeTarget(Screen);
 }
 
 RestoreState::RestoreState():
