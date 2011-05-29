@@ -804,6 +804,14 @@ void resetDisplay(){
     al_set_target_bitmap(Screen->getData().getBitmap());
 }
 
+RestoreState::RestoreState():
+target(al_get_target_bitmap()){
+}
+
+RestoreState::~RestoreState(){
+    al_set_target_bitmap(target);
+}
+
 }
 
 static bool sameColor(Graphics::Color color1, Graphics::Color color2){
@@ -837,4 +845,3 @@ bool operator!=(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
 bool operator==(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
     return sameColor(color1, color2);
 }
-

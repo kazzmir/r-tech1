@@ -18,6 +18,14 @@ struct BitmapData{
 
 namespace Graphics{
     typedef ALLEGRO_COLOR Color;
+
+    class RestoreState{
+    public:
+        RestoreState();
+        ~RestoreState();
+    protected:
+        ALLEGRO_BITMAP * target;
+    };
 }
 
 bool operator<(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);
