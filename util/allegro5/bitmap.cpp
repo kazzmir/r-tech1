@@ -56,7 +56,7 @@ struct BlendingData{
 static BlendingData globalBlend;
 
 /* must be a pointer so it can be created dynamically after allegro init */
-Util::Thread::LockObject * allegroLock;
+// Util::Thread::LockObject * allegroLock;
 
 Color makeColorAlpha(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha){
     return al_map_rgba(red, blue, green, alpha);
@@ -385,7 +385,7 @@ int Bitmap::getHeight() const {
 
 void initializeExtraStuff(){
     // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-    allegroLock = new Util::Thread::LockObject();
+    // allegroLock = new Util::Thread::LockObject();
 }
 
 int setGraphicsMode(int mode, int width, int height){
@@ -944,8 +944,8 @@ void Bitmap::drawingMode(int type){
 void Bitmap::shutdown(){
     delete Screen;
     Screen = NULL;
-    delete allegroLock;
-    allegroLock = NULL;
+    // delete allegroLock;
+    // allegroLock = NULL;
     /*
     delete Scaler;
     Scaler = NULL;
