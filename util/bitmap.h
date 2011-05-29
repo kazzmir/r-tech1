@@ -361,6 +361,9 @@ public:
 	static const int MODE_TRANS;
 	static const int MODE_SOLID;
 
+#ifdef USE_ALLEGRO5
+        void convertToVideo();
+#endif
 protected:
         /* release a reference count, and possibly destroy data */
         void releaseInternalBitmap();

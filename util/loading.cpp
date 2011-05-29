@@ -69,7 +69,7 @@ static void setupBackground(const Graphics::Bitmap & background, int load_x, int
 static vector<ppair> generateFontPixels(const Font & myFont, const string & message, int width, int height){
     Graphics::Bitmap letters(width, height);
     letters.fill(Graphics::MaskColor());
-    myFont.printf( 0, 0, Graphics::makeColor(255, 255, 255), letters, message.c_str(), 0 ); 
+    myFont.printf(0, 0, Graphics::makeColor(255, 255, 255), letters, message.c_str(), 0); 
 
     vector< ppair > pairs;
     /* store every pixel we need to draw */
