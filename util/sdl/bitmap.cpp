@@ -804,12 +804,20 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
 }
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
+    SPG_Line(getData().getSurface(), x1, y1, x2, y2, color);
+    /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Line(getData().getSurface(), x1, y1, x2, y2, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
         SPG_LineBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
     }
+    */
+}
+
+void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const int color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_LineBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {

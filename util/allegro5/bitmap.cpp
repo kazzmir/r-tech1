@@ -83,6 +83,10 @@ Color doTransBlend(const Color & color, int alpha){
     */
 }
 
+Color transBlendColor(const Color & color){
+    return doTransBlend(color, globalBlend.alpha);
+}
+
 class Blender{
 public:
     Blender(){
@@ -575,19 +579,19 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
 
 }
 
-void Bitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
-    /* TODO */
+void Bitmap::hLine(const int x1, const int y, const int x2, const Color color) const {
+    line(x1, y, x2, y, color);
 }
 
-void Bitmap::vLine( const int x1, const int y, const int x2, const Color color ) const {
-    /* TODO */
+void Bitmap::vLine(const int y1, const int x, const int y2, const Color color) const {
+    line(x, y1, x, y2, color);
 }
 
 static const double S_PI = 3.14159265358979323846;
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
-    al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 0);
+    al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 1);
 }
 
 void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
@@ -600,14 +604,43 @@ void TranslucentBitmap::arc(const int x, const int y, const double ang1, const d
     */
 }
 
+/* from http://www.allegro.cc/forums/thread/605684/892721#target */
+void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
+                                float delta_theta, ALLEGRO_COLOR color){
+    ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
+    int num_segments, ii;
+
+    num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
+
+    if (num_segments < 2)
+        return;
+
+    if (num_segments >= ALLEGRO_VERTEX_CACHE_SIZE) {
+        num_segments = ALLEGRO_VERTEX_CACHE_SIZE - 1;
+    }
+
+    al_calculate_arc(&(vertex_cache[1].x), sizeof(ALLEGRO_VERTEX), cx, cy, r, r, start_theta, delta_theta, 0, num_segments);
+    vertex_cache[0].x = cx; vertex_cache[0].y = cy;
+
+    for (ii = 0; ii < num_segments + 1; ii++) {
+        vertex_cache[ii].color = color;
+        vertex_cache[ii].z = 0;
+    }
+
+    al_draw_prim(vertex_cache, NULL, NULL, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
+    // al_draw_prim(vertex_cache, NULL, NULL, 0, 3, ALLEGRO_PRIM_TRIANGLE_FAN);
+}
+
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
+    al_draw_filled_pieslice(x, y, radius, ang1 - S_PI/2, ang2 - ang1, color);
     // al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 0);
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
-    /* TODO */
+    TransBlender blender;
+    Bitmap::arcFilled(x, y, ang1, ang2, radius, transBlendColor(color));
 }
 
 void Bitmap::floodfill( const int x, const int y, const Color color ) const {
@@ -616,6 +649,11 @@ void Bitmap::floodfill( const int x, const int y, const Color color ) const {
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const Color color ) const {
     al_draw_line(x1, y1, x2, y2, color, 0);
+}
+
+void TranslucentBitmap::line( const int x1, const int y1, const int x2, const int y2, const Color color ) const {
+    TransBlender blender;
+    Bitmap::line(x1, y1, x2, y2, color);
 }
 
 void Bitmap::circleFill(int x, int y, int radius, Color color) const {
