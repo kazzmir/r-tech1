@@ -616,9 +616,13 @@ void Bitmap::circle( int x, int y, int radius, int color ) const{
 }
 	
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const{
+    ::fastline( getData().getBitmap(), x1, y1, x2, y2, color );
+}
 
-	::fastline( getData().getBitmap(), x1, y1, x2, y2, color );
-	
+void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const int color) const{
+    drawingMode(MODE_TRANS);
+    Bitmap::line(x1, y1, x2, y2, color);
+    drawingMode(MODE_SOLID);
 }
 	
 void Bitmap::floodfill( const int x, const int y, const int color ) const {
@@ -953,8 +957,31 @@ void Bitmap::polygon( const int * verts, const int nverts, const int color ) con
 	::polygon( getData().getBitmap(), nverts, verts, color );
 }
 
+/* These values are specified in 16.16 fixed point format, with 256 equal to
+ * a full circle, 64 a right angle, etc. Zero is to the right of the centre
+ * point, and larger values rotate anticlockwise from there.
+ */
+static const double S_PI = 3.14159265358979323846;
+static const double RAD_TO_DEG = 180.0/S_PI;
+static const double DEG_TO_RAD = S_PI/180.0;
+
+static double toDegrees(double radians){
+    return RAD_TO_DEG * radians;
+}
+
+double toAllegroDegrees(double radians){
+    return toDegrees(radians) * 256.0 / 365;
+}
+
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    ::arc(getData().getBitmap(), x, y, ::ftofix(ang1), ::ftofix(ang2), radius, color);
+    ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - S_PI/2)));
+    ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - S_PI/2)));
+    if (angle1 > angle2){
+        ::fixed swap = angle1;
+        angle1 = angle2;
+        angle2 = swap;
+    }
+    ::arc(getData().getBitmap(), x, y, angle1, angle2, radius, color);
 }
 
 void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
@@ -963,8 +990,68 @@ void TranslucentBitmap::arc(const int x, const int y, const double ang1, const d
     drawingMode(MODE_SOLID);
 }
 
+struct ArcPoint{
+    int x;
+    int y;
+};
+
+struct ArcPoints{
+    ArcPoints(int radius):
+    next(0),
+    size(0){
+        /* 1/4th of the circumference = 2 * pi * r / 4 */
+        size = (S_PI * radius / 2);
+        if (size < 2){
+            size = 2;
+        }
+        points = new ArcPoint[size];
+    }
+
+    void save(int x, int y){
+        if (next < size){
+            points[next].x = x;
+            points[next].y = y;
+            next += 1;
+        }
+    }
+
+    ~ArcPoints(){
+        delete[] points;
+    }
+
+    ArcPoint * points;
+    int next;
+    int size;
+};
+
+void store_arc_points(BITMAP * _store, int x, int y, int color){
+    ArcPoints * store = (ArcPoints*) _store;
+    store->save(x, y);
+}
+
+void drawFilledArc(const int x, const int y, ::fixed angle1, ::fixed angle2, int radius, Color color, BITMAP * paint){
+    // num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
+    ArcPoints store(radius);
+    do_arc((BITMAP*) &store, x, y, angle1, angle2, radius, color, store_arc_points);
+    /* for each point on the arc draw a vertical line */
+    for (int index = 0; index < store.next; index += 1){
+        int x1 = x;
+        int y1 = y;
+        int x2 = store.points[index].x;
+        int y2 = store.points[index].y;
+        ::vline(paint, x2, y1, y2, color);
+    }
+}
+
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const{
-    /* TODO */
+    ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - S_PI/2)));
+    ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - S_PI/2)));
+    if (angle1 > angle2){
+        ::fixed swap = angle1;
+        angle1 = angle2;
+        angle2 = swap;
+    }
+    drawFilledArc(x, y, angle1, angle2, radius, color, getData().getBitmap());
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {

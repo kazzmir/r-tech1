@@ -15,6 +15,7 @@ public:
     virtual void rectangleFill(int x1, int y1, int x2, int y2, Color color) const;
     virtual void rectangle(int x1, int y1, int x2, int y2, Color color) const;
     virtual void fill(Color color) const;
+    virtual void line( const int x1, const int y1, const int x2, const int y2, const Color color ) const;
     virtual void hLine( const int x1, const int y, const int x2, const Color color ) const;
     virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color) const;
     virtual void arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
