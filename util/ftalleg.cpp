@@ -126,13 +126,15 @@ namespace ftalleg{
         }
         instances += 1;
 
-        fonts[width] = al_load_font(path.path().c_str(), width, 0);
+        fonts[width].memory = al_load_font(path.path().c_str(), width, 0);
+        fonts[width].video = al_load_font(path.path().c_str(), width, 0);
     }
 
     freetype::~freetype(){
-        for (std::map<int, ALLEGRO_FONT*>::iterator it = fonts.begin(); it != fonts.end(); it++){
-            ALLEGRO_FONT * font = it->second;
-            al_destroy_font(font);
+        for (std::map<int, FontUse>::iterator it = fonts.begin(); it != fonts.end(); it++){
+            FontUse & font = it->second;
+            al_destroy_font(font.memory);
+            al_destroy_font(font.video);
         }
 
         instances -= 1;
@@ -141,12 +143,20 @@ namespace ftalleg{
         }
     }
 
-    ALLEGRO_FONT * freetype::currentFont() const {
-        std::map<int, ALLEGRO_FONT*>::const_iterator find = fonts.find(width);
+    ALLEGRO_FONT * freetype::currentMemoryFont() const {
+        std::map<int, FontUse>::const_iterator find = fonts.find(width);
         if (find == fonts.end()){
             throw Exception("inconsistency error");
         }
-        return find->second;
+        return find->second.memory;
+    }
+
+    ALLEGRO_FONT * freetype::currentVideoFont() const {
+        std::map<int, FontUse>::const_iterator find = fonts.find(width);
+        if (find == fonts.end()){
+            throw Exception("inconsistency error");
+        }
+        return find->second.video;
     }
 	
     int freetype::getHeight(const std::string & str) const {
@@ -156,21 +166,24 @@ namespace ftalleg{
          * will occur.
          */
         // al_set_target_bitmap(alive.getData().getBitmap());
-        return al_get_font_line_height(currentFont());
+        al_set_target_bitmap(NULL);
+        return al_get_font_line_height(currentMemoryFont());
     }
 
     int freetype::getLength(const std::string & text) const {
         Util::Thread::ScopedLock locked(lock);
         // al_set_target_bitmap(alive.getData().getBitmap());
-        return al_get_text_width(currentFont(), text.c_str());
+        al_set_target_bitmap(NULL);
+        return al_get_text_width(currentMemoryFont(), text.c_str());
     }
             
     void freetype::setSize(unsigned int w, unsigned int h){
         Util::Thread::ScopedLock locked(lock);
         width = w;
         height = h;
-        if (fonts[width] == NULL){
-            fonts[width] = al_load_font(path.path().c_str(), width, 0);
+        if (fonts.find(width) == fonts.end()){
+            fonts[width].memory = al_load_font(path.path().c_str(), width, 0);
+            fonts[width].video = al_load_font(path.path().c_str(), width, 0);
         }
     }
 
@@ -215,7 +228,7 @@ namespace ftalleg{
         al_use_transform(&transform);
         */
         al_set_target_bitmap(bmp.getData().getBitmap());
-        al_draw_text(currentFont(), color, x, y, 0, fixedText.c_str());
+        al_draw_text(currentVideoFont(), color, x, y, 0, fixedText.c_str());
         /*
         al_identity_transform(&transform);
         al_use_transform(&transform);

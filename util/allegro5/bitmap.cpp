@@ -386,6 +386,14 @@ int setGraphicsMode(int mode, int width, int height){
     return 0;
 }
 
+void Bitmap::lock() const {
+    al_lock_bitmap(getData().getBitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
+}
+
+void Bitmap::unlock() const {
+    al_unlock_bitmap(getData().getBitmap());
+}
+
 Color Bitmap::getPixel(const int x, const int y) const {
     Util::Thread::ScopedLock locked(*allegroLock);
     return al_get_pixel(getData().getBitmap(), x, y);
@@ -552,11 +560,13 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
         al_flip_display();
     }
     */
+    changeTarget(Screen);
     al_flip_display();
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
     Util::Thread::ScopedLock locked(*allegroLock);
+    changeTarget(Screen);
     al_flip_display();
 }
 
@@ -862,6 +872,9 @@ void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
 
 void Bitmap::destroyPrivateData(){
     Util::Thread::ScopedLock locked(*allegroLock);
+    if (al_get_target_bitmap() == getData().getBitmap()){
+        al_set_target_bitmap(NULL);
+    }
     al_destroy_bitmap(getData().getBitmap());
     // al_set_target_bitmap(Screen->getData().getBitmap());
 }

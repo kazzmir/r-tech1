@@ -286,6 +286,10 @@ public:
 	virtual void readLine( std::vector<Color> & vec, int y );
 	Color getPixel( const int x, const int y ) const;
 
+        /* lock video bitmap to memory */
+        void lock() const;
+        void unlock() const;
+
         /* true if the point is within the bounds of the bitmap */
         bool inRange(int x, int y) const;
 
