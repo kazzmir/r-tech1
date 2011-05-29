@@ -212,6 +212,7 @@ public:
 	virtual void vLine( const int y1, const int x, const int y2, const Color color ) const;
 	virtual void polygon( const int * verts, const int nverts, const Color color ) const;
 	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
+	virtual void arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
 
 	virtual void draw(const int x, const int y, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;

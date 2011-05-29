@@ -66,7 +66,6 @@ currentTabFontColor(Graphics::makeColor(0,0,255)){
 TabbedBox::TabbedBox(const TabbedBox & b):
 activeTabFontColor(NULL){
     this->location = b.location;
-    this->workArea = b.workArea;
 }
 
 TabbedBox::~TabbedBox(){
@@ -84,7 +83,6 @@ TabbedBox::~TabbedBox(){
 
 TabbedBox &TabbedBox::operator=( const TabbedBox &copy){
     location = copy.location;
-    workArea = copy.workArea;
 
     return *this;
 }

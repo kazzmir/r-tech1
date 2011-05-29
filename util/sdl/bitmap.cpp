@@ -772,12 +772,16 @@ void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color)
 }
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
+    SPG_CircleFilled(getData().getSurface(), x, y, radius, color);
+
+    /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_CircleFilled(getData().getSurface(), x, y, radius, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
         SPG_CircleFilledBlend(getData().getSurface(), x, y, radius, color, alpha);
     }
+    */
 }
 
 void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
@@ -1175,11 +1179,27 @@ static double toDegrees(double radians){
     return RAD_TO_DEG * radians;
 }
 
+static const double arcPhase = -S_PI / 2;
+
 /* 0 = right. pi/2 = up. pi = left. 3pi/2 = down */
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    SPG_Arc(getData().getSurface(), x, y, radius, toDegrees(ang1 + S_PI/2), toDegrees(ang2 + S_PI/2), color);
+    SPG_Arc(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
 }
-	
+
+void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+    SPG_ArcFilled(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
+}
+
+void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_ArcBlend(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
+}
+
+void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_ArcFilledBlend(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
+}
+
 void Bitmap::fill(int color) const {
     SDL_Rect area;
     area.x = 0;
