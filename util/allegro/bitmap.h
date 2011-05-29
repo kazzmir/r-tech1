@@ -31,3 +31,5 @@ struct BitmapData{
 namespace Graphics{
     typedef int Color;
 }
+
+#include "../software-renderer/bitmap.h"

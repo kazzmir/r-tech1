@@ -23,4 +23,10 @@ Bitmap getScreenBuffer(){
 void resetDisplay(){
 }
 
+RestoreState::RestoreState(){
+}
+
+RestoreState::~RestoreState(){
+}
+
 }

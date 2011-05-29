@@ -184,8 +184,8 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
             gradient(gradient),
             state(state),
             infobox(infobox),
-            work(load_width, load_height),
-            infoWork(infobox_width, infobox_height),
+            work(*Util::Parameter<Graphics::Bitmap*>::current(), load_x, load_y, load_width, load_height),
+            infoWork(*Util::Parameter<Graphics::Bitmap*>::current(), load_x, load_y + load_height * 2, infobox_width, infobox_height),
             infoBackground(infobox_width, infobox_height),
             infobox_x(load_x),
             infobox_y(load_y + load_height * 2),
@@ -231,10 +231,12 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
                 infobox.draw(0, 0, infoWork, infoFont);
                 Font::getFont(Global::DEFAULT_FONT, 24, 24);
                 infoWork.BlitAreaToScreen(infobox_x, infobox_y);
+                // infoWork.BlitToScreen();
                 state.drawInfo = false;
             }
             /* work already contains the correct background */
             // work.Blit( load_x, load_y, *Bitmap::Screen );
+            // work.BlitToScreen();
             work.BlitAreaToScreen(load_x, load_y);
         }
     };
