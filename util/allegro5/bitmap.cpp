@@ -723,7 +723,8 @@ void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const 
 }
 
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const {
-    /* TODO */
+    changeTarget(this, this);
+    al_draw_filled_triangle(x1, y1, x2, y2, x3, y3, color);
 }
 
 void Bitmap::polygon( const int * verts, const int nverts, const Color color ) const {
@@ -731,15 +732,19 @@ void Bitmap::polygon( const int * verts, const int nverts, const Color color ) c
 }
 
 void Bitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
-    /* TODO */
+    changeTarget(this, this);
+    al_draw_ellipse(x, y, rx, ry, color, 0);
 }
 
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
-    /* TODO */
+    changeTarget(this, this);
+    al_draw_filled_ellipse(x, y, rx, ry, color);
 }
 
 void Bitmap::applyTrans(const Color color) const {
-    /* TODO */
+    TransBlender blender;
+    changeTarget(this, this);
+    al_draw_filled_rectangle(0, 0, getWidth(), getHeight(), transBlendColor(color));
 }
 
 void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, Color edge_color) const {
@@ -981,7 +986,7 @@ Bitmap getScreenBuffer(){
 }
 
 void resetDisplay(){
-    al_set_target_bitmap(Screen->getData().getBitmap());
+    // al_set_target_bitmap(Screen->getData().getBitmap());
     // changeTarget(Screen);
 }
 
