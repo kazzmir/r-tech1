@@ -122,7 +122,7 @@ Bitmap::Bitmap():
 own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /* TODO */
 }
 
@@ -130,7 +130,7 @@ Bitmap::Bitmap( const char * load_file ):
 own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     internalLoadFile(load_file);
 }
 
@@ -138,7 +138,7 @@ Bitmap::Bitmap( const std::string & load_file ):
 own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     internalLoadFile(load_file.c_str());
 }
 
@@ -146,7 +146,7 @@ Bitmap::Bitmap(ALLEGRO_BITMAP * who, bool deep_copy):
 own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(who);
         getData().setBitmap(clone);
@@ -161,7 +161,7 @@ Bitmap::Bitmap(int width, int height):
 own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     ALLEGRO_BITMAP * bitmap = al_create_bitmap(width, height);
     if (bitmap == NULL){
         std::ostringstream out;
@@ -177,7 +177,7 @@ Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
 own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(copy.getData().getBitmap());
         getData().setBitmap(clone);
@@ -274,7 +274,7 @@ Bitmap::Bitmap(const char * data, int length):
 own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     Format type = GIF;
     getData().setBitmap(load_bitmap_from_memory(data, length, type));
     if (getData().getBitmap() == NULL){
@@ -290,7 +290,7 @@ Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     path = copy.getPath();
     ALLEGRO_BITMAP * his = copy.getData().getBitmap();
     if (x < 0)
@@ -312,7 +312,7 @@ bit8MaskColor(copy.bit8MaskColor){
 }
 
 int Bitmap::getWidth() const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     if (getData().getBitmap() != NULL){
         return al_get_bitmap_width(getData().getBitmap());
     }
@@ -321,33 +321,33 @@ int Bitmap::getWidth() const {
 }
 
 int getRed(Color color){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     unsigned char red, green, blue;
     al_unmap_rgb(color, &red, &green, &blue);
     return red;
 }
 
 int getGreen(Color color){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     unsigned char red, green, blue;
     al_unmap_rgb(color, &red, &green, &blue);
     return green;
 }
 
 int getBlue(Color color){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     unsigned char red, green, blue;
     al_unmap_rgb(color, &red, &green, &blue);
     return blue;
 }
 
 Color makeColor(int red, int blue, int green){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     return al_map_rgb(red, blue, green);
 }
 
 int Bitmap::getHeight() const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     if (getData().getBitmap() != NULL){
         return al_get_bitmap_height(getData().getBitmap());
     }
@@ -395,14 +395,14 @@ void Bitmap::unlock() const {
 }
 
 Color Bitmap::getPixel(const int x, const int y) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     return al_get_pixel(getData().getBitmap(), x, y);
     // Color color = al_get_pixel(getData().getBitmap(), x, y);
     // return pack565(color.r, color.g, color.b);
 }
 
 void Bitmap::putPixel(int x, int y, Color pixel) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
     al_put_pixel(x, y, pixel);
 }
@@ -412,7 +412,7 @@ void Bitmap::putPixelNormal(int x, int y, Color col) const {
 }
 
 void Bitmap::fill(Color color) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /*
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
@@ -455,7 +455,7 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME */
     changeTarget(who);
     MaskedBlender blender;
@@ -464,7 +464,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 }
 
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     // double start = al_get_time();
     changeTarget(where);
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
@@ -485,7 +485,7 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
@@ -493,7 +493,7 @@ void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
 }
 
 void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME: deal with filter */
     changeTarget(where);
     MaskedBlender blender;
@@ -502,7 +502,7 @@ void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap &
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
@@ -510,7 +510,7 @@ void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
 }
 
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME: deal with filter */
     changeTarget(where);
     MaskedBlender blender;
@@ -519,7 +519,7 @@ void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap 
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(where);
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
@@ -527,7 +527,7 @@ void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const 
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME: deal with filter */
     changeTarget(where);
     MaskedBlender blender;
@@ -540,7 +540,7 @@ void Bitmap::BlitMasked(const int mx, const int my, const int width, const int h
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
 #if 0
     if (getWidth() != Screen->getWidth() || getHeight() != Screen->getHeight()){
         /*
@@ -565,13 +565,13 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(Screen);
     al_flip_display();
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     // TransBlender blender;
     changeTarget(where);
     MaskedBlender blender;
@@ -580,7 +580,7 @@ void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
 }
 
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /* FIXME */
     changeTarget(where);
     MaskedBlender blender;
@@ -599,7 +599,7 @@ void Bitmap::vLine(const int y1, const int x, const int y2, const Color color) c
 
 static const double S_PI = 3.14159265358979323846;
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
     al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 1);
 }
@@ -642,7 +642,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
 }
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
     al_draw_filled_pieslice(x, y, radius, ang1 - S_PI/2, ang2 - ang1, color);
     // al_draw_arc(x, y, radius, ang1 + S_PI/2, ang2 - ang1, color, 0);
@@ -667,25 +667,25 @@ void TranslucentBitmap::line( const int x1, const int y1, const int x2, const in
 }
 
 void Bitmap::circleFill(int x, int y, int radius, Color color) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
     al_draw_filled_circle(x, y, radius, color);
 }
 
 void Bitmap::circle(int x, int y, int radius, Color color) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
     al_draw_circle(x, y, radius, color, 0);
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(this);
     al_draw_rectangle(x1, y1, x2, y2, color, 0);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     /*
     unsigned char red, green, blue;
     unpack565(color, &red, &green, &blue);
@@ -731,7 +731,7 @@ void Bitmap::readLine(std::vector<Color> & line, int y){
 }
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     changeTarget(where);
     TransBlender blender;
     al_draw_tinted_bitmap(getData().getBitmap(), getBlendColor(), x, y, 0);
@@ -871,7 +871,7 @@ void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
 }
 
 void Bitmap::destroyPrivateData(){
-    Util::Thread::ScopedLock locked(*allegroLock);
+    // Util::Thread::ScopedLock locked(*allegroLock);
     if (al_get_target_bitmap() == getData().getBitmap()){
         al_set_target_bitmap(NULL);
     }
