@@ -139,6 +139,19 @@ namespace ftalleg {
             freetype(const Filesystem::AbsolutePath & str, const int x, const int y);
             ~freetype();
 
+            /* we need two versions of a font, one just for getting dimensions
+             * of text and one for rendering.
+             * the one that gets dimensions will be made up of a memory bitmap
+             * and the one for rendering will use video bitmaps.
+             * this means that the dimension one can be used from any thread
+             * because memory bitmaps are safe in a threaded context whereas
+             * video bitmaps can only be used in the main thread.
+             */
+            struct FontUse{
+                ALLEGRO_FONT * memory;
+                ALLEGRO_FONT * video;
+            };
+
             enum ftAlign{
                 ftLeft = 0,
                 ftCenter = 1,
@@ -151,7 +164,8 @@ namespace ftalleg {
             void getSize(int * w, int * h) const;
             void render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker, ...);
         private:
-            ALLEGRO_FONT * currentFont() const;
+            ALLEGRO_FONT * currentMemoryFont() const;
+            ALLEGRO_FONT * currentVideoFont() const;
 
             Graphics::Bitmap alive;
             const Filesystem::AbsolutePath path;
@@ -159,7 +173,7 @@ namespace ftalleg {
             int height;
             int original_size;
             Util::Thread::LockObject lock;
-            std::map<int, ALLEGRO_FONT*> fonts;
+            std::map<int, FontUse> fonts;
         };
 #else
 	//!  Freetype based font system

@@ -142,21 +142,22 @@ parent( _parent ){
                 if (denom < 1){
                     denom = 1;
                 }
-		for ( int x = 0; x < who->getWidth(); x++ ){
-			for ( int y = 0; y < who->getHeight(); y++ ){
-				// int pixel = _getpixel16( who, x, y );
-                            Graphics::Color pixel = who->getPixel( x, y );
-				if ( pixel != mask_pixel ){
-					++total;
-				}
-				if ( total * 100 / denom > 50 ){
-					/* we're done already,
-					 * stop counting pixels
-					 */
-					goto short_circuit;
-				}
-			}
-		}
+
+                for (int x = 0; x < who->getWidth(); x++){
+                    for (int y = 0; y < who->getHeight(); y++){
+                        // int pixel = _getpixel16( who, x, y );
+                        Graphics::Color pixel = who->getPixel( x, y );
+                        if (pixel != mask_pixel){
+                            ++total;
+                        }
+                        if ( total * 100 / denom > 50 ){
+                            /* we're done already,
+                             * stop counting pixels
+                             */
+                            goto short_circuit;
+                        }
+                    }
+                }
 
 		/* johnny 5 alive! */
 		short_circuit:

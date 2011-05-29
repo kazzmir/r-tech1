@@ -2,6 +2,12 @@
 
 namespace Graphics{
 
+void Bitmap::lock() const {
+}
+
+void Bitmap::unlock() const {
+}
+
 StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent):
 Bitmap(width, height),
 width(width),
