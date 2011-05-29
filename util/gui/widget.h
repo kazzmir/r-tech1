@@ -4,6 +4,7 @@
 #include "rectarea.h"
 #include "coordinate.h"
 #include "util/bitmap.h"
+#include "util/pointer.h"
 
 namespace Graphics{
 class Bitmap;
@@ -89,9 +90,9 @@ class Widget{
         void roundRect( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, Graphics::Color color );
         void roundRectFill( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, Graphics::Color color );
         
-        void checkWorkArea();
+        Util::ReferenceCount<Graphics::Bitmap> checkWorkArea(const Graphics::Bitmap & parent);
         
-        Graphics::Bitmap *workArea;
+        // Graphics::Bitmap *workArea;
 };
 
 }

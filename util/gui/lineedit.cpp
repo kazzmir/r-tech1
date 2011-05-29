@@ -135,8 +135,9 @@ void LineEdit::act(const Font & font){
 // Draw
 void LineEdit::render(const Graphics::Bitmap & work){
 
-    checkWorkArea();
+    Util::ReferenceCount<Graphics::Bitmap> workArea = checkWorkArea(work);
     // Check if we are using a rounded box
+    /*
     if (transforms.getRadius()>0) {
         Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
         roundRectFill( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
@@ -158,6 +159,7 @@ void LineEdit::render(const Graphics::Bitmap & work){
         workArea->rectangle( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
         workArea->translucent().draw(location.getX(),location.getY(),work);
     }
+    */
 
     // work.drawingMode( Bitmap::MODE_SOLID );
 
@@ -174,11 +176,11 @@ void LineEdit::render(const Graphics::Bitmap & work){
         }
         */
         if (blink){
-            workArea->line(cursorX,cursorY,cursorX,cursorY+textSizeH-5,textColor);
+            workArea->line(cursorX, cursorY, cursorX, cursorY+textSizeH-5, textColor);
         }
     }
 
-    workArea->draw(location.getX(), location.getY(), work);
+    // workArea->draw(location.getX(), location.getY(), work);
 }
 
 #if 0

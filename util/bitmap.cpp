@@ -254,7 +254,7 @@ Bitmap Bitmap::greyScale(){
 }
         
 bool Bitmap::inRange(int x, int y) const {
-    int x1, y1, x2, y2;
+    int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
     getClipRect(x1, y1, x2, y2);
     return (x >= x1 && x <= x2 &&
             y >= y1 && y <= y2);

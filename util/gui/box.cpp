@@ -15,7 +15,6 @@ Box::Box(){
 Box::Box( const Box & b ){
     this->location = b.location;
     this->transforms = b.transforms;
-    this->workArea = b.workArea;
 }
 
 Box::~Box(){
@@ -25,7 +24,6 @@ Box::~Box(){
 Box &Box::operator=( const Box &copy){
     location = copy.location;
     transforms = copy.transforms;
-    workArea = copy.workArea;
 
     return *this;
 }
@@ -37,18 +35,19 @@ void Box::act(const Font & font){
 
 // Render
 void Box::render(const Graphics::Bitmap & work){
-    checkWorkArea();
+    Util::ReferenceCount<Graphics::Bitmap> workArea = checkWorkArea(work);
     if (workArea != NULL){
+        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
+        const Graphics::TranslucentBitmap area = workArea->translucent();
         // Check if we are using a rounded box
         if (transforms.getRadius() > 0){
-            roundRectFill(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
-            roundRect(*workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+            roundRectFill(area, (int)transforms.getRadius(), 0, 0, area.getWidth() - 1, area.getHeight()-1, colors.body);
+            roundRect(area, (int)transforms.getRadius(), 0, 0, area.getWidth()-1, area.getHeight()-1, colors.border);
         } else {
-            workArea->rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-            workArea->rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
+            area.rectangleFill(0, 0, area.getWidth()-1, area.getHeight()-1, colors.body);
+            area.rectangle(0, 0, area.getWidth()-1, location.getHeight()-1, colors.border);
         }
-        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
-        workArea->translucent().draw(location.getX(), location.getY(), work);
+        // workArea->translucent().draw(location.getX(), location.getY(), work);
     }
 }
 
