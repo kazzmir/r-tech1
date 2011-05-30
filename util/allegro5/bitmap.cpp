@@ -491,10 +491,13 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
     al_copy_transform(&save, al_get_current_transform());
     ALLEGRO_TRANSFORM stretch;
     al_identity_transform(&stretch);
+    al_translate_transform(&stretch, x / ((double) new_width / getWidth()), y / ((double) new_height / getHeight()));
     al_scale_transform(&stretch, (double) new_width / getWidth(), (double) new_height / getHeight());
+    // al_translate_transform(&stretch, -x / ((double) new_width / getWidth()), -y / ((double) (new_height / getHeight())));
     al_use_transform(&stretch);
     /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData().getBitmap(), x, y, 0);
+    // al_draw_bitmap(getData().getBitmap(), x, y, 0);
+    al_draw_bitmap(getData().getBitmap(), 0, 0, 0);
     al_use_transform(&save);
 }
 
