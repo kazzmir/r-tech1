@@ -934,7 +934,7 @@ void StretchedBitmap::start(){
     ALLEGRO_TRANSFORM transform;
     changeTarget(this, this);
     al_identity_transform(&transform);
-    al_scale_transform(&transform, getWidth() / width, getHeight() / height);
+    al_scale_transform(&transform, Bitmap::getWidth() / width, Bitmap::getHeight() / height);
     al_use_transform(&transform);
 }
 

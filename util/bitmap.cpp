@@ -375,6 +375,14 @@ void TranslucentBitmap::fill(Color color) const {
     Bitmap::applyTrans(color);
 }
 
+int StretchedBitmap::getWidth() const {
+    return width;
+}
+
+int StretchedBitmap::getHeight() const {
+    return height;
+}
+
 void blend_palette(Color * pal, int mp, Color startColor, Color endColor){
     /*
     ASSERT(pal);
