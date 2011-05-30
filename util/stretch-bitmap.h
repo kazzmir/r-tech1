@@ -10,6 +10,8 @@ public:
     StretchedBitmap(int width, int height, const Bitmap & where);
     void finish();
     void start();
+    virtual int getWidth() const;
+    virtual int getHeight() const;
 protected:
     double width;
     double height;
