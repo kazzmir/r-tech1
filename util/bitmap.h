@@ -123,8 +123,8 @@ public:
 
 	virtual void load( const std::string & str );
 
-	int getWidth() const;
-	int getHeight() const;
+	virtual int getWidth() const;
+	virtual int getHeight() const;
 
 	/*
 	inline const int getWidth() const{
