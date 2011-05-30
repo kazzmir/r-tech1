@@ -239,15 +239,46 @@ enum Format{
     GIF,
 };
 
+void dumpColor(const Color & color){
+    unsigned char red, green, blue, alpha;
+    al_unmap_rgba(color, &red, &green, &blue, &alpha);
+    Global::debug(0) << "red " << (int) red << " green " << (int) green << " blue " << (int) blue << " alpha " << (int) alpha << std::endl;
+}
+
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
     ALLEGRO_FILE * memory = al_open_memfile((void *) data, length, "r");
     ALLEGRO_BITMAP * pcx = al_load_bitmap_f(memory, ".pcx");
     al_fclose(memory);
-    return Bitmap(pcx);
+    // dumpColor(al_get_pixel(pcx, 0, 0));
+    Bitmap out(pcx);
+    out.set8BitMaskColor(makeColorAlpha(255, 255, 255, 255));
+    return out;
+}
+
+static bool isVideoBitmap(ALLEGRO_BITMAP * bitmap){
+    return (al_get_bitmap_flags(bitmap) & ALLEGRO_VIDEO_BITMAP) &&
+           !(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP);
 }
 
 void Bitmap::replaceColor(Color original, Color replaced){
-    /* TODO */
+    changeTarget(this, this);
+
+    if (isVideoBitmap(getData().getBitmap())){
+        al_lock_bitmap(getData().getBitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READWRITE);
+    }
+
+    for (int x = 0; x < getWidth(); x++){
+        for (int y = 0; y < getHeight(); y++){
+            Color pixel = getPixel(x, y);
+            if (pixel == original){
+                al_put_pixel(x, y, replaced);
+            }
+        }
+    }
+
+    if (isVideoBitmap(getData().getBitmap())){
+        al_unlock_bitmap(getData().getBitmap());
+    }
 }
 
 static ALLEGRO_BITMAP * memoryGIF(const char * data, int length){
