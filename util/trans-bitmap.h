@@ -11,6 +11,10 @@ public:
     TranslucentBitmap();
     virtual ~TranslucentBitmap();
 
+    virtual Color blendColor(const Color & color) const;
+    virtual void startDrawing() const;
+    virtual void endDrawing() const;
+
     virtual void putPixelNormal(int x, int y, Color col) const;
     virtual void rectangleFill(int x1, int y1, int x2, int y2, Color color) const;
     virtual void rectangle(int x1, int y1, int x2, int y2, Color color) const;

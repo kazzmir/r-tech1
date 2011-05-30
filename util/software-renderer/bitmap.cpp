@@ -2,6 +2,26 @@
 
 namespace Graphics{
 
+Color Bitmap::blendColor(const Color & input) const {
+    return input;
+}
+
+Color TranslucentBitmap::blendColor(const Color & input) const {
+    return input;
+}
+
+void Bitmap::startDrawing() const {
+}
+
+void Bitmap::endDrawing() const {
+}
+
+void TranslucentBitmap::startDrawing() const {
+}
+
+void TranslucentBitmap::endDrawing() const {
+}
+
 void Bitmap::lock() const {
 }
 

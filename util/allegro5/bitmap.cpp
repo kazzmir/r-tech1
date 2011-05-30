@@ -458,6 +458,31 @@ void Bitmap::transBlender(int r, int g, int b, int a){
     globalBlend.alpha = a;
 }
 
+void Bitmap::startDrawing() const {
+}
+
+void Bitmap::endDrawing() const {
+}
+
+void TranslucentBitmap::startDrawing() const {
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+}
+
+void TranslucentBitmap::endDrawing() const {
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+}
+
+Color Bitmap::blendColor(const Color & input) const {
+    return input;
+}
+
+Color TranslucentBitmap::blendColor(const Color & color) const {
+    unsigned char red, green, blue;
+    unsigned char alpha = globalBlend.alpha;
+    al_unmap_rgb(color, &red, &green, &blue);
+    return makeColorAlpha(red, green, blue, alpha);
+}
+
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
     /* TODO */
 }
