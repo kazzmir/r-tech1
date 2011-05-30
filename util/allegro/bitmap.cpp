@@ -961,9 +961,8 @@ void Bitmap::polygon( const int * verts, const int nverts, const int color ) con
  * a full circle, 64 a right angle, etc. Zero is to the right of the centre
  * point, and larger values rotate anticlockwise from there.
  */
-static const double S_PI = 3.14159265358979323846;
-static const double RAD_TO_DEG = 180.0/S_PI;
-static const double DEG_TO_RAD = S_PI/180.0;
+static const double RAD_TO_DEG = 180.0/Util::pi;
+static const double DEG_TO_RAD = Util::pi/180.0;
 
 static double toDegrees(double radians){
     return RAD_TO_DEG * radians;
@@ -974,8 +973,8 @@ double toAllegroDegrees(double radians){
 }
 
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - S_PI/2)));
-    ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - S_PI/2)));
+    ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - Util::pi/2)));
+    ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - Util::pi/2)));
     if (angle1 > angle2){
         ::fixed swap = angle1;
         angle1 = angle2;
@@ -1000,7 +999,7 @@ struct ArcPoints{
     next(0),
     size(0){
         /* 1/4th of the circumference = 2 * pi * r / 4 */
-        size = (S_PI * radius / 2);
+        size = (Util::pi * radius / 2);
         if (size < 2){
             size = 2;
         }
@@ -1044,8 +1043,8 @@ void drawFilledArc(const int x, const int y, ::fixed angle1, ::fixed angle2, int
 }
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const{
-    ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - S_PI/2)));
-    ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - S_PI/2)));
+    ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - Util::pi/2)));
+    ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - Util::pi/2)));
     if (angle1 > angle2){
         ::fixed swap = angle1;
         angle1 = angle2;
