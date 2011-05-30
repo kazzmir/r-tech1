@@ -175,6 +175,13 @@ public:
 
 	static void drawingMode( int type );
 
+        virtual Color blendColor(const Color & input) const;
+        /* sets the blend state. try not to use these function unless
+         * absolutely necessary.
+         */
+        virtual void startDrawing() const;
+        virtual void endDrawing() const;
+
 	void acquire();
 	void release();
 

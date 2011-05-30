@@ -227,18 +227,12 @@ namespace ftalleg{
         va_end(ap);
 
         std::string fixedText(str.str());
-        /*
-        ALLEGRO_TRANSFORM transform;
-        al_identity_transform(&transform);
-        al_scale_transform(&transform, (float) width / original_size, (float) height / original_size);
-        al_use_transform(&transform);
-        */
         al_set_target_bitmap(bmp.getData().getBitmap());
-        al_draw_text(currentVideoFont(), color, x, y, 0, fixedText.c_str());
-        /*
-        al_identity_transform(&transform);
-        al_use_transform(&transform);
-        */
+
+        /* for setting the blend state and whatnot */
+        bmp.startDrawing();
+        al_draw_text(currentVideoFont(), bmp.blendColor(color), x, y, 0, fixedText.c_str());
+        bmp.endDrawing();
     }
 #else
 	//! Constructor
