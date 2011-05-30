@@ -392,7 +392,12 @@ static void doStandardLoop(Logic & logic, Draw & draw){
             }
 
             while (Global::speed_counter4 == 0){
-                rest(1);
+                /* if the fps is limited then don't keep redrawing */
+                if (Global::rateLimit){
+                    rest(1);
+                } else {
+                    draw.draw();
+                }
             }
         }
     } catch (const LoopDone & done){

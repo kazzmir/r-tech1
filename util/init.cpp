@@ -59,6 +59,7 @@
 using namespace std;
 
 volatile int Global::speed_counter4 = 0;
+bool Global::rateLimit = true;
 
 /* enough seconds for 136 years */
 volatile unsigned int Global::second_counter = 0;
