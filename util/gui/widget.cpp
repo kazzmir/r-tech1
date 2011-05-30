@@ -1,4 +1,5 @@
 #include "util/bitmap.h"
+#include "util/funcs.h"
 #include "widget.h"
 #include <math.h>
 #include "globals.h"
@@ -9,9 +10,8 @@
 
 using namespace Gui;
 
-static const double S_PI = 3.14159265358979323846;
-static const double DEG_TO_RAD = 180.0/S_PI;
-static const double RAD_TO_DEG = S_PI/180.0;
+static const double DEG_TO_RAD = 180.0/Util::pi;
+static const double RAD_TO_DEG = Util::pi/180.0;
 
 static void round_double (double dbl_to_round , int &rounded_num) {
     rounded_num = static_cast<int>(dbl_to_round);
@@ -143,7 +143,7 @@ void Widget::render(const Graphics::Bitmap & bitmap, const Font & font){
 /* draws a quarter arc */
 void Widget::arc(const Graphics::Bitmap & work, int x, int y, double startAngle, int radius, Graphics::Color color){
 
-    work.arc(x, y, startAngle, startAngle + S_PI / 2, radius, color);
+    work.arc(x, y, startAngle, startAngle + Util::pi / 2, radius, color);
 
 #if 0
     int q = 0;// for counters
@@ -240,12 +240,12 @@ void Widget::roundRect(const Graphics::Bitmap & work, int radius, int x1, int y1
     arc(work, x1+radius, y1+height-radius, 0, radius, color);
 #endif
 
-    double quarterTurn = S_PI / 2;
+    double quarterTurn = Util::pi / 2;
     double quadrant1 = 0;
     /* signs are flipped because the coordinate system is reflected over the y-axis */
-    double quadrant2 = -S_PI / 2;
-    double quadrant3 = S_PI;
-    double quadrant4 = -3 * S_PI / 2; 
+    double quadrant2 = -Util::pi / 2;
+    double quadrant3 = Util::pi;
+    double quadrant4 = -3 * Util::pi / 2; 
 
     /* upper right. draw from 90 to 0 */
     work.arc(x1+radius + (width - radius *2), y1 + radius, quadrant1, quadrant1 + quarterTurn, radius, color);
@@ -279,12 +279,12 @@ void Widget::roundRectFill(const Graphics::Bitmap & work, int radius, int x1, in
     work.circleFill((x1+width)-radius, (y1+height)-radius, radius, color);
     */
 
-    double quarterTurn = S_PI / 2;
+    double quarterTurn = Util::pi / 2;
     double quadrant1 = 0;
     /* signs are flipped because the coordinate system is reflected over the y-axis */
-    double quadrant2 = -S_PI / 2;
-    double quadrant3 = S_PI;
-    double quadrant4 = -3 * S_PI / 2; 
+    double quadrant2 = -Util::pi / 2;
+    double quadrant3 = Util::pi;
+    double quadrant4 = -3 * Util::pi / 2; 
 
     /* upper right. draw from 90 to 0 */
     work.arcFilled(x1+radius + (width - radius *2), y1 + radius, quadrant1, quadrant1 + quarterTurn, radius, color);

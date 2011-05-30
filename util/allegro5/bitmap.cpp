@@ -45,12 +45,20 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
 }
 #endif
 
+enum BlendingType{
+    Translucent,
+    Add,
+    Difference,
+    Multiply
+};
+
 struct BlendingData{
     BlendingData():
-        red(0), green(0), blue(0), alpha(0){
+        red(0), green(0), blue(0), alpha(0), type(Translucent){
         }
 
     int red, green, blue, alpha;
+    BlendingType type;
 };
 
 static BlendingData globalBlend;
@@ -108,8 +116,13 @@ public:
 class TransBlender: public Blender {
 public:
     TransBlender(){
-        // al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ONE);
-        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+        switch (globalBlend.type){
+            case Translucent: al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); break;
+            case Add: al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE); break;
+            /* FIXME */
+            case Multiply: al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ALPHA); break;
+            case Difference: al_set_blender(ALLEGRO_DEST_MINUS_SRC, ALLEGRO_ONE, ALLEGRO_ONE); break;
+        }
     }
 };
 
@@ -426,13 +439,6 @@ void Bitmap::fill(Color color) const {
     changeTarget(this, this);
     al_clear_to_color(color);
 }
-	
-void Bitmap::transBlender(int r, int g, int b, int a){
-    globalBlend.red = r;
-    globalBlend.green = g;
-    globalBlend.blue = b;
-    globalBlend.alpha = a;
-}
 
 void Bitmap::startDrawing() const {
 }
@@ -628,10 +634,9 @@ void Bitmap::vLine(const int y1, const int x, const int y2, const Color color) c
     line(x, y1, x, y2, color);
 }
 
-static const double S_PI = 3.14159265358979323846;
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     changeTarget(this, this);
-    al_draw_arc(x, y, radius, ang1 - S_PI/2, ang2 - ang1, color, 1);
+    al_draw_arc(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color, 1);
 }
 
 void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
@@ -672,7 +677,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     changeTarget(this, this);
-    al_draw_filled_pieslice(x, y, radius, ang1 - S_PI/2, ang2 - ang1, color);
+    al_draw_filled_pieslice(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color);
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
@@ -793,7 +798,9 @@ void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bit
 }
 
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    changeTarget(this, where);
+    TransBlender blender;
+    al_draw_tinted_bitmap(getData().getBitmap(), getBlendColor(), x, y, 0);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
@@ -894,16 +901,36 @@ bool Bitmap::getError(){
     return false;
 }
 
-void Bitmap::addBlender( int r, int g, int b, int a ){
-    /* TODO */
+void Bitmap::transBlender(int r, int g, int b, int a){
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.type = Translucent;
+}
+
+void Bitmap::addBlender(int r, int g, int b, int a){
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.type = Add;
 }
 
 void Bitmap::differenceBlender( int r, int g, int b, int a ){
-    /* TODO */
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.type = Difference;
 }
 
 void Bitmap::multiplyBlender( int r, int g, int b, int a ){
-    /* TODO */
+    globalBlend.red = r;
+    globalBlend.green = g;
+    globalBlend.blue = b;
+    globalBlend.alpha = a;
+    globalBlend.type = Multiply;
 }
 
 void Bitmap::drawingMode(int type){
