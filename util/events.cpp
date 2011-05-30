@@ -403,13 +403,14 @@ void standardLoop(Logic & logic, Draw & draw){
     /* if a screen already exists (because we have nested standardLoops) then
      * leave this parameter alone, otherwise set a new parameter.
      */
+    /*
     if (Parameter<Graphics::Bitmap*>::current() == NULL){
-        Graphics::Bitmap screen(Graphics::getScreenBuffer());
-        Parameter<Graphics::Bitmap*> use(&screen);
         doStandardLoop(logic, draw);
     } else {
         doStandardLoop(logic, draw);
     }
+    */
+    doStandardLoop(logic, draw);
 }
 
 }

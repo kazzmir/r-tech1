@@ -227,8 +227,10 @@ enum Format{
 };
 
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
-    /* TODO */
-    return Bitmap();
+    ALLEGRO_FILE * memory = al_open_memfile((void *) data, length, "r");
+    ALLEGRO_BITMAP * pcx = al_load_bitmap_f(memory, ".pcx");
+    al_fclose(memory);
+    return Bitmap(pcx);
 }
 
 void Bitmap::replaceColor(Color original, Color replaced){
