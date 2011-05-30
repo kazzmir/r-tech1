@@ -16,6 +16,8 @@ namespace Global{
     extern const int WINDOWED;
     extern const int FULLSCREEN;
 
+    extern bool rateLimit;
+
     /* pass WINDOWED or FULLSCREEN in. FIXME: replace with an enum */
     bool init(int gfx);
     bool initNoGraphics();

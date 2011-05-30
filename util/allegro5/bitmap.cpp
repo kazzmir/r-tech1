@@ -119,8 +119,7 @@ public:
         switch (globalBlend.type){
             case Translucent: al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); break;
             case Add: al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE); break;
-            /* FIXME */
-            case Multiply: al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ALPHA); break;
+            case Multiply: al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO); break;
             case Difference: al_set_blender(ALLEGRO_DEST_MINUS_SRC, ALLEGRO_ONE, ALLEGRO_ONE); break;
         }
     }
