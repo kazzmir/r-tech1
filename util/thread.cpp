@@ -6,6 +6,7 @@ namespace Thread{
 
 LockObject::LockObject(){
     initializeLock(&lock);
+    initializeCondition(&condition);
 }
 
 void LockObject::acquire() const {
@@ -17,8 +18,23 @@ void LockObject::release() const {
     releaseLock((Lock*) &lock);
 }
 
+void LockObject::wait(volatile bool & check) const {
+    int ok = 0;
+    /* only wait if check is false. if so then keep waiting until the condition
+     * was successful as well.
+     */
+    while (!check || ok != 0){
+        ok = conditionWait((Condition*) &condition, (Lock*) &lock);
+    }
+}
+
+void LockObject::signal() const {
+    conditionSignal((Condition*) &condition);
+}
+
 LockObject::~LockObject(){
     destroyLock(&lock);
+    destroyCondition(&condition);
 }
 
 ScopedLock::ScopedLock(const LockObject & lock):
@@ -51,6 +67,22 @@ int releaseLock(Lock * lock){
 
 void destroyLock(Lock * lock){
     SDL_DestroyMutex(*lock);
+}
+    
+void initializeCondition(Condition * condition){
+    *condition = SDL_CreateCond();
+}
+
+void destroyCondition(Condition * condition){
+    SDL_DestroyCond(*condition);
+}
+    
+int conditionWait(Condition * condition, Lock * lock){
+    return SDL_CondWait(*condition, *lock);
+}
+
+int conditionSignal(Condition * condition){
+    return SDL_CondBroadcast(*condition);
 }
 
 /*
@@ -103,6 +135,24 @@ int releaseLock(Lock * lock){
     return 0;
 }
 
+void initializeCondition(Condition * condition){
+    *condition = al_create_cond();
+}
+
+void destroyCondition(Condition * condition){
+    al_destroy_cond(*condition);
+}
+
+int conditionWait(Condition * condition, Lock * lock){
+    al_wait_cond(*condition, *lock);
+    return 0;
+}
+
+int conditionSignal(Condition * condition){
+    al_broadcast_cond(*condition);
+    return 0;
+}
+
 struct AllegroThreadStuff{
     AllegroThreadStuff(const ThreadFunction & function, void * arg):
     function(function),
@@ -115,7 +165,10 @@ struct AllegroThreadStuff{
 
 static void * allegro_start_thread(ALLEGRO_THREAD * self, void * _stuff){
     AllegroThreadStuff * stuff = (AllegroThreadStuff*) _stuff;
-    return stuff->function(stuff->arg);
+    ThreadFunction function = stuff->function;
+    void * arg = stuff->arg;
+    delete stuff;
+    return function(arg);
 }
 
 bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
@@ -125,6 +178,7 @@ bool createThread(Id * thread, void * attributes, ThreadFunction function, void 
         al_start_thread(*thread);
         return true;
     } else {
+        delete stuff;
         return false;
     }
 }
@@ -154,6 +208,22 @@ int acquireLock(Lock * lock){
 
 int releaseLock(Lock * lock){
     return pthread_mutex_unlock(lock);
+}
+
+void initializeCondition(Condition * condition){
+    pthread_cond_init(condition, NULL);
+}
+
+void destroyCondition(Condition * condition){
+    pthread_cond_destroy(condition);
+}
+
+int conditionWait(Condition * condition, Lock * lock){
+    return pthread_cond_wait(condition, lock);
+}
+
+int conditionSignal(Condition * condition){
+    return pthread_cond_broadcast(condition);
 }
 
 #if 0
