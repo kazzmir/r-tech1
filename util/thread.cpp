@@ -53,6 +53,7 @@ void destroyLock(Lock * lock){
     SDL_DestroyMutex(*lock);
 }
 
+/*
 void initializeSemaphore(Semaphore * semaphore, unsigned int value){
     *semaphore = SDL_CreateSemaphore(value);
 }
@@ -68,6 +69,7 @@ void semaphoreDecrease(Semaphore * semaphore){
 void semaphoreIncrease(Semaphore * semaphore){
     SDL_SemPost(*semaphore);
 }
+*/
 
 bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
     *thread = SDL_CreateThread(function, arg);
@@ -82,6 +84,61 @@ void cancelThread(Id thread){
 #ifndef PS3
     SDL_KillThread(thread);
 #endif
+}
+
+#elif USE_ALLEGRO5
+Id uninitializedValue = 0;
+
+void initializeLock(Lock * lock){
+    *lock = al_create_mutex();
+}
+
+int acquireLock(Lock * lock){
+    al_lock_mutex(*lock);
+    return 0;
+}
+
+int releaseLock(Lock * lock){
+    al_unlock_mutex(*lock);
+    return 0;
+}
+
+struct AllegroThreadStuff{
+    AllegroThreadStuff(const ThreadFunction & function, void * arg):
+    function(function),
+    arg(arg){
+    }
+
+    ThreadFunction function;
+    void * arg;
+};
+
+static void * allegro_start_thread(ALLEGRO_THREAD * self, void * _stuff){
+    AllegroThreadStuff * stuff = (AllegroThreadStuff*) _stuff;
+    return stuff->function(stuff->arg);
+}
+
+bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
+    AllegroThreadStuff * stuff = new AllegroThreadStuff(function, arg);
+    *thread = al_create_thread(allegro_start_thread, stuff);
+    if (*thread != NULL){
+        al_start_thread(*thread);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void joinThread(Id thread){
+    al_join_thread(thread, NULL);
+}
+    
+void cancelThread(Id thread){
+    al_destroy_thread(thread);
+}
+    
+void destroyLock(Lock * lock){
+    al_destroy_mutex(*lock);
 }
 
 #else
@@ -99,6 +156,7 @@ int releaseLock(Lock * lock){
     return pthread_mutex_unlock(lock);
 }
 
+#if 0
 void initializeSemaphore(Semaphore * semaphore, unsigned int value){
     sem_init(semaphore, 0, value);
 }
@@ -114,6 +172,7 @@ void semaphoreDecrease(Semaphore * semaphore){
 void semaphoreIncrease(Semaphore * semaphore){
     sem_post(semaphore);
 }
+#endif
 
 bool createThread(Id * thread, void * attributes, ThreadFunction function, void * arg){
     return pthread_create(thread, (pthread_attr_t*) attributes, function, arg) == 0;
