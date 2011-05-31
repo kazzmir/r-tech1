@@ -361,6 +361,7 @@ Draw::~Draw(){
 }
 
 static void doStandardLoop(Logic & logic, Draw & draw){
+    const Graphics::Bitmap & screen = *Parameter<Graphics::Bitmap*>::current();
     Global::speed_counter4 = 0;
     double runCounter = 0;
     try{
@@ -387,7 +388,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 }
 
                 if (need_draw){
-                    draw.draw();
+                    draw.draw(screen);
                 }
             }
 
@@ -396,7 +397,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 if (Global::rateLimit){
                     rest(1);
                 } else {
-                    draw.draw();
+                    draw.draw(screen);
                 }
             }
         }
