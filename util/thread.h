@@ -4,9 +4,11 @@
 #ifdef USE_SDL
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
+#elif USE_ALLEGRO5
+#include <allegro5/allegro5.h>
 #else
 #include <pthread.h>
-#include <semaphore.h>
+// #include <semaphore.h>
 #endif
 
 #include "exceptions/exception.h"
@@ -23,11 +25,16 @@ namespace Thread{
     typedef SDL_mutex* Lock;
     typedef SDL_Thread* Id;
     typedef int (*ThreadFunction)(void*);
-    typedef SDL_semaphore* Semaphore;
+    // typedef SDL_semaphore* Semaphore;
+#elif USE_ALLEGRO5
+    typedef ALLEGRO_MUTEX* Lock;
+    typedef ALLEGRO_THREAD* Id;
+    typedef void * (*ThreadFunction)(void*);
+    // typedef SDL_semaphore* Semaphore;
 #else
     typedef pthread_mutex_t Lock;
     typedef pthread_t Id;
-    typedef sem_t Semaphore;
+    // typedef sem_t Semaphore;
     typedef void * (*ThreadFunction)(void*);
 #endif
 
@@ -35,10 +42,12 @@ namespace Thread{
     bool isUninitialized(Id thread);
     void initializeLock(Lock * lock);
 
+    /*
     void initializeSemaphore(Semaphore * semaphore, unsigned int value);
     void destroySemaphore(Semaphore * semaphore);
     void semaphoreDecrease(Semaphore * semaphore);
     void semaphoreIncrease(Semaphore * semaphore);
+    */
 
     int acquireLock(Lock * lock);
     int releaseLock(Lock * lock);
@@ -144,27 +153,30 @@ public:
     thread(Thread::uninitializedValue),
     exception(NULL){
         /* future will increase the count */
-        Thread::initializeSemaphore(&future, 0);
+        // Thread::initializeSemaphore(&future, 0);
+        // future.acquire();
     }
 
     virtual ~Future(){
         if (Thread::isUninitialized(thread)){
             Thread::joinThread(thread);
         }
-        Thread::destroySemaphore(&future);
+        // Thread::destroySemaphore(&future);
         delete exception;
     }
 
     virtual X get(){
         X out;
         Exception::Base * failed = NULL;
-        Thread::semaphoreDecrease(&future);
+        future.acquire();
+        // Thread::semaphoreDecrease(&future);
         if (exception != NULL){
             failed = exception;
             // exception->throwSelf();
         }
         out = thing;
-        Thread::semaphoreIncrease(&future);
+        // Thread::semaphoreIncrease(&future);
+        future.release();
         if (failed){
             failed->throwSelf();
         }
@@ -182,6 +194,7 @@ public:
 protected:
     static void * runit(void * arg){
         Future<X> * me = (Future<X>*) arg;
+	me->future.acquire();
         try{
             me->compute();
         } catch (const LoadException & load){
@@ -193,7 +206,8 @@ protected:
         } catch (const Exception::Base & base){
             me->exception = new Exception::Base(base);
         }
-        Thread::semaphoreIncrease(&me->future);
+        me->future.release();
+        // Thread::semaphoreIncrease(&me->future);
         return NULL;
     }
 
@@ -206,7 +220,7 @@ protected:
 
     X thing;
     Thread::Id thread;
-    Thread::Semaphore future;
+    Thread::LockObject future;
     /* if any exceptions occur, throw them from `get' */
     Exception::Base * exception;
 };
