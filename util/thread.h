@@ -15,6 +15,7 @@
 #include "load_exception.h"
 #include "token_exception.h"
 #include "mugen/exception.h"
+#include "funcs.h"
 #include "debug.h"
 
 namespace Util{
@@ -25,15 +26,18 @@ namespace Thread{
     typedef SDL_mutex* Lock;
     typedef SDL_Thread* Id;
     typedef int (*ThreadFunction)(void*);
+    typedef SDL_cond* Condition;
     // typedef SDL_semaphore* Semaphore;
 #elif USE_ALLEGRO5
     typedef ALLEGRO_MUTEX* Lock;
     typedef ALLEGRO_THREAD* Id;
     typedef void * (*ThreadFunction)(void*);
+    typedef ALLEGRO_COND* Condition;
     // typedef SDL_semaphore* Semaphore;
 #else
     typedef pthread_mutex_t Lock;
     typedef pthread_t Id;
+    typedef pthread_cond_t Condition;
     // typedef sem_t Semaphore;
     typedef void * (*ThreadFunction)(void*);
 #endif
@@ -41,6 +45,11 @@ namespace Thread{
     extern Id uninitializedValue;
     bool isUninitialized(Id thread);
     void initializeLock(Lock * lock);
+
+    void initializeCondition(Condition * condition);
+    void destroyCondition(Condition * condition);
+    int conditionWait(Condition * condition, Lock * lock);
+    int conditionSignal(Condition * condition);
 
     /*
     void initializeSemaphore(Semaphore * semaphore, unsigned int value);
@@ -64,9 +73,13 @@ namespace Thread{
         void acquire() const;
         void release() const;
 
+        void wait(volatile bool & check) const;
+        void signal() const;
+
         virtual ~LockObject();
 
         Lock lock;
+        Condition condition;
     };
 
     /* acquires/releases the lock in RAII fashion */
@@ -151,6 +164,7 @@ public:
     Future():
     thing(0),
     thread(Thread::uninitializedValue),
+    done(false),
     exception(NULL){
         /* future will increase the count */
         // Thread::initializeSemaphore(&future, 0);
@@ -169,6 +183,7 @@ public:
         X out;
         Exception::Base * failed = NULL;
         future.acquire();
+        future.wait(done);
         // Thread::semaphoreDecrease(&future);
         if (exception != NULL){
             failed = exception;
@@ -192,9 +207,13 @@ public:
     }
 
 protected:
+    bool isDone(){
+        Thread::ScopedLock scoped(future);
+        return done;
+    }
+
     static void * runit(void * arg){
         Future<X> * me = (Future<X>*) arg;
-	me->future.acquire();
         try{
             me->compute();
         } catch (const LoadException & load){
@@ -206,6 +225,9 @@ protected:
         } catch (const Exception::Base & base){
             me->exception = new Exception::Base(base);
         }
+        me->future.acquire();
+        me->done = true;
+        me->future.signal();
         me->future.release();
         // Thread::semaphoreIncrease(&me->future);
         return NULL;
@@ -215,12 +237,12 @@ protected:
         this->thing = x;
     }
 
-
     virtual void compute() = 0;
 
     X thing;
     Thread::Id thread;
     Thread::LockObject future;
+    volatile bool done;
     /* if any exceptions occur, throw them from `get' */
     Exception::Base * exception;
 };
