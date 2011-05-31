@@ -57,8 +57,7 @@ private:
 
 void * loadingScreenSimple1(void * arg);
 
-static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & work){
-    background.Blit(load_x, load_y, load_width, load_height, 0, 0, work);
+static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground){
     Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 - Font::getDefaultFont().getHeight(), Graphics::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
     Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2, Graphics::makeColor( 192, 192, 192 ), background, "Made by Jon Rafkind", 0 );
     background.BlitToScreen();
@@ -184,22 +183,25 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
             gradient(gradient),
             state(state),
             infobox(infobox),
-            work(*Util::Parameter<Graphics::Bitmap*>::current(), load_x, load_y, load_width, load_height),
             infoWork(*Util::Parameter<Graphics::Bitmap*>::current(), load_x, load_y + load_height * 2, infobox_width, infobox_height),
             infoBackground(infobox_width, infobox_height),
             infobox_x(load_x),
             infobox_y(load_y + load_height * 2),
             load_x(load_x),
-            load_y(load_y){
+            load_y(load_y),
+            load_width(load_width),
+            load_height(load_height){
 
             const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
             pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
 
+            /*
             if (levelInfo.getBackground() != 0){
-                setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
+                setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground);
             } else {
-                setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, work);
+                setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground);
             }
+            */
         }
 
         Effects::Gradient & gradient;
@@ -213,8 +215,11 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
         const int infobox_y;
         const int load_x;
         const int load_y;
+        const int load_width;
+        const int load_height;
 
-        void draw(){
+        void draw(const Graphics::Bitmap & screen){
+            Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
             for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
                 Graphics::Color color = gradient.current(it->x);
                 work.putPixel(it->x, it->y, color);
@@ -334,7 +339,6 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
     class Draw: public Util::Draw {
     public:
         Draw(int & angle, const int speed):
-        work(*Util::Parameter<Graphics::Bitmap*>::current(), 0, 0, 40, 40),
         original(40, 40),
         angle(angle),
         speed(speed){
@@ -351,7 +355,6 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
             Graphics::Bitmap::transBlender(0, 0, 0, 64);
         }
 
-        Graphics::Bitmap work;
         Graphics::Bitmap original;
         int & angle;
         const int speed;
@@ -364,10 +367,10 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
         Graphics::Color colors[4];
 
         ~Draw(){
-            Graphics::resetDisplay();
         }
 
-        void draw(){
+        void draw(const Graphics::Bitmap & screen){
+            Graphics::Bitmap work(screen, 0, 0, 40, 40);
             int max = sizeof(colors) / sizeof(int);
             double middleX = work.getWidth() / 2;
             double middleY = work.getHeight() / 2;

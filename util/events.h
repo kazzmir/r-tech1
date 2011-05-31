@@ -20,6 +20,10 @@ struct ALLEGRO_EVENT_QUEUE;
 class Keyboard;
 class Joystick;
 
+namespace Graphics{
+    class Bitmap;
+}
+
 namespace Util{
 
 class WaitThread;
@@ -88,7 +92,7 @@ public:
 
 class Draw{
 public:
-    virtual void draw() = 0;
+    virtual void draw(const Graphics::Bitmap & screen) = 0;
     virtual ~Draw();
 };
 
