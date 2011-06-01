@@ -24,7 +24,7 @@ namespace Graphics{
         RestoreState();
         ~RestoreState();
     protected:
-        ALLEGRO_BITMAP * target;
+        ALLEGRO_STATE state;
     };
 }
 

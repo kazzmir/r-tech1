@@ -15,7 +15,17 @@ public:
 protected:
     double width;
     double height;
+    double scale_x, scale_y;
     const Bitmap & where;
+};
+
+class TranslatedBitmap: public Bitmap {
+public:
+    TranslatedBitmap(int x, int y, const Bitmap & where);
+    virtual void BlitToScreen() const;
+    virtual ~TranslatedBitmap();
+public:
+    int x, y;
 };
 
 }
