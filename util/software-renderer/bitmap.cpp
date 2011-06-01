@@ -54,5 +54,18 @@ RestoreState::RestoreState(){
 
 RestoreState::~RestoreState(){
 }
+    
+TranslatedBitmap::TranslatedBitmap(int x, int y, const Bitmap & where):
+Bitmap(where),
+x(x),
+y(y){
+}
+    
+void TranslatedBitmap::BlitToScreen() const {
+    Bitmap::BlitToScreen(x, y);
+}
+
+TranslatedBitmap::~TranslatedBitmap(){
+}
 
 }

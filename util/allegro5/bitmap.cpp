@@ -507,8 +507,10 @@ void Bitmap::StretchBy4( const Bitmap & where ){
     /* TODO */
 }
 
-void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
-    /* TODO */
+void Bitmap::drawRotate(const int x, const int y, const int angle, const Bitmap & where ){
+    changeTarget(this, where);
+    MaskedBlender blender;
+    al_draw_rotated_bitmap(getData().getBitmap(), getWidth() / 2, getHeight() / 2, x, y, Util::radians(angle), ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
@@ -543,7 +545,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
     // double start = al_get_time();
-    changeTarget(this, where);
+    // changeTarget(this, where);
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     /*
     if (&where != Screen){
@@ -553,8 +555,10 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
 
     /* FIXME: deal with mx, my, width, height */
 
+    changeTarget(this, where);
+    Bitmap part(*this, mx, my, width, height);
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
-    al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
+    al_draw_bitmap(part.getData().getBitmap(), wx, wy, 0);
     /*
     double end = al_get_time();
     Global::debug(0) << "Draw in " << (end - start) << " seconds" << std::endl;
@@ -985,20 +989,65 @@ Bitmap(parent, 0, 0, parent.getWidth(), parent.getHeight()),
 width(width),
 height(height),
 where(parent){
-}
-
-void StretchedBitmap::start(){
+    scale_x = (double) parent.getWidth() / width;
+    scale_y = (double) parent.getHeight() / height;
+    al_set_target_bitmap(parent.getData().getBitmap());
     ALLEGRO_TRANSFORM transform;
-    changeTarget(this, this);
     al_identity_transform(&transform);
-    al_scale_transform(&transform, Bitmap::getWidth() / width, Bitmap::getHeight() / height);
+    if (al_get_current_transform() != NULL){
+        al_copy_transform(&transform, al_get_current_transform());
+    }
+    al_scale_transform(&transform, scale_x, scale_y);
+    al_set_target_bitmap(getData().getBitmap());
     al_use_transform(&transform);
 }
 
-void StretchedBitmap::finish(){
+void StretchedBitmap::start(){
+#if 0
     ALLEGRO_TRANSFORM transform;
     changeTarget(this, this);
+    al_copy_transform(&transform, al_get_current_transform());
+    // al_identity_transform(&transform);
+    // al_scale_transform(&transform, Bitmap::getWidth() / width, Bitmap::getHeight() / height);
+    al_scale_transform(&transform, scale_x, scale_y);
+    al_use_transform(&transform);
+#endif
+}
+
+void StretchedBitmap::finish(){
+#if 0
+    ALLEGRO_TRANSFORM transform;
+    changeTarget(this, this);
+    al_copy_transform(&transform, al_get_current_transform());
+    /* apply the inverse transform */
+    al_scale_transform(&transform, 1.0/scale_x, 1.0/scale_y);
+    // al_identity_transform(&transform);
+    al_use_transform(&transform);
+#endif
+}
+
+TranslatedBitmap::TranslatedBitmap(int x, int y, const Bitmap & where):
+Bitmap(where),
+x(x),
+y(y){
+    ALLEGRO_TRANSFORM transform;
+    changeTarget(this, where);
     al_identity_transform(&transform);
+    if (al_get_current_transform() != NULL){
+        al_copy_transform(&transform, al_get_current_transform());
+    }
+    al_translate_transform(&transform, x, y);
+    al_use_transform(&transform);
+}
+
+void TranslatedBitmap::BlitToScreen() const {
+    Bitmap::BlitToScreen();
+}
+
+TranslatedBitmap::~TranslatedBitmap(){
+    ALLEGRO_TRANSFORM transform;
+    al_copy_transform(&transform, al_get_current_transform());
+    al_translate_transform(&transform, -x, -y);
     al_use_transform(&transform);
 }
 
@@ -1011,12 +1060,12 @@ void resetDisplay(){
     // changeTarget(Screen);
 }
 
-RestoreState::RestoreState():
-target(al_get_target_bitmap()){
+RestoreState::RestoreState(){
+    al_store_state(&state, ALLEGRO_STATE_ALL);
 }
 
 RestoreState::~RestoreState(){
-    al_set_target_bitmap(target);
+    al_restore_state(&state);
 }
 
 }
