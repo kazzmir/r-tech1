@@ -70,8 +70,9 @@ static vector<ppair> generateFontPixels(const Font & myFont, const string & mess
     letters.fill(Graphics::MaskColor());
     myFont.printf(0, 0, Graphics::makeColor(255, 255, 255), letters, message.c_str(), 0); 
 
-    vector< ppair > pairs;
+    vector<ppair> pairs;
     /* store every pixel we need to draw */
+    letters.lock();
     for (int x = 0; x < letters.getWidth(); x++){
         for (int y = 0; y < letters.getHeight(); y++){
             Graphics::Color pixel = letters.getPixel(x, y);
@@ -83,8 +84,9 @@ static vector<ppair> generateFontPixels(const Font & myFont, const string & mess
             }
         }
     }
+    letters.unlock();
 
-    Graphics::resetDisplay();
+    // Graphics::resetDisplay();
 
     return pairs;
 }
@@ -220,10 +222,15 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
 
         void draw(const Graphics::Bitmap & screen){
             Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
+            // screen.lock(load_x, load_y, load_width, load_height);
+            /* bug in allegro5.1: locking sub-bitmaps in opengl */
+            work.lock();
             for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
                 Graphics::Color color = gradient.current(it->x);
                 work.putPixel(it->x, it->y, color);
             }
+            // screen.unlock();
+            work.unlock();
 
             if (state.drawInfo){
                 infoBackground.Blit(infoWork);

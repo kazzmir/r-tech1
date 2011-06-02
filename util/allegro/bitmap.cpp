@@ -62,8 +62,8 @@ own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
-	getData().setBitmap( create_bitmap( 10, 10 ) );
-	if (! getData().getBitmap()){
+    setData(new BitmapData(create_bitmap( 10, 10 )));
+	if (! getData()->getBitmap()){
 		error = true;
 		cerr << "Could not create bitmap!" << endl;
 	} else {
@@ -84,8 +84,8 @@ bit8MaskColor(0){
 	if ( y < 1 ){
 		y = 1;
 	}
-	getData().setBitmap( create_bitmap( x, y ) );
-	if ( ! getData().getBitmap() ){
+        setData(new BitmapData(create_bitmap(x, y)));
+	if ( ! getData()->getBitmap() ){
 		error = true;
 		cerr << "Could not create bitmap!" << endl;
 	} else {
@@ -170,7 +170,7 @@ error(false),
 bit8MaskColor(0){
     /* FIXME: pass the type in */
     Format type = GIF;
-    getData().setBitmap(load_bitmap_from_memory(data, length, type));
+    setData(new BitmapData(load_bitmap_from_memory(data, length, type)));
     own = new int;
     *own = 1;
 }
@@ -184,16 +184,16 @@ bit8MaskColor(0){
 	
 	if ( deep_copy ){
 		BITMAP * his = who;
-		getData().setBitmap( create_bitmap( his->w, his->h ) );
-		if ( ! getData().getBitmap() ){
+                setData(new BitmapData(create_bitmap(his->w, his->h)));
+		if ( ! getData()->getBitmap() ){
 			cout << "Could not create bitmap" << endl;
 			error = true;
 		}
-		::blit( his, getData().getBitmap(), 0, 0, 0, 0, his->w, his->h );
+		::blit( his, getData()->getBitmap(), 0, 0, 0, 0, his->w, his->h );
 		own = new int;
 		*own = 1;
 	} else {
-		getData().setBitmap( who );
+            setData(new BitmapData(who));
 		own = NULL;
 	}
 }
@@ -232,14 +232,14 @@ bit8MaskColor(0){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
 	// my_bitmap = load_bitmap( load_file, NULL );
-	getData().setBitmap( create_bitmap( sx, sy ) );
+        setData(new BitmapData(create_bitmap(sx, sy)));
 	// clear( my_bitmap );
-	if ( !temp || ! getData().getBitmap() ){
+	if ( !temp || ! getData()->getBitmap() ){
 		cout<<"Could not load "<<load_file<<endl;
 		error = true;
 	} else {
 		clear();
-		stretch_blit( temp, getData().getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h );
+		stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 		destroy_bitmap( temp );
 	}
 	// own = true;
@@ -258,7 +258,7 @@ bit8MaskColor(0){
 	*own = 1;
 	if ( !temp ){
 		cout<<"Could not load "<<load_file<<endl;
-		getData().setBitmap( create_bitmap( sx, sy ) );
+                setData(new BitmapData(create_bitmap( sx, sy )));
 		// clear( my_bitmap );
 		clear();
 		error = true;
@@ -270,12 +270,14 @@ bit8MaskColor(0){
 			use = bx > by ? bx : by;
 			int fx = (int)(sx / use);
 			int fy = (int)(sy / use);
-			getData().setBitmap( create_bitmap( fx, fy ) );
+                        setData(new BitmapData(create_bitmap( fx, fy )));
 			
-			stretch_blit( temp, getData().getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h );
+			stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 			
 			destroy_bitmap( temp );
-		} else getData().setBitmap( temp );
+		} else {
+                    setData(new BitmapData(temp));
+                }
 	}
 	// own = true;
 }
@@ -286,15 +288,15 @@ mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
-	BITMAP * temp = copy.getData().getBitmap();
-	getData().setBitmap( create_bitmap( sx, sy ) );
-	if ( ! getData().getBitmap() ){
+	BITMAP * temp = copy.getData()->getBitmap();
+        setData(new BitmapData(create_bitmap(sx, sy)));
+	if ( ! getData()->getBitmap() ){
 		error = true;
 		cout << "Could not copy bitmap" << endl;
 	}
 	// clear( my_bitmap );
 	clear();
-	stretch_blit( temp, getData().getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h );
+	stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 	// own = true;
 	// own = copy.own;
 	own = new int;
@@ -307,7 +309,7 @@ mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
-	BITMAP * temp = copy.getData().getBitmap();
+	BITMAP * temp = copy.getData()->getBitmap();
 	own = new int;
 	*own = 1;
 	if ( temp->w > sx || temp->h > sy ){
@@ -317,8 +319,8 @@ bit8MaskColor(copy.bit8MaskColor){
 		use = bx > by ? bx : by;
 		int fx = (int)(temp->w / use);
 		int fy = (int)(temp->h / use);
-		getData().setBitmap( create_bitmap( fx, fy ) );
-		if ( ! getData().getBitmap() ){
+                setData(new BitmapData(create_bitmap(fx, fy)));
+		if ( ! getData()->getBitmap() ){
 			allegro_message("Could not create bitmap\n");
 			// own = false;
 			// own = copy.own;
@@ -327,11 +329,11 @@ bit8MaskColor(copy.bit8MaskColor){
 			return;
 		}
 	
-		stretch_blit( temp, getData().getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h );
+		stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 		// destroy_bitmap( temp );
 	} else {
-		getData().setBitmap( create_bitmap( temp->w, temp->h ) );
-		blit( temp, getData().getBitmap(), 0, 0, 0, 0, temp->w, temp->h );
+            setData(new BitmapData(create_bitmap(temp->w, temp->h)));
+		blit( temp, getData()->getBitmap(), 0, 0, 0, 0, temp->w, temp->h );
 		// own = new int
 		// own = true;
 	}
@@ -345,17 +347,17 @@ bit8MaskColor(copy.bit8MaskColor){
 
 	path = copy.getPath();
 	if ( deep_copy ){
-		BITMAP * his = copy.getData().getBitmap();
-		getData().setBitmap( create_bitmap( his->w, his->h ) );
-		if ( ! getData().getBitmap() ){
+		BITMAP * his = copy.getData()->getBitmap();
+                setData(new BitmapData(create_bitmap(his->w, his->h)));
+		if ( ! getData()->getBitmap() ){
 			cout << "Could not create bitmap" << endl;
 			error = true;
 		}
-		::blit( his, getData().getBitmap(), 0, 0, 0, 0, his->w, his->h );
+		::blit( his, getData()->getBitmap(), 0, 0, 0, 0, his->w, his->h );
 		own = new int;
 		*own = 1;
 	} else {
-		getData().setBitmap( copy.getData().getBitmap() );
+            setData(copy.getData());
 		// own = false;
 		own = copy.own;
 		if ( own ){
@@ -376,7 +378,7 @@ mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
-	BITMAP * his = copy.getData().getBitmap();
+	BITMAP * his = copy.getData()->getBitmap();
 	if ( x < 0 )
 		x = 0;
 	if ( y < 0 )
@@ -385,11 +387,11 @@ bit8MaskColor(copy.bit8MaskColor){
 		width = his->w - x;
 	if ( height + y > his->h )
 		height = his->h - y;
-	getData().setBitmap( create_sub_bitmap( his, x, y, width, height ) );
+        setData(new BitmapData(create_sub_bitmap(his, x, y, width, height)));
 
-	if ( ! getData().getBitmap() ){
+	if ( ! getData()->getBitmap() ){
 		cout<<"Could not create sub-bitmap"<<endl;
-		getData().setBitmap( create_bitmap( 10, 10 ) );
+                setData(new BitmapData(create_bitmap(10, 10)));
 		// clear( my_bitmap );
 		clear();
 	}
@@ -400,11 +402,11 @@ bit8MaskColor(copy.bit8MaskColor){
 	
 void Bitmap::internalLoadFile( const char * load_file ){
 	path = load_file;
-	getData().setBitmap( load_bitmap( load_file, NULL ) );
-	if ( ! getData().getBitmap() ){
+        setData(new BitmapData(load_bitmap(load_file, NULL)));
+	if ( ! getData()->getBitmap() ){
 		cout<<"Could not load "<<load_file<<". Using default"<<endl;
-		getData().setBitmap( create_bitmap( 10, 10 ) );
-		if ( ! getData().getBitmap() ){
+                setData(new BitmapData(create_bitmap(10, 10)));
+		if ( ! getData()->getBitmap() ){
 			cout<<"Out of memory or Allegro not initialized"<<endl;
 			error = true;
 			return;
@@ -420,7 +422,7 @@ void Bitmap::internalLoadFile( const char * load_file ){
 }
 	
 void Bitmap::save( const string & str ) const {
-    save_bitmap( str.c_str(), getData().getBitmap(), NULL );
+    save_bitmap( str.c_str(), getData()->getBitmap(), NULL );
 }
 
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
@@ -484,15 +486,14 @@ void initializeExtraStuff(){
 }
 
 void Bitmap::destroyPrivateData(){
-    destroy_bitmap(getData().getBitmap());
 }
 
 int Bitmap::getWidth() const{
-	return getData().getBitmap()->w;
+	return getData()->getBitmap()->w;
 }
 
 int Bitmap::getHeight() const{
-	return getData().getBitmap()->h;
+	return getData()->getBitmap()->h;
 }
 	
 int getRed( int x ){
@@ -508,11 +509,11 @@ int getGreen( int x ){
 }
 
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
-    ::set_clip_rect( getData().getBitmap(), x1, y1, x2, y2 );
+    ::set_clip_rect( getData()->getBitmap(), x1, y1, x2, y2 );
 }
 
 void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
-    ::get_clip_rect(getData().getBitmap(), &x1, &y1, &x2, &y2);
+    ::get_clip_rect(getData()->getBitmap(), &x1, &y1, &x2, &y2);
 }
 
 /*
@@ -523,7 +524,7 @@ const string & Bitmap::getPath() const{
 
 void Bitmap::debugSelf() const{
 	cout<<"Bitmap: "<<endl;
-	cout<<"Self = "<< getData().getBitmap() <<endl;
+	cout<<"Self = "<< getData()->getBitmap() <<endl;
 	cout<<"Own = "<< own <<" : "<< *own <<endl;
 	cout<<"Path = "<<path<<endl;
 }
@@ -543,7 +544,7 @@ Bitmap & Bitmap::operator=( const Bitmap & copy ){
 	releaseInternalBitmap();
 
 	path = copy.getPath();
-	getData().setBitmap( copy.getData().getBitmap() );
+        setData(copy.getData());
 	// own = false;
 	own = copy.own;
 	if ( own )
@@ -594,15 +595,15 @@ int Bitmap::getHeight(){
 */
 	
 void Bitmap::acquire(){
-	acquire_bitmap( getData().getBitmap() );
+	acquire_bitmap( getData()->getBitmap() );
 }
 
 void Bitmap::release(){
-	release_bitmap( getData().getBitmap() );
+	release_bitmap( getData()->getBitmap() );
 }
 
 void Bitmap::circleFill( int x, int y, int radius, int color ) const {
-	::circlefill( getData().getBitmap(), x, y, radius, color );
+	::circlefill( getData()->getBitmap(), x, y, radius, color );
 }
 
 void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
@@ -612,11 +613,11 @@ void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
 }
 	
 void Bitmap::circle( int x, int y, int radius, int color ) const{
-	::circle( getData().getBitmap(), x, y, radius, color );
+	::circle( getData()->getBitmap(), x, y, radius, color );
 }
 	
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const{
-    ::fastline( getData().getBitmap(), x1, y1, x2, y2, color );
+    ::fastline( getData()->getBitmap(), x1, y1, x2, y2, color );
 }
 
 void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const int color) const{
@@ -626,11 +627,11 @@ void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int
 }
 	
 void Bitmap::floodfill( const int x, const int y, const int color ) const {
-	::floodfill( getData().getBitmap(), x, y, color );
+	::floodfill( getData()->getBitmap(), x, y, color );
 }
 	
 void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
-	::draw_character_ex( where.getData().getBitmap(), getData().getBitmap(), x, y, color, background );
+	::draw_character_ex( where.getData()->getBitmap(), getData()->getBitmap(), x, y, color, background );
 }
 
 void Bitmap::transBlender( int r, int g, int b, int a ){
@@ -684,7 +685,7 @@ void Bitmap::screenBlender( int r, int g, int b, int a ){
 void Bitmap::replaceColor(int original, int replaced){
     int height = getHeight();
     int width = getWidth();
-    BITMAP * bitmap = getData().getBitmap();
+    BITMAP * bitmap = getData()->getBitmap();
     for (int i = 0; i < height; ++i ){
         for( int j = 0; j < width; ++j ){
             /* use getPixel/putPixel? */
@@ -733,6 +734,7 @@ int setGraphicsMode( int mode, int width, int height ){
         }
         if (width != 0 && height != 0){
             Screen = new Bitmap( ::screen );
+            Screen->getData()->setDestroy(false);
             Scaler = new Bitmap(width, height);
             /*
             if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
@@ -766,16 +768,16 @@ const int Bitmap::getHeight() const{
 */
 
 int Bitmap::getPixel( const int x, const int y ) const{
-	if ( x >= 0 && x < getData().getBitmap()->w && y >= 0 && y < getData().getBitmap()->h )
-		return _getpixel16( getData().getBitmap(), x, y );
+	if ( x >= 0 && x < getData()->getBitmap()->w && y >= 0 && y < getData()->getBitmap()->h )
+		return _getpixel16( getData()->getBitmap(), x, y );
 	return -1;
 }
 
 void Bitmap::readLine( vector< int > & vec, int y ){
-	if ( y >= 0 && y < getData().getBitmap()->h ){
-		for ( int q = 0; q < getData().getBitmap()->w; q++ ){
+	if ( y >= 0 && y < getData()->getBitmap()->h ){
+		for ( int q = 0; q < getData()->getBitmap()->w; q++ ){
 			// int col = my_bitmap->line[ y ][ q ];
-			int col = _getpixel16( getData().getBitmap(), q, y );
+			int col = _getpixel16( getData()->getBitmap(), q, y );
 			vec.push_back( col );
 		}
 	}
@@ -813,7 +815,7 @@ int Bitmap::addColor( int color1, int color2 ){
 }
 	
 void Bitmap::putPixelNormal(int x, int y, int col) const {
-    BITMAP * dst = getData().getBitmap();
+    BITMAP * dst = getData()->getBitmap();
     ::putpixel(dst, x, y, col);
 }
 
@@ -828,12 +830,12 @@ void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
 }
 	
 void Bitmap::putPixel( int x, int y, int col ) const{
-    BITMAP * dst = getData().getBitmap();
+    BITMAP * dst = getData()->getBitmap();
     if (dst->clip && ((x < dst->cl) || (x >= dst->cr) || (y < dst->ct) || (y >= dst->cb))){
         return;
     }
-    if ( x >= 0 && x < getData().getBitmap()->w && y >= 0 && y < getData().getBitmap()->h )
-        _putpixel16( getData().getBitmap(), x, y, col );
+    if ( x >= 0 && x < getData()->getBitmap()->w && y >= 0 && y < getData()->getBitmap()->h )
+        _putpixel16( getData()->getBitmap(), x, y, col );
 }
 	
 /*
@@ -888,11 +890,11 @@ void Bitmap::printfNormal( int x, int y, int color, const string & str ) const{
 */
 
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const{
-	::triangle( getData().getBitmap(), x1, y1, x2, y2, x3, y3, color );
+	::triangle( getData()->getBitmap(), x1, y1, x2, y2, x3, y3, color );
 }
 	
 void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
-	::ellipse( getData().getBitmap(), x, y, rx, ry, color );
+	::ellipse( getData()->getBitmap(), x, y, rx, ry, color );
 }
 
 void TranslucentBitmap::ellipse(int x, int y, int rx, int ry, int color) const {
@@ -902,11 +904,11 @@ void TranslucentBitmap::ellipse(int x, int y, int rx, int ry, int color) const {
 }
 
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
-	::ellipsefill( getData().getBitmap(), x, y, rx, ry, color );
+	::ellipsefill( getData()->getBitmap(), x, y, rx, ry, color );
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const{
-    ::rect( getData().getBitmap(), x1, y1, x2, y2, color );
+    ::rect( getData()->getBitmap(), x1, y1, x2, y2, color );
 }
 
 void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
@@ -916,7 +918,7 @@ void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) c
 }
 	
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
-    ::rectfill( getData().getBitmap(), x1, y1, x2, y2, color );
+    ::rectfill( getData()->getBitmap(), x1, y1, x2, y2, color );
 }
 
 void TranslucentBitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
@@ -940,21 +942,21 @@ int Bitmap::makeColor( int r, int g, int b ){
 */
 	
 void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const{
-    ::hline( getData().getBitmap(), x1, y, x2, color );
+    ::hline( getData()->getBitmap(), x1, y, x2, color );
 }
 
 void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const{
     drawingMode(MODE_TRANS);
-    ::hline(getData().getBitmap(), x1, y, x2, color);
+    ::hline(getData()->getBitmap(), x1, y, x2, color);
     drawingMode(MODE_SOLID);
 }
 	
 void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const{
-	::vline( getData().getBitmap(), x, y1, y2, color );
+	::vline( getData()->getBitmap(), x, y1, y2, color );
 }
 	
 void Bitmap::polygon( const int * verts, const int nverts, const int color ) const{
-	::polygon( getData().getBitmap(), nverts, verts, color );
+	::polygon( getData()->getBitmap(), nverts, verts, color );
 }
 
 /* These values are specified in 16.16 fixed point format, with 256 equal to
@@ -980,7 +982,7 @@ void Bitmap::arc(const int x, const int y, const double ang1, const double ang2,
         angle1 = angle2;
         angle2 = swap;
     }
-    ::arc(getData().getBitmap(), x, y, angle1, angle2, radius, color);
+    ::arc(getData()->getBitmap(), x, y, angle1, angle2, radius, color);
 }
 
 void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
@@ -1050,7 +1052,7 @@ void Bitmap::arcFilled(const int x, const int y, const double ang1, const double
         angle1 = angle2;
         angle2 = swap;
     }
-    drawFilledArc(x, y, angle1, angle2, radius, color, getData().getBitmap());
+    drawFilledArc(x, y, angle1, angle2, radius, color, getData()->getBitmap());
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
@@ -1066,7 +1068,7 @@ void Bitmap::clear(){
 */
 
 void Bitmap::fill( int color ) const{
-    ::clear_to_color( getData().getBitmap(), color );
+    ::clear_to_color( getData()->getBitmap(), color );
 }
 
 /*
@@ -1076,38 +1078,38 @@ void TranslucentBitmap::fill(int color) const {
 */
 	
 void Bitmap::draw( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, NULL);
+	paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, NULL);
 	// ::draw_sprite( where.getData().getBitmap(), getBitmap(), x, y );
 }
 	
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, filter);
 }
 
 void Bitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, NULL);
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 
 void Bitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, filter);
 	// ::draw_sprite_h_flip( where.getBitmap(), getBitmap(), x, y );
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, NULL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, filter);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 /*
@@ -1118,72 +1120,72 @@ void Bitmap::drawLit( const int x, const int y, const int level, const Bitmap & 
 
 void TranslucentBitmap::draw( const int x, const int y, const Bitmap & where ) const{
     // ::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, NULL);
 }
 
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const{
     // ::draw_trans_sprite( where.getBitmap(), getBitmap(), x, y );
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, filter);
 }
 	
 void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, filter);
 }
 
 void TranslucentBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, NULL);
+	paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, NULL);
 }
 	
 void TranslucentBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, filter);
+	paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, filter);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+	paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
+	paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
 	::fixed fang = itofix( (360 - angle) % 360 * 256 / 360 );
-	::rotate_sprite( where.getData().getBitmap(), getData().getBitmap(), x, y, fang ); 
+	::rotate_sprite( where.getData()->getBitmap(), getData()->getBitmap(), x, y, fang ); 
 }
 	
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
     ::fixed fang = ftofix( (double)((360 - angle) % 360) * 256.0 / 360.0 );
-    ::pivot_sprite( where.getData().getBitmap(), getData().getBitmap(), x, y, centerX, centerY, fang ); 
+    ::pivot_sprite( where.getData()->getBitmap(), getData()->getBitmap(), x, y, centerX, centerY, fang ); 
 }
 	
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
     ::fixed fscale = ftofix(scale);
     ::fixed fang = ftofix( (double)((360 - angle) % 360) * 256.0 / 360.0 );
-    ::pivot_scaled_sprite( where.getData().getBitmap(), getData().getBitmap(), x, y, centerX, centerY, fang, fscale ); 
+    ::pivot_scaled_sprite( where.getData()->getBitmap(), getData()->getBitmap(), x, y, centerX, centerY, fang, fscale ); 
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
-	BITMAP * bmp = who.getData().getBitmap();
-	::masked_stretch_blit( getData().getBitmap(), bmp, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, x,y, new_width, new_height );
+	BITMAP * bmp = who.getData()->getBitmap();
+	::masked_stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, x,y, new_width, new_height );
 }
 
 void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
-    paintown_light16(getData().getBitmap(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
+    paintown_light16(getData()->getBitmap(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
 }
         
 void Bitmap::applyTrans(const int color) const {
-    paintown_applyTrans16(getData().getBitmap(), color);
+    paintown_applyTrans16(getData()->getBitmap(), color);
 }
 
 void Bitmap::StretchBy2( const Bitmap & where ){
-	BITMAP * bmp = where.getData().getBitmap();
+	BITMAP * bmp = where.getData()->getBitmap();
 
 	if ( where.getWidth() == getWidth() && where.getHeight() == getHeight() ){
-		::blit( getData().getBitmap(), bmp, 0, 0, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h );
+		::blit( getData()->getBitmap(), bmp, 0, 0, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 		return;
 	}
 
@@ -1195,7 +1197,7 @@ void Bitmap::StretchBy2( const Bitmap & where ){
 			return;
 	}
 	// debug
-	::stretch_blit( getData().getBitmap(), bmp, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, 0, 0, bmp->w, bmp->h );
+	::stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, 0, 0, bmp->w, bmp->h );
 	// fblend_2x_stretch( my_bitmap, bmp, 0, 0, 0, 0, my_bitmap->w, my_bitmap->h);
 	// scale2x_allegro( my_bitmap, bmp, 2 );
 	// debug
@@ -1204,7 +1206,7 @@ void Bitmap::StretchBy2( const Bitmap & where ){
 
 void Bitmap::StretchBy4( const Bitmap & where ){
 
-	BITMAP * bmp = where.getData().getBitmap();
+	BITMAP * bmp = where.getData()->getBitmap();
 	if ( where.getWidth() != getWidth()*4 ||
 		where.getHeight() != getHeight()*4 ){
 			cout<<"Wrong dimensions"<<endl;
@@ -1215,7 +1217,7 @@ void Bitmap::StretchBy4( const Bitmap & where ){
 	}
 	// fblend_2x_stretch( my_bitmap, bmp, 0, 0, 0, 0, my_bitmap->w, my_bitmap->h);
 	// scale4x_allegro( my_bitmap, bmp, 2 );
-	::stretch_blit( getData().getBitmap(), bmp, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, 0, 0, bmp->w, bmp->h );
+	::stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, 0, 0, bmp->w, bmp->h );
 
 }
 
@@ -1230,8 +1232,8 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 #endif
 	
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
-	BITMAP * bmp = where.getData().getBitmap();
-	::stretch_blit( getData().getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
+	BITMAP * bmp = where.getData()->getBitmap();
+	::stretch_blit( getData()->getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
 }
 
 #if 0
@@ -1257,13 +1259,13 @@ void Bitmap::Blit( const int mx, const int my, const int wx, const int wy, const
 */
 
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-	BITMAP * bmp = where.getData().getBitmap();
-	::blit( getData().getBitmap(), bmp, mx, my, wx, wy, width, height );
+	BITMAP * bmp = where.getData()->getBitmap();
+	::blit( getData()->getBitmap(), bmp, mx, my, wx, wy, width, height );
 }
 
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-	BITMAP * bmp = where.getData().getBitmap();
-	::masked_blit( getData().getBitmap(), bmp, mx, my, wx, wy, width, height );
+	BITMAP * bmp = where.getData()->getBitmap();
+	::masked_blit( getData()->getBitmap(), bmp, mx, my, wx, wy, width, height );
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
@@ -1307,35 +1309,35 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, NULL);
 }
 
 void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, filter);
 }
 	
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_H_FLIP, NULL);
+	paintown_draw_sprite_ex16(where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-	paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_H_FLIP, filter);
+	paintown_draw_sprite_ex16(where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_H_FLIP, filter);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP, NULL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP, filter);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getBitmap(), getData().getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getBitmap(), getData()->getBitmap(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 /* this function should be in allegro but its not yet so just store it

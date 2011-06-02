@@ -1,8 +1,29 @@
-#include <allegro5/allegro.h>
+#include <allegro5/allegro5.h>
 
 struct BitmapData{
     BitmapData():
-    bitmap(NULL){
+    bitmap(NULL),
+    destroy(true){
+    }
+
+    BitmapData(ALLEGRO_BITMAP * bitmap):
+    bitmap(bitmap),
+    destroy(true){
+    }
+
+    virtual ~BitmapData(){
+        if (bitmap != NULL){
+            if (al_get_target_bitmap() == bitmap){
+                al_set_target_bitmap(NULL);
+            }
+            if (destroy){
+                al_destroy_bitmap(bitmap);
+            }
+        }
+    }
+
+    void setDestroy(bool ok){
+        destroy = ok;
     }
 
     inline ALLEGRO_BITMAP * getBitmap() const {
@@ -14,6 +35,7 @@ struct BitmapData{
     }
 
     ALLEGRO_BITMAP * bitmap;
+    bool destroy;
 };
 
 namespace Graphics{

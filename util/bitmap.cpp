@@ -1,9 +1,3 @@
-/*
-#ifdef USE_ALLEGRO
-#include <allegro.h>
-#endif
-*/
-
 #include "funcs.h"
 #include "bitmap.h"
 #include "trans-bitmap.h"

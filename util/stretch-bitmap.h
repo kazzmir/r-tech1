@@ -22,6 +22,7 @@ protected:
 class TranslatedBitmap: public Bitmap {
 public:
     TranslatedBitmap(int x, int y, const Bitmap & where);
+    using Bitmap::BlitToScreen;
     virtual void BlitToScreen() const;
     virtual ~TranslatedBitmap();
 public:
