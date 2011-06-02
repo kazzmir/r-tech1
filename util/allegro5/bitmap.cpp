@@ -642,11 +642,19 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
     }
     */
     changeTarget(this, Screen);
+    if (getData()->getBitmap() != Screen->getData()->getBitmap()){
+        Blit(*Screen);
+    }
     al_flip_display();
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
     changeTarget(this, Screen);
+    /*
+    if (getData()->getBitmap() != Screen->getData()->getBitmap()){
+        Blit(upper_left_y, upper_left_y, *Screen);
+    }
+    */
     al_flip_display();
 }
 
