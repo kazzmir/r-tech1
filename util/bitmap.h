@@ -2,6 +2,7 @@
 #define _paintown_bitmap_h_
 
 #include "exceptions/exception.h"
+#include "pointer.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -282,19 +283,24 @@ public:
 
 	bool getError();
 
-	inline const BitmapData & getData() const {
+	inline const Util::ReferenceCount<BitmapData> & getData() const {
             return data;
 	}
 	
-        inline BitmapData & getData(){
+        inline Util::ReferenceCount<BitmapData> getData(){
             return data;
 	}
+
+        void setData(Util::ReferenceCount<BitmapData> data){
+            this->data = data;
+        }
 	
 	virtual void readLine( std::vector<Color> & vec, int y );
 	Color getPixel( const int x, const int y ) const;
 
         /* lock video bitmap to memory */
         void lock() const;
+        void lock(int x, int y, int width, int height) const;
         void unlock() const;
 
         /* true if the point is within the bounds of the bitmap */
@@ -390,7 +396,7 @@ protected:
         void internalLoadFile( const char * load_file );
 
         /* implementation specific data */
-        BitmapData data;
+        Util::ReferenceCount<BitmapData> data;
         int * own;
         bool mustResize;
         // bool own;

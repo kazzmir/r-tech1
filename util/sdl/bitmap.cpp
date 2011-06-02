@@ -157,6 +157,12 @@ struct BlendingData{
     blender currentBlender;
 };
 
+BitmapData::~BitmapData(){
+    if (surface != NULL){
+        SDL_FreeSurface(surface);
+    }
+}
+
 static BlendingData globalBlend;
 static int drawingMode = Bitmap::MODE_SOLID;
 
@@ -214,6 +220,11 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
 
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
+    
+BitmapData::BitmapData(SDL_Surface * surface):
+surface(surface){
+    setSurface(surface);
+}
 
 void BitmapData::setSurface(SDL_Surface * surface){
     this->surface = surface;
@@ -242,7 +253,7 @@ bit8MaskColor(0){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * loaded = IMG_Load_RW(ops, 1);
     if (loaded){
-        getData().setSurface(optimizedSurface(loaded));
+        setData(new BitmapData(optimizedSurface(loaded)));
         SDL_FreeSurface(loaded);
     } else {
         std::ostringstream out;
@@ -273,11 +284,11 @@ bit8MaskColor(0){
         destination.y = 0;
 
         SDL_BlitSurface(who, &source, surface, &destination);
-        getData().setSurface(surface);
+        setData(new BitmapData(surface));
         own = new int;
         *own = 1;
     } else {
-        getData().setSurface(who);
+        setData(new BitmapData(who));
     }
 }
 
@@ -290,7 +301,7 @@ bit8MaskColor(0){
         out << "Could not create surface with dimensions " << w << ", " << h;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    getData().setSurface(surface);
+    setData(new BitmapData(surface));
     own = new int;
     *own = 1;
 }
@@ -314,7 +325,7 @@ mustResize(false),
 bit8MaskColor(0){
     Bitmap temp(load_file);
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
-    getData().setSurface(surface);
+    setData(new BitmapData(surface));
     own = new int;
     *own = 1;
 
@@ -334,7 +345,7 @@ own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     if (deep_copy){
-        SDL_Surface * who = copy.getData().getSurface();
+        SDL_Surface * who = copy.getData()->getSurface();
         SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, who->w, who->h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
         SDL_Rect source;
         SDL_Rect destination;
@@ -349,11 +360,11 @@ bit8MaskColor(copy.bit8MaskColor){
         destination.y = 0;
 
         SDL_BlitSurface(who, &source, surface, &destination);
-        getData().setSurface(surface);
+        setData(new BitmapData(surface));
         own = new int;
         *own = 1;
     } else {
-        getData().setSurface(copy.getData().getSurface());
+        setData(copy.getData());
         own = copy.own;
         if (own){
             *own += 1;
@@ -385,7 +396,7 @@ own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     path = copy.getPath();
-    SDL_Surface * his = copy.getData().getSurface();
+    SDL_Surface * his = copy.getData()->getSurface();
     if (x < 0)
         x = 0;
     if (y < 0)
@@ -396,7 +407,7 @@ bit8MaskColor(copy.bit8MaskColor){
         height = his->h - y;
 
     SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
-    getData().setSurface(sub);
+    setData(new BitmapData(sub));
     
     own = new int;
     *own = 1;
@@ -406,7 +417,7 @@ void Bitmap::internalLoadFile(const char * path){
     this->path = path;
     SDL_Surface * loaded = IMG_Load(path);
     if (loaded){
-        getData().setSurface(optimizedSurface(loaded));
+        setData(new BitmapData(optimizedSurface(loaded)));
         SDL_FreeSurface(loaded);
     } else {
         std::ostringstream out;
@@ -418,16 +429,16 @@ void Bitmap::internalLoadFile(const char * path){
 }
 
 int Bitmap::getWidth() const {
-    if (getData().getSurface() != NULL){
-        return getData().getSurface()->w;
+    if (getData()->getSurface() != NULL){
+        return getData()->getSurface()->w;
     }
 
     return 0;
 }
 
 int Bitmap::getHeight() const {
-    if (getData().getSurface() != NULL){
-        return getData().getSurface()->h;
+    if (getData()->getSurface() != NULL){
+        return getData()->getSurface()->h;
     }
 
     return 0;
@@ -626,7 +637,7 @@ void Bitmap::burnBlender(int r, int g, int b, int a){
 Bitmap & Bitmap::operator=(const Bitmap & copy){
     releaseInternalBitmap();
     path = copy.getPath();
-    getData().setSurface(copy.getData().getSurface());
+    setData(copy.getData());
     // own = false;
     own = copy.own;
     if (own)
@@ -665,20 +676,19 @@ void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     area.y = y1;
     area.w = x2 - x1;
     area.h = y2 - y1;
-    SDL_SetClipRect(getData().getSurface(), &area);
-    SDL_GetClipRect(getData().getSurface(), &area);
-    getData().setClip(area.x, area.y, area.x + area.w, area.y + area.h);
+    SDL_SetClipRect(getData()->getSurface(), &area);
+    SDL_GetClipRect(getData()->getSurface(), &area);
+    getData()->setClip(area.x, area.y, area.x + area.w, area.y + area.h);
 }
 
 void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
-    x1 = getData().clip_left;
-    y1 = getData().clip_top;
-    x2 = getData().clip_right;
-    y2 = getData().clip_bottom;
+    x1 = getData()->clip_left;
+    y1 = getData()->clip_top;
+    x2 = getData()->clip_right;
+    y2 = getData()->clip_bottom;
 }
 
 void Bitmap::destroyPrivateData(){
-    SDL_FreeSurface(getData().getSurface());
 }
 
 static void doPutPixel(SDL_Surface * surface, int x, int y, int pixel, bool translucent){
@@ -727,11 +737,11 @@ static void doPutPixel(SDL_Surface * surface, int x, int y, int pixel, bool tran
 
 void Bitmap::putPixel(int x, int y, int pixel) const {
     /* clip it */
-    if (getData().isClipped(x, y)){
+    if (getData()->isClipped(x, y)){
         return;
     }
 
-    SDL_Surface * surface = getData().getSurface();
+    SDL_Surface * surface = getData()->getSurface();
     doPutPixel(surface, x, y, pixel, false);
 }
 	
@@ -740,11 +750,11 @@ void Bitmap::putPixelNormal(int x, int y, int col) const {
 }
     
 void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
-    if (getData().isClipped(x, y)){
+    if (getData()->isClipped(x, y)){
         return;
     }
     
-    SDL_Surface * surface = getData().getSurface();
+    SDL_Surface * surface = getData()->getSurface();
     doPutPixel(surface, x, y, color, true);
 }
 	
@@ -754,25 +764,25 @@ bool Bitmap::getError(){
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
-    SPG_Rect(getData().getSurface(), x1, y1, x2, y2, color);
+    SPG_Rect(getData()->getSurface(), x1, y1, x2, y2, color);
 }
 
 void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
     int alpha = globalBlend.alpha;
-    SPG_RectBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
+    SPG_RectBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
-    SPG_RectFilled(getData().getSurface(), x1, y1, x2, y2, color);
+    SPG_RectFilled(getData()->getSurface(), x1, y1, x2, y2, color);
 }
 
 void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color) const {
     int alpha = globalBlend.alpha;
-    SPG_RectFilledBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
+    SPG_RectFilledBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
 }
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
-    SPG_CircleFilled(getData().getSurface(), x, y, radius, color);
+    SPG_CircleFilled(getData()->getSurface(), x, y, radius, color);
 
     /*
     if (Graphics::drawingMode == MODE_SOLID){
@@ -786,7 +796,7 @@ void Bitmap::circleFill(int x, int y, int radius, int color) const {
 
 void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
     int alpha = globalBlend.alpha;
-    SPG_CircleFilledBlend(getData().getSurface(), x, y, radius, color, alpha);
+    SPG_CircleFilledBlend(getData()->getSurface(), x, y, radius, color, alpha);
 }
 
 void Bitmap::circle(int x, int y, int radius, int color) const {
@@ -794,17 +804,17 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
     // SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
     // int alpha = 255;
     if (Graphics::drawingMode == MODE_SOLID){
-        SPG_Circle(getData().getSurface(), x, y, radius, color);
+        SPG_Circle(getData()->getSurface(), x, y, radius, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
-        SPG_CircleBlend(getData().getSurface(), x, y, radius, color, alpha);
+        SPG_CircleBlend(getData()->getSurface(), x, y, radius, color, alpha);
     }
 
     // circleRGBA(getData().getSurface(), x, y, radius, red, green, blue, alpha);
 }
 
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
-    SPG_Line(getData().getSurface(), x1, y1, x2, y2, color);
+    SPG_Line(getData()->getSurface(), x1, y1, x2, y2, color);
     /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Line(getData().getSurface(), x1, y1, x2, y2, color);
@@ -817,12 +827,12 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
 
 void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const int color ) const {
     int alpha = globalBlend.alpha;
-    SPG_LineBlend(getData().getSurface(), x1, y1, x2, y2, color, alpha);
+    SPG_LineBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    if (getData().getSurface() != NULL){
-	paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, NULL);
+    if (getData()->getSurface() != NULL){
+	paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, NULL);
         /*
         SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
         Blit(x, y, where);
@@ -831,68 +841,68 @@ void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, NULL);
 }
 
 void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, NULL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP, filter);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, NULL);
 }
 
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_NO_FLIP, filter);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_H_FLIP, filter);
 }
 
 void TranslucentBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP, filter);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter,const Bitmap & where ) const {
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_TRANS, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
 
-    if (getData().getSurface() != NULL){
-        SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
+    if (getData()->getSurface() != NULL){
+        SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
 
-        SDL_Surface * src = getData().getSurface();
-        SDL_Surface * dst = who.getData().getSurface();
+        SDL_Surface * src = getData()->getSurface();
+        SDL_Surface * dst = who.getData()->getSurface();
 
         int myWidth = src->w;
         int myHeight = src->h;
@@ -936,31 +946,31 @@ static void doBlit(SDL_Surface * mine, const int mx, const int my, const int wid
     destination.x = wx;
     destination.y = wy;
 
-    SDL_BlitSurface(mine, &source, where.getData().getSurface(), &destination);
+    SDL_BlitSurface(mine, &source, where.getData()->getSurface(), &destination);
 }
 
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-    SDL_SetColorKey(getData().getSurface(), 0, MaskColor());
-    doBlit(getData().getSurface(), mx, my, width, height, wx, wy, where);
+    SDL_SetColorKey(getData()->getSurface(), 0, MaskColor());
+    doBlit(getData()->getSurface(), mx, my, width, height, wx, wy, where);
 
     /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
      * like where->Blitted()
      */
     if (&where == Screen){
-        SDL_Flip(Screen->getData().getSurface());
+        SDL_Flip(Screen->getData()->getSurface());
     }
 }
 
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
 
-    doBlit(getData().getSurface(),mx, my, width, height, wx, wy, where);
+    doBlit(getData()->getSurface(),mx, my, width, height, wx, wy, where);
 
     /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
      * like where->Blitted()
      */
     if (&where == Screen){
-        SDL_Flip(Screen->getData().getSurface());
+        SDL_Flip(Screen->getData()->getSurface());
     }
 }
 
@@ -1035,8 +1045,8 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
     Bitmap subSource(*this, sourceX, sourceY, sourceWidth, sourceHeight);
     Bitmap subDestination(where, destX, destY, destWidth, destHeight);
 
-    SDL_Surface * src = subSource.getData().getSurface();
-    SDL_Surface * dst = subDestination.getData().getSurface();
+    SDL_Surface * src = subSource.getData()->getSurface();
+    SDL_Surface * dst = subDestination.getData()->getSurface();
 
     if (SDL_MUSTLOCK(src)){
         SDL_LockSurface(src);
@@ -1113,41 +1123,41 @@ void Bitmap::save( const std::string & str ) const {
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
 
     if (Graphics::drawingMode == MODE_SOLID){
-        SPG_TrigonFilled(getData().getSurface(), x1, y1, x2, y2, x3, y3, color);
+        SPG_TrigonFilled(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
-        SPG_TrigonFilledBlend(getData().getSurface(), x1, y1, x2, y2, x3, y3, color, alpha);
+        SPG_TrigonFilledBlend(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color, alpha);
     }
 }
 
 void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
     if (Graphics::drawingMode == MODE_SOLID){
-        SPG_Ellipse(getData().getSurface(), x, y, rx, ry, color);
+        SPG_Ellipse(getData()->getSurface(), x, y, rx, ry, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
-        SPG_EllipseBlend(getData().getSurface(), x, y, rx, ry, color, alpha);
+        SPG_EllipseBlend(getData()->getSurface(), x, y, rx, ry, color, alpha);
     }
 }
 
 void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
     int alpha = globalBlend.alpha;
-    SPG_EllipseBlend(getData().getSurface(), x, y, rx, ry, color, alpha);
+    SPG_EllipseBlend(getData()->getSurface(), x, y, rx, ry, color, alpha);
 }
 
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
-    SPG_EllipseFilled(getData().getSurface(), x, y, rx, ry, color);
+    SPG_EllipseFilled(getData()->getSurface(), x, y, rx, ry, color);
 }
 
 void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
-    paintown_light16(getData().getSurface(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
+    paintown_light16(getData()->getSurface(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
 }
 
 void Bitmap::applyTrans(const int color) const {
-    paintown_applyTrans16(getData().getSurface(), color);
+    paintown_applyTrans16(getData()->getSurface(), color);
 }
 	
 void Bitmap::floodfill( const int x, const int y, const int color ) const {
-    SPG_FloodFill(getData().getSurface(), x, y, color);
+    SPG_FloodFill(getData()->getSurface(), x, y, color);
 }
 
 /*
@@ -1157,16 +1167,16 @@ void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int 
 */
 
 void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
-    SPG_LineH(getData().getSurface(), x1, y, x2, color);
+    SPG_LineH(getData()->getSurface(), x1, y, x2, color);
 }
 
 void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
     int alpha = globalBlend.alpha;
-    SPG_LineHBlend(getData().getSurface(), x1, y, x2, color, alpha);
+    SPG_LineHBlend(getData()->getSurface(), x1, y, x2, color, alpha);
 }
 
 void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const {
-    SPG_LineV(getData().getSurface(), x, y1, y2, color);
+    SPG_LineV(getData()->getSurface(), x, y1, y2, color);
 }
 	
 void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
@@ -1175,7 +1185,7 @@ void Bitmap::polygon( const int * verts, const int nverts, const int color ) con
         points[i].x = verts[i*2];
         points[i].y = verts[i*2+1];
     }
-    SPG_PolygonFilled(getData().getSurface(), nverts, points, color);
+    SPG_PolygonFilled(getData()->getSurface(), nverts, points, color);
     delete[] points;
 }
 
@@ -1190,21 +1200,21 @@ static const double arcPhase = -Util::pi / 2;
 
 /* 0 = right. pi/2 = up. pi = left. 3pi/2 = down */
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    SPG_Arc(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
+    SPG_Arc(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
 }
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    SPG_ArcFilled(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
+    SPG_ArcFilled(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
 }
 
 void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
     int alpha = globalBlend.alpha;
-    SPG_ArcBlend(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
+    SPG_ArcBlend(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
     int alpha = globalBlend.alpha;
-    SPG_ArcFilledBlend(getData().getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
+    SPG_ArcFilledBlend(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
 }
 
 void Bitmap::fill(int color) const {
@@ -1213,7 +1223,7 @@ void Bitmap::fill(int color) const {
     area.y = 0;
     area.w = getWidth();
     area.h = getHeight();
-    SDL_FillRect(getData().getSurface(), &area, color);
+    SDL_FillRect(getData()->getSurface(), &area, color);
 }
 
 /*
@@ -1229,28 +1239,28 @@ void Bitmap::drawCharacter( const int x, const int y, const int color, const int
 }
 
 void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
-    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, MaskColor());
-    SDL_Surface * src = getData().getSurface();
-    SDL_Surface * dst = where.getData().getSurface();
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_Surface * src = getData()->getSurface();
+    SDL_Surface * dst = where.getData()->getSurface();
     SPG_TransformX(src, dst, angle, 1, 1, 0, 0, x, y, SPG_TCOLORKEY);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
-    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, MaskColor());
-    SDL_Surface * src = getData().getSurface();
-    SDL_Surface * dst = where.getData().getSurface();
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_Surface * src = getData()->getSurface();
+    SDL_Surface * dst = where.getData()->getSurface();
     SPG_TransformX(src, dst, angle, 1, 1, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
-    SDL_SetColorKey(getData().getSurface(), SDL_SRCCOLORKEY, MaskColor());
-    SDL_Surface * src = getData().getSurface();
-    SDL_Surface * dst = where.getData().getSurface();
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_Surface * src = getData()->getSurface();
+    SDL_Surface * dst = where.getData()->getSurface();
     SPG_TransformX(src, dst, angle, scale, scale, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
         
 void Bitmap::replaceColor(int original, int replaced){
-    paintown_replace16(getData().getSurface(), original, replaced);
+    paintown_replace16(getData()->getSurface(), original, replaced);
 }
         
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
@@ -1283,7 +1293,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
 }
 	
 int Bitmap::getPixel( const int x, const int y ) const {
-    return SPG_GetPixel(getData().getSurface(), x, y);
+    return SPG_GetPixel(getData()->getSurface(), x, y);
 }
 	
 void Bitmap::readLine( std::vector< int > & line, int y ){
@@ -1302,39 +1312,39 @@ void Bitmap::StretchBy4( const Bitmap & where ){
 	
 void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
     // paintown_draw_sprite_filter_ex16(where.getData().getSurface(), getData().getSurface(), x, y, filter);
-    paintown_draw_sprite_ex16(where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16(where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_NORMAL, SPRITE_NO_FLIP, filter);
 }
 
 void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, NULL);
 }
 
 void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_NO_FLIP, filter);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_H_FLIP, filter);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP, NULL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP, filter);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, NULL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    paintown_draw_sprite_ex16( where.getData().getSurface(), getData().getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
+    paintown_draw_sprite_ex16( where.getData()->getSurface(), getData()->getSurface(), x, y, SPRITE_LIT, SPRITE_V_FLIP | SPRITE_H_FLIP, filter);
 }
 
 /*

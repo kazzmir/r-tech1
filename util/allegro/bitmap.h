@@ -15,7 +15,23 @@ struct BITMAP;
 
 struct BitmapData{
     BitmapData():
-        bitmap(0){}
+        bitmap(0),
+        destroy(true){}
+
+    BitmapData(BITMAP * bitmap):
+        bitmap(bitmap),
+        destroy(true){
+        }
+
+    ~BitmapData(){
+        if (bitmap != NULL && destroy){
+            destroy_bitmap(bitmap);
+        }
+    }
+
+    void setDestroy(bool b){
+        destroy = b;
+    }
 
     inline BITMAP * getBitmap() const {
         return bitmap;
@@ -26,6 +42,7 @@ struct BitmapData{
     }
 
     BITMAP * bitmap;
+    bool destroy;
 };
 
 namespace Graphics{

@@ -227,7 +227,7 @@ namespace ftalleg{
         va_end(ap);
 
         std::string fixedText(str.str());
-        al_set_target_bitmap(bmp.getData().getBitmap());
+        al_set_target_bitmap(bmp.getData()->getBitmap());
 
         /* for setting the blend state and whatnot */
         bmp.startDrawing();

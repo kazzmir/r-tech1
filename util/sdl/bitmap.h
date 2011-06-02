@@ -9,9 +9,13 @@ struct BitmapData{
         clip_top(0),
         clip_bottom(0){}
 
+    BitmapData(SDL_Surface * surface);
+
     inline SDL_Surface * getSurface() const {
         return surface;
     }
+
+    virtual ~BitmapData();
 
     inline void setClip(int left, int top, int right, int bottom) const {
         clip_left = left;
