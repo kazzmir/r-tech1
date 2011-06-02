@@ -209,7 +209,6 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
         Effects::Gradient & gradient;
         State & state;
         Messages & infobox;
-        Graphics::Bitmap work;
         Graphics::Bitmap infoWork;
         Graphics::Bitmap infoBackground;
         vector<ppair> pairs;
@@ -222,14 +221,11 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
 
         void draw(const Graphics::Bitmap & screen){
             Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
-            // screen.lock(load_x, load_y, load_width, load_height);
-            /* bug in allegro5.1: locking sub-bitmaps in opengl */
             work.lock();
             for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
                 Graphics::Color color = gradient.current(it->x);
                 work.putPixel(it->x, it->y, color);
             }
-            // screen.unlock();
             work.unlock();
 
             if (state.drawInfo){
