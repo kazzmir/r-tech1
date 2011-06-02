@@ -197,13 +197,11 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
             const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
             pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
 
-            /*
             if (levelInfo.getBackground() != 0){
                 setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground);
             } else {
                 setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground);
             }
-            */
         }
 
         Effects::Gradient & gradient;
