@@ -147,9 +147,13 @@ void ScrollList::render(const Graphics::Bitmap & where, const Font & font) const
 void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> & text){
     this->text.push_back(text);
 }
-
+    
 void ScrollList::addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & texts){
     this->text.insert(text.end(), texts.begin(), texts.end());
+}
+
+void ScrollList::clearItems(){
+    this->text.clear();
 }
 
 void ScrollList::setPosition(const Gui::Coordinate & location){

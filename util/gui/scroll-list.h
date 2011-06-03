@@ -56,6 +56,8 @@ public:
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);
+
+    virtual void clearItems();
     
     //! Set Position
     virtual void setPosition(const Gui::Coordinate &);
