@@ -432,7 +432,7 @@ void Bitmap::unlock() const {
 }
 
 Color Bitmap::getPixel(const int x, const int y) const {
-    changeTarget(this, this);
+    // changeTarget(this, this);
     return al_get_pixel(getData()->getBitmap(), x, y);
 }
 
@@ -1034,7 +1034,21 @@ RestoreState::~RestoreState(){
 
 }
 
-static bool sameColor(Graphics::Color color1, Graphics::Color color2){
+static inline bool close(float x, float y){
+    static float epsilon = 0.001;
+    return fabs(x - y) < epsilon;
+}
+
+static inline bool sameColor(Graphics::Color color1, Graphics::Color color2){
+    float r1, g1, b1, a1;
+    float r2, g2, b2, a2;
+    al_unmap_rgba_f(color1, &r1, &g1, &b1, &a1);
+    al_unmap_rgba_f(color2, &r2, &g2, &b2, &a2);
+    return close(r1, r2) &&
+           close(g1, g2) &&
+           close(b1, b2) &&
+           close(a1, a2);
+    /*
     unsigned char r1, g1, b1, a1;
     unsigned char r2, g2, b2, a2;
     al_unmap_rgba(color1, &r1, &g1, &b1, &a1);
@@ -1043,6 +1057,7 @@ static bool sameColor(Graphics::Color color1, Graphics::Color color2){
            g1 == g2 &&
            b1 == b2 &&
            a1 == a2;
+    */
 }
 
 static uint32_t quantify(const ALLEGRO_COLOR & color){

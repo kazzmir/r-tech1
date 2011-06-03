@@ -143,10 +143,12 @@ parent( _parent ){
                     denom = 1;
                 }
 
-                for (int x = 0; x < who->getWidth(); x++){
-                    for (int y = 0; y < who->getHeight(); y++){
+                int width = who->getWidth();
+                int height = who->getHeight();
+                for (int x = 0; x < width; x++){
+                    for (int y = 0; y < height; y++){
                         // int pixel = _getpixel16( who, x, y );
-                        Graphics::Color pixel = who->getPixel( x, y );
+                        Graphics::Color pixel = who->getPixel(x, y);
                         if (pixel != mask_pixel){
                             ++total;
                         }
