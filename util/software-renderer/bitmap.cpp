@@ -46,9 +46,6 @@ Bitmap getScreenBuffer(){
     return Bitmap(GFX_X, GFX_Y);
 }
 
-void resetDisplay(){
-}
-
 RestoreState::RestoreState(){
 }
 

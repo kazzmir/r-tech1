@@ -58,7 +58,6 @@ static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
 
 Bitmap::Bitmap():
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
@@ -68,13 +67,10 @@ bit8MaskColor(0){
 		cerr << "Could not create bitmap!" << endl;
 	} else {
 		clear();
-		own = new int;
-		*own = 1;
 	}
 }
 
 Bitmap::Bitmap( int x, int y ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
@@ -90,8 +86,6 @@ bit8MaskColor(0){
 		cerr << "Could not create bitmap!" << endl;
 	} else {
 		clear();
-		own = new int;
-		*own = 1;
 	}
 }
 
@@ -164,20 +158,16 @@ static BITMAP * load_bitmap_from_memory(const char * data, int length, Format ty
 }
 
 Bitmap::Bitmap(const char * data, int length):
-own(NULL),
 mustResize(false),
 error(false),
 bit8MaskColor(0){
     /* FIXME: pass the type in */
     Format type = GIF;
     setData(new BitmapData(load_bitmap_from_memory(data, length, type)));
-    own = new int;
-    *own = 1;
 }
 
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
@@ -190,16 +180,12 @@ bit8MaskColor(0){
 			error = true;
 		}
 		::blit( his, getData()->getBitmap(), 0, 0, 0, 0, his->w, his->h );
-		own = new int;
-		*own = 1;
 	} else {
             setData(new BitmapData(who));
-		own = NULL;
 	}
 }
 	
 Bitmap::Bitmap( const char * load_file ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
@@ -217,7 +203,6 @@ bit8MaskColor(0){
 }
 
 Bitmap::Bitmap( const string & load_file ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
@@ -225,7 +210,6 @@ bit8MaskColor(0){
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
@@ -242,20 +226,14 @@ bit8MaskColor(0){
 		stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 		destroy_bitmap( temp );
 	}
-	// own = true;
-	own = new int;
-	*own = 1;
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
-	own = new int;
-	*own = 1;
 	if ( !temp ){
 		cout<<"Could not load "<<load_file<<endl;
                 setData(new BitmapData(create_bitmap( sx, sy )));
@@ -283,7 +261,6 @@ bit8MaskColor(0){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
@@ -297,21 +274,14 @@ bit8MaskColor(copy.bit8MaskColor){
 	// clear( my_bitmap );
 	clear();
 	stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
-	// own = true;
-	// own = copy.own;
-	own = new int;
-	*own = 1;
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
 	BITMAP * temp = copy.getData()->getBitmap();
-	own = new int;
-	*own = 1;
 	if ( temp->w > sx || temp->h > sy ){
 		double bx = (double)temp->w / (double)sx;
 		double by = (double)temp->h / (double)sy;
@@ -340,7 +310,6 @@ bit8MaskColor(copy.bit8MaskColor){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
@@ -354,15 +323,8 @@ bit8MaskColor(copy.bit8MaskColor){
 			error = true;
 		}
 		::blit( his, getData()->getBitmap(), 0, 0, 0, 0, his->w, his->h );
-		own = new int;
-		*own = 1;
 	} else {
             setData(copy.getData());
-		// own = false;
-		own = copy.own;
-		if ( own ){
-			*own = *own + 1;
-		}
 	}
 	/*
 	BITMAP * his = copy.getBitmap();
@@ -373,7 +335,6 @@ bit8MaskColor(copy.bit8MaskColor){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
-own( NULL ),
 mustResize(false),
 error( false ),
 bit8MaskColor(copy.bit8MaskColor){
@@ -395,9 +356,6 @@ bit8MaskColor(copy.bit8MaskColor){
 		// clear( my_bitmap );
 		clear();
 	}
-	// own = true;
-	own = new int;
-	*own = 1;
 }
 	
 void Bitmap::internalLoadFile( const char * load_file ){
@@ -416,9 +374,6 @@ void Bitmap::internalLoadFile( const char * load_file ){
 		// cout<<"Could not load "<<load_file<<endl;
 		error = true;
 	}
-	// own = true;
-	own = new int;
-	*own = 1;
 }
 	
 void Bitmap::save( const string & str ) const {
@@ -485,9 +440,6 @@ void initializeExtraStuff(){
     /* nothing yet */
 }
 
-void Bitmap::destroyPrivateData(){
-}
-
 int Bitmap::getWidth() const{
 	return getData()->getBitmap()->w;
 }
@@ -523,34 +475,9 @@ const string & Bitmap::getPath() const{
 */
 
 void Bitmap::debugSelf() const{
-	cout<<"Bitmap: "<<endl;
-	cout<<"Self = "<< getData()->getBitmap() <<endl;
-	cout<<"Own = "<< own <<" : "<< *own <<endl;
-	cout<<"Path = "<<path<<endl;
-}
-	
-Bitmap & Bitmap::operator=( const Bitmap & copy ){
-	
-	/*
-	if ( own ){
-		(*own)--;
-		if ( *own == 0 ){
-			destroy_bitmap( getBitmap() );
-			delete own;
-		}
-	}
-	*/
-	
-	releaseInternalBitmap();
-
-	path = copy.getPath();
-        setData(copy.getData());
-	// own = false;
-	own = copy.own;
-	if ( own )
-		*own += 1;
-
-	return *this;
+    cout<<"Bitmap: "<<endl;
+    cout<<"Self = "<< getData()->getBitmap() <<endl;
+    cout<<"Path = "<<path<<endl;
 }
 
 /*
@@ -571,7 +498,6 @@ void Bitmap::detach(){
 		}
 	}
 	*/
-	releaseInternalBitmap();
 }
 
 /*

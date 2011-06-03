@@ -379,10 +379,10 @@ public:
 #endif
 protected:
         /* release a reference count, and possibly destroy data */
-        void releaseInternalBitmap();
+        // void releaseInternalBitmap();
 
         /* really destroy private data */
-        void destroyPrivateData();
+        // void destroyPrivateData();
 
         /*
         inline void setBitmap( BITMAP * bitmap ){
@@ -397,7 +397,7 @@ protected:
 
         /* implementation specific data */
         Util::ReferenceCount<BitmapData> data;
-        int * own;
+        // int * own;
         bool mustResize;
         // bool own;
         bool error;
@@ -412,9 +412,6 @@ protected:
  * on opengl/allegro5 systems this will return the current backbuffer
  */
 Bitmap getScreenBuffer();
-
-/* sets the current target bitmap to the screen (on allegro5) */
-void resetDisplay();
 
 void blend_palette(Color * pal, int mp, Color sc, Color ec);
 // bool sameColors(Color color1, Color color2);

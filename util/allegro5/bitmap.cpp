@@ -131,42 +131,35 @@ static const int FULLSCREEN = 1;
 static Bitmap * Scaler = NULL;
 
 Bitmap::Bitmap():
-own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     /* TODO */
 }
 
 Bitmap::Bitmap( const char * load_file ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     internalLoadFile(load_file);
 }
 
 Bitmap::Bitmap( const std::string & load_file ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     internalLoadFile(load_file.c_str());
 }
 
 Bitmap::Bitmap(ALLEGRO_BITMAP * who, bool deep_copy):
-own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(who);
         setData(new BitmapData(clone));
-        own = new int;
-        *own = 1;
     } else {
         setData(new BitmapData(who));
     }
 }
 
 Bitmap::Bitmap(int width, int height):
-own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     ALLEGRO_BITMAP * bitmap = al_create_bitmap(width, height);
@@ -176,25 +169,16 @@ bit8MaskColor(makeColor(0, 0, 0)){
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
     setData(new BitmapData(bitmap));
-    own = new int;
-    *own = 1;
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
-own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(copy.getData()->getBitmap());
         setData(new BitmapData(clone));
-        own = new int;
-        *own = 1;
     } else {
         setData(copy.getData());
-        own = copy.own;
-        if (own){
-            *own += 1;
-        }
     }
 }
 
@@ -204,10 +188,8 @@ void Bitmap::convertToVideo(){
     if (copy == NULL){
         throw BitmapException(__FILE__, __LINE__, "Could not create video bitmap");
     }
-    releaseInternalBitmap();
+    al_destroy_bitmap(getData()->getBitmap());
     getData()->setBitmap(copy);
-    own = new int;
-    *own = 1;
 }
 
 void changeTarget(const Bitmap & from, const Bitmap & who){
@@ -319,8 +301,6 @@ void Bitmap::internalLoadFile(const char * path){
     }
     al_convert_mask_to_alpha(loaded, al_map_rgb(255, 0, 255));
     setData(new BitmapData(loaded));
-    own = new int;
-    *own = 1;
 }
 
 static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, Format type){
@@ -337,7 +317,6 @@ static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, F
 }
 
 Bitmap::Bitmap(const char * data, int length):
-own(NULL),
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     Format type = GIF;
@@ -347,12 +326,9 @@ bit8MaskColor(makeColor(0, 0, 0)){
         out << "Could not create bitmap from memory";
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    own = new int;
-    *own = 1;
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     path = copy.getPath();
@@ -370,9 +346,6 @@ bit8MaskColor(copy.bit8MaskColor){
 
     ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, x, y, width, height);
     setData(new BitmapData(sub));
-    
-    own = new int;
-    *own = 1;
 }
 
 int Bitmap::getWidth() const {
@@ -905,33 +878,12 @@ void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, Color color ) con
     Bitmap::ellipse(x, y, rx, ry, doTransBlend(color, globalBlend.alpha));
 }
 
-
-Bitmap & Bitmap::operator=(const Bitmap & copy){
-    releaseInternalBitmap();
-    path = copy.getPath();
-    setData(copy.getData());
-    // own = false;
-    own = copy.own;
-    if (own)
-        *own += 1;
-    return *this;
-}
-
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     /* TODO */
 }
 
 void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
     /* TODO */
-}
-
-void Bitmap::destroyPrivateData(){
-    /*
-    if (al_get_target_bitmap() == getData()->getBitmap()){
-        al_set_target_bitmap(NULL);
-    }
-    al_destroy_bitmap(getData()->getBitmap());
-    */
 }
 
 int setGfxModeFullscreen(int x, int y){
@@ -1070,11 +1022,6 @@ TranslatedBitmap::~TranslatedBitmap(){
 
 Bitmap getScreenBuffer(){
     return *Screen;
-}
-
-void resetDisplay(){
-    // al_set_target_bitmap(Screen->getData().getBitmap());
-    // changeTarget(Screen);
 }
 
 RestoreState::RestoreState(){
