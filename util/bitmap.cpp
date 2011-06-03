@@ -47,8 +47,6 @@ Bitmap::~Bitmap(){
             }
         }
     }
-
-    releaseInternalBitmap();
 }
 
 static Bitmap makeTemporaryBitmap(Bitmap *& temporary, int w, int h){
@@ -85,6 +83,12 @@ void Bitmap::cleanupTemporaryBitmaps(){
         delete temporary_bitmap2;
         temporary_bitmap2 = NULL;
     }
+}
+
+Bitmap & Bitmap::operator=(const Bitmap & copy){
+    path = copy.getPath();
+    setData(copy.getData());
+    return *this;
 }
 
 double Bitmap::getScale(){
@@ -158,6 +162,7 @@ void Bitmap::resize( const int width, const int height ){
 
 
 /* decrement bitmap reference counter and free memory if counter hits 0 */
+#if 0
 void Bitmap::releaseInternalBitmap(){
     const int MAGIC_DEBUG = 0xa5a5a5;
     if (own != NULL){
@@ -174,6 +179,7 @@ void Bitmap::releaseInternalBitmap(){
         }
     }
 }
+#endif
 
 void Bitmap::BlitToScreen() const {
     // this->Blit( *Bitmap::Screen );
@@ -181,7 +187,7 @@ void Bitmap::BlitToScreen() const {
 }
 
 void Bitmap::load( const std::string & str ){
-    releaseInternalBitmap();
+    // releaseInternalBitmap();
     internalLoadFile( str.c_str() );
 }
 

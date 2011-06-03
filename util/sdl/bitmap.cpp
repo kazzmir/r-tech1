@@ -240,14 +240,12 @@ void BitmapData::setSurface(SDL_Surface * surface){
 }
 
 Bitmap::Bitmap():
-own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     /* TODO */
 }
 
 Bitmap::Bitmap(const char * data, int length):
-own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
@@ -260,13 +258,9 @@ bit8MaskColor(0){
         out << "Could not load surface from memory " << (void*) data << " length " << length;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-
-    own = new int;
-    *own = 1;
 }
 
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
-own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     if (deep_copy){
@@ -285,8 +279,6 @@ bit8MaskColor(0){
 
         SDL_BlitSurface(who, &source, surface, &destination);
         setData(new BitmapData(surface));
-        own = new int;
-        *own = 1;
     } else {
         setData(new BitmapData(who));
     }
@@ -302,46 +294,37 @@ bit8MaskColor(0){
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
     setData(new BitmapData(surface));
-    own = new int;
-    *own = 1;
 }
 
 Bitmap::Bitmap( const char * load_file ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     internalLoadFile(load_file);
 }
 
 Bitmap::Bitmap( const std::string & load_file ):
-own(NULL),
 mustResize(false){
     internalLoadFile(load_file.c_str());
 }
 
 Bitmap::Bitmap( const char * load_file, int sx, int sy ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     Bitmap temp(load_file);
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     setData(new BitmapData(surface));
-    own = new int;
-    *own = 1;
 
     temp.Stretch(*this);
 }
 
 /* unused */
 Bitmap::Bitmap( const char * load_file, int sx, int sy, double accuracy ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(0){
     throw BitmapException(__FILE__, __LINE__, "Unimplemented constructor");
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
-own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     if (deep_copy){
@@ -361,26 +344,18 @@ bit8MaskColor(copy.bit8MaskColor){
 
         SDL_BlitSurface(who, &source, surface, &destination);
         setData(new BitmapData(surface));
-        own = new int;
-        *own = 1;
     } else {
         setData(copy.getData());
-        own = copy.own;
-        if (own){
-            *own += 1;
-        }
     }
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     /* TODO */
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     /* TODO */
@@ -392,7 +367,6 @@ static inline Uint8* computeOffset(SDL_Surface * surface, int x, int y){
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
-own(NULL),
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     path = copy.getPath();
@@ -408,9 +382,6 @@ bit8MaskColor(copy.bit8MaskColor){
 
     SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     setData(new BitmapData(sub));
-    
-    own = new int;
-    *own = 1;
 }
 
 void Bitmap::internalLoadFile(const char * path){
@@ -424,8 +395,6 @@ void Bitmap::internalLoadFile(const char * path){
         out << "Could not load file '" << path << "'";
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    own = new int;
-    *own = 1;
 }
 
 int Bitmap::getWidth() const {
@@ -633,17 +602,6 @@ void Bitmap::burnBlender(int r, int g, int b, int a){
     globalBlend.alpha = a;
     globalBlend.currentBlender = Graphics::burnBlender;
 }
-	
-Bitmap & Bitmap::operator=(const Bitmap & copy){
-    releaseInternalBitmap();
-    path = copy.getPath();
-    setData(copy.getData());
-    // own = false;
-    own = copy.own;
-    if (own)
-        *own += 1;
-    return *this;
-}
         
 int setGfxModeText(){
     /* TODO */
@@ -686,9 +644,6 @@ void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
     y1 = getData()->clip_top;
     x2 = getData()->clip_right;
     y2 = getData()->clip_bottom;
-}
-
-void Bitmap::destroyPrivateData(){
 }
 
 static void doPutPixel(SDL_Surface * surface, int x, int y, int pixel, bool translucent){
