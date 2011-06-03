@@ -46,6 +46,9 @@ public:
 
 protected:
 
+    /* scale to the configuration sound level */
+    static double scale(double in);
+
     void destroy();
 
     // SAMPLE * my_sound;

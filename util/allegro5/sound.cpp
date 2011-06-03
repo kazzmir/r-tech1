@@ -57,15 +57,15 @@ void Sound::play(){
 }
 
 void Sound::play(double volume, int pan){
-    /* FIXME: deal with volume */
+    /* FIXME: deal with pan */
     if (data.sample != NULL){
-        al_play_sample(data.sample, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
+        al_play_sample(data.sample, scale(volume), 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
     }
 }
 
 void Sound::playLoop(){
     if (data.sample != NULL){
-        al_play_sample(data.sample, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
+        al_play_sample(data.sample, scale(1.0), 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, NULL);
     }
 }
 

@@ -7,6 +7,8 @@
 #ifdef USE_ALLEGRO5
 #include "allegro5/sound.cpp"
 #endif
+
+#include "configuration.h"
         
 int Sound::FREQUENCY = 22050;
 
@@ -31,6 +33,10 @@ Sound & Sound::operator=( const Sound & rhs ){
     data = rhs.data;
 
     return *this;
+}
+
+double Sound::scale(double in){
+    return in * Configuration::getSoundVolume() / 100.0;
 }
 
 Sound::~Sound(){
