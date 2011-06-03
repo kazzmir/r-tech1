@@ -324,6 +324,7 @@ void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 }
 
 void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
+    this->list.clearItems();
     for (vector<Util::ReferenceCount<ContextItem> >::const_iterator it = list.begin(); it != list.end(); it++){
         const Util::ReferenceCount<ContextItem> & item = *it;
         this->list.addItem(item.convert<ScrollItem>());
