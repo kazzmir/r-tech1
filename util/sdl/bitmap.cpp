@@ -1214,7 +1214,7 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
     SPG_TransformX(src, dst, angle, scale, scale, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
         
-void Bitmap::replaceColor(int original, int replaced){
+void Bitmap::replaceColor(const Color & original, const Color & replaced){
     paintown_replace16(getData()->getSurface(), original, replaced);
 }
         

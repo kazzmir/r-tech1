@@ -271,7 +271,7 @@ void Bitmap::drawMask( const int _x, const int _y, const Bitmap & where ){
     }
 }
         
-void Bitmap::set8BitMaskColor(Color color){
+void Bitmap::set8BitMaskColor(const Color & color){
     bit8MaskColor = color;
 }
         

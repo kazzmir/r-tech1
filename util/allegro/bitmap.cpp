@@ -608,7 +608,7 @@ void Bitmap::screenBlender( int r, int g, int b, int a ){
 	set_screen_blender( r, g, b, a );
 }
 
-void Bitmap::replaceColor(int original, int replaced){
+void Bitmap::replaceColor(const Color & original, const Color & replaced){
     int height = getHeight();
     int width = getWidth();
     BITMAP * bitmap = getData()->getBitmap();
