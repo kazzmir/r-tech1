@@ -152,8 +152,8 @@ public:
 	void detach();
 
         /* replace all pixels that have value `original' with `replaced' */
-        void replaceColor(Color original, Color replaced);
-        void set8BitMaskColor(Color color);
+        void replaceColor(const Color & original, const Color & replaced);
+        void set8BitMaskColor(const Color & color);
         Color get8BitMaskColor();
 
 	static void transBlender( int r, int g, int b, int a );

@@ -67,7 +67,7 @@ static BlendingData globalBlend;
 // Util::Thread::LockObject * allegroLock;
 
 Color makeColorAlpha(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha){
-    return al_map_rgba(red, blue, green, alpha);
+    return al_map_rgba(red, green, blue, alpha);
 }
 
 Color MaskColor(){
@@ -110,6 +110,14 @@ class MaskedBlender: public Blender {
 public:
     MaskedBlender(){
         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+    }
+};
+
+class LitBlender: public Blender {
+public:
+    LitBlender(ALLEGRO_COLOR lit){
+        // al_set_blend_color(lit);
+        // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE_MINUS_DST_COLOR, ALLEGRO_ZERO);
     }
 };
 
@@ -226,13 +234,29 @@ void dumpColor(const Color & color){
     Global::debug(0) << "red " << (int) red << " green " << (int) green << " blue " << (int) blue << " alpha " << (int) alpha << std::endl;
 }
 
+Color pcxMaskColor(unsigned char * data, const int length){
+    if (length >= 769){
+        if (data[length - 768 - 1] == 12){
+            unsigned char * palette = &data[length - 768];
+            unsigned char red = palette[0];
+            unsigned char green = palette[1];
+            unsigned char blue = palette[2];
+            return makeColorAlpha(red, green, blue, 255);
+        }
+    }
+    return makeColorAlpha(255, 255, 255, 255);
+}
+
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
     ALLEGRO_FILE * memory = al_open_memfile((void *) data, length, "r");
     ALLEGRO_BITMAP * pcx = al_load_bitmap_f(memory, ".pcx");
     al_fclose(memory);
+    if (pcx == NULL){
+        throw BitmapException(__FILE__, __LINE__, "Could not load pcx");
+    }
     // dumpColor(al_get_pixel(pcx, 0, 0));
     Bitmap out(pcx);
-    out.set8BitMaskColor(makeColorAlpha(255, 255, 255, 255));
+    out.set8BitMaskColor(pcxMaskColor(data, length));
     return out;
 }
 
@@ -241,7 +265,7 @@ static bool isVideoBitmap(ALLEGRO_BITMAP * bitmap){
            !(al_get_bitmap_flags(bitmap) & ALLEGRO_MEMORY_BITMAP);
 }
 
-void Bitmap::replaceColor(Color original, Color replaced){
+void Bitmap::replaceColor(const Color & original, const Color & replaced){
     changeTarget(this, this);
 
     if (isVideoBitmap(getData()->getBitmap())){
@@ -787,8 +811,12 @@ void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) con
     al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor(), x, y, 0);
 }
 
-void LitBitmap::draw( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
+    // changeTarget(this, where);
+    // LitBlender blender(makeColorAlpha(globalBlend.red, globalBlend.green, globalBlend.blue, globalBlend.alpha));
+    // TransBlender blender;
+    // al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+    // al_draw_tinted_bitmap(getData()->getBitmap(), al_map_rgba_f(1, 0, 0, 1), x, y, 0);
 }
 
 void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
