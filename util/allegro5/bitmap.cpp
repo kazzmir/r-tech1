@@ -367,9 +367,30 @@ bit8MaskColor(copy.bit8MaskColor){
     if (height + y > al_get_bitmap_height(his)){
         height = al_get_bitmap_height(his) - y;
     }
+    
+    ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
+    ALLEGRO_TRANSFORM transform;
+    al_identity_transform(&transform);
+    if (al_get_current_transform() != NULL){
+        al_set_target_bitmap(copy.getData()->getBitmap());
+        al_copy_transform(&transform, al_get_current_transform());
+    }
 
-    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, x, y, width, height);
+    float x_scaled = x;
+    float y_scaled = y;
+    float width_scaled = width;
+    float height_scaled = height;
+
+    al_transform_coordinates(&transform, &x_scaled, &y_scaled);
+    al_transform_coordinates(&transform, &width_scaled, &height_scaled);
+
+    // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, x, y, width, height);
+    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, (int) width_scaled, (int) height_scaled);
     setData(new BitmapData(sub));
+
+    al_set_target_bitmap(sub);
+    al_use_transform(&transform);
+    al_set_target_bitmap(old_target);
 }
 
 int Bitmap::getWidth() const {
@@ -988,6 +1009,7 @@ height(height),
 where(parent){
     scale_x = (double) parent.getWidth() / width;
     scale_y = (double) parent.getHeight() / height;
+    ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
     al_set_target_bitmap(parent.getData()->getBitmap());
     ALLEGRO_TRANSFORM transform;
     al_identity_transform(&transform);
@@ -997,6 +1019,7 @@ where(parent){
     al_scale_transform(&transform, scale_x, scale_y);
     al_set_target_bitmap(getData()->getBitmap());
     al_use_transform(&transform);
+    al_set_target_bitmap(old_target);
 }
 
 void StretchedBitmap::start(){
