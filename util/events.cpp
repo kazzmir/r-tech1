@@ -426,6 +426,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 if (Global::rateLimit){
                     rest(1);
                 } else {
+                    draw.updateFrames();
                     draw.draw(screen);
                 }
             }
