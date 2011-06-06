@@ -357,7 +357,35 @@ public:
 Logic::~Logic(){
 }
 
+Draw::Draw():
+frames(0),
+second_counter(Global::second_counter),
+fps(0){
+}
+
 Draw::~Draw(){
+}
+    
+double Draw::getFps() const {
+    return fps;
+}
+
+void Draw::updateFrames(){
+    if (second_counter != Global::second_counter){
+        int difference = Global::second_counter - second_counter;
+        double alpha = 0.2;
+        /* unlikely, but just in case */
+        if (difference == 0){
+            difference = 1;
+        }
+        fps = (alpha * fps) + ((1 - alpha) * (double) frames / difference);
+        // fps[fps_index] = (double) frames / (double) difference;
+        // fps_index = (fps_index+1) % max_fps_index;
+        second_counter = Global::second_counter;
+        frames = 0;
+    }
+
+    frames += 1;
 }
 
 static void doStandardLoop(Logic & logic, Draw & draw){
@@ -388,6 +416,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 }
 
                 if (need_draw){
+                    draw.updateFrames();
                     draw.draw(screen);
                 }
             }
