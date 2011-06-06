@@ -92,8 +92,15 @@ public:
 
 class Draw{
 public:
+    Draw();
     virtual void draw(const Graphics::Bitmap & screen) = 0;
     virtual ~Draw();
+    virtual void updateFrames();
+    virtual double getFps() const;
+protected:
+    int frames;
+    unsigned int second_counter;
+    double fps;
 };
 
 void standardLoop(Logic & logic, Draw & draw);
