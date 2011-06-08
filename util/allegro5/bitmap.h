@@ -50,6 +50,6 @@ namespace Graphics{
     };
 }
 
-bool operator<(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);
-bool operator!=(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);
-bool operator==(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2);
+bool operator<(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2);
+bool operator!=(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2);
+bool operator==(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2);
