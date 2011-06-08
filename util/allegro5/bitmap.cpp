@@ -76,6 +76,10 @@ Color MaskColor(){
 }
 
 Color getBlendColor(){
+    /* sort of a hack */
+    if (globalBlend.type == Multiply){
+        return makeColorAlpha(255, 255, 255, 255);
+    }
     return makeColorAlpha(255, 255, 255, globalBlend.alpha);
 }
 
@@ -127,7 +131,7 @@ public:
         switch (globalBlend.type){
             case Translucent: al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA); break;
             case Add: al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ONE); break;
-            case Multiply: al_set_blender(ALLEGRO_DEST_MINUS_SRC, ALLEGRO_ONE, ALLEGRO_ONE); break;
+            case Multiply: al_set_blender(ALLEGRO_ADD, ALLEGRO_DST_COLOR, ALLEGRO_INVERSE_ALPHA); break;
             case Difference: al_set_blender(ALLEGRO_DEST_MINUS_SRC, ALLEGRO_ONE, ALLEGRO_ONE); break;
         }
     }
@@ -136,7 +140,7 @@ public:
 static const int WINDOWED = 0;
 static const int FULLSCREEN = 1;
 
-static Bitmap * Scaler = NULL;
+// static Bitmap * Scaler = NULL;
 
 Bitmap::Bitmap():
 mustResize(false),
@@ -458,7 +462,7 @@ int setGraphicsMode(int mode, int width, int height){
     Screen = new Bitmap(al_get_backbuffer(display));
     /* dont destroy the backbuffer */
     Screen->getData()->setDestroy(false);
-    Scaler = new Bitmap(width, height);
+    // Scaler = new Bitmap(width, height);
     /* default drawing mode */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     return 0;
@@ -1091,6 +1095,7 @@ static inline bool close(float x, float y){
 }
 
 static inline bool sameColor(Graphics::Color color1, Graphics::Color color2){
+    // return memcmp(&color1, &color2, sizeof(Graphics::Color)) == 0;
     float r1, g1, b1, a1;
     float r2, g2, b2, a2;
     al_unmap_rgba_f(color1, &r1, &g1, &b1, &a1);
@@ -1099,6 +1104,7 @@ static inline bool sameColor(Graphics::Color color1, Graphics::Color color2){
            close(g1, g2) &&
            close(b1, b2) &&
            close(a1, a2);
+
     /*
     unsigned char r1, g1, b1, a1;
     unsigned char r2, g2, b2, a2;
@@ -1120,14 +1126,14 @@ static uint32_t quantify(const ALLEGRO_COLOR & color){
            alpha;
 }
 
-bool operator<(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
+bool operator<(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2){
     return quantify(color1) < quantify(color2);
 }
 
-bool operator!=(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
+bool operator!=(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2){
     return !(color1 == color2);
 }
 
-bool operator==(const ALLEGRO_COLOR color1, const ALLEGRO_COLOR color2){
+bool operator==(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2){
     return sameColor(color1, color2);
 }
