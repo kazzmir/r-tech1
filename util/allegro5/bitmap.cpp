@@ -101,6 +101,14 @@ Color transBlendColor(const Color & color){
     return doTransBlend(color, globalBlend.alpha);
 }
 
+int getRealWidth(const Bitmap & what){
+    return al_get_bitmap_width(what.getData()->getBitmap());
+}
+
+int getRealHeight(const Bitmap & what){
+    return al_get_bitmap_height(what.getData()->getBitmap());
+}
+
 class Blender{
 public:
     Blender(){
@@ -146,7 +154,9 @@ static const int FULLSCREEN = 1;
 
 Bitmap::Bitmap():
 mustResize(false),
-bit8MaskColor(makeColor(0, 0, 0)){
+bit8MaskColor(makeColor(0, 0, 0)),
+width(0),
+height(0){
     /* TODO */
 }
 
@@ -154,12 +164,16 @@ Bitmap::Bitmap( const char * load_file ):
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     internalLoadFile(load_file);
+    width = al_get_bitmap_width(getData()->getBitmap());
+    height = al_get_bitmap_height(getData()->getBitmap());
 }
 
 Bitmap::Bitmap( const std::string & load_file ):
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     internalLoadFile(load_file.c_str());
+    width = al_get_bitmap_width(getData()->getBitmap());
+    height = al_get_bitmap_height(getData()->getBitmap());
 }
 
 Bitmap::Bitmap(ALLEGRO_BITMAP * who, bool deep_copy):
@@ -171,6 +185,8 @@ bit8MaskColor(makeColor(0, 0, 0)){
     } else {
         setData(new BitmapData(who));
     }
+    this->width = al_get_bitmap_width(getData()->getBitmap());
+    this->height = al_get_bitmap_height(getData()->getBitmap());
 }
 
 Bitmap::Bitmap(int width, int height):
@@ -183,11 +199,15 @@ bit8MaskColor(makeColor(0, 0, 0)){
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
     setData(new BitmapData(bitmap));
+    this->width = al_get_bitmap_width(getData()->getBitmap());
+    this->height = al_get_bitmap_height(getData()->getBitmap());
 }
 
 Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
 mustResize(false),
-bit8MaskColor(copy.bit8MaskColor){
+bit8MaskColor(copy.bit8MaskColor),
+width(copy.width),
+height(copy.height){
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(copy.getData()->getBitmap());
         setData(new BitmapData(clone));
@@ -278,8 +298,10 @@ void Bitmap::replaceColor(const Color & original, const Color & replaced){
         al_lock_bitmap(getData()->getBitmap(), ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READWRITE);
     }
 
-    for (int x = 0; x < getWidth(); x++){
-        for (int y = 0; y < getHeight(); y++){
+    int width = getRealWidth(*this);
+    int height = getRealHeight(*this);
+    for (int x = 0; x < width; x++){
+        for (int y = 0; y < height; y++){
             Color pixel = getPixel(x, y);
             if (pixel == original){
                 al_put_pixel(x, y, replaced);
@@ -356,11 +378,15 @@ bit8MaskColor(makeColor(0, 0, 0)){
         out << "Could not create bitmap from memory";
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
+    width = al_get_bitmap_width(getData()->getBitmap());
+    height = al_get_bitmap_height(getData()->getBitmap());
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 mustResize(false),
-bit8MaskColor(copy.bit8MaskColor){
+bit8MaskColor(copy.bit8MaskColor),
+width(width),
+height(height){
     path = copy.getPath();
     ALLEGRO_BITMAP * his = copy.getData()->getBitmap();
     if (x < 0)
@@ -377,6 +403,7 @@ bit8MaskColor(copy.bit8MaskColor){
     ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
     ALLEGRO_TRANSFORM transform;
     al_identity_transform(&transform);
+    al_set_target_bitmap(copy.getData()->getBitmap());
     if (al_get_current_transform() != NULL){
         al_set_target_bitmap(copy.getData()->getBitmap());
         al_copy_transform(&transform, al_get_current_transform());
@@ -400,11 +427,14 @@ bit8MaskColor(copy.bit8MaskColor){
 }
 
 int Bitmap::getWidth() const {
+    return width;
+    /*
     if (getData()->getBitmap() != NULL){
         return al_get_bitmap_width(getData()->getBitmap());
     }
 
     return 0;
+    */
 }
 
 int getRed(Color color){
@@ -430,11 +460,14 @@ Color makeColor(int red, int blue, int green){
 }
 
 int Bitmap::getHeight() const {
+    return height;
+    /*
     if (getData()->getBitmap() != NULL){
         return al_get_bitmap_height(getData()->getBitmap());
     }
 
     return 0;
+    */
 }
 
 void initializeExtraStuff(){
@@ -556,7 +589,7 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
     /* FIXME */
     changeTarget(this, who);
     MaskedBlender blender;
-    al_draw_scaled_bitmap(getData()->getBitmap(), 0, 0, getWidth(), getHeight(), x, y, new_width, new_height, 0);
+    al_draw_scaled_bitmap(getData()->getBitmap(), 0, 0, al_get_bitmap_width(getData()->getBitmap()), al_get_bitmap_height(getData()->getBitmap()), x, y, new_width, new_height, 0);
 #if 0
     ALLEGRO_TRANSFORM save;
     al_copy_transform(&save, al_get_current_transform());
