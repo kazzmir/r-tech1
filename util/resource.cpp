@@ -35,6 +35,7 @@ Resource::~Resource(){
 }
 
 Sound * Resource::_getSound(const Filesystem::AbsolutePath & path) throw (LoadException){
+    Util::Thread::ScopedLock locked(lock);
     if (sounds[path.path()] == NULL){
         sounds[path.path()] = new Sound(path.path());
     }
@@ -42,6 +43,7 @@ Sound * Resource::_getSound(const Filesystem::AbsolutePath & path) throw (LoadEx
 }
     
 Graphics::Bitmap * Resource::_getBitmap(const Filesystem::AbsolutePath & path) throw (LoadException){
+    Util::Thread::ScopedLock locked(lock);
     if (bitmaps[path.path()] == NULL){
         bitmaps[path.path()] = new Graphics::Bitmap(path.path());
     }
