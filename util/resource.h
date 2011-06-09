@@ -4,6 +4,7 @@
 #include "factory/collector.h"
 #include "load_exception.h"
 #include "file-system.h"
+#include "thread.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -13,6 +14,7 @@ namespace Graphics{
 class Bitmap;
 }
 
+/* thread-safe */
 class Resource{
 public:
     /* do not prepend Util::getDataPath() to paths. Resource will do it for you.
@@ -31,6 +33,7 @@ private:
     static Resource * resource;
     std::map<std::string, Sound*> sounds;
     std::map<std::string, Graphics::Bitmap*> bitmaps;
+    Util::Thread::LockObject lock;
 };
 
 #endif

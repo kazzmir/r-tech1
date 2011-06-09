@@ -406,6 +406,7 @@ protected:
         static Bitmap * temporary_bitmap2;
         Color bit8MaskColor;
 
+        /* only used by allegro5 for now */
         int width, height;
 };
 

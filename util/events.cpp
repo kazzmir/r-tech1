@@ -146,10 +146,11 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
                 /* to keep the perspective correct
                  * 640/480 = 1.33333
                  */
+                double ratio = (double) GFX_X / (double) GFX_Y;
                 if (width > height){
-                    height = (int)((double) width / 1.3333333333);
+                    height = (int)((double) width / ratio);
                 } else {
-                    width = (int)((double) height * 1.3333333333);
+                    width = (int)((double) height * ratio);
                 }
                 dispatch(ResizeScreen, width, height);
                 break;
@@ -189,10 +190,11 @@ static void handleResize(const ALLEGRO_EVENT & event){
     /* to keep the perspective correct
      * 640/480 = 1.33333
      */
+    double ratio = (double) GFX_X / (double) GFX_Y;
     if (width > height){
-        height = width / ((double) GFX_X / (double) GFX_Y);
+        height = width / ratio;
     } else {
-        width = height * ((double) GFX_X / (double) GFX_Y);
+        width = height * ratio;
     }
     
     ALLEGRO_DISPLAY * display = event.display.source;
