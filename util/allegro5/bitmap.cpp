@@ -45,6 +45,8 @@ static inline void unpack565(int color, unsigned char * red, unsigned char * gre
 }
 #endif
 
+ALLEGRO_DISPLAY * the_display = NULL;
+
 enum BlendingType{
     Translucent,
     Add,
@@ -453,13 +455,13 @@ int setGraphicsMode(int mode, int width, int height){
         }
         default: break;
     }
-    ALLEGRO_DISPLAY * display = al_create_display(width, height);
-    if (display == NULL){
+    the_display = al_create_display(width, height);
+    if (the_display == NULL){
         std::ostringstream out;
         out << "Could not create display with dimensions " << width << ", " << height;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    Screen = new Bitmap(al_get_backbuffer(display));
+    Screen = new Bitmap(al_get_backbuffer(the_display));
     /* dont destroy the backbuffer */
     Screen->getData()->setDestroy(false);
     // Scaler = new Bitmap(width, height);

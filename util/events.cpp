@@ -27,6 +27,7 @@ bufferKeys(false){
 #ifdef USE_ALLEGRO5
     queue = al_create_event_queue();
     al_register_event_source(queue, al_get_keyboard_event_source());
+    al_register_event_source(queue, al_get_display_event_source(Graphics::the_display));
 #endif
 }
 
@@ -176,6 +177,28 @@ static void handleKeyUp(Keyboard & keyboard, const ALLEGRO_EVENT & event){
     keyboard.release(event.keyboard.keycode);
 }
 
+static void handleResize(const ALLEGRO_EVENT & event){
+    double width = event.display.width;
+    double height = event.display.height;
+    /* to keep the perspective correct
+     * 640/480 = 1.33333
+     */
+    if (width > height){
+        height = width / 1.3333333333;
+    } else {
+        width = height * 1.3333333333;
+    }
+    ALLEGRO_DISPLAY * display = event.display.source;
+    al_acknowledge_resize(display);
+    al_resize_display(display, (int) width, (int) height);
+    ALLEGRO_TRANSFORM transformation;
+    al_identity_transform(&transformation);
+    // al_scale_transform(&transformation, (double) al_get_display_width(display) / (double) GFX_X, (double) al_get_display_height(display) / (double) GFX_Y);
+    al_scale_transform(&transformation, (double) width / (double) GFX_X, (double) height / (double) GFX_Y);
+    al_set_target_bitmap(Graphics::getScreenBuffer().getData()->getBitmap());
+    al_use_transform(&transformation);
+}
+
 void EventManager::runAllegro5(Keyboard & keyboard, Joystick * joystick){
     keyboard.poll();
 
@@ -189,6 +212,10 @@ void EventManager::runAllegro5(Keyboard & keyboard, Joystick * joystick){
                 break;
             }
             */
+            case ALLEGRO_EVENT_DISPLAY_RESIZE: {
+                handleResize(event);
+                break;
+            }
             case ALLEGRO_EVENT_KEY_UP: {
                 handleKeyUp(keyboard, event);
                 break;
