@@ -228,6 +228,7 @@ namespace ftalleg{
 
         std::string fixedText(str.str());
         al_set_target_bitmap(bmp.getData()->getBitmap());
+        al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
         /* for setting the blend state and whatnot */
         bmp.startDrawing();

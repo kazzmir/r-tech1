@@ -349,8 +349,8 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
             
     Graphics::Bitmap area(bmp, x1, y1, x2 - x1, y2 - y1);
 
-    int min_y = location.getX() - font.getHeight() - y1;
-    int max_y = location.getX2() + font.getHeight() - y1;
+    // int min_y = location.getX() - font.getHeight() - y1;
+    // int max_y = location.getX2() + font.getHeight() - y1;
 
     list.render(area, font);
 

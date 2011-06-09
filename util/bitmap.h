@@ -406,6 +406,7 @@ protected:
         static Bitmap * temporary_bitmap2;
         Color bit8MaskColor;
 
+        int width, height;
 };
 
 /* creates a bitmap that can be used as a buffer for the screen.
