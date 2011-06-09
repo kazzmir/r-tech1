@@ -180,14 +180,21 @@ static void handleKeyUp(Keyboard & keyboard, const ALLEGRO_EVENT & event){
 static void handleResize(const ALLEGRO_EVENT & event){
     double width = event.display.width;
     double height = event.display.height;
+    if (width < GFX_X){
+        width = GFX_X;
+    }
+    if (height < GFX_Y){
+        height = GFX_Y;
+    }
     /* to keep the perspective correct
      * 640/480 = 1.33333
      */
     if (width > height){
-        height = width / 1.3333333333;
+        height = width / ((double) GFX_X / (double) GFX_Y);
     } else {
-        width = height * 1.3333333333;
+        width = height * ((double) GFX_X / (double) GFX_Y);
     }
+    
     ALLEGRO_DISPLAY * display = event.display.source;
     al_acknowledge_resize(display);
     al_resize_display(display, (int) width, (int) height);
