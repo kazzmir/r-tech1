@@ -607,6 +607,17 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 #endif
 }
 
+Bitmap Bitmap::scaleTo(const int width, const int height) const {
+    if (width == getRealWidth(*this) && height == getRealHeight(*this)){
+        return *this;
+    }
+    Bitmap scaled(width, height);
+    changeTarget(*this, scaled);
+    al_draw_scaled_bitmap(getData()->getBitmap(), 0, 0, getRealWidth(*this), getRealHeight(*this),
+                          0, 0, width, height, 0);
+    return scaled;
+}
+
 void Bitmap::Blit(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
     // double start = al_get_time();
     // changeTarget(this, where);

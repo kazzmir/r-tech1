@@ -388,7 +388,7 @@ void Animation::act(){
     }
 }
 void Animation::draw(const Graphics::Bitmap & work){
-    /* should use sub-bitmaps here */
+    /* FIXME: should use sub-bitmaps here */
      // Set clip from the axis default is 0,0,bitmap width, bitmap height
     work.setClipRect(-(window.getPosition().getDistanceFromCenterX()),-(window.getPosition().getDistanceFromCenterY()),work.getWidth() - window.getPosition2().getDistanceFromCenterX(),work.getHeight() - window.getPosition2().getDistanceFromCenterY());
     frames[currentFrame]->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(),work);
