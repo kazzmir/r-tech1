@@ -269,6 +269,9 @@ public:
 	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
         virtual void BlitFromScreen(const int x, const int y) const;
 
+        /* returned a scaled version of this bitmap of the given dimensions */
+        virtual Bitmap scaleTo(const int width, const int height) const;
+
         /* try to call Global::getScreenWidth/Height() instead of these directly */
         static int getScreenWidth();
         static int getScreenHeight();

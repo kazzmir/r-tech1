@@ -28,6 +28,15 @@ void Bitmap::lock() const {
 void Bitmap::unlock() const {
 }
 
+Bitmap Bitmap::scaleTo(const int width, const int height) const {
+    if (width == getWidth() && height == getHeight()){
+        return *this;
+    }
+    Bitmap scaled(width, height);
+    this->Stretch(scaled);
+    return scaled;
+}
+
 StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent):
 Bitmap(width, height),
 width(width),
