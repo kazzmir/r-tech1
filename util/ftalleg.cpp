@@ -126,7 +126,11 @@ namespace ftalleg{
         }
         instances += 1;
 
+        int flags = al_get_new_bitmap_flags();
+        /* memory fonts must live in memory */
+        al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
         fonts[width].memory = al_load_font(path.path().c_str(), width, 0);
+        al_set_new_bitmap_flags(flags);
         fonts[width].video = al_load_font(path.path().c_str(), width, 0);
     }
 
