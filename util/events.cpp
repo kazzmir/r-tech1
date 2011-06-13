@@ -26,8 +26,12 @@ EventManager::EventManager():
 bufferKeys(false){
 #ifdef USE_ALLEGRO5
     queue = al_create_event_queue();
-    al_register_event_source(queue, al_get_keyboard_event_source());
-    al_register_event_source(queue, al_get_display_event_source(Graphics::the_display));
+    if (al_is_keyboard_installed()){
+        al_register_event_source(queue, al_get_keyboard_event_source());
+    }
+    if (Graphics::the_display != NULL){
+        al_register_event_source(queue, al_get_display_event_source(Graphics::the_display));
+    }
 #endif
 }
 
