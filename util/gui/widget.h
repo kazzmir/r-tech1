@@ -86,13 +86,8 @@ class Widget{
         virtual void render(const Graphics::Bitmap &, const Font &);
     
     protected:
-        void arc( const Graphics::Bitmap &, int x, int y, double startAngle, int radius, Graphics::Color color );
-        void roundRect( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, Graphics::Color color );
-        void roundRectFill( const Graphics::Bitmap &, int radius, int x1, int y1, int x2, int y2, Graphics::Color color );
-        
         Util::ReferenceCount<Graphics::Bitmap> checkWorkArea(const Graphics::Bitmap & parent);
         
-        // Graphics::Bitmap *workArea;
 };
 
 }

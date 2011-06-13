@@ -269,6 +269,9 @@ public:
 	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
         virtual void BlitFromScreen(const int x, const int y) const;
 
+        void roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const;
+        void roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const;
+
         /* returned a scaled version of this bitmap of the given dimensions */
         virtual Bitmap scaleTo(const int width, const int height) const;
 
