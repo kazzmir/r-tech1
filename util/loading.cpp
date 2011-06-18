@@ -184,7 +184,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
             gradient(gradient),
             state(state),
             infobox(infobox),
-            infoWork(*Util::Parameter<Graphics::Bitmap*>::current(), load_x, load_y + load_height * 2, infobox_width, infobox_height),
+            infoWork(*Util::Parameter<Graphics::Bitmap*>::current(Graphics::screenParameter), load_x, load_y + load_height * 2, infobox_width, infobox_height),
             infoBackground(infobox_width, infobox_height),
             infobox_x(load_x),
             infobox_y(load_y + load_height * 2),
