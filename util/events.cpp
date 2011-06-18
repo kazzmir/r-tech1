@@ -18,8 +18,6 @@
 #include "input/joystick.h"
 #include "input/input-manager.h"
 
-template <class Value> typename Util::Parameter<Value>::container Util::Parameter<Value>::stacks;
-
 namespace Util{
 
 EventManager::EventManager():
@@ -429,7 +427,7 @@ void Draw::updateFrames(){
 }
 
 static void doStandardLoop(Logic & logic, Draw & draw){
-    const Graphics::Bitmap & screen = *Parameter<Graphics::Bitmap*>::current(Graphics::screenParameter);
+    const Graphics::Bitmap & screen = *Graphics::screenParameter.current();
     Global::speed_counter4 = 0;
     double runCounter = 0;
     try{

@@ -13,7 +13,7 @@ static Bitmap * Screen = NULL;
 /* bitmaps that should always be resized to the dimensions of the screen */
 static std::vector<Bitmap*> needResize;
 
-const std::string screenParameter = "screen";
+Util::Parameter<Bitmap*> screenParameter;
 
 /* implementation independant definitions can go here */
 
