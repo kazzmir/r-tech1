@@ -21,6 +21,8 @@ namespace Graphics{
 
 class TranslucentBitmap;
 
+extern const std::string screenParameter;
+
 extern const int SPRITE_NORMAL;
 extern const int SPRITE_LIT;
 extern const int SPRITE_TRANS;

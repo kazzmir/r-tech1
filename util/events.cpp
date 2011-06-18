@@ -18,7 +18,7 @@
 #include "input/joystick.h"
 #include "input/input-manager.h"
 
-template <class Value> std::vector<Value> Util::Parameter<Value>::stack;
+template <class Value> typename Util::Parameter<Value>::container Util::Parameter<Value>::stacks;
 
 namespace Util{
 
@@ -429,7 +429,7 @@ void Draw::updateFrames(){
 }
 
 static void doStandardLoop(Logic & logic, Draw & draw){
-    const Graphics::Bitmap & screen = *Parameter<Graphics::Bitmap*>::current();
+    const Graphics::Bitmap & screen = *Parameter<Graphics::Bitmap*>::current(Graphics::screenParameter);
     Global::speed_counter4 = 0;
     double runCounter = 0;
     try{

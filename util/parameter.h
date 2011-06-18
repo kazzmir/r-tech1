@@ -9,28 +9,33 @@
  * This class is not thread safe.
  */
 
+#include <map>
 #include <vector>
+#include <string>
 
 namespace Util{
 
 /* the static variable `stack' has to be defined somewhere. use this syntax to define it
- *  template <> vector<int> Parameter<int>::stack;
+ *  template <class Value> typename Util::Parameter<Value>::container Util::Parameter<Value>::stacks;
  */
 template <class Value>
 class Parameter{
 public:
     /* push a new value on the stack */
-    Parameter(const Value & what):
-    items(0){
+    Parameter(const Value & what, const std::string & name):
+    items(0),
+    name(name){
         push(what);
     }
 
-    Parameter():
-    items(0){
+    Parameter(const std::string & name):
+    items(0),
+    name(name){
     }
 
     /* pop last value */
     ~Parameter(){
+        std::vector<Value> & stack = stacks[name];
         for (int i = 0; i < items; i++){
             if (stack.size() > 0){
                 stack.pop_back();
@@ -39,19 +44,22 @@ public:
     }
 
     void push(const Value & what){
+        std::vector<Value> & stack = stacks[name];
         items += 1;
         stack.push_back(what);
     }
 
     /* get the current value */
-    static Value current(){
+    static Value current(const std::string & name){
+        std::vector<Value> & stack = stacks[name];
         if (stack.size() > 0){
             return stack.back();
         }
         return Value();
     }
 
-    static std::vector<Value> stack;
+    typedef std::map<const std::string, std::vector<Value> > container;
+    static container stacks;
 
 protected:
     /* number of things pushed onto the stack by this object. note this is
@@ -61,6 +69,7 @@ protected:
      * 'items' count of 1.
      */
     int items;
+    std::string name;
 };
 
 }
