@@ -9,9 +9,8 @@
  * This class is not thread safe.
  */
 
-#include <map>
 #include <vector>
-#include <string>
+#include "pointer.h"
 
 namespace Util{
 
@@ -22,44 +21,45 @@ template <class Value>
 class Parameter{
 public:
     /* push a new value on the stack */
-    Parameter(const Value & what, const std::string & name):
-    items(0),
-    name(name){
+    Parameter(Parameter & parent, const Value & what):
+    stack(parent.stack),
+    items(0){
         push(what);
     }
 
-    Parameter(const std::string & name):
-    items(0),
-    name(name){
+    Parameter(Parameter & parent):
+    stack(parent.stack),
+    items(0){
+    }
+
+    Parameter():
+    items(0){
+        stack = new std::vector<Value>();
     }
 
     /* pop last value */
-    ~Parameter(){
-        std::vector<Value> & stack = stacks[name];
+    virtual ~Parameter(){
         for (int i = 0; i < items; i++){
-            if (stack.size() > 0){
-                stack.pop_back();
+            if (stack->size() > 0){
+                stack->pop_back();
             }
         }
     }
 
     void push(const Value & what){
-        std::vector<Value> & stack = stacks[name];
         items += 1;
-        stack.push_back(what);
+        stack->push_back(what);
     }
 
     /* get the current value */
-    static Value current(const std::string & name){
-        std::vector<Value> & stack = stacks[name];
-        if (stack.size() > 0){
-            return stack.back();
+    Value current(){
+        if (stack->size() > 0){
+            return stack->back();
         }
         return Value();
     }
 
-    typedef std::map<const std::string, std::vector<Value> > container;
-    static container stacks;
+    ReferenceCount<std::vector<Value> > stack;
 
 protected:
     /* number of things pushed onto the stack by this object. note this is
@@ -69,7 +69,6 @@ protected:
      * 'items' count of 1.
      */
     int items;
-    std::string name;
 };
 
 }

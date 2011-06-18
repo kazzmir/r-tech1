@@ -3,6 +3,7 @@
 
 #include "exceptions/exception.h"
 #include "pointer.h"
+#include "parameter.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -20,8 +21,9 @@
 namespace Graphics{
 
 class TranslucentBitmap;
+class Bitmap;
 
-extern const std::string screenParameter;
+extern Util::Parameter<Bitmap*> screenParameter;
 
 extern const int SPRITE_NORMAL;
 extern const int SPRITE_LIT;
