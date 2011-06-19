@@ -12,6 +12,12 @@ class Font;
 
 namespace Gui{
 
+enum Justify{
+    LeftJustify,
+    RightJustify,
+    CenterJustify
+};
+
 /* pure virtual class */
 class ScrollItem{
 public:
@@ -28,19 +34,41 @@ public:
     virtual ~ScrollItem();
 };
 
-class ScrollList {
+/* pure virtual */
+class ScrollListInterface{
+public:
+    virtual ~ScrollListInterface();
+
+    //! Logic
+    virtual void act() = 0;
+
+    //! Render
+    virtual void render(const Graphics::Bitmap &, const Font & font) const = 0;
+
+    //! Add item
+    virtual void addItem(const Util::ReferenceCount<ScrollItem> & item) = 0;
+
+    //! Add vector of text
+    virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items) = 0;
+
+    virtual void clearItems() = 0;
+    
+    virtual unsigned int getCurrentIndex() const = 0;
+
+    virtual bool next() = 0;
+
+    //! Previous
+    virtual bool previous() = 0;
+
+};
+
+class ScrollList: public ScrollListInterface {
 public:
     ScrollList();
 
     ScrollList(const ScrollList &);
 
     virtual ~ScrollList();
-
-    enum Justify{
-        LeftJustify,
-        RightJustify,
-        CenterJustify
-    };
 
     //! copy
     ScrollList & operator=(const ScrollList &);
@@ -147,8 +175,6 @@ public:
     }
     
 private:
-    int justify(int left, int right, int size) const;
-
     /* smooth drawing */
     void doDraw(int x, int y, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction) const;
 
@@ -189,6 +215,41 @@ private:
     /* how much to scroll by */
     double scroll;
 
+    Justify justification;
+};
+
+class NormalList: public ScrollListInterface {
+public:
+    NormalList();
+    virtual ~NormalList();
+
+    //! Logic
+    virtual void act();
+
+    //! Render
+    virtual void render(const Graphics::Bitmap &, const Font & font) const;
+
+    //! Add item
+    virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
+
+    //! Add vector of text
+    virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);
+
+    virtual void clearItems();
+    
+    virtual unsigned int getCurrentIndex() const;
+
+    virtual bool next();
+    virtual bool previous();
+    
+    virtual inline void setJustification(Justify what){
+        this->justification = what;
+    }
+
+protected:
+    std::vector<Util::ReferenceCount<ScrollItem> > text;
+    int position;
+    mutable int first, last;
     Justify justification;
 };
 
