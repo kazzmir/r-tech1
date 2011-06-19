@@ -1,5 +1,6 @@
 #include "../bitmap.h"
 #include "../trans-bitmap.h"
+#include "../funcs.h"
 #include "scroll-list.h"
 #include "../font.h"
 #include <math.h>
@@ -23,6 +24,18 @@ static int selectedGradientEnd(){
     return color;
 }
 */
+
+int justify(Justify justification, int left, int right, int size){
+    switch (justification){
+        case LeftJustify: return left;
+        case RightJustify: return right - size;
+        case CenterJustify: return (left + right) / 2 - size / 2;
+    }
+    return 0;
+}
+    
+ScrollListInterface::~ScrollListInterface(){
+}
     
 ScrollItem::ScrollItem(){
 }
@@ -88,14 +101,6 @@ void ScrollList::act(){
     */
 }
 
-int ScrollList::justify(int left, int right, int size) const {
-    switch (justification){
-        case LeftJustify: return left;
-        case RightJustify: return right - size;
-        case CenterJustify: return (left + right) / 2 - size / 2;
-    }
-    return 0;
-}
 
 /* this is the smooth scroll stuff from context-box */
 void ScrollList::doDraw(int x, int y, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction) const {
@@ -114,7 +119,7 @@ void ScrollList::doDraw(int x, int y, int min_y, int max_y, const Font & font, i
 
         Util::ReferenceCount<ScrollItem> option = text[pick];
         /* center justification */
-        const int startx = justify(1, area.getWidth() - 1, option->size(font));
+        const int startx = justify(justification, 1, area.getWidth() - 1, option->size(font));
 
         /* the selected option will have a distance of 0 */
         int distance = current - selected;
@@ -203,6 +208,80 @@ bool ScrollList::setCurrentIndex(unsigned int index){
     }
     currentIndex = index;
     return true;
+}
+
+NormalList::NormalList():
+position(0),
+first(-1),
+last(-1),
+justification(CenterJustify){
+}
+
+NormalList::~NormalList(){
+}
+
+void NormalList::act(){
+}
+
+void NormalList::render(const Graphics::Bitmap & work, const Font & font) const {
+    int maxItems = work.getHeight() / (font.getHeight() + FONT_SPACER);
+    if (first == -1){
+        first = 0;
+        last = Util::min(maxItems, text.size());
+    }
+    if (position < first){
+        int difference = first - position;
+        first = 0;
+        last -= difference;
+    }
+    if (position > last){
+        int difference = position - last;
+        last = position;
+        first += difference;
+    }
+    first = 0;
+    last = text.size();
+
+    double y = 0;
+    for (int index = first; index < last; index += 1){
+        int distance = position - index;
+        Util::ReferenceCount<ScrollItem> option = text[index];
+        const int x = justify(justification, 1, work.getWidth() - 1, option->size(font));
+        option->draw(x, y, work, font, distance);
+        y += font.getHeight() / FONT_SPACER;
+    }
+}
+
+void NormalList::addItem(const Util::ReferenceCount<ScrollItem> & item){
+    text.push_back(item);
+}
+
+void NormalList::addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & texts){
+    this->text.insert(text.end(), texts.begin(), texts.end());
+}
+
+void NormalList::clearItems(){
+    this->text.clear();
+}
+    
+unsigned int NormalList::getCurrentIndex() const {
+    return position;
+}
+
+bool NormalList::next(){
+    if (position < text.size() - 1){
+        position += 1;
+        return true;
+    }
+    return false;
+}
+
+bool NormalList::previous(){
+    if (position > 0){
+        position -= 1;
+        return true;
+    }
+    return false;
 }
 
 }
