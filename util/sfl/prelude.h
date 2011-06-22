@@ -266,7 +266,9 @@
 #       define __STRICT_ANSI__
 #   endif
 #   include <fcntl.h>
+#ifndef PS3
 #   include <netdb.h>
+#endif
 #   include <unistd.h>
 #   include <dirent.h>
 #   include <pwd.h>
