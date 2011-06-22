@@ -15,7 +15,7 @@
 /* devkitpro doesn't have an implementation of access() yet. if it gets one this function
  * can be removed.
  */
-#ifdef WII
+#if defined(WII) || defined(PS3)
 int access(const char * path, int mode){
     struct stat information;
     int ok = stat(path, &information);
