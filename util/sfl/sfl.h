@@ -276,7 +276,7 @@
 
 /*  These include files are for non-PC systems                               */
 
-#if (defined (__UNIX__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
+#if (defined (__UNIX__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS) && !defined(NACL)
 #   if defined (__GNUC__) && (__GNUC__ >= 2)
 #       define __STRICT_ANSI__
 #   endif
@@ -307,7 +307,7 @@
 #   endif
 #endif
 
-#if defined(WII) || defined(MINPSPW) || defined(PS3) || defined(NDS)
+#if defined(WII) || defined(MINPSPW) || defined(PS3) || defined(NDS) || defined(NACL)
 #define AF_INET 1
 #include <dirent.h>
 #endif
