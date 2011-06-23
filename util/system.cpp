@@ -44,6 +44,8 @@ int access(const char * path, int mode){
 
 /* NOTE FIXME Missing I/O in Native Client */
 
+extern "C" {
+
 int pipe (int filedes[2]){
     return 0;
 }
@@ -104,11 +106,23 @@ char * getlogin (void){
     return NULL;
 }
 
+uid_t getuid(void){
+    return NULL;
+}
+
 struct passwd * getpwuid (uid_t uid){
     return NULL;
 }
 
 struct passwd * getpwnam (const char *name){
+    return NULL;
+}
+
+struct group * getgrnam(const char *name){
+    return NULL;
+}
+
+struct group * getgrgid(gid_t gid){
     return NULL;
 }
 
@@ -124,6 +138,7 @@ int kill(pid_t pid, int sig){
     return 0;
 }
 
+}
 #endif
 
 static bool isReadable(const std::string & path){
