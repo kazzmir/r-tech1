@@ -518,11 +518,6 @@ bool Global::init(int gfx){
     }
     */
 
-    if (!Filesystem::exists(Util::getDataPath2())){
-        Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
-        return false;
-    }
-
     /* do implementation specific setup */
     initSystem(out);
 
@@ -581,8 +576,16 @@ bool Global::init(int gfx){
     temp.BlitToScreen(sx / 2, sy / 2);
     */
     Graphics::Bitmap white(Graphics::getScreenBuffer());
-    white.fill(Graphics::makeColor(255, 255, 255));
-    white.BlitToScreen();
+    if (!Filesystem::exists(Util::getDataPath2())){
+        Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
+        white.fill(Graphics::makeColor(255, 0, 0));
+        white.BlitToScreen();
+        Util::restSeconds(1);
+        return false;
+    } else {
+        white.fill(Graphics::makeColor(255, 255, 255));
+        white.BlitToScreen();
+    }
 
     return true;
 }
