@@ -453,7 +453,7 @@ bool Global::initNoGraphics(){
     }
     */
 
-    if (!Filesystem::exists(Util::getDataPath2())){
+    if (!Storage::instance().exists(Util::getDataPath2())){
         Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
         return false;
     }
@@ -465,7 +465,7 @@ bool Global::initNoGraphics(){
     
     // Sound::initialize();
 
-    Filesystem::initialize();
+    // Filesystem::initialize();
 
     Graphics::SCALE_X = GFX_X;
     Graphics::SCALE_Y = GFX_Y;
@@ -525,7 +525,7 @@ bool Global::init(int gfx){
     
     Sound::initialize();
 
-    Filesystem::initialize();
+    // Filesystem::initialize();
 
     Graphics::SCALE_X = GFX_X;
     Graphics::SCALE_Y = GFX_Y;
@@ -576,7 +576,7 @@ bool Global::init(int gfx){
     temp.BlitToScreen(sx / 2, sy / 2);
     */
     Graphics::Bitmap white(Graphics::getScreenBuffer());
-    if (!Filesystem::exists(Util::getDataPath2())){
+    if (!Storage::instance().exists(Util::getDataPath2())){
         Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
         white.fill(Graphics::makeColor(255, 0, 0));
         white.BlitToScreen();
