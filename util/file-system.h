@@ -8,63 +8,8 @@
 #include <vector>
 #include <stdint.h>
 
-namespace Storage{
-    /* sorry for the crappy abbreviation, but can't collide with the
-     * Exception class here
-     */
-    namespace Exc = ::Exception;
-
-    class Exception: public Exc::Base {
-    public:
-        Exception(const std::string & where, int line, const std::string & file);
-        Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
-        Exception(const Exception & copy);
-        virtual ~Exception() throw ();
-        virtual void throwSelf() const {
-            throw *this;
-        }
-
-    protected:
-        virtual const std::string getReason() const;
-
-        virtual Exc::Base * copy() const {
-            return new Exception(*this);
-        }
-
-    private:
-        std::string reason;
-    };
-
-    class NotFound: public Exception {
-    public:
-        NotFound(const std::string & where, int line, const std::string & file);
-        NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
-        virtual ~NotFound() throw();
-        NotFound(const NotFound & copy);
-        virtual void throwSelf() const {
-            throw *this;
-        }
-    protected:
-        virtual Exc::Base * copy() const {
-            return new NotFound(*this);
-        }
-    };
-
-    class IllegalPath: public Exception {
-    public:
-        IllegalPath(const std::string & where, int line, const std::string & file);
-        IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
-        virtual ~IllegalPath() throw();
-        IllegalPath(const IllegalPath & copy);
-        virtual void throwSelf() const {
-            throw *this;
-        }
-    protected:
-        virtual Exc::Base * copy() const {
-            return new IllegalPath(*this);
-        }
-    };
-
+/* path utilities */
+namespace Path{
     class Path{
     public:
         const std::string & path() const;
@@ -131,6 +76,73 @@ namespace Storage{
         virtual AbsolutePath getFilename() const;
         
         AbsolutePath join(const RelativePath & path) const;
+    };
+
+    std::string invertSlashes(std::string str);
+    std::string sanitize(std::string path);
+
+    /* remove extension. foo.txt -> foo */
+    std::string removeExtension(const std::string & str);
+
+    /* basename, just get the filename and remove the directory part */
+    std::string stripDir(const std::string & str);
+}
+
+namespace Storage{
+    /* sorry for the crappy abbreviation, but can't collide with the
+     * Exception class here
+     */
+    namespace Exc = ::Exception;
+
+    class Exception: public Exc::Base {
+    public:
+        Exception(const std::string & where, int line, const std::string & file);
+        Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
+        Exception(const Exception & copy);
+        virtual ~Exception() throw ();
+        virtual void throwSelf() const {
+            throw *this;
+        }
+
+    protected:
+        virtual const std::string getReason() const;
+
+        virtual Exc::Base * copy() const {
+            return new Exception(*this);
+        }
+
+    private:
+        std::string reason;
+    };
+
+    class NotFound: public Exception {
+    public:
+        NotFound(const std::string & where, int line, const std::string & file);
+        NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
+        virtual ~NotFound() throw();
+        NotFound(const NotFound & copy);
+        virtual void throwSelf() const {
+            throw *this;
+        }
+    protected:
+        virtual Exc::Base * copy() const {
+            return new NotFound(*this);
+        }
+    };
+
+    class IllegalPath: public Exception {
+    public:
+        IllegalPath(const std::string & where, int line, const std::string & file);
+        IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file);
+        virtual ~IllegalPath() throw();
+        IllegalPath(const IllegalPath & copy);
+        virtual void throwSelf() const {
+            throw *this;
+        }
+    protected:
+        virtual Exc::Base * copy() const {
+            return new IllegalPath(*this);
+        }
     };
 
     class Eof: public std::exception {
@@ -217,6 +229,9 @@ namespace Storage{
         System();
         virtual ~System();
 
+        typedef Path::AbsolutePath AbsolutePath;
+        typedef Path::RelativePath RelativePath;
+
         virtual AbsolutePath find(const RelativePath & path) = 0;
         virtual RelativePath cleanse(const AbsolutePath & path) = 0;
         virtual bool exists(const RelativePath & path) = 0;
@@ -232,15 +247,6 @@ namespace Storage{
 
     System & instance();
     extern Util::ReferenceCount<System> self;
-
-    std::string invertSlashes(std::string str);
-    std::string sanitize(std::string path);
-
-    /* remove extension. foo.txt -> foo */
-    std::string removeExtension(const std::string & str);
-
-    /* basename, just get the filename and remove the directory part */
-    std::string stripDir(const std::string & str);
 }
 
 /*
@@ -250,11 +256,11 @@ namespace Storage{
  */
 class Filesystem: public Storage::System {
 public:
-    Filesystem(const Storage::AbsolutePath & dataPath);
+    Filesystem(const Path::AbsolutePath & dataPath);
 
-    typedef Storage::AbsolutePath AbsolutePath;
-    typedef Storage::RelativePath RelativePath;
-    typedef Storage::InsensitivePath InsensitivePath;
+    typedef Path::AbsolutePath AbsolutePath;
+    typedef Path::RelativePath RelativePath;
+    typedef Path::InsensitivePath InsensitivePath;
     typedef Storage::Exception Exception;
     typedef Storage::NotFound NotFound;
 
