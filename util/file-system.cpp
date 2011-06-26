@@ -43,7 +43,7 @@ using namespace std;
  */
 // Util::Thread::Lock lock;
 
-namespace Storage{
+namespace Path{
 
 /* remove extra path separators (/) */
 string sanitize(string path){
@@ -66,73 +66,6 @@ std::string invertSlashes(string str){
     transform(str.begin(), str.end(), str.begin(), invert);
     return str;
 }
-        
-Exception::Exception(const std::string & where, int line, const std::string & file):
-Exc::Base(where, line),
-reason(file){
-}
-
-Exception::Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
-Exc::Base(where, line, nested),
-reason(file){
-}
-        
-Exception::Exception(const Exception & copy):
-Exc::Base(copy),
-reason(copy.reason){
-}
-
-Exception::~Exception() throw (){
-}
-        
-const std::string Exception::getReason() const {
-    return reason;
-}
-
-NotFound::NotFound(const std::string & where, int line, const std::string & file):
-Exception(where, line, file + string(" was not found")){
-}
-
-NotFound::NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
-Exception(where, line, nested, file + string(" was not found")){
-}
-        
-NotFound::NotFound(const NotFound & copy):
-Exception(copy){
-}
-
-NotFound::~NotFound() throw (){
-}
-
-IllegalPath::IllegalPath(const std::string & where, int line, const std::string & file):
-Exception(where, line, file){
-}
-
-IllegalPath::IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
-Exception(where, line, nested, file){
-}
-        
-IllegalPath::IllegalPath(const IllegalPath & copy):
-Exception(copy){
-}
-
-IllegalPath::~IllegalPath() throw(){
-}
-
-System::System(){
-}
-
-System::~System(){
-}
-        
-System & instance(){
-    if (self != NULL){
-        return *self;
-    }
-    self = new Filesystem(Util::getDataPath2());
-    return *self;
-}
-Util::ReferenceCount<System> self;
 
 const string & Path::path() const {
     return mypath;
@@ -164,7 +97,7 @@ Path(path){
     if (! path.empty() && path[0] == '/'){
         ostringstream out;
         out << "Relative path '" << path << "' cannot start with a /. Only absolute paths can start with /";
-        throw IllegalPath(__FILE__, __LINE__, out.str());
+        throw Storage::IllegalPath(__FILE__, __LINE__, out.str());
     }
 }
 
@@ -351,6 +284,93 @@ std::string removeExtension(const std::string & str){
     return str;
 }
 
+/* a/b/c/d -> d */
+std::string stripDir(const std::string & str){
+    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
+        std::string temp = str;
+        size_t rem = temp.find_last_of( "/" );
+        if (rem != std::string::npos){
+            return str.substr(rem+1,str.size());
+        }
+        rem = temp.find_last_of( "\\" );
+        if( rem != std::string::npos ){
+            return str.substr(rem+1,str.size());
+        }
+    }
+    return str; 
+}
+
+}
+
+namespace Storage{
+        
+Exception::Exception(const std::string & where, int line, const std::string & file):
+Exc::Base(where, line),
+reason(file){
+}
+
+Exception::Exception(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
+Exc::Base(where, line, nested),
+reason(file){
+}
+        
+Exception::Exception(const Exception & copy):
+Exc::Base(copy),
+reason(copy.reason){
+}
+
+Exception::~Exception() throw (){
+}
+        
+const std::string Exception::getReason() const {
+    return reason;
+}
+
+NotFound::NotFound(const std::string & where, int line, const std::string & file):
+Exception(where, line, file + string(" was not found")){
+}
+
+NotFound::NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
+Exception(where, line, nested, file + string(" was not found")){
+}
+        
+NotFound::NotFound(const NotFound & copy):
+Exception(copy){
+}
+
+NotFound::~NotFound() throw (){
+}
+
+IllegalPath::IllegalPath(const std::string & where, int line, const std::string & file):
+Exception(where, line, file){
+}
+
+IllegalPath::IllegalPath(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
+Exception(where, line, nested, file){
+}
+        
+IllegalPath::IllegalPath(const IllegalPath & copy):
+Exception(copy){
+}
+
+IllegalPath::~IllegalPath() throw(){
+}
+
+System::System(){
+}
+
+System::~System(){
+}
+        
+System & instance(){
+    if (self != NULL){
+        return *self;
+    }
+    self = new Filesystem(Util::getDataPath2());
+    return *self;
+}
+Util::ReferenceCount<System> self;
+
 /* will read upto 'length' bytes unless a null byte is seen first */
 string EndianReader::readStringX(int length){
     ostringstream out;
@@ -405,22 +425,6 @@ vector<uint8_t> EndianReader::readBytes(int length){
         bytes.push_back(byte);
     }
     return bytes;
-}
-
-/* a/b/c/d -> d */
-std::string stripDir(const std::string & str){
-    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
-        std::string temp = str;
-        size_t rem = temp.find_last_of( "/" );
-        if (rem != std::string::npos){
-            return str.substr(rem+1,str.size());
-        }
-        rem = temp.find_last_of( "\\" );
-        if( rem != std::string::npos ){
-            return str.substr(rem+1,str.size());
-        }
-    }
-    return str; 
 }
 
 }

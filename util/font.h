@@ -11,7 +11,7 @@ namespace ftalleg{
     class freetype;
 }
 
-namespace Storage{
+namespace Path{
     class RelativePath;
     class AbsolutePath;
 }
@@ -37,8 +37,8 @@ public:
 
 	static const Font & getDefaultFont();
 	static const Font & getDefaultFont(int width, int height);
-	static const Font & getFont( const Storage::RelativePath & name, const int x = 32, const int y = 32 );
-	static const Font & getFont( const Storage::AbsolutePath & name, const int x = 32, const int y = 32 );
+	static const Font & getFont( const Path::RelativePath & name, const int x = 32, const int y = 32 );
+	static const Font & getFont( const Path::AbsolutePath & name, const int x = 32, const int y = 32 );
 
 	/* store all the freetype fonts forever */
 	// static std::vector< ftalleg::freetype * > cacheFreeType; 
@@ -95,7 +95,7 @@ private:
 
 class FreeTypeFont: public Font {
 public:
-	FreeTypeFont(const Storage::AbsolutePath & filename);
+	FreeTypeFont(const Path::AbsolutePath & filename);
 	FreeTypeFont(const FreeTypeFont & copy);
 	virtual ~FreeTypeFont();
 
