@@ -269,7 +269,7 @@ allowReset(true){
                 int number;
                 std::string temp;
                 token->view() >> number >> temp;
-                Graphics::Bitmap *bmp = new Graphics::Bitmap(Filesystem::find(Filesystem::RelativePath(basedir + temp)).path());
+                Graphics::Bitmap *bmp = new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(basedir + temp)).path());
                 if (bmp->getError()){
                     delete bmp;
                 } else {
@@ -338,7 +338,7 @@ currentFrame(0),
 loop(0),
 allowReset(true){
     // add bitmap
-    Graphics::Bitmap *bmp = new Graphics::Bitmap(Filesystem::find(Filesystem::RelativePath(background)).path());
+    Graphics::Bitmap *bmp = new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(background)).path());
     if (bmp->getError()){
         delete bmp;
         throw LoadException(__FILE__,__LINE__, "Problem loading file: " + background);

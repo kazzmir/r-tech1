@@ -452,7 +452,7 @@ bool Music::internal_loadSong( const char * path ){
 void Music::changeSong(){
     pause();
     fadeIn(0.3);
-    loadSong(Filesystem::getFiles(Filesystem::find(Filesystem::RelativePath("music/")), "*"));
+    loadSong(Storage::instance().getFiles(Storage::instance().find(Filesystem::RelativePath("music/")), "*"));
     play();
 }
 

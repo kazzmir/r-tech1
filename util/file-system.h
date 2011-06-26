@@ -2,11 +2,13 @@
 #define _paintown_file_system_h
 
 #include "exceptions/exception.h"
+#include "pointer.h"
+#include "thread.h"
 #include <string>
 #include <vector>
 #include <stdint.h>
 
-namespace Filesystem{
+namespace Storage{
     /* sorry for the crappy abbreviation, but can't collide with the
      * Exception class here
      */
@@ -131,55 +133,6 @@ namespace Filesystem{
         AbsolutePath join(const RelativePath & path) const;
     };
 
-    /* given a relative path like sounds/arrow.png, prepend the proper
-     * data path to it to give data/sounds/arrow.png
-     */
-    AbsolutePath find(const RelativePath & path);
-
-    /* like `find' but ignores case */
-    AbsolutePath findInsensitive(const RelativePath & path);
-
-    /* findInsensitive but starts in the given absolute directory path */
-    AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
-
-    void initialize();
-
-    /* whether the file exists at all */
-    bool exists(const RelativePath & path);
-    bool exists(const AbsolutePath & path);
-
-    /* remove the data path from a string
-     * data/sounds/arrow.png -> sounds/arrow.png
-     */
-    RelativePath cleanse(const AbsolutePath & path);
-
-    /* returns all the directories starting with the given path.
-     * will look in the main data directory, the user directory, and
-     * the current working directory.
-     */
-    std::vector<AbsolutePath> findDirectories(const RelativePath & path);
-
-    /* basename, just get the filename and remove the directory part */
-    std::string stripDir(const std::string & str);
-
-    /* remove extension. foo.txt -> foo */
-    std::string removeExtension(const std::string & str);
-
-    /* user specific directory to hold persistent data */
-    AbsolutePath userDirectory();
-
-    /* user specific path to store the configuration file */
-    AbsolutePath configFile();
-
-    /* search a directory for some files matching pattern `find' */
-    std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
-
-    /* same as getFiles but search directories recursively */
-    std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
-
-    std::string invertSlashes(std::string str);
-    std::string sanitize(std::string path);
-
     class Eof: public std::exception {
         public:
             Eof(){
@@ -258,6 +211,101 @@ namespace Filesystem{
                 return out;
             }
     };
+
+    class System{
+    public:
+        System();
+        virtual ~System();
+
+        virtual AbsolutePath find(const RelativePath & path) = 0;
+        virtual RelativePath cleanse(const AbsolutePath & path) = 0;
+        virtual bool exists(const RelativePath & path) = 0;
+        virtual bool exists(const AbsolutePath & path) = 0;
+        virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
+        virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
+        virtual AbsolutePath configFile() = 0;
+        virtual AbsolutePath userDirectory() = 0;
+        virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path) = 0;
+        virtual AbsolutePath findInsensitive(const RelativePath & path) = 0;
+        virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path) = 0;
+    };
+
+    System & instance();
+    extern Util::ReferenceCount<System> self;
+
+    std::string invertSlashes(std::string str);
+    std::string sanitize(std::string path);
+
+    /* remove extension. foo.txt -> foo */
+    std::string removeExtension(const std::string & str);
+
+    /* basename, just get the filename and remove the directory part */
+    std::string stripDir(const std::string & str);
 }
+
+/*
+ * class Filesystem
+ * class NetworkStorage
+ * class ZipStorage
+ */
+class Filesystem: public Storage::System {
+public:
+    Filesystem(const Storage::AbsolutePath & dataPath);
+
+    typedef Storage::AbsolutePath AbsolutePath;
+    typedef Storage::RelativePath RelativePath;
+    typedef Storage::InsensitivePath InsensitivePath;
+    typedef Storage::Exception Exception;
+    typedef Storage::NotFound NotFound;
+
+    /* given a relative path like sounds/arrow.png, prepend the proper
+     * data path to it to give data/sounds/arrow.png
+     */
+    AbsolutePath find(const RelativePath & path);
+
+    /* like `find' but ignores case */
+    AbsolutePath findInsensitive(const RelativePath & path);
+
+    /* findInsensitive but starts in the given absolute directory path */
+    AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
+
+    // void initialize();
+
+    /* whether the file exists at all */
+    bool exists(const RelativePath & path);
+    bool exists(const AbsolutePath & path);
+
+    /* remove the data path from a string
+     * data/sounds/arrow.png -> sounds/arrow.png
+     */
+    RelativePath cleanse(const AbsolutePath & path);
+
+    /* returns all the directories starting with the given path.
+     * will look in the main data directory, the user directory, and
+     * the current working directory.
+     */
+    std::vector<AbsolutePath> findDirectories(const RelativePath & path);
+
+    /* user specific directory to hold persistent data */
+    AbsolutePath userDirectory();
+
+    /* user specific path to store the configuration file */
+    AbsolutePath configFile();
+
+    /* search a directory for some files matching pattern `find' */
+    std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+
+    /* same as getFiles but search directories recursively */
+    std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+
+protected:
+    AbsolutePath lookup(const RelativePath path);
+    std::vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path);
+    std::vector<AbsolutePath> getAllDirectories(const AbsolutePath & path);
+
+protected:
+    Util::Thread::LockObject lock;
+    AbsolutePath dataPath;
+};
 
 #endif

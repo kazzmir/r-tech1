@@ -41,9 +41,31 @@ using namespace std;
  *
  * initialize() must be called to initialize this lock
  */
-Util::Thread::Lock lock;
+// Util::Thread::Lock lock;
 
-namespace Filesystem{
+namespace Storage{
+
+/* remove extra path separators (/) */
+string sanitize(string path){
+    size_t double_slash = path.find("//");
+    while (double_slash != string::npos){
+        path.erase(double_slash, 1);
+        double_slash = path.find("//");
+    }
+    return path;
+}
+
+static int invert(int c){
+    if (c == '\\'){
+        return '/';
+    }
+    return c;
+}
+
+std::string invertSlashes(string str){
+    transform(str.begin(), str.end(), str.begin(), invert);
+    return str;
+}
         
 Exception::Exception(const std::string & where, int line, const std::string & file):
 Exc::Base(where, line),
@@ -97,292 +119,69 @@ Exception(copy){
 IllegalPath::~IllegalPath() throw(){
 }
 
-#ifdef _WIN32
-AbsolutePath userDirectory(){
-    ostringstream str;
-    char path[MAX_PATH];
-    SHGetSpecialFolderPathA(0, path, CSIDL_APPDATA, false);
-    str << path << "/paintown/";
-    return AbsolutePath(str.str());
+System::System(){
 }
 
-AbsolutePath configFile(){
-    ostringstream str;
-    char path[MAX_PATH];
-    SHGetSpecialFolderPathA(0, path, CSIDL_APPDATA, false);
-    str << path << "/paintown_configuration.txt";
-    return AbsolutePath(str.str());
+System::~System(){
 }
-#else
-AbsolutePath configFile(){
-    ostringstream str;
-    /* what if HOME isn't set? */
-    str << getenv("HOME") << "/.paintownrc";
-    return AbsolutePath(str.str());
+        
+System & instance(){
+    if (self != NULL){
+        return *self;
+    }
+    self = new Filesystem(Util::getDataPath2());
+    return *self;
 }
+Util::ReferenceCount<System> self;
 
-AbsolutePath userDirectory(){
-    ostringstream str;
-    /* what if HOME isn't set? */
-    str << getenv("HOME") << "/.paintown/";
-    return AbsolutePath(str.str());
-}
-#endif
-
-static AbsolutePath lookup(const RelativePath path){
-    /* first try the main data directory */
-    AbsolutePath final = Util::getDataPath2().join(path);
-    if (System::readable(final.path())){
-        return final;
-    }
-    /* then try the user directory, like ~/.paintown */
-    final = userDirectory().join(path);
-    if (System::readable(final.path())){
-        return final;
-    }
-    /* then just look in the cwd */
-    if (System::readable(path.path())){
-        return AbsolutePath(path.path());
-    }
-
-    ostringstream out;
-    out << "Cannot find " << path.path() << ". I looked in '" << Util::getDataPath2().join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'";
-
-    throw NotFound(__FILE__, __LINE__, out.str());
+const string & Path::path() const {
+    return mypath;
 }
 
-AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path){
-    if (path.path() == ""){
-        throw NotFound(__FILE__, __LINE__, "Given empty path to lookup");
-    }
-    if (path.path() == "."){
-        return directory;
-    }
-    if (path.path() == ".."){
-        return directory.getDirectory();
-    }
-    if (path.isFile()){
-        vector<AbsolutePath> all = getFiles(directory, "*", true);
-        for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
-            AbsolutePath & check = *it;
-            if (InsensitivePath(check.getFilename()) == path){
-                return check;
-            }
-        }
+bool Path::isEmpty() const {
+    return mypath.empty();
+}
+        
+Path::~Path(){
+}
 
+Path::Path(){
+}
+
+Path::Path(const std::string & path):
+mypath(sanitize(invertSlashes(path))){
+}
+
+Path::Path(const Path & path):
+mypath(sanitize(invertSlashes(path.path()))){
+}
+
+RelativePath::RelativePath(){
+}
+
+RelativePath::RelativePath(const std::string & path):
+Path(path){
+    if (! path.empty() && path[0] == '/'){
         ostringstream out;
-        out << "Cannot find " << path.path() << " in " << directory.path();
-        throw NotFound(__FILE__, __LINE__, out.str());
-    } else {
-        return lookupInsensitive(lookupInsensitive(directory, path.firstDirectory()), path.removeFirstDirectory());
+        out << "Relative path '" << path << "' cannot start with a /. Only absolute paths can start with /";
+        throw IllegalPath(__FILE__, __LINE__, out.str());
     }
 }
 
-static vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path){
-    vector<AbsolutePath> dirs;
-    DIR * dir = opendir(path.path().c_str());
-    if (dir == NULL){
-        return dirs;
-    }
-
-    struct dirent * entry = readdir(dir);
-    while (entry != NULL){
-        if (string(entry->d_name) != "." && string(entry->d_name) != ".."){
-            string total = path.path() + "/" + entry->d_name;
-            if (System::isDirectory(total)){
-                dirs.push_back(AbsolutePath(total));
-            }
+/* a/b/c/d -> b/c/d */
+std::string stripFirstDir(const std::string & str){
+    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
+        std::string temp = str;
+        size_t rem = temp.find("/");
+        if (rem != std::string::npos){
+            return str.substr(rem+1,str.size());
         }
-        entry = readdir(dir);
-    }
-
-    closedir(dir);
-
-    return dirs;
-}
-
-vector<AbsolutePath> findDirectories(const RelativePath & path){
-    typedef vector<AbsolutePath> Paths;
-    Paths dirs;
-
-    Paths main_dirs = findDirectoriesIn(Util::getDataPath2().join(path));
-    Paths user_dirs = findDirectoriesIn(userDirectory().join(path));
-    Paths here_dirs = findDirectoriesIn(Filesystem::AbsolutePath(path.path()));
-
-    dirs.insert(dirs.end(), main_dirs.begin(), main_dirs.end());
-    dirs.insert(dirs.end(), user_dirs.begin(), user_dirs.end());
-    dirs.insert(dirs.end(), here_dirs.begin(), here_dirs.end());
-
-    return dirs;
-}
-
-/* a/b/c/ -> a/b/c */
-static string removeTrailingSlash(string str){
-    while (str.size() > 0 && str[str.size() - 1] == '/'){
-        str = str.erase(str.size() - 1);
-    }
-    return str;
-}
-
-
-vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
-#ifdef USE_ALLEGRO
-    struct al_ffblk info;
-    vector<AbsolutePath> files;
-
-    if ( al_findfirst( (dataPath.path() + "/" + find).c_str(), &info, FA_ALL ) != 0 ){
-        return files;
-    }
-    files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
-    while ( al_findnext( &info ) == 0 ){
-        files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
-    }
-    al_findclose( &info );
-    return files;
-#else
-    Util::Thread::acquireLock(&lock);
-    vector<AbsolutePath> files;
-    DIRST sflEntry;
-    // bool ok = open_dir(&sflEntry, removeTrailingSlash(dataPath.path()).c_str());
-    bool ok = open_dir(&sflEntry, dataPath.path().c_str());
-    while (ok){
-        if (file_matches(sflEntry.file_name, find.c_str())){
-            files.push_back(AbsolutePath(dataPath.path() + "/" + string(sflEntry.file_name)));
+        rem = temp.find("\\");
+        if( rem != std::string::npos ){
+            return str.substr(rem+1,str.size());
         }
-        ok = read_dir(&sflEntry);
     }
-    close_dir(&sflEntry);
-    // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
-    Util::Thread::releaseLock(&lock);
-    return files;
-#endif
-}
-
-template <class X>
-static void append(vector<X> & destination, const vector<X> & source){
-    /*
-    for (typename vector<X>::const_iterator it = source.begin(); it != source.end(); it++){
-        destination.push_back(*it);
-    }
-    */
-    copy(source.begin(), source.end(), back_insert_iterator<vector<X> >(destination));
-}
-    
-void initialize(){
-    Util::Thread::initializeLock(&lock);
-}
-    
-static vector<AbsolutePath> getAllDirectories(const AbsolutePath & path){
-    vector<AbsolutePath> all = findDirectoriesIn(path);
-    vector<AbsolutePath> final;
-    append(final, all);
-    for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
-        vector<AbsolutePath> more = getAllDirectories(*it);
-        append(final, more);
-    }
-    return final;
-}
-
-vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
-    vector<AbsolutePath> directories = getAllDirectories(dataPath);
-    directories.push_back(dataPath);
-    vector<AbsolutePath> files;
-    for (vector<AbsolutePath>::iterator it = directories.begin(); it != directories.end(); it++){
-        vector<AbsolutePath> found = getFiles(*it, find, caseInsensitive);
-        append(files, found);
-    }
-    return files;
-}
-
-/* remove extra path separators (/) */
-string sanitize(string path){
-    size_t double_slash = path.find("//");
-    while (double_slash != string::npos){
-        path.erase(double_slash, 1);
-        double_slash = path.find("//");
-    }
-    return path;
-}
-
-/*
-std::string find(const std::string path){
-    if (path.length() == 0){
-        throw NotFound("No path given");
-    }
-    if (path[0] == '/'){
-        string str(path);
-        str.erase(0, 1);
-        string out = lookup(str);
-        if (System::isDirectory(out)){
-            return sanitize(out + "/");
-        }
-        return sanitize(out);
-    }
-    string out = lookup(path);
-    if (System::isDirectory(out)){
-        return sanitize(out + "/");
-    }
-    return sanitize(out);
-}
-*/
-
-AbsolutePath find(const RelativePath & path){
-    if (path.isEmpty()){
-        throw NotFound(__FILE__, __LINE__, "No path given");
-    }
-
-    AbsolutePath out = lookup(path);
-    if (System::isDirectory(out.path())){
-        return AbsolutePath(out.path() + "/");
-    }
-    return AbsolutePath(out.path());
-}
-    
-AbsolutePath findInsensitive(const RelativePath & path){
-    try{
-        /* try sensitive lookup first */
-        return lookup(path);
-    } catch (const NotFound & fail){
-    }
-    /* get the base directory */
-    AbsolutePath directory = lookup(path.getDirectory());
-    return lookupInsensitive(directory, path.getFilename());
-}
-    
-bool exists(const RelativePath & path){
-    try{
-        AbsolutePath absolute = find(path);
-        return true;
-    } catch (const NotFound & found){
-        return false;
-    }
-}
-
-bool exists(const AbsolutePath & path){
-    return System::readable(path.path());
-}
-
-RelativePath cleanse(const AbsolutePath & path){
-    string str = path.path();
-    if (str.find(Util::getDataPath2().path()) == 0){
-        str.erase(0, Util::getDataPath2().path().length());
-    } else if (str.find(userDirectory().path()) == 0){
-        str.erase(0, userDirectory().path().length());
-    }
-    return RelativePath(str);
-}
-
-static string joinPath(const vector<string> & paths){
-    ostringstream out;
-    bool first = true;
-    for (vector<string>::const_iterator it = paths.begin(); it != paths.end(); it++){
-        if (!first){
-            out << '/';
-        }
-        out << *it;
-        first = false;
-    }
-    return out.str();
+    return str; 
 }
 
 static vector<string> splitPath(string path){
@@ -402,6 +201,19 @@ static vector<string> splitPath(string path){
         all.push_back(path);
     }   
     return all;
+}
+
+static string joinPath(const vector<string> & paths){
+    ostringstream out;
+    bool first = true;
+    for (vector<string>::const_iterator it = paths.begin(); it != paths.end(); it++){
+        if (!first){
+            out << '/';
+        }
+        out << *it;
+        first = false;
+    }
+    return out.str();
 }
 
 /* a/b/c/d -> a/b/c
@@ -440,104 +252,6 @@ static string dirname(string path){
 
     return "";
     */
-}
-
-/* a/b/c/d -> b/c/d */
-std::string stripFirstDir(const std::string & str){
-    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
-        std::string temp = str;
-        size_t rem = temp.find("/");
-        if (rem != std::string::npos){
-            return str.substr(rem+1,str.size());
-        }
-        rem = temp.find("\\");
-        if( rem != std::string::npos ){
-            return str.substr(rem+1,str.size());
-        }
-    }
-    return str; 
-}
-
-/* a/b/c/d -> d */
-std::string stripDir(const std::string & str){
-    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
-        std::string temp = str;
-        size_t rem = temp.find_last_of( "/" );
-        if (rem != std::string::npos){
-            return str.substr(rem+1,str.size());
-        }
-        rem = temp.find_last_of( "\\" );
-        if( rem != std::string::npos ){
-            return str.substr(rem+1,str.size());
-        }
-    }
-    return str; 
-}
-
-std::string removeExtension(const std::string & str){
-    if (str.find(".") != std::string::npos){
-        return str.substr(0, str.find_last_of("."));
-    }
-    return str;
-}
-
-const string & Path::path() const {
-    return mypath;
-}
-
-bool Path::isEmpty() const {
-    return mypath.empty();
-}
-        
-Path::~Path(){
-}
-
-Path::Path(){
-}
-
-static int invert(int c){
-    if (c == '\\'){
-        return '/';
-    }
-    return c;
-}
-
-std::string invertSlashes(string str){
-    transform(str.begin(), str.end(), str.begin(), invert);
-    return str;
-
-    /*
-    string tempStr = str;
-    if (tempStr.find('\\') != string::npos){
-	for (int i = tempStr.size()-1; i>-1; --i){
-	    if (tempStr[i] == '\\'){
-                tempStr[i] = '/';
-            }
-	}
-    }
-
-    return tempStr;
-    */
-}
-
-Path::Path(const std::string & path):
-mypath(sanitize(invertSlashes(path))){
-}
-
-Path::Path(const Path & path):
-mypath(sanitize(invertSlashes(path.path()))){
-}
-
-RelativePath::RelativePath(){
-}
-
-RelativePath::RelativePath(const std::string & path):
-Path(path){
-    if (! path.empty() && path[0] == '/'){
-        ostringstream out;
-        out << "Relative path '" << path << "' cannot start with a /. Only absolute paths can start with /";
-        throw IllegalPath(__FILE__, __LINE__, out.str());
-    }
 }
 
 RelativePath::RelativePath(const RelativePath & path):
@@ -630,6 +344,13 @@ bool InsensitivePath::operator==(const Path & path) const {
     return Util::upperCaseAll(this->path()) == Util::upperCaseAll(path.path());
 }
 
+std::string removeExtension(const std::string & str){
+    if (str.find(".") != std::string::npos){
+        return str.substr(0, str.find_last_of("."));
+    }
+    return str;
+}
+
 /* will read upto 'length' bytes unless a null byte is seen first */
 string EndianReader::readStringX(int length){
     ostringstream out;
@@ -686,4 +407,284 @@ vector<uint8_t> EndianReader::readBytes(int length){
     return bytes;
 }
 
+/* a/b/c/d -> d */
+std::string stripDir(const std::string & str){
+    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
+        std::string temp = str;
+        size_t rem = temp.find_last_of( "/" );
+        if (rem != std::string::npos){
+            return str.substr(rem+1,str.size());
+        }
+        rem = temp.find_last_of( "\\" );
+        if( rem != std::string::npos ){
+            return str.substr(rem+1,str.size());
+        }
+    }
+    return str; 
+}
+
+}
+
+Filesystem::Filesystem(const AbsolutePath & path):
+dataPath(path){
+}
+
+#ifdef _WIN32
+Filesystem::AbsolutePath Filesystem::userDirectory(){
+    ostringstream str;
+    char path[MAX_PATH];
+    SHGetSpecialFolderPathA(0, path, CSIDL_APPDATA, false);
+    str << path << "/paintown/";
+    return Filesystem::AbsolutePath(str.str());
+}
+
+Filesystem::AbsolutePath Filesystem::configFile(){
+    ostringstream str;
+    char path[MAX_PATH];
+    SHGetSpecialFolderPathA(0, path, CSIDL_APPDATA, false);
+    str << path << "/paintown_configuration.txt";
+    return Filesystem::AbsolutePath(str.str());
+}
+#else
+Filesystem::AbsolutePath Filesystem::configFile(){
+    ostringstream str;
+    /* what if HOME isn't set? */
+    str << getenv("HOME") << "/.paintownrc";
+    return Filesystem::AbsolutePath(str.str());
+}
+
+Filesystem::AbsolutePath Filesystem::userDirectory(){
+    ostringstream str;
+    /* what if HOME isn't set? */
+    str << getenv("HOME") << "/.paintown/";
+    return Filesystem::AbsolutePath(str.str());
+}
+#endif
+
+Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
+    /* first try the main data directory */
+    Filesystem::AbsolutePath final = dataPath.join(path);
+    if (::System::readable(final.path())){
+        return final;
+    }
+    /* then try the user directory, like ~/.paintown */
+    final = userDirectory().join(path);
+    if (::System::readable(final.path())){
+        return final;
+    }
+    /* then just look in the cwd */
+    if (::System::readable(path.path())){
+        return Filesystem::AbsolutePath(path.path());
+    }
+
+    ostringstream out;
+    out << "Cannot find " << path.path() << ". I looked in '" << dataPath.join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'";
+
+    throw NotFound(__FILE__, __LINE__, out.str());
+}
+
+Filesystem::AbsolutePath Filesystem::lookupInsensitive(const Filesystem::AbsolutePath & directory, const Filesystem::RelativePath & path){
+    if (path.path() == ""){
+        throw NotFound(__FILE__, __LINE__, "Given empty path to lookup");
+    }
+    if (path.path() == "."){
+        return directory;
+    }
+    if (path.path() == ".."){
+        return directory.getDirectory();
+    }
+    if (path.isFile()){
+        vector<AbsolutePath> all = getFiles(directory, "*", true);
+        for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
+            AbsolutePath & check = *it;
+            if (InsensitivePath(check.getFilename()) == path){
+                return check;
+            }
+        }
+
+        ostringstream out;
+        out << "Cannot find " << path.path() << " in " << directory.path();
+        throw NotFound(__FILE__, __LINE__, out.str());
+    } else {
+        return lookupInsensitive(lookupInsensitive(directory, path.firstDirectory()), path.removeFirstDirectory());
+    }
+}
+
+vector<Filesystem::AbsolutePath> Filesystem::findDirectoriesIn(const Filesystem::AbsolutePath & path){
+    vector<Filesystem::AbsolutePath> dirs;
+    DIR * dir = opendir(path.path().c_str());
+    if (dir == NULL){
+        return dirs;
+    }
+
+    struct dirent * entry = readdir(dir);
+    while (entry != NULL){
+        if (string(entry->d_name) != "." && string(entry->d_name) != ".."){
+            string total = path.path() + "/" + entry->d_name;
+            if (::System::isDirectory(total)){
+                dirs.push_back(AbsolutePath(total));
+            }
+        }
+        entry = readdir(dir);
+    }
+
+    closedir(dir);
+
+    return dirs;
+}
+
+vector<Filesystem::AbsolutePath> Filesystem::findDirectories(const RelativePath & path){
+    typedef vector<AbsolutePath> Paths;
+    Paths dirs;
+
+    Paths main_dirs = findDirectoriesIn(dataPath.join(path));
+    Paths user_dirs = findDirectoriesIn(userDirectory().join(path));
+    Paths here_dirs = findDirectoriesIn(Filesystem::AbsolutePath(path.path()));
+
+    dirs.insert(dirs.end(), main_dirs.begin(), main_dirs.end());
+    dirs.insert(dirs.end(), user_dirs.begin(), user_dirs.end());
+    dirs.insert(dirs.end(), here_dirs.begin(), here_dirs.end());
+
+    return dirs;
+}
+
+/* a/b/c/ -> a/b/c */
+static string removeTrailingSlash(string str){
+    while (str.size() > 0 && str[str.size() - 1] == '/'){
+        str = str.erase(str.size() - 1);
+    }
+    return str;
+}
+
+
+vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
+#ifdef USE_ALLEGRO
+    struct al_ffblk info;
+    vector<AbsolutePath> files;
+
+    if ( al_findfirst( (dataPath.path() + "/" + find).c_str(), &info, FA_ALL ) != 0 ){
+        return files;
+    }
+    files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
+    while ( al_findnext( &info ) == 0 ){
+        files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
+    }
+    al_findclose( &info );
+    return files;
+#else
+    Util::Thread::ScopedLock scoped(lock);
+    vector<AbsolutePath> files;
+    DIRST sflEntry;
+    // bool ok = open_dir(&sflEntry, removeTrailingSlash(dataPath.path()).c_str());
+    bool ok = open_dir(&sflEntry, dataPath.path().c_str());
+    while (ok){
+        if (file_matches(sflEntry.file_name, find.c_str())){
+            files.push_back(AbsolutePath(dataPath.path() + "/" + string(sflEntry.file_name)));
+        }
+        ok = read_dir(&sflEntry);
+    }
+    close_dir(&sflEntry);
+    // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
+    return files;
+#endif
+}
+
+template <class X>
+static void append(vector<X> & destination, const vector<X> & source){
+    /*
+    for (typename vector<X>::const_iterator it = source.begin(); it != source.end(); it++){
+        destination.push_back(*it);
+    }
+    */
+    copy(source.begin(), source.end(), back_insert_iterator<vector<X> >(destination));
+}
+    
+vector<Filesystem::AbsolutePath> Filesystem::getAllDirectories(const AbsolutePath & path){
+    vector<AbsolutePath> all = findDirectoriesIn(path);
+    vector<AbsolutePath> final;
+    append(final, all);
+    for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
+        vector<AbsolutePath> more = getAllDirectories(*it);
+        append(final, more);
+    }
+    return final;
+}
+
+vector<Filesystem::AbsolutePath> Filesystem::getFilesRecursive(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
+    vector<AbsolutePath> directories = getAllDirectories(dataPath);
+    directories.push_back(dataPath);
+    vector<AbsolutePath> files;
+    for (vector<AbsolutePath>::iterator it = directories.begin(); it != directories.end(); it++){
+        vector<AbsolutePath> found = getFiles(*it, find, caseInsensitive);
+        append(files, found);
+    }
+    return files;
+}
+
+/*
+std::string find(const std::string path){
+    if (path.length() == 0){
+        throw NotFound("No path given");
+    }
+    if (path[0] == '/'){
+        string str(path);
+        str.erase(0, 1);
+        string out = lookup(str);
+        if (System::isDirectory(out)){
+            return sanitize(out + "/");
+        }
+        return sanitize(out);
+    }
+    string out = lookup(path);
+    if (System::isDirectory(out)){
+        return sanitize(out + "/");
+    }
+    return sanitize(out);
+}
+*/
+
+Filesystem::AbsolutePath Filesystem::find(const RelativePath & path){
+    if (path.isEmpty()){
+        throw NotFound(__FILE__, __LINE__, "No path given");
+    }
+
+    AbsolutePath out = lookup(path);
+    if (::System::isDirectory(out.path())){
+        return AbsolutePath(out.path() + "/");
+    }
+    return AbsolutePath(out.path());
+}
+    
+Filesystem::AbsolutePath Filesystem::findInsensitive(const RelativePath & path){
+    try{
+        /* try sensitive lookup first */
+        return lookup(path);
+    } catch (const NotFound & fail){
+    }
+    /* get the base directory */
+    AbsolutePath directory = lookup(path.getDirectory());
+    return lookupInsensitive(directory, path.getFilename());
+}
+    
+bool Filesystem::exists(const RelativePath & path){
+    try{
+        AbsolutePath absolute = find(path);
+        return true;
+    } catch (const NotFound & found){
+        return false;
+    }
+}
+
+bool Filesystem::exists(const AbsolutePath & path){
+    return ::System::readable(path.path());
+}
+
+Filesystem::RelativePath Filesystem::cleanse(const AbsolutePath & path){
+    string str = path.path();
+    if (str.find(dataPath.path()) == 0){
+        str.erase(0, dataPath.path().length());
+    } else if (str.find(userDirectory().path()) == 0){
+        str.erase(0, userDirectory().path().length());
+    }
+    return RelativePath(str);
 }
