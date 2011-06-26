@@ -413,7 +413,7 @@ static void initSystem(ostream & out){
     start_timer(inc_second_counter, 1);
 
     try{
-        SDL_Surface * icon = SDL_LoadBMP(Filesystem::find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
+        SDL_Surface * icon = SDL_LoadBMP(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
         if (icon != NULL){
             SDL_WM_SetIcon(icon, NULL);
         }
