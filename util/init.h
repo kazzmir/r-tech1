@@ -20,6 +20,7 @@ namespace Global{
 
     /* pass WINDOWED or FULLSCREEN in. FIXME: replace with an enum */
     bool init(int gfx);
+    void close();
     bool initNoGraphics();
 }
 
