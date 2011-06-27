@@ -71,7 +71,11 @@ volatile unsigned int Global::second_counter = 0;
  */
 const int Global::TICS_PER_SECOND = 40;
 const double Global::LOGIC_MULTIPLIER = (double) 90 / (double) Global::TICS_PER_SECOND;
-        
+
+static volatile bool run_timer;
+Util::Thread::Lock run_timer_lock;
+Util::ThreadBoolean run_timer_guard(run_timer, run_timer_lock);
+vector<Util::Thread::Id> running_timers;
 
 #ifdef USE_ALLEGRO
 const int Global::WINDOWED = GFX_AUTODETECT_WINDOWED;
@@ -211,7 +215,7 @@ static void * do_timer(void * info){
     ALLEGRO_EVENT_SOURCE * source = al_get_timer_event_source(timerInfo->timer);
     ALLEGRO_EVENT_QUEUE * queue = al_create_event_queue();
     al_register_event_source(queue, source);
-    while (true){
+    while (run_timer_guard.get()){
         ALLEGRO_EVENT event;
         al_wait_for_event(queue, &event);
         timerInfo->tick();
@@ -235,6 +239,11 @@ static Util::Thread::Id start_timer(void (*func)(), int frequency){
     return thread;
 }
 
+static void startTimers(ostream & out){
+    running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
+    running_timers.push_back(start_timer(inc_second_counter, 1));
+}
+
 static void initSystem(ostream & out){
     out << "Allegro5 initialize " << (al_init() ? "Ok" : "Failed") << endl;
     uint32_t version = al_get_allegro_version();
@@ -247,13 +256,16 @@ static void initSystem(ostream & out){
     al_init_primitives_addon();
     al_install_keyboard();
     al_set_app_name("Paintown");
-
-    start_timer(inc_speed_counter, Global::TICS_PER_SECOND);
-    start_timer(inc_second_counter, 1);
 }
 #endif
 
 #ifdef USE_ALLEGRO
+static void startTimers(ostream & out){
+    /* set up the timers */
+    out<<"Install game timer: "<< install_int_ex(inc_speed_counter, BPS_TO_TIMER(Global::TICS_PER_SECOND))<<endl;
+    out<<"Install second timer: "<<install_int_ex(inc_second_counter, BPS_TO_TIMER(1))<<endl;
+}
+
 static void initSystem(ostream & out){
     out << "Allegro version: " << ALLEGRO_VERSION_STR << endl;
     out << "Allegro init: " <<allegro_init()<<endl;
@@ -274,10 +286,7 @@ static void initSystem(ostream & out){
     LOCK_VARIABLE( second_counter );
     LOCK_FUNCTION( (void *)inc_speed_counter );
     LOCK_FUNCTION( (void *)inc_second_counter );
-    /* set up the timers */
-    out<<"Install game timer: "<< install_int_ex(inc_speed_counter, BPS_TO_TIMER(Global::TICS_PER_SECOND))<<endl;
-    out<<"Install second timer: "<<install_int_ex(inc_second_counter, BPS_TO_TIMER(1))<<endl;
-
+    
     /* keep running in the background */
     set_display_switch_mode(SWITCH_BACKGROUND);
 
@@ -328,7 +337,7 @@ static void * do_timer(void * arg){
     uint32_t ticks = SDL_GetTicks();
 
     /* TODO: pass in some variable that tells this loop to quit */
-    while (true){
+    while (run_timer_guard.get()){
         uint32_t now = SDL_GetTicks();
         while (now - ticks >= delay){
             // Global::debug(0) << "Tick!" << endl;
@@ -388,6 +397,11 @@ static void doSDLQuit(){
     SDL_Quit();
 }
 */
+
+static void startTimers(ostream & out){
+    running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
+    running_timers.push_back(start_timer(inc_second_counter, 1));
+}
     
 static void initSystem(ostream & out){
     out << "SDL Init: ";
@@ -408,9 +422,6 @@ static void initSystem(ostream & out){
     pthread_init();
 #endif
 */
-
-    start_timer(inc_speed_counter, Global::TICS_PER_SECOND);
-    start_timer(inc_second_counter, 1);
 
     try{
         SDL_Surface * icon = SDL_LoadBMP(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
@@ -498,6 +509,14 @@ bool Global::initNoGraphics(){
     return true;
 }
 
+void Global::close(){
+    run_timer_guard.set(false);
+    for (vector<Util::Thread::Id>::iterator it = running_timers.begin(); it != running_timers.end(); it++){
+        Util::Thread::Id timer = *it;
+        Util::Thread::joinThread(timer);
+    }
+}
+
 bool Global::init(int gfx){
     ostream & out = Global::debug( 0 );
     out << "-- BEGIN init --" << endl;
@@ -565,6 +584,10 @@ bool Global::init(int gfx){
 
     /* this mutex is used to show the loading screen while the game loads */
     Util::Thread::initializeLock(&Global::messageLock);
+
+    Util::Thread::initializeLock(&run_timer_lock);
+    run_timer = true;
+    startTimers(out);
 
     out << "-- END init --" << endl;
 
