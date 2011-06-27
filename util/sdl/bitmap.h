@@ -7,7 +7,8 @@ struct BitmapData{
         clip_left(0),
         clip_right(0),
         clip_top(0),
-        clip_bottom(0){}
+        clip_bottom(0),
+        destroy(true){}
 
     BitmapData(SDL_Surface * surface);
 
@@ -36,6 +37,7 @@ struct BitmapData{
     SDL_Surface * surface;
     mutable int clip_left, clip_right;
     mutable int clip_top, clip_bottom;
+    bool destroy;
 };
 
 typedef int Color;
