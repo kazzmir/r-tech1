@@ -158,7 +158,7 @@ struct BlendingData{
 };
 
 BitmapData::~BitmapData(){
-    if (surface != NULL){
+    if (surface != NULL && destroy){
         SDL_FreeSurface(surface);
     }
 }
@@ -545,6 +545,9 @@ int setGraphicsMode(int mode, int width, int height){
 
     if (width != 0 && height != 0){
         Screen = new Bitmap(screen);
+        /* don't destroy the screen */
+        Screen->getData()->destroy = false;
+
         Scaler = new Bitmap(width, height);
         /*
         if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
