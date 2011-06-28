@@ -11,16 +11,49 @@ static bool read_button(SDL_Joystick * joystick, int button){
     return SDL_JoystickGetButton(joystick, button);
 }
 
+#ifdef PS3
+static int to_native_button(int button){
+    switch (button){
+    	case 0: return 8;
+	case 1: return 9;
+	case 2: return 10;
+	case 3: return 11;
+	case 4: return 4;
+    }
+    return button;
+}
+
+static int from_native_button(int button){
+    switch (button){
+    	case 8: return 0;
+	case 9: return 1;
+	case 10: return 2;
+	case 11: return 3;
+	case 4: return 4;
+	default: return 5;
+    }
+    return button;
+}
+#else
+static int to_native_button(int button){
+    return button;
+}
+
+static int from_native_button(int button){
+    return button;
+}
+#endif
+
 JoystickInput SDLJoystick::readAll(){
     JoystickInput input;
     if (joystick){
         int buttons = SDL_JoystickNumButtons(joystick);
         switch (buttons > 5 ? 5 : buttons){
-            case 5: input.quit = read_button(joystick, 4);
-            case 4: input.button4 = read_button(joystick, 3);
-            case 3: input.button3 = read_button(joystick, 2);
-            case 2: input.button2 = read_button(joystick, 1);
-            case 1: input.button1 = read_button(joystick, 0);
+            case 5: input.quit = read_button(joystick, to_native_button(4));
+            case 4: input.button4 = read_button(joystick, to_native_button(3));
+            case 3: input.button3 = read_button(joystick, to_native_button(2));
+            case 2: input.button2 = read_button(joystick, to_native_button(1));
+            case 1: input.button1 = read_button(joystick, to_native_button(0));
             case 0: {
                 break;
             }
@@ -98,7 +131,7 @@ joystick(NULL){
 void SDLJoystick::pressButton(int button){
     if (joystick){
         Event event = Invalid;
-        switch (button){
+        switch (from_native_button(button)){
             case 0: event = Button1; break;
             case 1: event = Button2; break;
             case 2: event = Button3; break;
