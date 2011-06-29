@@ -246,7 +246,10 @@ namespace Storage{
     };
 
     System & instance();
-    extern Util::ReferenceCount<System> self;
+    System & setInstance(const Util::ReferenceCount<System> & what);
+
+    class ZipFileSystem: public System {
+    };
 }
 
 /*
