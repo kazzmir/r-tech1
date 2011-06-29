@@ -362,6 +362,7 @@ System::System(){
 System::~System(){
 }
         
+Util::ReferenceCount<System> self;
 System & instance(){
     if (self != NULL){
         return *self;
@@ -369,7 +370,11 @@ System & instance(){
     self = new Filesystem(Util::getDataPath2());
     return *self;
 }
-Util::ReferenceCount<System> self;
+
+System & setInstance(const Util::ReferenceCount<System> & what){
+    self = what;
+    return *self;
+}
 
 /* will read upto 'length' bytes unless a null byte is seen first */
 string EndianReader::readStringX(int length){
