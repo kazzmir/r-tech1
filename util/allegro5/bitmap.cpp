@@ -766,6 +766,7 @@ void TranslucentBitmap::arc(const int x, const int y, const double ang1, const d
 }
 
 /* from http://www.allegro.cc/forums/thread/605684/892721#target */
+#if 0
 void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
                                 float delta_theta, ALLEGRO_COLOR color){
     ALLEGRO_VERTEX vertex_cache[ALLEGRO_VERTEX_CACHE_SIZE];
@@ -791,6 +792,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
     al_draw_prim(vertex_cache, NULL, NULL, 0, num_segments + 1, ALLEGRO_PRIM_TRIANGLE_FAN);
     // al_draw_prim(vertex_cache, NULL, NULL, 0, 3, ALLEGRO_PRIM_TRIANGLE_FAN);
 }
+#endif
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     changeTarget(this, this);
