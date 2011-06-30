@@ -24,6 +24,11 @@ struct LOGG_Stream;
 #endif
 class Music_Emu;
 
+#ifdef USE_ALLEGRO5
+struct ALLEGRO_AUDIO_STREAM;
+struct ALLEGRO_EVENT_QUEUE;
+#endif
+
 namespace Util{
 
 class MusicPlayer{
@@ -131,6 +136,9 @@ protected:
     static void mixer(void * player, Uint8 * stream, int length);
     void render(Uint8 * stream, int length);
 #endif
+#ifdef USE_ALLEGRO5
+    void render(void * data, int samples);
+#endif
 
 protected:
 #ifdef USE_ALLEGRO
@@ -140,6 +148,11 @@ protected:
 
 #ifdef USE_SDL
     DUH_SIGRENDERER * renderer;
+#endif
+#ifdef USE_ALLEGRO5
+    DUH_SIGRENDERER * renderer;
+    ALLEGRO_AUDIO_STREAM * stream;
+    ALLEGRO_EVENT_QUEUE * queue;
 #endif
 };
 
