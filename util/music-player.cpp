@@ -13,6 +13,10 @@
 #include "exceptions/exception.h"
 #include <sstream>
 
+#ifdef USE_ALLEGRO5
+#include <allegro5/allegro_audio.h>
+#endif
+
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
 #include "ogg/logg.h"
@@ -342,48 +346,6 @@ static const int MPG123_BUFFER_SIZE = 1 << 11;
 Mp3Player::Mp3Player(const char * path):
 stream(NULL),
 mp3(NULL){
-    /* Initialize */
-#if 0
-    if (mpg123_init() != MPG123_OK){
-	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
-    }
-    try{
-        mp3 = mpg123_new(NULL, NULL);
-        if (mp3 == NULL){
-            throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
-        }
-        mpg123_format_none(mp3);
-        /* mpg123 didn't support unsigned before 1.7.0 */
-        int error = mpg123_format(mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
-        mpg123_decoder(mp3, "generic");
-        if (error != MPG123_OK){
-            Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
-        }
-        error = mpg123_open(mp3, (char*) path);
-        if (error == -1){
-            std::ostringstream error;
-            error << "Could not open mpg123 file " << path << " error code " << error;
-            throw MusicException(__FILE__,__LINE__, error.str());
-        }
-        // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
-
-        double base, really, rva;
-        mpg123_getvolume(mp3, &base, &really, &rva);
-        // Global::debug(0) << "mpg volume base " << base << " really " << really << " rva " << rva << std::endl;
-        base_volume = base;
-
-        long rate;
-        int channels, encoding;
-        mpg123_getformat(mp3, &rate, &channels, &encoding);
-        // Global::debug(0) << path << " rate " << rate << " channels " << channels << " encoding " << encoding << std::endl;
-        stream = play_audio_stream(MPG123_BUFFER_SIZE, 16, ALLEGRO_STEREO, rate, 255, 128);
-        voice_set_priority(stream->voice, 255);
-    } catch (const MusicException & fail){
-        mpg123_exit();
-        throw;
-    }
-#endif
-
     initializeMpg123(&mp3, path);
     long rate = 0;
     int channels = 0, encoding = 0;
@@ -468,7 +430,7 @@ Mp3Player::~Mp3Player(){
 }
 #endif /* MP3_MAD */
 
-#endif /* ALlEGRO */
+#endif /* ALLEGRO */
 
 #ifdef USE_SDL
 DumbPlayer::DumbPlayer(const char * path){
@@ -866,28 +828,69 @@ Mp3Player::~Mp3Player(){
 }
 #endif /* MP3_MAD */
 
+const int DUMB_SAMPLES = 1024;
 DumbPlayer::DumbPlayer(const char * path){
-    /* TODO */
+    music_file = loadDumbFile(path);
+    if (music_file == NULL){
+        std::ostringstream error;
+        error << "Could not load DUMB file " << path;
+        throw MusicException(__FILE__, __LINE__, error.str());
+    }
+    
+    int n_channels = 2;
+    int position = 0;
+    renderer = duh_start_sigrenderer(music_file, 0, n_channels, position);
+    if (!renderer){
+        Global::debug(0) << "Could not create renderer" << std::endl;
+        throw Exception::Base(__FILE__, __LINE__);
+    }
+
+    stream = al_create_audio_stream(2, DUMB_SAMPLES, Sound::FREQUENCY, ALLEGRO_AUDIO_DEPTH_INT16,  ALLEGRO_CHANNEL_CONF_2);
+    if (!stream){
+        throw MusicException(__FILE__, __LINE__, "Could not create allegro5 audio stream");
+    }
+    queue = al_create_event_queue();
+    al_register_event_source(queue, al_get_audio_stream_event_source(stream));
 }
 
 void DumbPlayer::play(){
-    /* TODO */
+    al_attach_audio_stream_to_mixer(stream, al_get_default_mixer());
+}
+
+void DumbPlayer::render(void * data, int samples){
+    double delta = 65536.0 / Sound::FREQUENCY;
+
+    /* FIXME: use global music volume to scale the output here */
+    int n = duh_render(renderer, 16, 0, volume, delta, samples, data);
 }
 
 void DumbPlayer::poll(){
-    /* TODO */
+    ALLEGRO_EVENT event;
+    while (al_get_next_event(queue, &event)){
+        if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+            ALLEGRO_AUDIO_STREAM * stream = (ALLEGRO_AUDIO_STREAM *) event.any.source;
+            void * data = al_get_audio_stream_fragment(stream);
+            if (data != NULL){
+                render(data, al_get_audio_stream_length(stream));
+                al_set_audio_stream_fragment(stream, data);
+            }
+        }
+    }
 }
 
 void DumbPlayer::pause(){
-    /* TODO */
+    al_detach_audio_stream(stream);
 }
 
 void DumbPlayer::setVolume(double volume){
-    /* TODO */
+    this->volume = volume;
 }
 
 DumbPlayer::~DumbPlayer(){
-    /* TODO */
+    duh_end_sigrenderer(renderer);
+    unload_duh(music_file);
+    al_destroy_audio_stream(stream);
+    al_destroy_event_queue(queue);
 }
 
 #endif
