@@ -204,192 +204,6 @@ static const char * typeToExtension( int i ){
     }
 }
 
-#ifdef USE_ALLEGRO
-#ifdef HAVE_OGG
-OggPlayer::OggPlayer(const char * path){
-    stream = logg_get_stream(path, scaleVolume(volume) * 255, 128, 1);
-    if (stream == NULL){
-        throw MusicException(__FILE__, __LINE__, "Could not load ogg file");
-    }
-}
-
-void OggPlayer::play(){
-}
-
-void OggPlayer::poll(){
-    logg_update_stream(stream);
-}
-
-void OggPlayer::render(void * stream, int length){
-}
-
-void OggPlayer::pause(){
-}
-
-void OggPlayer::setVolume(double volume){
-}
-
-OggPlayer::~OggPlayer(){
-    logg_destroy_stream(stream);
-}
-#endif /* OGG */
-
-#ifdef HAVE_MP3_MAD
-    /* TODO */
-Mp3Player::Mp3Player(const char * path):
-stream(NULL){
-    /* TODO */
-}
-
-void Mp3Player::play(){
-    /* TODO */
-}
-
-void Mp3Player::poll(){
-    /* TODO */
-}
-
-void Mp3Player::pause(){
-    /* TODO */
-}
-
-void Mp3Player::setVolume(double volume){
-    /* TODO */
-}
-
-Mp3Player::~Mp3Player(){
-    /* TODO */
-}
-#endif /* MP3_MAD */
-
-#endif /* ALLEGRO */
-
-#ifdef USE_SDL
-#ifdef HAVE_OGG
-
-OggPlayer::OggPlayer(const char * path){
-    music = Mix_LoadMUS(path);
-    if (music == NULL){
-        throw MusicException(__FILE__, __LINE__, "Could not load OGG file");
-    }
-}
-
-void OggPlayer::play(){
-    Mix_PlayMusic(music, -1);
-}
-
-void OggPlayer::render(void * data, int length){
-}
-
-void OggPlayer::poll(){
-}
-
-void OggPlayer::pause(){
-    Mix_PauseMusic();
-}
-
-void OggPlayer::setVolume(double volume){
-    this->volume = volume;
-    Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
-}
-
-OggPlayer::~OggPlayer(){
-    Mix_FreeMusic(music);
-}
-
-#endif /* OGG */
-#ifdef HAVE_MP3_MAD
-        /* TODO */
-Mp3Player::Mp3Player(const char * path){
-    music = Mix_LoadMUS(path);
-    if (music == NULL){
-        throw MusicException(__FILE__, __LINE__, "Could not load MP3 file");
-    }
-}
-
-void Mp3Player::play(){
-    Mix_PlayMusic(music, 0);
-}
-
-void Mp3Player::poll(){
-    /* TODO */
-}
-
-void Mp3Player::pause(){
-    Mix_PauseMusic();
-}
-
-void Mp3Player::setVolume(double volume){
-    this->volume = volume;
-    Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
-}
-
-Mp3Player::~Mp3Player(){
-    Mix_FreeMusic(music);
-}
-#endif /* MP3_MAD */
-
-#endif /* SDL */
-
-#ifdef USE_ALLEGRO5
-#ifdef HAVE_OGG
-OggPlayer::OggPlayer(const char * path){
-    /* TODO */
-}
-
-void OggPlayer::play(){
-    /* TODO */
-}
-
-void OggPlayer::poll(){
-    /* TODO */
-}
-
-void OggPlayer::pause(){
-    /* TODO */
-}
-    
-void OggPlayer::render(void * stream, int length){
-}
-
-void OggPlayer::setVolume(double volume){
-    /* TODO */
-}
-
-OggPlayer::~OggPlayer(){
-    /* TODO */
-}
-
-#endif
-#ifdef HAVE_MP3_MAD
-        /* TODO */
-Mp3Player::Mp3Player(const char * path){
-    /* TODO */
-}
-
-void Mp3Player::play(){
-    /* TODO */
-}
-
-void Mp3Player::poll(){
-    /* TODO */
-}
-
-void Mp3Player::pause(){
-    /* TODO */
-}
-
-void Mp3Player::setVolume(double volume){
-    /* TODO */
-}
-
-Mp3Player::~Mp3Player(){
-    /* TODO */
-}
-#endif /* MP3_MAD */
-
-#endif
-
 /* expects each sample to be 4 bytes, 2 bytes per sample * 2 channels */
 DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
@@ -638,5 +452,38 @@ Mp3Player::~Mp3Player(){
 }
 
 #endif /* MP3_MPG123 */
+
+#ifdef HAVE_OGG
+OggPlayer::OggPlayer(const char * path){
+}
+
+void OggPlayer::render(void * data, int length){
+}
+
+void OggPlayer::setVolume(double volume){
+    this->volume = volume;
+    // Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
+}
+
+OggPlayer::~OggPlayer(){
+}
+#endif /* OGG */
+
+#ifdef HAVE_MP3_MAD
+    /* TODO */
+Mp3Player::Mp3Player(const char * path):
+stream(NULL){
+    /* TODO */
+}
+
+void Mp3Player::setVolume(double volume){
+    /* TODO */
+}
+
+Mp3Player::~Mp3Player(){
+    /* TODO */
+}
+#endif /* MP3_MAD */
+
 
 }

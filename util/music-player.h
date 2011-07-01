@@ -96,21 +96,16 @@ protected:
 class OggPlayer: public MusicPlayer {
 public:
     OggPlayer(const char * path);
-    virtual void play();
-
-    virtual void poll();
-    virtual void pause();
     virtual void setVolume(double volume);
     virtual void render(void * stream, int length);
 
     virtual ~OggPlayer();
 protected:
-#if USE_SDL
-    Mix_Music * music;
-#endif
+    /*
 #ifdef USE_ALLEGRO
     struct LOGG_Stream * stream;
 #endif
+*/
 };
 #endif
 
