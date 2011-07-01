@@ -54,6 +54,8 @@ protected:
     void create(int frequency, int channels);
 #ifdef USE_SDL
     static void mixer(void * arg, Uint8 * stream, int length);
+    SDL_AudioCVT convert;
+    Uint8 * data;
 #endif
 
 #ifdef USE_ALLEGRO
@@ -82,6 +84,9 @@ public:
         return volume;
     }
 
+    virtual const ReferenceCount<MusicRenderer> & getRenderer() const {
+        return out;
+    }
     virtual void setRenderer(const ReferenceCount<MusicRenderer> & what);
 
 protected:

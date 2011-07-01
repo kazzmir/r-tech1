@@ -42,7 +42,20 @@ public:
 
     /* global frequency to use */
     // static const int FREQUENCY = 22050;
-    static int FREQUENCY;
+    struct SoundInfo{
+        SoundInfo():
+            frequency(22050),
+            channels(2),
+            format(0){
+            }
+
+        int frequency;
+        int channels;
+
+        /* format is mostly for SDL */
+        int format;
+    };
+    static SoundInfo Info;
 
 protected:
 
