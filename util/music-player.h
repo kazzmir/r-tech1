@@ -113,8 +113,8 @@ struct OggPage{
         }
     };
     Page buffer1;
-    Page buffer2;
-    int use;
+    // Page buffer2;
+    // int use;
 };
 
 /* Maybe have some common sdl mixer class that this can inherit? */

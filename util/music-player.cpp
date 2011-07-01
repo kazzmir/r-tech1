@@ -520,11 +520,11 @@ path(path){
 
     buffer = new OggPage();
     buffer->buffer1.buffer = new char[OGG_BUFFER_SIZE];
-    buffer->buffer2.buffer = new char[OGG_BUFFER_SIZE];
+    // buffer->buffer2.buffer = new char[OGG_BUFFER_SIZE];
 
     fillPage(&buffer->buffer1);
-    fillPage(&buffer->buffer2);
-    buffer->use = 0;
+    // fillPage(&buffer->buffer2);
+    // buffer->use = 0;
 }
 
 void OggPlayer::fillPage(OggPage::Page * page){
@@ -562,7 +562,7 @@ void OggPlayer::fillPage(OggPage::Page * page){
 }
 
 void OggPlayer::doRender(char * data, int bytes){
-    OggPage::Page & page = buffer->use == 0 ? buffer->buffer1 : buffer->buffer2;
+    OggPage::Page & page = buffer->buffer1;
     if (page.max - page.position >= bytes){
         memcpy(data, page.buffer + page.position, bytes);
         page.position += bytes;
@@ -572,7 +572,6 @@ void OggPlayer::doRender(char * data, int bytes){
         int at = page.max - page.position;
         int rest = bytes - (page.max - page.position);
         fillPage(&page);
-        buffer->use = 1 - buffer->use;
         doRender(data + at, rest);
     }
 }
