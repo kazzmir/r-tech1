@@ -119,26 +119,11 @@ protected:
 class Mp3Player: public MusicPlayer {
 public:
     Mp3Player(const char * path);
-    virtual void play();
-
-    virtual void poll();
-    virtual void pause();
     virtual void setVolume(double volume);
+    virtual void render(void * data, int length);
 
     virtual ~Mp3Player();
 protected:    
-#ifdef USE_SDL
-#ifdef HAVE_MP3_MPG123
-    static void mixer(void * arg, Uint8 * stream, int length);
-    void render(Uint8 * stream, int length);
-#elif HAVE_MP3_MAD
-    Mix_Music * music;
-#endif
-#endif
-#ifdef USE_ALLEGRO
-    AUDIOSTREAM * stream;
-#endif
-
 #ifdef HAVE_MP3_MPG123
     mpg123_handle * mp3;
     double base_volume;
