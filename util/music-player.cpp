@@ -471,8 +471,7 @@ OggPlayer::~OggPlayer(){
 
 #ifdef HAVE_MP3_MAD
     /* TODO */
-Mp3Player::Mp3Player(const char * path):
-stream(NULL){
+Mp3Player::Mp3Player(const char * path){
     /* TODO */
 }
 
