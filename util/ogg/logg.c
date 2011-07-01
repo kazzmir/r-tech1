@@ -1,21 +1,27 @@
-#if defined(HAVE_OGG) && defined(USE_ALLEGRO)
+#if defined(HAVE_OGG)
 
+// && defined(USE_ALLEGRO)
+
+#include <stdlib.h>
 #include <string.h>
+
+/*
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
+*/
 
 #include "logg.h"
 
 /* XXX requires testing */
-#ifdef ALLEGRO_BIG_ENDIAN
-	const int ENDIANNESS = 1;
-#endif
-#ifdef ALLEGRO_LITTLE_ENDIAN
-	const int ENDIANNESS = 0;
+#ifdef USE_BIG_ENDIAN
+const int ENDIANNESS = 1;
+#else
+const int ENDIANNESS = 0;
 #endif
 
-static int logg_bufsize = 1024*64;
+// static int logg_bufsize = 1024*64;
 
+/*
 SAMPLE* logg_load(const char* filename){
     OggVorbis_File ovf;
     FILE* file;
@@ -69,15 +75,18 @@ SAMPLE* logg_load(const char* filename){
 
     return samp;
 }
+*/
 
+/*
 int logg_get_buffer_size(void){
     return logg_bufsize;
 }
 
 void logg_set_buffer_size(int size){
-    ASSERT(size > 0);
+    // ASSERT(size > 0);
     logg_bufsize = size;
 }
+*/
 
 static int logg_open_file_for_streaming(struct LOGG_Stream* s){
     FILE* file;
@@ -85,12 +94,12 @@ static int logg_open_file_for_streaming(struct LOGG_Stream* s){
 
     file = fopen(s->filename, "rb");
     if (!file) {
-        uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "Unable to open file: %s", s->filename);
+        // uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "Unable to open file: %s", s->filename);
         return 1;
     }
 
     if (ov_open_callbacks(file, &s->ovf, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
-        strncpy(allegro_error, "ov_open_callbacks failed.", ALLEGRO_ERROR_SIZE);
+        // strncpy(allegro_error, "ov_open_callbacks failed.", ALLEGRO_ERROR_SIZE);
         fclose(file);
         return 1;
     }
@@ -105,7 +114,7 @@ static int logg_open_file_for_streaming(struct LOGG_Stream* s){
     return 0;
 }
 
-static int read_ogg_data(struct LOGG_Stream* s){
+static int read_ogg_data(struct LOGG_Stream* s, int size){
     int read = 0;
     int bitstream;
 
@@ -113,11 +122,11 @@ static int read_ogg_data(struct LOGG_Stream* s){
     s->current_page++;
     s->current_page %= OGG_PAGES_TO_BUFFER;
 
-    memset(s->buf[page], 0, logg_bufsize);
+    memset(s->buf[page], 0, size);
 
-    while (read < logg_bufsize) {
+    while (read < size) {
         int thisRead = ov_read(&s->ovf, s->buf[page]+read,
-                               logg_bufsize-read,
+                               size - read,
                                ENDIANNESS, 2, 0, &bitstream);
         if (thisRead == 0) {
             if (s->loop) {
@@ -136,16 +145,17 @@ static int read_ogg_data(struct LOGG_Stream* s){
     return read;
 }
 
-static int logg_play_stream(struct LOGG_Stream* s){
+static int logg_play_stream(struct LOGG_Stream* s, int size){
     int len;
     int i;
 
     s->current_page = 0;
     s->playing_page = -1;
 
-    len = logg_bufsize / (s->stereo ? 2 : 1)
+    len = size / (s->stereo ? 2 : 1)
         / (s->bits / (sizeof(char)*8));
 
+    /*
     s->audio_stream = play_audio_stream(len,
                                         s->bits, s->stereo,
                                         s->freq, s->volume, s->pan);
@@ -153,14 +163,15 @@ static int logg_play_stream(struct LOGG_Stream* s){
     if (!s->audio_stream) {
         return 1;
     }
+    */
 
     for (i = 0; i < OGG_PAGES_TO_BUFFER; i++) {
-        s->buf[i] = malloc(logg_bufsize);
+        s->buf[i] = malloc(size);
         if (!s->buf[i]) {
             logg_destroy_stream(s);
             return 1;
         }
-        if (read_ogg_data(s) < 0) {
+        if (read_ogg_data(s, size) < 0) {
             return 1;
         }
     }
@@ -168,7 +179,7 @@ static int logg_play_stream(struct LOGG_Stream* s){
     return 0;
 }
 
-struct LOGG_Stream* logg_get_stream(const char* filename, int volume, int pan, int loop){
+struct LOGG_Stream* logg_get_stream(const char* filename, int volume, int pan, int loop, int size){
     struct LOGG_Stream* s = calloc(1, sizeof(struct LOGG_Stream));
     if (!s) {
         return 0;
@@ -190,7 +201,7 @@ struct LOGG_Stream* logg_get_stream(const char* filename, int volume, int pan, i
     s->pan = pan;
     s->loop = loop;
 
-    if (logg_play_stream(s)) {
+    if (logg_play_stream(s, size)) {
         logg_destroy_stream(s);
         return 0;
     }
@@ -198,13 +209,13 @@ struct LOGG_Stream* logg_get_stream(const char* filename, int volume, int pan, i
     return s;
 }
 
-int logg_update_stream(struct LOGG_Stream* s){
-    unsigned char* data = get_audio_stream_buffer(s->audio_stream);
+int logg_update_stream(struct LOGG_Stream* s, void * data, int size){
+    // unsigned char* data = get_audio_stream_buffer(s->audio_stream);
 
     if (!data) {
         if (s->current_page != s->playing_page) {
-            int read = read_ogg_data(s);
-            if (read < logg_bufsize) {
+            int read = read_ogg_data(s, size);
+            if (read < size) {
                 return 0;
             }
             else {
@@ -218,9 +229,9 @@ int logg_update_stream(struct LOGG_Stream* s){
 
     s->playing_page++;
     s->playing_page %= OGG_PAGES_TO_BUFFER;
-    memcpy(data, s->buf[s->playing_page], logg_bufsize);
+    memcpy(data, s->buf[s->playing_page], size);
 
-    free_audio_stream_buffer(s->audio_stream);
+    // free_audio_stream_buffer(s->audio_stream);
 
     return 1;
 }
@@ -228,23 +239,27 @@ int logg_update_stream(struct LOGG_Stream* s){
 void logg_stop_stream(struct LOGG_Stream* s){
     int i;
 
+    /*
     stop_audio_stream(s->audio_stream);
+    */
     for (i = 0; i < OGG_PAGES_TO_BUFFER; i++) {
         free(s->buf[i]);
         s->buf[i] = 0;
     }
 }
 
-int logg_restart_stream(struct LOGG_Stream* s){
-    return logg_play_stream(s);
+int logg_restart_stream(struct LOGG_Stream* s, int size){
+    return logg_play_stream(s, size);
 }
 
 void logg_destroy_stream(struct LOGG_Stream* s){
     int i;
 
+    /*
     if (s->audio_stream) {
         stop_audio_stream(s->audio_stream);
     }
+    */
 
     ov_clear(&s->ovf);
     for (i = 0; i < OGG_PAGES_TO_BUFFER; i++) {
