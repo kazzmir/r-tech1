@@ -1,6 +1,7 @@
 #ifndef _paintown_music_player_h
 #define _paintown_music_player_h
 
+#include <string>
 #include <stdio.h>
 
 #ifdef USE_SDL
@@ -126,7 +127,9 @@ public:
     virtual ~OggPlayer();
 protected:
     void fillPage(OggPage::Page * page);
+    void doRender(char * data, int bytes);
     FILE* file;
+    std::string path;
     OggVorbis_File ogg;
     ReferenceCount<OggPage> buffer;
 
