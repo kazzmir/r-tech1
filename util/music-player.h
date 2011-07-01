@@ -15,6 +15,8 @@
 #include <mad.h>
 #endif
 
+#include "pointer.h"
+
 struct DUH;
 struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
@@ -31,35 +33,61 @@ struct ALLEGRO_EVENT_QUEUE;
 
 namespace Util{
 
+class MusicPlayer;
+/* implemented by some backend: allegro4/sdl/allergo5 */
+class MusicRenderer{
+public:
+    MusicRenderer();
+    virtual ~MusicRenderer();
+    void poll(MusicPlayer & player);
+    void play(MusicPlayer & player);
+    void pause();
+
+protected:
+#ifdef USE_SDL
+    static void mixer(void * arg, Uint8 * stream, int length);
+#endif
+
+#ifdef USE_ALLEGRO
+    AUDIOSTREAM * stream;
+#endif
+
+#ifdef USE_ALLEGRO5
+    ALLEGRO_AUDIO_STREAM * stream;
+    ALLEGRO_EVENT_QUEUE * queue;
+#endif
+};
+
 class MusicPlayer{
 public:
     MusicPlayer();
-    virtual void play() = 0;
-    virtual void poll() = 0;
-    virtual void pause() = 0;
+    virtual void play();
+    virtual void poll();
+    virtual void pause();
     virtual void setVolume(double volume) = 0;
     virtual ~MusicPlayer();
+
+    /* length is in samples not bytes */
+    virtual void render(void * stream, int length) = 0;
+
+    virtual inline double getVolume() const {
+        return volume;
+    }
+
 protected:
     double volume;
+    ReferenceCount<MusicRenderer> out;
 };
 
 /* uses the GME library, plays nintendo music files and others */
 class GMEPlayer: public MusicPlayer {
 public:
     GMEPlayer(const char * path);
-    virtual void play();
-    virtual void poll();
-    virtual void pause();
     virtual void setVolume(double volume);
     virtual ~GMEPlayer();
+    virtual void render(void * stream, int length);
+
 protected:
-#ifdef USE_SDL
-    static void mixer(void * arg, Uint8 * stream, int length);
-    void render(Uint8 * stream, int length);
-#endif
-#ifdef USE_ALLEGRO
-    AUDIOSTREAM * stream;
-#endif
     Music_Emu * emulator;
 };
 
@@ -73,6 +101,7 @@ public:
     virtual void poll();
     virtual void pause();
     virtual void setVolume(double volume);
+    virtual void render(void * stream, int length);
 
     virtual ~OggPlayer();
 protected:
@@ -122,38 +151,17 @@ protected:
 class DumbPlayer: public MusicPlayer {
 public:
     DumbPlayer(const char * path);
-    virtual void play();
-    virtual void poll();
-    virtual void pause();
     virtual void setVolume(double volume);
+    virtual void render(void * data, int samples);
 
     virtual ~DumbPlayer();
 
 protected:
     DUH * loadDumbFile(const char * path);
 
-#ifdef USE_SDL
-    static void mixer(void * player, Uint8 * stream, int length);
-    void render(Uint8 * stream, int length);
-#endif
-#ifdef USE_ALLEGRO5
-    void render(void * data, int samples);
-#endif
-
 protected:
-#ifdef USE_ALLEGRO
-    AL_DUH_PLAYER * player;
-#endif
     DUH * music_file;
-
-#ifdef USE_SDL
     DUH_SIGRENDERER * renderer;
-#endif
-#ifdef USE_ALLEGRO5
-    DUH_SIGRENDERER * renderer;
-    ALLEGRO_AUDIO_STREAM * stream;
-    ALLEGRO_EVENT_QUEUE * queue;
-#endif
 };
 
 }

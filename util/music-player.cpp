@@ -74,12 +74,124 @@ protected:
 static double scaleVolume(double start){
     return start;
 }
+
+#ifdef USE_ALLEGRO5
+const int DUMB_SAMPLES = 1024;
+MusicRenderer::MusicRenderer(){
+    stream = al_create_audio_stream(2, DUMB_SAMPLES, Sound::FREQUENCY, ALLEGRO_AUDIO_DEPTH_INT16,  ALLEGRO_CHANNEL_CONF_2);
+    if (!stream){
+        throw MusicException(__FILE__, __LINE__, "Could not create allegro5 audio stream");
+    }
+    queue = al_create_event_queue();
+    al_register_event_source(queue, al_get_audio_stream_event_source(stream));
+}
+
+void MusicRenderer::play(MusicPlayer & player){
+    al_attach_audio_stream_to_mixer(stream, al_get_default_mixer());
+}
+
+void MusicRenderer::pause(){
+    al_detach_audio_stream(stream);
+}
+
+MusicRenderer::~MusicRenderer(){
+    al_destroy_audio_stream(stream);
+    al_destroy_event_queue(queue);
+}
+
+void MusicRenderer::poll(MusicPlayer & player){
+    ALLEGRO_EVENT event;
+    while (al_get_next_event(queue, &event)){
+        if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
+            ALLEGRO_AUDIO_STREAM * stream = (ALLEGRO_AUDIO_STREAM *) event.any.source;
+            void * data = al_get_audio_stream_fragment(stream);
+            if (data != NULL){
+                player.render(data, al_get_audio_stream_length(stream));
+                al_set_audio_stream_fragment(stream, data);
+            }
+        }
+    }
+}
+#elif USE_SDL
+MusicRenderer::MusicRenderer(){
+}
+
+void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
+    MusicPlayer * player = (MusicPlayer*) arg;
+    player->render(stream, bytes / 4);
+}
+
+void MusicRenderer::play(MusicPlayer & player){
+    Mix_HookMusic(mixer, &player);
+}
+
+void MusicRenderer::pause(){
+    Mix_HookMusic(NULL, NULL);
+}
+
+void MusicRenderer::poll(MusicPlayer & player){
+}
+
+MusicRenderer::~MusicRenderer(){
+    Mix_HookMusic(NULL, NULL);
+}
+#elif USE_ALLEGRO
+int BUFFER_SIZE = 1 << 11;
+static int ALLEGRO_MONO = 0;
+static int ALLEGRO_STEREO = 1;
+MusicRenderer::MusicRenderer(){
+    stream = play_audio_stream(BUFFER_SIZE, 16, ALLEGRO_STEREO, Sound::FREQUENCY, 255, 128);
+    voice_set_priority(stream->voice, 255);
+}
+
+void MusicRenderer::play(MusicPlayer & player){
+    voice_start(stream->voice);
+}
+
+void MusicRenderer::pause(){
+    voice_stop(stream->voice);
+}
+
+void MusicRenderer::poll(MusicPlayer & player){
+    short * buffer = (short*) get_audio_stream_buffer(stream);
+    if (buffer){
+        player.render(buffer, BUFFER_SIZE);
+
+        /* allegro wants unsigned data but gme produces signed so to convert
+         * signed samples to unsigned samples we have to raise each value
+         * by half the maximum value of a short (0xffff+1)/2 = 0x8000
+         */
+        for (int i = 0; i < BUFFER_SIZE * 2; i++){
+            buffer[i] += 0x8000;
+        }
+
+        free_audio_stream_buffer(stream);
+    }
+}
+
+MusicRenderer::~MusicRenderer(){
+    stop_audio_stream(stream);
+}
+#endif
     
 MusicPlayer::MusicPlayer():
-volume(1.0){
+volume(1.0),
+out(new MusicRenderer()){
 }
 
 MusicPlayer::~MusicPlayer(){
+}
+
+void MusicPlayer::play(){
+    out->play(*this);
+}
+
+void MusicPlayer::pause(){
+    out->pause();
+}
+
+void MusicPlayer::poll(){
+    out->poll(*this);
 }
 
 static const char * typeToExtension( int i ){
@@ -92,38 +204,7 @@ static const char * typeToExtension( int i ){
     }
 }
 
-DUH * DumbPlayer::loadDumbFile(const char * path){
-    DUH * what;
-    for (int i = 0; i < 4; i++){
-        /* the order of trying xm/s3m/it/mod matters because mod could be
-         * confused with one of the other formats, so load it last.
-         */
-        switch (i){
-            case 0 : {
-                 what =  dumb_load_xm_quick(path);
-                 break;
-            }
-            case 1 : {
-                what = dumb_load_s3m_quick(path);
-                break;
-            }
-            case 2 : {
-                what = dumb_load_it_quick(path);
-                break;
-            }
-            case 3 : {
-                what = dumb_load_mod_quick(path);
-                break;
-            }
-        }
-        
-        if (what != NULL){
-            Global::debug(0) << "Loaded " << path << " type " << typeToExtension(i) << "(" << i << ")" << std::endl;
-            return what;
-        }
-    }
-    return NULL;
-}
+
 
 /* shared by various implementations */
 #ifdef HAVE_MP3_MPG123
@@ -214,9 +295,12 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
 
 #ifdef USE_ALLEGRO
 
+/*
 static int ALLEGRO_MONO = 0;
 static int ALLEGRO_STEREO = 1;
+*/
 
+/*
 DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file != NULL){
@@ -251,7 +335,9 @@ DumbPlayer::~DumbPlayer(){
     al_stop_duh(player);
     unload_duh(music_file);
 }
+*/
 
+#if 0
 static const int GME_BUFFER_SIZE = 1 << 11;
 GMEPlayer::GMEPlayer(const char * path){
     gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
@@ -312,6 +398,7 @@ GMEPlayer::~GMEPlayer(){
     delete emulator;
     stop_audio_stream(stream);
 }
+#endif
 
 #ifdef HAVE_OGG
 OggPlayer::OggPlayer(const char * path){
@@ -326,6 +413,9 @@ void OggPlayer::play(){
 
 void OggPlayer::poll(){
     logg_update_stream(stream);
+}
+
+void OggPlayer::render(void * stream, int length){
 }
 
 void OggPlayer::pause(){
@@ -433,6 +523,7 @@ Mp3Player::~Mp3Player(){
 #endif /* ALLEGRO */
 
 #ifdef USE_SDL
+#if 0
 DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file == NULL){
@@ -543,6 +634,9 @@ void GMEPlayer::mixer(void * arg, Uint8 * stream, int length){
     GMEInfo * info = (GMEInfo*) arg;
     info->player->render(stream, length);
 }
+    
+void GMEPlayer::render(void * stream, int length){
+}
 
 void GMEPlayer::render(Uint8 * stream, int length){
     /* length/2 to convert bytes to short */
@@ -596,6 +690,7 @@ GMEPlayer::~GMEPlayer(){
     }
     delete emulator;
 }
+#endif
 
 #ifdef HAVE_OGG
 
@@ -608,6 +703,9 @@ OggPlayer::OggPlayer(const char * path){
 
 void OggPlayer::play(){
     Mix_PlayMusic(music, -1);
+}
+
+void OggPlayer::render(void * data, int length){
 }
 
 void OggPlayer::poll(){
@@ -713,6 +811,7 @@ Mp3Player::~Mp3Player(){
 #endif /* SDL */
 
 #ifdef USE_ALLEGRO5
+#if 0
 GMEPlayer::GMEPlayer(const char * path){
     /* TODO */
 }
@@ -729,6 +828,9 @@ void GMEPlayer::pause(){
     /* TODO */
 }
 
+void GMEPlayer::render(void * stream, int length){
+}
+
 void GMEPlayer::setVolume(double volume){
     /* TODO */
 }
@@ -736,6 +838,7 @@ void GMEPlayer::setVolume(double volume){
 GMEPlayer::~GMEPlayer(){
     /* TODO */
 }
+#endif
 
 #ifdef HAVE_OGG
 OggPlayer::OggPlayer(const char * path){
@@ -752,6 +855,9 @@ void OggPlayer::poll(){
 
 void OggPlayer::pause(){
     /* TODO */
+}
+    
+void OggPlayer::render(void * stream, int length){
 }
 
 void OggPlayer::setVolume(double volume){
@@ -828,7 +934,9 @@ Mp3Player::~Mp3Player(){
 }
 #endif /* MP3_MAD */
 
-const int DUMB_SAMPLES = 1024;
+#endif
+
+/* expects each sample to be 4 bytes, 2 bytes per sample * 2 channels */
 DumbPlayer::DumbPlayer(const char * path){
     music_file = loadDumbFile(path);
     if (music_file == NULL){
@@ -844,42 +952,12 @@ DumbPlayer::DumbPlayer(const char * path){
         Global::debug(0) << "Could not create renderer" << std::endl;
         throw Exception::Base(__FILE__, __LINE__);
     }
-
-    stream = al_create_audio_stream(2, DUMB_SAMPLES, Sound::FREQUENCY, ALLEGRO_AUDIO_DEPTH_INT16,  ALLEGRO_CHANNEL_CONF_2);
-    if (!stream){
-        throw MusicException(__FILE__, __LINE__, "Could not create allegro5 audio stream");
-    }
-    queue = al_create_event_queue();
-    al_register_event_source(queue, al_get_audio_stream_event_source(stream));
-}
-
-void DumbPlayer::play(){
-    al_attach_audio_stream_to_mixer(stream, al_get_default_mixer());
 }
 
 void DumbPlayer::render(void * data, int samples){
     double delta = 65536.0 / Sound::FREQUENCY;
-
     /* FIXME: use global music volume to scale the output here */
     int n = duh_render(renderer, 16, 0, volume, delta, samples, data);
-}
-
-void DumbPlayer::poll(){
-    ALLEGRO_EVENT event;
-    while (al_get_next_event(queue, &event)){
-        if (event.type == ALLEGRO_EVENT_AUDIO_STREAM_FRAGMENT) {
-            ALLEGRO_AUDIO_STREAM * stream = (ALLEGRO_AUDIO_STREAM *) event.any.source;
-            void * data = al_get_audio_stream_fragment(stream);
-            if (data != NULL){
-                render(data, al_get_audio_stream_length(stream));
-                al_set_audio_stream_fragment(stream, data);
-            }
-        }
-    }
-}
-
-void DumbPlayer::pause(){
-    al_detach_audio_stream(stream);
 }
 
 void DumbPlayer::setVolume(double volume){
@@ -889,10 +967,85 @@ void DumbPlayer::setVolume(double volume){
 DumbPlayer::~DumbPlayer(){
     duh_end_sigrenderer(renderer);
     unload_duh(music_file);
-    al_destroy_audio_stream(stream);
-    al_destroy_event_queue(queue);
 }
 
-#endif
+DUH * DumbPlayer::loadDumbFile(const char * path){
+    DUH * what;
+    for (int i = 0; i < 4; i++){
+        /* the order of trying xm/s3m/it/mod matters because mod could be
+         * confused with one of the other formats, so load it last.
+         */
+        switch (i){
+            case 0 : {
+                what = dumb_load_xm_quick(path);
+                break;
+            }
+            case 1 : {
+                what = dumb_load_s3m_quick(path);
+                break;
+            }
+            case 2 : {
+                what = dumb_load_it_quick(path);
+                break;
+            }
+            case 3 : {
+                what = dumb_load_mod_quick(path);
+                break;
+            }
+        }
+        
+        if (what != NULL){
+            Global::debug(0) << "Loaded " << path << " type " << typeToExtension(i) << "(" << i << ")" << std::endl;
+            return what;
+        }
+    }
+    return NULL;
+}
+
+GMEPlayer::GMEPlayer(const char * path):
+emulator(NULL){
+    gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
+    if (fail != NULL){
+        Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
+        throw MusicException(__FILE__, __LINE__, "Could not load GME file");
+    }
+    emulator->start_track(0);
+    Global::debug(0) << "Loaded GME file " << path << std::endl;
+}
+    
+void GMEPlayer::render(void * stream, int length){
+    /* length/2 to convert bytes to short */
+    emulator->play(length * 2, (short*) stream);
+
+    /* scale for volume */
+    for (int i = 0; i < length * 2; i++){
+        short & sample = ((short *) stream)[i];
+        sample *= volume;
+    }
+
+    /*
+    short large = 0;
+    short small = 0;
+    for (int i = 0; i < length / 2; i++){
+        // ((short *) stream)[i] *= 2;
+        short z = ((short *) stream)[i];
+        if (z < small){
+            small = z;
+        }
+        if (z > large){
+            large = z;
+        }
+    }
+    Global::debug(0) << "Largest " << large << " Smallest " << small << std::endl;
+    */
+}
+
+void GMEPlayer::setVolume(double volume){
+    this->volume = volume;
+}
+
+GMEPlayer::~GMEPlayer(){
+    delete emulator;
+}
 
 }
