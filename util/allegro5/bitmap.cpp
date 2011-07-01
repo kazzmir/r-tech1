@@ -494,7 +494,12 @@ int setGraphicsMode(int mode, int width, int height){
         out << "Could not create display with dimensions " << width << ", " << height;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    al_set_display_icon(the_display, al_load_bitmap(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str()));
+
+    /* TODO: maybe find a more general way to get the icon */
+    ALLEGRO_BITMAP * icon = al_load_bitmap(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
+    if (icon != NULL){
+        al_set_display_icon(the_display, icon);
+    }
     Screen = new Bitmap(al_get_backbuffer(the_display));
     /* dont destroy the backbuffer */
     Screen->getData()->setDestroy(false);

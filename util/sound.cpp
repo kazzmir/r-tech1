@@ -10,7 +10,7 @@
 
 #include "configuration.h"
         
-int Sound::FREQUENCY = 22050;
+Sound::SoundInfo Sound::Info;
 
 Sound::Sound( const Sound & copy ):
 own( NULL ){

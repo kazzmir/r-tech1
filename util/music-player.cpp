@@ -78,7 +78,7 @@ static double scaleVolume(double start){
 #ifdef USE_ALLEGRO5
 const int DUMB_SAMPLES = 1024;
 MusicRenderer::MusicRenderer(){
-    create(Sound::FREQUENCY, 2);
+    create(Sound::Info.frequency, 2);
 }
     
 MusicRenderer::MusicRenderer(int frequency, int channels){
@@ -133,17 +133,31 @@ void MusicRenderer::poll(MusicPlayer & player){
 }
 #elif USE_SDL
 MusicRenderer::MusicRenderer(){
+    create(Sound::Info.frequency, Sound::Info.channels);
 }
 
 MusicRenderer::MusicRenderer(int frequency, int channels){
+    create(frequency, channels);
 }
 
 void MusicRenderer::create(int frequency, int channels){
+    SDL_BuildAudioCVT(&convert, AUDIO_S16, channels, frequency,
+                                Sound::Info.format, Sound::Info.channels,
+                                Sound::Info.frequency);
+    data = new Uint8[1024 * 32];
 }
 
 void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
     MusicPlayer * player = (MusicPlayer*) arg;
-    player->render(stream, bytes / 4);
+    int size = (int)((float) bytes / player->getRenderer()->convert.len_ratio / (float) player->getRenderer()->convert.len_mult);
+    // Global::debug(0) << "Incoming " << bytes << " render " << size << std::endl;
+    player->getRenderer()->convert.buf = player->getRenderer()->data;
+    player->getRenderer()->convert.len = size;
+    // player->render(stream, bytes / 4);
+    player->render(player->getRenderer()->data, size / 4);
+
+    SDL_ConvertAudio(&player->getRenderer()->convert);
+    memcpy(stream, player->getRenderer()->data, bytes);
 }
 
 void MusicRenderer::play(MusicPlayer & player){
@@ -159,13 +173,14 @@ void MusicRenderer::poll(MusicPlayer & player){
 
 MusicRenderer::~MusicRenderer(){
     Mix_HookMusic(NULL, NULL);
+    delete[] data;
 }
 #elif USE_ALLEGRO
 int BUFFER_SIZE = 1 << 11;
 static int ALLEGRO_MONO = 0;
 static int ALLEGRO_STEREO = 1;
 MusicRenderer::MusicRenderer(){
-    create(Sound::FREQUENCY, 1);
+    create(Sound::Info.frequency, 1);
 }
 
 MusicRenderer::MusicRenderer(int frequency, int channels){
@@ -264,7 +279,7 @@ DumbPlayer::DumbPlayer(const char * path){
 }
 
 void DumbPlayer::render(void * data, int samples){
-    double delta = 65536.0 / Sound::FREQUENCY;
+    double delta = 65536.0 / Sound::Info.frequency;
     /* FIXME: use global music volume to scale the output here */
     int n = duh_render(renderer, 16, 0, volume, delta, samples, data);
 }
@@ -313,7 +328,7 @@ DUH * DumbPlayer::loadDumbFile(const char * path){
 
 GMEPlayer::GMEPlayer(const char * path):
 emulator(NULL){
-    gme_err_t fail = gme_open_file(path, &emulator, Sound::FREQUENCY);
+    gme_err_t fail = gme_open_file(path, &emulator, Sound::Info.frequency);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
         throw MusicException(__FILE__, __LINE__, "Could not load GME file");
@@ -387,7 +402,7 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
          * samples even though it has an enum for it, MPG123_ENC_UNSIGNED_16. this
          * was rectified in 1.13.0 or something, but for now signed samples are ok.
          */
-        int error = mpg123_format(*mp3, Sound::FREQUENCY, MPG123_STEREO, MPG123_ENC_SIGNED_16);
+        int error = mpg123_format(*mp3, Sound::Info.frequency, MPG123_STEREO, MPG123_ENC_SIGNED_16);
         if (error != MPG123_OK){
             Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
         }

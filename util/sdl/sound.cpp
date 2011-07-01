@@ -31,7 +31,7 @@ own(NULL){
 void Sound::initialize(){
     // int audio_rate = 22050;
     /* allegro uses 44100 by default with alsa9 */
-    int audio_rate = FREQUENCY;
+    int audio_rate = Info.frequency;
     // int audio_rate = 22050;
     Uint16 audio_format = AUDIO_S16; 
     // Uint16 audio_format = MIX_DEFAULT_FORMAT; 
@@ -45,7 +45,9 @@ void Sound::initialize(){
 
     /* use the frequency enforced by the audio system */
     Mix_QuerySpec(&audio_rate, &audio_format, &audio_channels);
-    FREQUENCY = audio_rate;
+    Info.frequency = audio_rate;
+    Info.channels = audio_channels;
+    Info.format = audio_format;
 }
 
 void Sound::uninitialize(){
