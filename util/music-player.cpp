@@ -75,6 +75,18 @@ static double scaleVolume(double start){
     return start;
 }
 
+/* 1 for big endian (most significant byte)
+ * 0 for little endian (least significant byte)
+ */
+/* FIXME: move this to global or something and find a better #ifdef */
+int bigEndian(){
+#ifdef PS3
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 #ifdef USE_ALLEGRO5
 const int DUMB_SAMPLES = 1024;
 MusicRenderer::MusicRenderer(){
@@ -141,7 +153,11 @@ MusicRenderer::MusicRenderer(int frequency, int channels){
 }
 
 void MusicRenderer::create(int frequency, int channels){
-    SDL_BuildAudioCVT(&convert, AUDIO_S16, channels, frequency,
+    int format = AUDIO_S16;
+    if (bigEndian()){
+        format = AUDIO_S16MSB;
+    }
+    SDL_BuildAudioCVT(&convert, format, channels, frequency,
                                 Sound::Info.format, Sound::Info.channels,
                                 Sound::Info.frequency);
     data = new Uint8[1024 * 32];
@@ -511,7 +527,6 @@ Mp3Player::~Mp3Player(){
 
 #ifdef HAVE_OGG
 int OGG_BUFFER_SIZE = 1024 * 32;
-const int ENDIANNESS = 0;
 OggPlayer::OggPlayer(const char * path):
 path(path){
     file = fopen(path, "rb");
@@ -551,7 +566,7 @@ void OggPlayer::fillPage(OggPage::Page * page){
          * reading on a page boundary. We just plow on through.
          */
         int read = ov_read(&ogg, (char*) page->buffer + page->max, OGG_BUFFER_SIZE - page->max,
-                           ENDIANNESS, 2, 1, &dont_care);
+                           bigEndian(), 2, 1, &dont_care);
         /* if we hit the end of the file then re-open it and keep reading */
         if (read == 0){
             ov_clear(&ogg);
