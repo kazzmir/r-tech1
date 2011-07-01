@@ -1,6 +1,8 @@
 #ifndef _paintown_music_player_h
 #define _paintown_music_player_h
 
+#include <stdio.h>
+
 #ifdef USE_SDL
 /* for Uint8 */
 #include <SDL.h>
@@ -9,6 +11,10 @@
 
 #ifdef HAVE_MP3_MPG123
 #include <mpg123.h>
+#endif
+
+#ifdef HAVE_OGG
+#include <vorbis/vorbisfile.h>
 #endif
 
 #ifdef HAVE_MP3_MAD
@@ -91,6 +97,7 @@ protected:
 };
 
 #ifdef HAVE_OGG
+struct OggPage;
 /* Maybe have some common sdl mixer class that this can inherit? */
 class OggPlayer: public MusicPlayer {
 public:
@@ -100,11 +107,14 @@ public:
 
     virtual ~OggPlayer();
 protected:
-    struct LOGG_Stream * stream;
-    /*
-#ifdef USE_ALLEGRO
-#endif
-*/
+    FILE* file;
+    OggVorbis_File ogg;
+    OggPage * buffer;
+
+    int frequency;
+    int channels;
+    int bits;
+    ogg_int64_t length;
 };
 #endif
 

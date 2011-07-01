@@ -10,9 +10,9 @@
 #include "sound.h"
 #include "dumb/include/dumb.h"
 #include "gme/Music_Emu.h"
-#include "ogg/logg.h"
 #include "exceptions/exception.h"
 #include <sstream>
+#include <stdio.h>
 
 #ifdef USE_ALLEGRO5
 #include <allegro5/allegro_audio.h>
@@ -456,16 +456,58 @@ Mp3Player::~Mp3Player(){
 #ifdef HAVE_OGG
 int OGG_BUFFER_SIZE = 1 << 12;
 OggPlayer::OggPlayer(const char * path){
-    /*
-    stream = logg_get_stream(path, 255, 128, 1, OGG_BUFFER_SIZE);
-    if (!stream){
-        throw MusicException(__FILE__, __LINE__, "Could not open ogg file");
+    file = fopen(path, "rb");
+    if (!file) {
+        throw MusicException(__FILE__, __LINE__, "Could not open file");
     }
-    */
+
+    if (ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
+        fclose(file);
+        throw MusicException(__FILE__, __LINE__, "Could not open ogg");
+    }
+
+    vorbis_info * info = ov_info(&ogg, -1);
+
+    frequency = info->rate;
+    channels = info->channels;
+    bits = 16;
+    length = ov_pcm_total(&ogg, -1);
 }
 
+const int ENDIANNESS = 0;
 void OggPlayer::render(void * data, int length){
-    // logg_update_stream(stream, data, length);
+    static char * buffer = NULL;
+    int bitstream = 0;
+    int read;
+    /*
+    if (Sound::FREQUENCY != frequency){
+        double factor = (double) frequency / (double) Sound::FREQUENCY;
+        int new_size = (int)(factor * length);
+        if (buffer == NULL){
+            buffer = new char[new_size];
+        }
+        read = ov_read(&ogg, buffer, new_size,
+                       ENDIANNESS, 2, 1, &bitstream);
+        short * use = (short*) data;
+        short * buffer_use = (short*) buffer;
+        for (int i = 0; i < length * 2; i += 2){
+            use[i] = buffer[(int)(i * factor)];
+            use[i+1] = buffer[(int)(i * factor + 1)];
+        }
+    } else {
+        read = ov_read(&ogg, (char*) data, length,
+                       ENDIANNESS, 2, 1, &bitstream);
+    }
+    */
+    read = ov_read(&ogg, (char*) data, length,
+                   ENDIANNESS, 2, 1, &bitstream);
+    if (read == 0){
+        ov_clear(&ogg);
+        if (ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
+            fclose(file);
+            throw MusicException(__FILE__, __LINE__, "Could not open ogg");
+        }
+    }
 }
 
 void OggPlayer::setVolume(double volume){
@@ -474,6 +516,7 @@ void OggPlayer::setVolume(double volume){
 }
 
 OggPlayer::~OggPlayer(){
+    ov_clear(&ogg);
     /*
     if (stream){
         logg_destroy_stream(stream);
