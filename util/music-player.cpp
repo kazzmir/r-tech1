@@ -497,7 +497,8 @@ Mp3Player::~Mp3Player(){
 #ifdef HAVE_OGG
 int OGG_BUFFER_SIZE = 1024 * 32;
 const int ENDIANNESS = 0;
-OggPlayer::OggPlayer(const char * path){
+OggPlayer::OggPlayer(const char * path):
+path(path){
     file = fopen(path, "rb");
     if (!file) {
         throw MusicException(__FILE__, __LINE__, "Could not open file");
@@ -531,42 +532,53 @@ void OggPlayer::fillPage(OggPage::Page * page){
     page->position = 0;
     page->max = 0;
     while (page->max < OGG_BUFFER_SIZE){
+        /* ov_read might not read all available samples, I guess it stops
+         * reading on a page boundary. We just plow on through.
+         */
         int read = ov_read(&ogg, (char*) page->buffer + page->max, OGG_BUFFER_SIZE - page->max,
                            ENDIANNESS, 2, 1, &dont_care);
+        /* if we hit the end of the file then re-open it and keep reading */
         if (read == 0){
             ov_clear(&ogg);
-            if (ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
+            file = fopen(path.c_str(), "rb");
+            if (!file){
+                throw MusicException(__FILE__, __LINE__, "Could not open file");
+            }
+            int ok = ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT);
+            if (ok != 0){
                 fclose(file);
                 throw MusicException(__FILE__, __LINE__, "Could not open ogg");
             }
+        } else if (read == OV_HOLE){
+            throw MusicException(__FILE__, __LINE__, "Garbage in ogg file");
+        } else if (read == OV_EBADLINK){
+            throw MusicException(__FILE__, __LINE__, "Invalid stream section in ogg");
+        } else if (read == OV_EINVAL){
+            throw MusicException(__FILE__, __LINE__, "File headers are corrupt in ogg");
         } else {
             page->max += read;
         }
     }
 }
 
-void OggPlayer::render(void * data, int length){
-    int bitstream = 0;
-
+void OggPlayer::doRender(char * data, int bytes){
     OggPage::Page & page = buffer->use == 0 ? buffer->buffer1 : buffer->buffer2;
-    OggPage::Page & other = buffer->use == 0 ? buffer->buffer2 : buffer->buffer1;
-    if (page.max - page.position >= length * 4){
-        memcpy(data, page.buffer + page.position, length * 4);
-        page.position += length * 4;
+    if (page.max - page.position >= bytes){
+        memcpy(data, page.buffer + page.position, bytes);
+        page.position += bytes;
     } else {
+        /* copy the rest, fill the page, switch to the other buffer */
         memcpy(data, page.buffer + page.position, page.max - page.position);
-        int rest = length * 4 - (page.max - page.position);
+        int at = page.max - page.position;
+        int rest = bytes - (page.max - page.position);
         fillPage(&page);
-        if (other.max - other.position >= rest){
-            memcpy(data, other.buffer + other.position, rest);
-            other.position += rest;
-        } else {
-            memcpy(data, other.buffer + other.position, other.max - other.position);
-            other.position += other.max - other.position;
-            fillPage(&other);
-        }
         buffer->use = 1 - buffer->use;
+        doRender(data + at, rest);
     }
+}
+
+void OggPlayer::render(void * data, int length){
+    doRender((char*) data, length * 4);
 }
 
 void OggPlayer::setVolume(double volume){
@@ -575,12 +587,8 @@ void OggPlayer::setVolume(double volume){
 }
 
 OggPlayer::~OggPlayer(){
+    /* ov_clear will close the file */
     ov_clear(&ogg);
-    /*
-    if (stream){
-        logg_destroy_stream(stream);
-    }
-    */
 }
 #endif /* OGG */
 
