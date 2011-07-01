@@ -101,7 +101,21 @@ protected:
 };
 
 #ifdef HAVE_OGG
-struct OggPage;
+struct OggPage{
+    struct Page{
+        int position;
+        int max;
+        char * buffer;
+
+        ~Page(){
+            delete[] buffer;
+        }
+    };
+    Page buffer1;
+    Page buffer2;
+    int use;
+};
+
 /* Maybe have some common sdl mixer class that this can inherit? */
 class OggPlayer: public MusicPlayer {
 public:
@@ -111,9 +125,10 @@ public:
 
     virtual ~OggPlayer();
 protected:
+    void fillPage(OggPage::Page * page);
     FILE* file;
     OggVorbis_File ogg;
-    OggPage * buffer;
+    ReferenceCount<OggPage> buffer;
 
     int frequency;
     int channels;

@@ -175,7 +175,7 @@ MusicRenderer::MusicRenderer(int frequency, int channels){
 void MusicRenderer::create(int frequency, int channels){
     int configuration = ALLEGRO_STEREO;
     if (channels == 1){
-        configuration == ALLEGRO_MONO;
+        configuration = ALLEGRO_MONO;
     }
     stream = play_audio_stream(BUFFER_SIZE, 16, configuration, frequency, 255, 128);
     voice_set_priority(stream->voice, 255);
@@ -495,7 +495,8 @@ Mp3Player::~Mp3Player(){
 #endif /* MP3_MPG123 */
 
 #ifdef HAVE_OGG
-int OGG_BUFFER_SIZE = 1 << 12;
+int OGG_BUFFER_SIZE = 1024 * 32;
+const int ENDIANNESS = 0;
 OggPlayer::OggPlayer(const char * path){
     file = fopen(path, "rb");
     if (!file) {
@@ -515,21 +516,56 @@ OggPlayer::OggPlayer(const char * path){
     length = ov_pcm_total(&ogg, -1);
 
     setRenderer(new MusicRenderer(info->rate, info->channels));
+
+    buffer = new OggPage();
+    buffer->buffer1.buffer = new char[OGG_BUFFER_SIZE];
+    buffer->buffer2.buffer = new char[OGG_BUFFER_SIZE];
+
+    fillPage(&buffer->buffer1);
+    fillPage(&buffer->buffer2);
+    buffer->use = 0;
 }
 
-const int ENDIANNESS = 0;
-void OggPlayer::render(void * data, int length){
-    static char * buffer = NULL;
-    int bitstream = 0;
-    int read;
-    read = ov_read(&ogg, (char*) data, length * 4,
-                   ENDIANNESS, 2, 1, &bitstream);
-    if (read == 0){
-        ov_clear(&ogg);
-        if (ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
-            fclose(file);
-            throw MusicException(__FILE__, __LINE__, "Could not open ogg");
+void OggPlayer::fillPage(OggPage::Page * page){
+    int dont_care;
+    page->position = 0;
+    page->max = 0;
+    while (page->max < OGG_BUFFER_SIZE){
+        int read = ov_read(&ogg, (char*) page->buffer + page->max, OGG_BUFFER_SIZE - page->max,
+                           ENDIANNESS, 2, 1, &dont_care);
+        if (read == 0){
+            ov_clear(&ogg);
+            if (ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT) != 0) {
+                fclose(file);
+                throw MusicException(__FILE__, __LINE__, "Could not open ogg");
+            }
+        } else {
+            page->max += read;
         }
+    }
+}
+
+void OggPlayer::render(void * data, int length){
+    int bitstream = 0;
+
+    OggPage::Page & page = buffer->use == 0 ? buffer->buffer1 : buffer->buffer2;
+    OggPage::Page & other = buffer->use == 0 ? buffer->buffer2 : buffer->buffer1;
+    if (page.max - page.position >= length * 4){
+        memcpy(data, page.buffer + page.position, length * 4);
+        page.position += length * 4;
+    } else {
+        memcpy(data, page.buffer + page.position, page.max - page.position);
+        int rest = length * 4 - (page.max - page.position);
+        fillPage(&page);
+        if (other.max - other.position >= rest){
+            memcpy(data, other.buffer + other.position, rest);
+            other.position += rest;
+        } else {
+            memcpy(data, other.buffer + other.position, other.max - other.position);
+            other.position += other.max - other.position;
+            fillPage(&other);
+        }
+        buffer->use = 1 - buffer->use;
     }
 }
 
