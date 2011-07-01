@@ -20,10 +20,9 @@
 struct DUH;
 struct DUH_SIGRENDERER;
 #ifdef USE_ALLEGRO
-struct AL_DUH_PLAYER;
 struct AUDIOSTREAM;
-struct LOGG_Stream;
 #endif
+struct LOGG_Stream;
 class Music_Emu;
 
 #ifdef USE_ALLEGRO5
@@ -101,9 +100,9 @@ public:
 
     virtual ~OggPlayer();
 protected:
+    struct LOGG_Stream * stream;
     /*
 #ifdef USE_ALLEGRO
-    struct LOGG_Stream * stream;
 #endif
 */
 };

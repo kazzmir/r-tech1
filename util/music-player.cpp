@@ -10,6 +10,7 @@
 #include "sound.h"
 #include "dumb/include/dumb.h"
 #include "gme/Music_Emu.h"
+#include "ogg/logg.h"
 #include "exceptions/exception.h"
 #include <sstream>
 
@@ -19,7 +20,6 @@
 
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
-#include "ogg/logg.h"
 
 #ifdef _WIN32
 /* what do we need winalleg for?
@@ -454,10 +454,18 @@ Mp3Player::~Mp3Player(){
 #endif /* MP3_MPG123 */
 
 #ifdef HAVE_OGG
+int OGG_BUFFER_SIZE = 1 << 12;
 OggPlayer::OggPlayer(const char * path){
+    /*
+    stream = logg_get_stream(path, 255, 128, 1, OGG_BUFFER_SIZE);
+    if (!stream){
+        throw MusicException(__FILE__, __LINE__, "Could not open ogg file");
+    }
+    */
 }
 
 void OggPlayer::render(void * data, int length){
+    // logg_update_stream(stream, data, length);
 }
 
 void OggPlayer::setVolume(double volume){
@@ -466,6 +474,11 @@ void OggPlayer::setVolume(double volume){
 }
 
 OggPlayer::~OggPlayer(){
+    /*
+    if (stream){
+        logg_destroy_stream(stream);
+    }
+    */
 }
 #endif /* OGG */
 
@@ -473,6 +486,9 @@ OggPlayer::~OggPlayer(){
     /* TODO */
 Mp3Player::Mp3Player(const char * path){
     /* TODO */
+}
+
+void Mp3Player::render(void * data, int length){
 }
 
 void Mp3Player::setVolume(double volume){
