@@ -43,12 +43,14 @@ class MusicPlayer;
 class MusicRenderer{
 public:
     MusicRenderer();
+    MusicRenderer(int frequency, int channels);
     virtual ~MusicRenderer();
     void poll(MusicPlayer & player);
     void play(MusicPlayer & player);
     void pause();
 
 protected:
+    void create(int frequency, int channels);
 #ifdef USE_SDL
     static void mixer(void * arg, Uint8 * stream, int length);
 #endif
@@ -78,6 +80,8 @@ public:
     virtual inline double getVolume() const {
         return volume;
     }
+
+    virtual void setRenderer(const ReferenceCount<MusicRenderer> & what);
 
 protected:
     double volume;

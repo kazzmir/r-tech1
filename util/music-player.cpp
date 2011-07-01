@@ -78,7 +78,26 @@ static double scaleVolume(double start){
 #ifdef USE_ALLEGRO5
 const int DUMB_SAMPLES = 1024;
 MusicRenderer::MusicRenderer(){
-    stream = al_create_audio_stream(2, DUMB_SAMPLES, Sound::FREQUENCY, ALLEGRO_AUDIO_DEPTH_INT16,  ALLEGRO_CHANNEL_CONF_2);
+    create(Sound::FREQUENCY, 2);
+}
+    
+MusicRenderer::MusicRenderer(int frequency, int channels){
+    create(frequency, channels);
+}
+
+void MusicRenderer::create(int frequency, int channels){
+    ALLEGRO_CHANNEL_CONF configuration = ALLEGRO_CHANNEL_CONF_2;
+    switch (channels){
+        case 1: configuration = ALLEGRO_CHANNEL_CONF_1; break;
+        case 2: configuration = ALLEGRO_CHANNEL_CONF_2; break;
+        case 3: configuration = ALLEGRO_CHANNEL_CONF_3; break;
+        case 4: configuration = ALLEGRO_CHANNEL_CONF_4; break;
+        case 5: configuration = ALLEGRO_CHANNEL_CONF_5_1; break;
+        case 6: configuration = ALLEGRO_CHANNEL_CONF_6_1; break;
+        case 7: configuration = ALLEGRO_CHANNEL_CONF_7_1; break;
+        default: configuration = ALLEGRO_CHANNEL_CONF_2; break;
+    }
+    stream = al_create_audio_stream(4, DUMB_SAMPLES, frequency, ALLEGRO_AUDIO_DEPTH_INT16,  configuration);
     if (!stream){
         throw MusicException(__FILE__, __LINE__, "Could not create allegro5 audio stream");
     }
@@ -116,6 +135,12 @@ void MusicRenderer::poll(MusicPlayer & player){
 MusicRenderer::MusicRenderer(){
 }
 
+MusicRenderer::MusicRenderer(int frequency, int channels){
+}
+
+void MusicRenderer::create(int frequency, int channels){
+}
+
 void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
     MusicPlayer * player = (MusicPlayer*) arg;
     player->render(stream, bytes / 4);
@@ -140,7 +165,19 @@ int BUFFER_SIZE = 1 << 11;
 static int ALLEGRO_MONO = 0;
 static int ALLEGRO_STEREO = 1;
 MusicRenderer::MusicRenderer(){
-    stream = play_audio_stream(BUFFER_SIZE, 16, ALLEGRO_STEREO, Sound::FREQUENCY, 255, 128);
+    create(Sound::FREQUENCY, 1);
+}
+
+MusicRenderer::MusicRenderer(int frequency, int channels){
+    create(frequency, channels);
+}
+
+void MusicRenderer::create(int frequency, int channels){
+    int configuration = ALLEGRO_STEREO;
+    if (channels == 1){
+        configuration == ALLEGRO_MONO;
+    }
+    stream = play_audio_stream(BUFFER_SIZE, 16, configuration, frequency, 255, 128);
     voice_set_priority(stream->voice, 255);
 }
 
@@ -180,6 +217,10 @@ out(new MusicRenderer()){
 }
 
 MusicPlayer::~MusicPlayer(){
+}
+    
+void MusicPlayer::setRenderer(const ReferenceCount<MusicRenderer> & what){
+    this->out = what;
 }
 
 void MusicPlayer::play(){
@@ -472,6 +513,8 @@ OggPlayer::OggPlayer(const char * path){
     channels = info->channels;
     bits = 16;
     length = ov_pcm_total(&ogg, -1);
+
+    setRenderer(new MusicRenderer(info->rate, info->channels));
 }
 
 const int ENDIANNESS = 0;
@@ -479,27 +522,7 @@ void OggPlayer::render(void * data, int length){
     static char * buffer = NULL;
     int bitstream = 0;
     int read;
-    /*
-    if (Sound::FREQUENCY != frequency){
-        double factor = (double) frequency / (double) Sound::FREQUENCY;
-        int new_size = (int)(factor * length);
-        if (buffer == NULL){
-            buffer = new char[new_size];
-        }
-        read = ov_read(&ogg, buffer, new_size,
-                       ENDIANNESS, 2, 1, &bitstream);
-        short * use = (short*) data;
-        short * buffer_use = (short*) buffer;
-        for (int i = 0; i < length * 2; i += 2){
-            use[i] = buffer[(int)(i * factor)];
-            use[i+1] = buffer[(int)(i * factor + 1)];
-        }
-    } else {
-        read = ov_read(&ogg, (char*) data, length,
-                       ENDIANNESS, 2, 1, &bitstream);
-    }
-    */
-    read = ov_read(&ogg, (char*) data, length,
+    read = ov_read(&ogg, (char*) data, length * 4,
                    ENDIANNESS, 2, 1, &bitstream);
     if (read == 0){
         ov_clear(&ogg);
