@@ -227,12 +227,15 @@ void Bitmap::convertToVideo(){
 }
 
 void changeTarget(const Bitmap & from, const Bitmap & who){
-    al_set_target_bitmap(who.getData()->getBitmap());
-    if ((al_get_bitmap_flags(who.getData()->getBitmap()) & ALLEGRO_VIDEO_BITMAP) &&
-        (al_get_bitmap_flags(from.getData()->getBitmap()) & ALLEGRO_MEMORY_BITMAP)){
-        ((Bitmap&) from).convertToVideo();
-        if (&from == &who){
-            al_set_target_bitmap(who.getData()->getBitmap());
+    /* pray that if drawing is held then who is already the current target */
+    if (!al_is_bitmap_drawing_held()){
+        al_set_target_bitmap(who.getData()->getBitmap());
+        if ((al_get_bitmap_flags(who.getData()->getBitmap()) & ALLEGRO_VIDEO_BITMAP) &&
+            (al_get_bitmap_flags(from.getData()->getBitmap()) & ALLEGRO_MEMORY_BITMAP)){
+            ((Bitmap&) from).convertToVideo();
+            if (&from == &who){
+                al_set_target_bitmap(who.getData()->getBitmap());
+            }
         }
     }
 }
@@ -541,9 +544,13 @@ void Bitmap::fill(Color color) const {
 }
 
 void Bitmap::startDrawing() const {
+    al_hold_bitmap_drawing(true);
+    /* we are about to draw on this bitmap so make sure we are the target */
+    changeTarget(this, this);
 }
 
 void Bitmap::endDrawing() const {
+    al_hold_bitmap_drawing(false);
 }
 
 void TranslucentBitmap::startDrawing() const {
