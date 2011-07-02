@@ -222,7 +222,8 @@ static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
     
 BitmapData::BitmapData(SDL_Surface * surface):
-surface(surface){
+surface(surface),
+destroy(true){
     setSurface(surface);
 }
 
