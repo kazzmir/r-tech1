@@ -7,44 +7,6 @@
 
 namespace Graphics{
 
-/* it doesnt look like we need to pack colors into 16-bit values */
-#if 0
-static const int rgb_r_shift_16 = 0;
-static const int rgb_g_shift_16 = 5;
-static const int rgb_b_shift_16 = 11;
-
-static inline int pack565(unsigned char red, unsigned char green, unsigned char blue){
-    return (((red >> 3) << rgb_r_shift_16) |
-            ((green >> 2) << rgb_g_shift_16) |
-            ((blue >> 3) << rgb_b_shift_16));
-}
-
-/* from allegro4 */
-static inline void unpack565(int color, unsigned char * red, unsigned char * green, unsigned char * blue){
-    static int _rgb_scale_5[32] = {
-        0,   8,   16,  24,  33,  41,  49,  57,
-        66,  74,  82,  90,  99,  107, 115, 123,
-        132, 140, 148, 156, 165, 173, 181, 189,
-        198, 206, 214, 222, 231, 239, 247, 255
-    };
-
-    static int _rgb_scale_6[64] = {
-        0,   4,   8,   12,  16,  20,  24,  28,
-        32,  36,  40,  44,  48,  52,  56,  60,
-        65,  69,  73,  77,  81,  85,  89,  93,
-        97,  101, 105, 109, 113, 117, 121, 125,
-        130, 134, 138, 142, 146, 150, 154, 158,
-        162, 166, 170, 174, 178, 182, 186, 190,
-        195, 199, 203, 207, 211, 215, 219, 223,
-        227, 231, 235, 239, 243, 247, 251, 255
-    };
-
-    *red = _rgb_scale_5[(color >> rgb_r_shift_16) & 0x1F];
-    *green = _rgb_scale_6[(color >> rgb_g_shift_16) & 0x3F];
-    *blue = _rgb_scale_5[(color >> rgb_b_shift_16) & 0x1F];
-}
-#endif
-
 ALLEGRO_DISPLAY * the_display = NULL;
 
 enum BlendingType{
@@ -640,8 +602,6 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
         al_draw_bitmap(getData().getBitmap(), wx, wy, 0);
     }
     */
-
-    /* FIXME: deal with mx, my, width, height */
 
     changeTarget(this, where);
     Bitmap part(*this, mx, my, width, height);
