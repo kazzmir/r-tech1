@@ -401,6 +401,9 @@ second_counter(Global::second_counter),
 fps(0){
 }
 
+void Draw::drawFirst(const Graphics::Bitmap & screen){
+}
+
 Draw::~Draw(){
 }
     
@@ -428,6 +431,7 @@ void Draw::updateFrames(){
 
 static void doStandardLoop(Logic & logic, Draw & draw){
     const Graphics::Bitmap & screen = *Graphics::screenParameter.current();
+    draw.drawFirst(screen);
     Global::speed_counter4 = 0;
     double runCounter = 0;
     try{
