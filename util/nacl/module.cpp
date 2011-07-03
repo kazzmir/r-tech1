@@ -9,6 +9,7 @@
 #include <SDL/SDL_nacl.h>
 #include <string>
 #include "../../main.h"
+#include "../network/network-system.h"
 
 namespace nacl{
     class PaintownScript: public pp::deprecated::ScriptableObject {
@@ -30,6 +31,7 @@ namespace nacl{
             SDL_NACL_SetInstance(pp_instance(), 640, 480);
             int argc = 1;
             char * argv[1] = {"paintown"};
+            Storage::setInstance(new Storage::NetworkSystem());
             paintown_main(argc, argv);
         }
 
