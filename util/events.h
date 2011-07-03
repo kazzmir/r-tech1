@@ -93,8 +93,14 @@ public:
 class Draw{
 public:
     Draw();
+    /* give the drawer a chance to draw stuff to the screen before any logic occurs.
+     * default implementation is to do nothing.
+     */
+    virtual void drawFirst(const Graphics::Bitmap & screen);
+    /* standard draw method after logic has run */
     virtual void draw(const Graphics::Bitmap & screen) = 0;
     virtual ~Draw();
+    /* called by the standardLoop */
     virtual void updateFrames();
     virtual double getFps() const;
 protected:

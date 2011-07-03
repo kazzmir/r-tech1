@@ -57,9 +57,19 @@ private:
 
 void * loadingScreenSimple1(void * arg);
 
-static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground){
+static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & screen){
     Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 - Font::getDefaultFont().getHeight(), Graphics::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
     Font::getDefaultFont().printf( 400, 480 - Font::getDefaultFont().getHeight() * 5 / 2, Graphics::makeColor( 192, 192, 192 ), background, "Made by Jon Rafkind", 0 );
+    /* we have to blit to the screen object passed in because that is the bitmap
+     * that will be operated on in the draw() method of loadingScreen1.
+     * we also have to blit to the real screen because the screen object 
+     * is not drawn in its entirety to the real screen, only the part
+     * that shows the 'Loading ...' message and the info box.
+     * drawing twice in Allegro5 is redundant because the screen object is the real
+     * screen but for Allegro4 and SDL we need to do this because the screen object
+     * is a buffer.
+     */
+    background.Blit(screen);
     background.BlitToScreen();
     background.Blit(infobox_x, infobox_y, infoWidth, infoHeight, 0, 0, infoBackground);
 }
@@ -181,6 +191,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     class Draw: public Util::Draw {
     public:
         Draw(const Level::LevelInfo & levelInfo, State & state, Messages & infobox, Effects::Gradient & gradient, int load_width, int load_height, int infobox_width, int infobox_height, int load_x, int load_y):
+            levelInfo(levelInfo),
             gradient(gradient),
             state(state),
             infobox(infobox),
@@ -195,14 +206,9 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
 
             const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
             pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
-
-            if (levelInfo.getBackground() != 0){
-                setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground);
-            } else {
-                setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground);
-            }
         }
 
+        const Level::LevelInfo & levelInfo;
         Effects::Gradient & gradient;
         State & state;
         Messages & infobox;
@@ -215,6 +221,14 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
         const int load_y;
         const int load_width;
         const int load_height;
+
+        void drawFirst(const Graphics::Bitmap & screen){
+            if (levelInfo.getBackground() != 0){
+                setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
+            } else {
+                setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
+            }
+        }
 
         void draw(const Graphics::Bitmap & screen){
             Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
@@ -252,60 +266,6 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     Draw draw(levelInfo, state, infobox, gradient, load_width, load_height, infobox_width, infobox_height, load_x, load_y);
 
     Util::standardLoop(logic, draw);
-
-#if 0
-    while (! context.done()){
-
-        /* true if a logic loop has passed */
-        bool draw = firstDraw;
-
-        /* will be true if any new info messages appeared */
-        bool drawInfo = firstDraw;
-        firstDraw = false;
-        if ( Global::speed_counter > 0 ){
-            double think = Global::speed_counter;	
-            Global::speed_counter = 0;
-            draw = true;
-
-            while ( think > 0 ){
-                gradient.backward();
-                think -= 1;
-            }
-
-            /* if no new messages appeared this will be false */
-            drawInfo = info.transferMessages(infobox);
-        } else {
-            Util::rest( 1 );
-        }
-
-        if (draw){
-            for ( vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++ ){
-                int color = gradient.current(it->x);
-                work.putPixel(it->x, it->y, color);
-            }
-
-            // counter.draw(200, 100);
-
-            /* we might not have to draw the whole info box again if no new
-             * messages appeared.
-             */
-            if (drawInfo){
-                infoBackground.Blit(infoWork);
-
-                /* cheesy hack to change the font size. the font
-                 * should store the size and change it on its own
-                 */
-                Font::getFont(Global::DEFAULT_FONT, 13, 13);
-                infobox.draw(0, 0, infoWork, infoFont);
-                Font::getFont(Global::DEFAULT_FONT, 24, 24);
-                infoWork.BlitAreaToScreen(infobox_x, infobox_y);
-            }
-            /* work already contains the correct background */
-            // work.Blit( load_x, load_y, *Bitmap::Screen );
-            work.BlitAreaToScreen(load_x, load_y);
-        }
-    }
-#endif
 }
 
 static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelInfo & levelInfo){
