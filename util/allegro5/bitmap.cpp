@@ -544,9 +544,9 @@ void Bitmap::fill(Color color) const {
 }
 
 void Bitmap::startDrawing() const {
-    al_hold_bitmap_drawing(true);
     /* we are about to draw on this bitmap so make sure we are the target */
     changeTarget(this, this);
+    al_hold_bitmap_drawing(true);
 }
 
 void Bitmap::endDrawing() const {
