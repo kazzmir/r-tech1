@@ -14,20 +14,28 @@ borderColor(Graphics::makeColor(200,200,200)){
 }
 
 static vector< string > wrapStrings( const string & left, const string & right, const Font & font, int max, vector< string > accum ){
-	if ( left == "" ){
-		return accum;
-	}
+    if (left == ""){
+        return accum;
+    }
 
-	int length = font.textLength( left.c_str() );
+    int length = font.textLength(left.c_str());
 
-	if ( length >= max ){
-		return wrapStrings( left.substr( 0, left.length() / 2 ), left.substr( left.length() / 2 ) + right, font, max, accum );
-	} else if ( length >= max - font.textLength( "E" ) || right == "" ){
-		accum.push_back( left );
-		return wrapStrings( right, "", font, max, accum );
-	} else {
-		return wrapStrings( left + right.substr( 0, 1 ), right.substr( 1 ), font, max, accum );
-	}
+    if (length >= max){
+        return wrapStrings(left.substr( 0, left.length() / 2 ), left.substr( left.length() / 2 ) + right, font, max, accum);
+    } else if (length >= max - font.textLength("E") || right == ""){
+        accum.push_back(left);
+        return wrapStrings(right, "", font, max, accum);
+    } else {
+        string newleft = left + right.substr(0, 1);
+        /* edge case where adding one character goes over the limit. in that
+         * case treat it as the 2nd case.
+         */
+        if (font.textLength(newleft.c_str()) >= max - font.textLength("E")){
+            accum.push_back(left);
+            return wrapStrings(right, "", font, max, accum);
+        }
+        return wrapStrings(newleft, right.substr(1), font, max, accum);
+    }
 }
 
 /*
