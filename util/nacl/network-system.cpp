@@ -83,18 +83,6 @@ public:
         system->run2();
     }
 
-    /*
-    void wait(){
-        Global::debug(0) << "Waiting.." << std::endl;
-        lock.acquire();
-        Util::restSeconds(4);
-        lock.release();
-        // Util::restSeconds(4);
-        // lock.wait(http);
-        Global::debug(0) << "Done waiting" << std::endl;
-    }
-    */
-
     pp::URLRequestInfo request;
     pp::URLLoader loader;
     pp::CompletionCallbackFactory<Handler> factory;
