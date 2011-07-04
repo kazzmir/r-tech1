@@ -16,6 +16,7 @@ namespace Nacl{
 typedef Path::AbsolutePath AbsolutePath;
 typedef Path::RelativePath RelativePath;
     
+class Manager;
 class NetworkSystem: public Storage::System {
 public:
     NetworkSystem(const std::string & serverPath, pp::Instance * instance);
@@ -34,12 +35,12 @@ public:
     virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
 
     virtual void run();
-    virtual void run2();
 
 protected:
     pp::Instance * instance;
     std::string serverPath;
     Util::Thread::LockObject portal;
+    Manager * manager;
 };
 
 }

@@ -197,7 +197,7 @@ void System::startMemoryUsage(){
 #endif
     
 void System::makeAllDirectory(const std::string & path){
-    unsigned int last = path.find('/');
+    size_t last = path.find('/');
     while (last != std::string::npos){
         std::string sofar = path.substr(0, last);
         if (sofar != ""){
