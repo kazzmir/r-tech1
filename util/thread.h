@@ -73,8 +73,21 @@ namespace Thread{
         void acquire() const;
         void release() const;
 
+        /* wait until check is true.
+         * you MUST acquire the lock before calling this function */
         void wait(volatile bool & check) const;
+
+        /* just until we are signaled
+         * you MUST acquire the lock before calling this function */
+        void wait() const;
+
+        /* you MUST acquire the lock before calling this function */
         void signal() const;
+
+        /* gets the lock, sets the boolean, and signals the condition
+         * you MUST NOT acquire the lock before calling this function
+         */
+        void lockAndSignal(volatile bool & check, bool what) const;
 
         virtual ~LockObject();
 
@@ -225,10 +238,13 @@ protected:
         } catch (const Exception::Base & base){
             me->exception = new Exception::Base(base);
         }
+        me->future.lockAndSignal(me->done, true);
+        /*
         me->future.acquire();
         me->done = true;
         me->future.signal();
         me->future.release();
+        */
         // Thread::semaphoreIncrease(&me->future);
         return NULL;
     }

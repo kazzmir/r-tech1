@@ -6,10 +6,12 @@
 #include <ppapi/cpp/module.h>
 #include <ppapi/cpp/var.h>
 #include <ppapi/cpp/dev/scriptable_object_deprecated.h>
+#include <SDL/SDL.h>
 #include <SDL/SDL_nacl.h>
 #include <string>
 #include "../../main.h"
-#include "../network/network-system.h"
+#include "network-system.h"
+#include "../funcs.h"
 
 namespace nacl{
     class PaintownScript: public pp::deprecated::ScriptableObject {
@@ -26,13 +28,32 @@ namespace nacl{
         virtual ~PaintownInstance() {}
         static PaintownInstance * the_instance;
 
+        static int launch(void * arg){
+            int argc = 1;
+            char * argv[1] = {"paintown"};
+            Global::debug(0) << "Run paintown main" << std::endl;
+            paintown_main(argc, argv);
+            return 0;
+        }
+
         /* set up the viewport and run the game as usual */
         void run(){
             SDL_NACL_SetInstance(pp_instance(), 640, 480);
-            int argc = 1;
-            char * argv[1] = {"paintown"};
-            Storage::setInstance(new Storage::NetworkSystem());
-            paintown_main(argc, argv);
+            int ok = SDL_Init(SDL_INIT_VIDEO |
+                              SDL_INIT_AUDIO |
+                              SDL_INIT_TIMER |
+                              SDL_INIT_JOYSTICK |
+                              SDL_INIT_NOPARACHUTE);
+            Global::debug(0) << "SDL Init: " << ok << std::endl;
+
+            // Util::setDataPath("http://localhost:5103/data/");
+            Nacl::NetworkSystem * system = new Nacl::NetworkSystem("http://localhost:5103/", this);
+            Storage::setInstance(system);
+            Util::Thread::Id thread;
+            Util::Thread::createThread(&thread, NULL, launch, NULL);
+            Global::debug(0) << "Running thread " << thread << std::endl;
+            // Global::debug(0) << "Run thread " << Util::Thread::createThread(&thread, NULL, launch, NULL) << std::endl;
+            system->run();
         }
 
         virtual pp::Var GetInstanceObject(){

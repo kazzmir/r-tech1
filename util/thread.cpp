@@ -17,6 +17,14 @@ void LockObject::acquire() const {
 void LockObject::release() const {
     releaseLock((Lock*) &lock);
 }
+        
+void LockObject::wait() const {
+    int ok = 1;
+    while (ok != 0){
+        /* if conditionWait succeeds then ok will be 0 */
+        ok = conditionWait((Condition*) &condition, (Lock*) &lock);
+    }
+}
 
 void LockObject::wait(volatile bool & check) const {
     int ok = 0;
@@ -30,6 +38,13 @@ void LockObject::wait(volatile bool & check) const {
 
 void LockObject::signal() const {
     conditionSignal((Condition*) &condition);
+}
+        
+void LockObject::lockAndSignal(volatile bool & check, bool what) const {
+    acquire();
+    check = what;
+    signal();
+    release();
 }
 
 LockObject::~LockObject(){

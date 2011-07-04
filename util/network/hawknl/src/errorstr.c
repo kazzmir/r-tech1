@@ -46,8 +46,15 @@
 /* POSIX systems */
 #include <sys/types.h>
 #include <sys/socket.h>
+#ifdef PS3
+#define __LINUX_ERRNO_EXTENSIONS__
+#endif
 #include <sys/errno.h>
+#ifdef PS3
+#include <net/netdb.h>
+#else
 #include <netdb.h>
+#endif
 #include <string.h>
 #endif
 

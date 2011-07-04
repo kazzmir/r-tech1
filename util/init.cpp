@@ -537,8 +537,10 @@ bool Global::init(int gfx){
     }
     */
 
+#ifndef NACL
     /* do implementation specific setup */
     initSystem(out);
+#endif
 
     dumb_register_stdfiles();
     

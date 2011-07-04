@@ -1,24 +1,24 @@
 #ifndef _paintown_network_system_h
 #define _paintown_network_system_h
 
+#ifdef NACL
+
 #include <string>
 #include "../file-system.h"
+#include "../thread.h"
 
-#ifdef NACL
 namespace pp{
     class Instance;
 }
-#endif
 
-namespace Storage{
+namespace Nacl{
+
+typedef Path::AbsolutePath AbsolutePath;
+typedef Path::RelativePath RelativePath;
     
-class NetworkSystem: public System {
+class NetworkSystem: public Storage::System {
 public:
-#ifdef NACL
     NetworkSystem(const std::string & serverPath, pp::Instance * instance);
-#else
-    NetworkSystem();
-#endif
     virtual ~NetworkSystem();
 
     virtual AbsolutePath find(const RelativePath & path);
@@ -33,14 +33,17 @@ public:
     virtual AbsolutePath findInsensitive(const RelativePath & path);
     virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
 
+    virtual void run();
+    virtual void run2();
+
 protected:
-#ifdef NACL
     pp::Instance * instance;
     std::string serverPath;
-#endif
-
+    Util::Thread::LockObject portal;
 };
 
 }
+
+#endif
 
 #endif
