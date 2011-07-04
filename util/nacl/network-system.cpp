@@ -1,5 +1,16 @@
 #ifdef NACL
 
+/* documentation for ppapi
+ * http://code.google.com/chrome/nativeclient/docs/reference/peppercpp/inherits.html
+ */
+
+/* issues with getting data
+ * 1. the function that starts the game is called from the main chrome thread
+ * which starts from a javascript call to module.PostMessage('run').
+ * ...
+ * 
+ */
+
 #include "network-system.h"
 #include "../funcs.h"
 #include "../debug.h"
@@ -24,13 +35,113 @@ struct Request{
     AbsolutePath absolute;
     RelativePath relative;
     bool complete;
+    bool success;
 };
 
 Request operation;
 
+struct NaclRequest{
+    virtual ~NaclRequest(){
+    }
+
+    virtual void start(pp::CompletionCallback callback) = 0;
+};
+
+struct NaclRequestOpen: public NaclRequest {
+    NaclRequestOpen(pp::Instance * instance, const string & url):
+        request(instance),
+        loader(instance){
+            request.SetURL(url);
+            request.SetMethod("GET");
+        }
+
+    void start(pp::CompletionCallback callback){
+        Global::debug(0) << "Request open" << std::endl;
+        int32_t ok = loader.Open(request, callback);
+        Global::debug(0) << "Open " << ok << std::endl;
+        if (ok != PP_OK_COMPLETIONPENDING){
+            callback.Run(ok);
+        }
+        Global::debug(0) << "Callback running" << std::endl;
+    }
+
+    pp::URLRequestInfo request;
+    pp::URLLoader loader;
+};
+
+class Manager{
+public:
+    Manager(pp::Instance * instance, Util::Thread::LockObject & portal):
+    instance(instance),
+    portal(portal),
+    factory(this){
+    }
+
+    pp::Instance * instance;
+    Util::Thread::LockObject & portal;
+    Util::ReferenceCount<NaclRequest> request;
+    pp::CompletionCallbackFactory<Manager> factory;
+
+    /*
+    void start(){
+        pp::CompletionCallback callback = factory.NewCallback(&Manager::OnOpen);
+        int32_t ok = loader.Open(request, callback);
+        Global::debug(0) << "Open " << ok << std::endl;
+        if (ok != PP_OK_COMPLETIONPENDING){
+            callback.Run(ok);
+        }
+        Global::debug(0) << "Callback running" << std::endl;
+    }
+    */
+
+    void OnOpen(int32_t response){
+        if (response == 0){
+            Global::debug(0) << "Opened!" << std::endl;
+            operation.success = true;
+        } else {
+            Global::debug(0) << "Failed to open :(" << std::endl;
+            operation.success = false;
+        }
+
+        run2();
+    }
+
+    void doit(){
+        Global::debug(0) << "Requesting a file operation" << std::endl;
+
+        request = new NaclRequestOpen(instance, operation.absolute.path());
+        Global::debug(0) << "Made request" << std::endl;
+        request->start(factory.NewCallback(&Manager::OnOpen));
+        /* the handler will call into the browser. the browser will asynchounsly
+         * call the handler again and the handler will call run2 to finish up
+         */
+        Global::debug(0) << "Releasing control back to the browser" << std::endl;
+    }
+
+    static int run(void * me){
+        Manager * self = (Manager*) me;
+        self->doit();
+        return 0;
+    }
+
+    void run2(){
+        portal.acquire();
+        Global::debug(0) << "File operation done" << std::endl;
+        operation.complete = true;
+        portal.signal();
+        portal.release();
+    }
+
+    /*
+    pp::URLRequestInfo request;
+    pp::URLLoader loader;
+    */
+};
+
 NetworkSystem::NetworkSystem(const string & serverPath, pp::Instance * instance):
 instance(instance),
-serverPath(serverPath){
+serverPath(serverPath),
+manager(new Manager(instance, portal)){
 }
 
 /* TODO */
@@ -56,6 +167,7 @@ bool NetworkSystem::exists(const RelativePath & path){
     }
 }
 
+/*
 class Handler{
 public:
     Handler(pp::Instance * instance, const AbsolutePath & path, NetworkSystem * system):
@@ -89,24 +201,12 @@ public:
     volatile bool http;
     NetworkSystem * system;
 };
+*/
 
 void NetworkSystem::run(){
-    portal.acquire();
-    portal.wait();
-    Global::debug(0) << "Requesting a file operation" << std::endl;
-
-    Handler * handler = new Handler(instance, operation.absolute, this);
-    handler->start();
-    /* the handler will call into the browser. the browser will asynchounsly
-     * call the handler again and the handler will call run2 to finish up
-     */
-    Global::debug(0) << "Releasing control back to the browser" << std::endl;
-}
-
-void NetworkSystem::run2(){
-    Global::debug(0) << "File operation done" << std::endl;
-    operation.complete = true;
-    portal.release();
+    Util::Thread::Id thread;
+    Util::Thread::createThread(&thread, NULL, &Manager::run, manager);
+    // manager->run();
 }
 
 bool NetworkSystem::exists(const AbsolutePath & path){
@@ -134,8 +234,10 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     operation.type = Exists;
     operation.absolute = path;
     operation.complete = false;
+    operation.success = false;
     Global::debug(0) << "Request open" << std::endl;
-    portal.signal();
+    run();
+    // portal.signal();
     portal.wait(operation.complete);
     portal.release();
     Global::debug(0) << "Request open complete" << std::endl;
