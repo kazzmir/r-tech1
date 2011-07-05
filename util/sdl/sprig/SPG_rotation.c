@@ -164,7 +164,7 @@ for (y=ymin; y<=ymax; y++){ /* Changed from y<ymax to y<=ymax Edge fix 7-13-08*/
         if( (rx>=sxmin) && (rx<=sxmax) && (ry>=symin) && (ry<=symax) ) /* Changed from (rx<=sxmax) to (rx<=sxmax+1) Edge fix 7-13-08*. Reverted this change on 7/3/2010 - Jon Rafkind */\
         {\
             col = *(src_row+ry*src_pitch+rx);\
-            if(!(flags & SPG_TCOLORKEY && src->flags & SDL_SRCCOLORKEY && col == src->format->colorkey))\
+            if(!(flags & SPG_TCOLORKEY && src->flags & SDL_SRCCOLORKEY && col == colorkey))\
             *(dst_row + x) = (UintXX)(col);\
         }\
         sx += ctx;  /* Incremental transformations */ \
@@ -189,7 +189,7 @@ for (y=ymin; y<=ymax; y++){ /* Changed from y<ymax to y<=ymax Edge fix 7-13-08*/
 			/* Make sure the source pixel is actually in the source image. */ \
 			if( (rx>=sxmin) && (rx<=sxmax+1) && (ry>=symin) && (ry<=symax) ){ /* Changed from (rx<=sxmax) to (rx<=sxmax+1) Edge fix 7-13-08*/\
 				SPG_GetRGBA(SPG_GetPixel(src,rx,ry), src->format, &R, &G, &B, &A);\
-				if(!(flags & SPG_TCOLORKEY && src->flags & SDL_SRCCOLORKEY && SDL_MapRGB(src->format, R, G, B) == src->format->colorkey))\
+				if(!(flags & SPG_TCOLORKEY && src->flags & SDL_SRCCOLORKEY && SDL_MapRGB(src->format, R, G, B) == colorkey))\
                     spg_pixelX(dst,x,y,SPG_MapRGBA(dst->format, R, G, B, A)); \
 				\
 			} \
@@ -258,7 +258,7 @@ for (y=ymin; y<=ymax; y++){ /* Changed from y<ymax to y<=ymax Edge fix 7-13-08*/
 			ry=(Sint16)(sy >> 13); \
 \
 			/* Make sure the source pixel is actually in the source image. */ \
-			if((rx>=sxmin) && (rx+1<=sxmax) && (ry>=symin) && (ry+1<=symax) && !((flags & SPG_TCOLORKEY) && (src->flags & SDL_SRCCOLORKEY) && *(src_row+ry*src_pitch+rx) == src->format->colorkey) ){ \
+			if((rx>=sxmin) && (rx+1<=sxmax) && (ry>=symin) && (ry+1<=symax) && !((flags & SPG_TCOLORKEY) && (src->flags & SDL_SRCCOLORKEY) && *(src_row+ry*src_pitch+rx) == colorkey) ){ \
 				wx = (sx & 0x00001FFF) >>8;  /* (float(x) - int(x)) / 4 */ \
 				wy = (sy & 0x00001FFF) >>8;\
 \
@@ -323,7 +323,7 @@ for (y=ymin; y<=ymax; y++){ /* Changed from y<ymax to y<=ymax Edge fix 7-13-08*/
 				G = (p1*G1 + p2*G2 + p3*G3 + p4*G4)>>13;\
 				B = (p1*B1 + p2*B2 + p3*B3 + p4*B4)>>13;\
 				A = (p1*A1 + p2*A2 + p3*A3 + p4*A4)>>13;\
-                if(!(flags & SPG_TCOLORKEY && src->flags & SDL_SRCCOLORKEY && SDL_MapRGB(src->format, R, G, B) == src->format->colorkey))\
+                if(!(flags & SPG_TCOLORKEY && src->flags & SDL_SRCCOLORKEY && SDL_MapRGB(src->format, R, G, B) == colorkey))\
                     spg_pixelX(dst,x,y,SPG_MapRGBA(dst->format, R, G, B, A)); \
 				\
 			} \
@@ -340,7 +340,18 @@ SDL_Rect SPG_transformNorm(SDL_Surface *src, SDL_Surface *dst, float angle, floa
 	Sint32 dy, sx, sy;
 	Sint16 x, y, rx, ry;
 	SDL_Rect r;
+#ifdef PS3
+            /* Hack for the ps3 because it doesn't have src->format->colorkey.
+             * we know that paintown always uses 255,0,255 for the colorkey
+             * so we just hack it in here.
+             */
+            int colorkey = SDL_MapRGB(src->format, 255, 0, 255);
+#else
+            int colorkey = src->format->colorkey;
+#endif
+
 	r.x = r.y = r.w = r.h = 0;
+
 	
 	if(spg_usedegrees)
 		angle *= RADPERDEG;  /* Convert to radians.  */
@@ -410,9 +421,9 @@ SDL_Rect SPG_transformNorm(SDL_Surface *src, SDL_Surface *dst, float angle, floa
         return r;
     }
 
-#ifndef PS3
 	// Use the correct bpp
 	if( src->format->BytesPerPixel == dst->format->BytesPerPixel  &&  src->format->BytesPerPixel != 3 && !(flags & SPG_TSAFE)){
+
 		switch( src->format->BytesPerPixel ){
 			case 1: { /* Assuming 8-bpp */
 				TRANSFORM(Uint8, 1)
@@ -427,10 +438,9 @@ SDL_Rect SPG_transformNorm(SDL_Surface *src, SDL_Surface *dst, float angle, floa
 			}
 			break;
 		}
-	}else{
+	} else {
 		TRANSFORM_GENERIC
 	}
-#endif
 
 	
 	spg_unlock(src);
@@ -448,6 +458,12 @@ SDL_Rect SPG_transformAA(SDL_Surface *src, SDL_Surface *dst, float angle, float 
 	Sint32 dy, sx, sy;
 	Sint16 x, y, rx, ry;
 	SDL_Rect r;
+#ifdef PS3
+            int colorkey = SDL_MapRGB(src->format, 255, 0, 255);
+#else
+            int colorkey = src->format->colorkey;
+#endif
+
 	r.x = r.y = r.w = r.h = 0;
 
 	if(spg_usedegrees)
@@ -518,7 +534,6 @@ SDL_Rect SPG_transformAA(SDL_Surface *src, SDL_Surface *dst, float angle, float 
         return r;
     }
 
-#ifndef PS3
 	// Use the correct bpp
 	if( src->format->BytesPerPixel == dst->format->BytesPerPixel  &&  src->format->BytesPerPixel != 3 && !(flags & SPG_TSAFE) ){
 		switch( src->format->BytesPerPixel ){
@@ -539,7 +554,6 @@ SDL_Rect SPG_transformAA(SDL_Surface *src, SDL_Surface *dst, float angle, float 
 	}else{
 		TRANSFORM_GENERIC_AA
 	}
-#endif
 
 	// Unlock surfaces
 	
