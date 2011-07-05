@@ -162,15 +162,11 @@ void LineEdit::render(const Graphics::Bitmap & work){
     */
 
     if (transforms.getRadius() > 0){
-        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
-        workArea->translucent().roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        Graphics::Bitmap::transBlender(0, 0, 0, colors.borderAlpha);
-        workArea->translucent().roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+        workArea->translucent(0, 0, 0, colors.bodyAlpha).roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
+        workArea->translucent(0, 0, 0, colors.borderAlpha).roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
     } else {
-        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
-        workArea->translucent().rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
-        Graphics::Bitmap::transBlender(0, 0, 0, colors.borderAlpha);
-        workArea->translucent().rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+        workArea->translucent(0, 0, 0, colors.bodyAlpha).rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
+        workArea->translucent(0, 0, 0, colors.borderAlpha).rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
     }
  
 

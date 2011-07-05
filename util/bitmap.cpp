@@ -419,6 +419,11 @@ LitBitmap::~LitBitmap(){
 TranslucentBitmap Bitmap::translucent() const {
     return TranslucentBitmap(*this);
 }
+        
+TranslucentBitmap Bitmap::translucent(int red, int green, int blue, int alpha) const {
+    transBlender(red, green, blue, alpha);
+    return TranslucentBitmap(*this);
+}
 
 TranslucentBitmap::TranslucentBitmap(const Bitmap & b):
 Bitmap(b){
