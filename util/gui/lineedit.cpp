@@ -136,31 +136,8 @@ void LineEdit::act(const Font & font){
 void LineEdit::render(const Graphics::Bitmap & work){
 
     Util::ReferenceCount<Graphics::Bitmap> workArea = checkWorkArea(work);
-    // Check if we are using a rounded box
-    /*
-    if (transforms.getRadius()>0) {
-        Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
-        roundRectFill( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea->translucent().draw(location.getX(),location.getY(),work);
 
-        workArea->fill(Graphics::makeColor(255,0,255));
-
-        Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
-        roundRect( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
-        workArea->translucent().draw(location.getX(),location.getY(),work);
-    } else {
-        Graphics::Bitmap::transBlender( 0, 0, 0, colors.bodyAlpha );
-        workArea->rectangleFill( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea->translucent().draw(location.getX(),location.getY(),work);
-
-        workArea->fill(Graphics::makeColor(255,0,255));
-
-        Graphics::Bitmap::transBlender( 0, 0, 0, colors.borderAlpha );
-        workArea->rectangle( 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
-        workArea->translucent().draw(location.getX(),location.getY(),work);
-    }
-    */
-
+    /* Check if we are using a rounded box */
     if (transforms.getRadius() > 0){
         workArea->translucent(0, 0, 0, colors.bodyAlpha).roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
         workArea->translucent(0, 0, 0, colors.borderAlpha).roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
@@ -168,28 +145,16 @@ void LineEdit::render(const Graphics::Bitmap & work){
         workArea->translucent(0, 0, 0, colors.bodyAlpha).rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
         workArea->translucent(0, 0, 0, colors.borderAlpha).rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
     }
- 
-
-    // work.drawingMode( Bitmap::MODE_SOLID );
-
-    // workArea->fill(Graphics::makeColor(255,0,255));
 
     if (currentSetFont){
         currentSetFont->printf(textX, textY, textColor, *workArea, input.getText(), 0);
     }
 
     if (focused){
-        /*
-        if (cursorTime.msecs() <= blinkRate){
-            workArea->line(cursorX,cursorY,cursorX,cursorY+textSizeH-5,textColor);
-        }
-        */
         if (blink){
             workArea->line(cursorX, cursorY, cursorX, cursorY+textSizeH-5, textColor);
         }
     }
-
-    // workArea->draw(location.getX(), location.getY(), work);
 }
 
 #if 0
