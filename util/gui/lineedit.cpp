@@ -161,9 +161,22 @@ void LineEdit::render(const Graphics::Bitmap & work){
     }
     */
 
+    if (transforms.getRadius() > 0){
+        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
+        workArea->translucent().roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
+        Graphics::Bitmap::transBlender(0, 0, 0, colors.borderAlpha);
+        workArea->translucent().roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+    } else {
+        Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
+        workArea->translucent().rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
+        Graphics::Bitmap::transBlender(0, 0, 0, colors.borderAlpha);
+        workArea->translucent().rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+    }
+ 
+
     // work.drawingMode( Bitmap::MODE_SOLID );
 
-    workArea->fill(Graphics::makeColor(255,0,255));
+    // workArea->fill(Graphics::makeColor(255,0,255));
 
     if (currentSetFont){
         currentSetFont->printf(textX, textY, textColor, *workArea, input.getText(), 0);
