@@ -1221,6 +1221,27 @@ void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const
 void Bitmap::replaceColor(const Color & original, const Color & replaced){
     paintown_replace16(getData()->getSurface(), original, replaced);
 }
+
+static SDL_Color pcxMaskColor(unsigned char * data, const int length){
+    if (length >= 769){
+        if (data[length - 768 - 1] == 12){
+            unsigned char * palette = &data[length - 768];
+            unsigned char red = palette[0];
+            unsigned char green = palette[1];
+            unsigned char blue = palette[2];
+            SDL_Color color;
+            color.r = red;
+            color.g = green;
+            color.b = blue;
+            return color;
+        }
+    }
+    SDL_Color color;
+    color.r = 255;
+    color.g = 255;
+    color.b = 255;
+    return color;
+}
         
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
@@ -1234,15 +1255,18 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     SDL_Surface * display = optimizedSurface(pcx);
     Bitmap out(display, true);
 
-#ifndef PS3
     if (pcx->format->BitsPerPixel == 8){
+#ifdef PS3
+        SDL_Color color = pcxMaskColor(data, length);
+#else
         SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
+#endif
+
         int bad = makeColor(color.r, color.g, color.b);
         out.set8BitMaskColor(bad);
         // int mask = MaskColor();
         // out.replaceColor(bad, mask);
     }
-#endif
 
     SDL_FreeSurface(pcx);
     SDL_FreeSurface(display);
