@@ -327,11 +327,11 @@ const std::string Exception::getReason() const {
 }
 
 NotFound::NotFound(const std::string & where, int line, const std::string & file):
-Exception(where, line, file + string(" was not found")){
+Exception(where, line, file){
 }
 
 NotFound::NotFound(const std::string & where, int line, const Exc::Base & nested, const std::string & file):
-Exception(where, line, nested, file + string(" was not found")){
+Exception(where, line, nested, file){
 }
         
 NotFound::NotFound(const NotFound & copy):
@@ -471,6 +471,37 @@ Filesystem::AbsolutePath Filesystem::userDirectory(){
 #endif
 
 Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
+    vector<Filesystem::AbsolutePath> places;
+
+#define push(x) try{ places.push_back(x); } catch (const Storage::IllegalPath & fail){ }
+    push(dataPath.join(path));
+    push(userDirectory().join(path));
+    push(Filesystem::AbsolutePath(path.path()));
+#undef push
+
+    /* start error stuff early */
+    ostringstream out;
+    out << "Cannot find " << path.path() << ". I looked in ";
+    bool first = true;
+    for (vector<Filesystem::AbsolutePath>::iterator it = places.begin(); it != places.end(); it++){
+        Filesystem::AbsolutePath & final = *it;
+        if (::System::readable(final.path())){
+            return final;
+        }
+        if (!first){
+            out << ", ";
+        } else {
+            first = false;
+        }
+        out << "'" << final.path() << "'";
+    }
+
+    // out << "Cannot find " << path.path() << ". I looked in '" << dataPath.join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'";
+
+    throw NotFound(__FILE__, __LINE__, out.str());
+
+
+#if 0
     /* first try the main data directory */
     Filesystem::AbsolutePath final = dataPath.join(path);
     if (::System::readable(final.path())){
@@ -490,6 +521,7 @@ Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
     out << "Cannot find " << path.path() << ". I looked in '" << dataPath.join(path).path() << "', '" << userDirectory().join(path).path() << "', and '" << path.path() << "'";
 
     throw NotFound(__FILE__, __LINE__, out.str());
+#endif
 }
 
 Filesystem::AbsolutePath Filesystem::lookupInsensitive(const Filesystem::AbsolutePath & directory, const Filesystem::RelativePath & path){
