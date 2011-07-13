@@ -44,7 +44,7 @@ struct NaclRequest{
     virtual ~NaclRequest(){
     }
 
-    virtual void start(pp::CompletionCallback callback) = 0;
+    virtual void start(pp::CompletionCallback callback, pp::Core * core) = 0;
 };
 
 struct NaclRequestOpen: public NaclRequest {
@@ -55,11 +55,13 @@ struct NaclRequestOpen: public NaclRequest {
             request.SetMethod("GET");
         }
 
-    void start(pp::CompletionCallback callback){
+    void start(pp::CompletionCallback callback, pp::Core * core){
         Global::debug(0) << "Request open" << std::endl;
         int32_t ok = loader.Open(request, callback);
         Global::debug(0) << "Open " << ok << std::endl;
         if (ok != PP_OK_COMPLETIONPENDING){
+            // Global::debug(0) << "Call on main thread" << std::endl;
+            // core->CallOnMainThread(0, callback, ok);
             callback.Run(ok);
         }
         Global::debug(0) << "Callback running" << std::endl;
@@ -71,16 +73,18 @@ struct NaclRequestOpen: public NaclRequest {
 
 class Manager{
 public:
-    Manager(pp::Instance * instance, Util::Thread::LockObject & portal):
+    Manager(pp::Instance * instance, pp::Core * core, Util::Thread::LockObject & portal):
     instance(instance),
+    core(core),
     portal(portal),
-    factory(this){
+    factory(NULL){
     }
 
     pp::Instance * instance;
+    pp::Core * core;
     Util::Thread::LockObject & portal;
     Util::ReferenceCount<NaclRequest> request;
-    pp::CompletionCallbackFactory<Manager> factory;
+    pp::CompletionCallbackFactory<Manager> * factory;
 
     /*
     void start(){
@@ -94,34 +98,50 @@ public:
     }
     */
 
+    static void doStartOpen(void * self, int32_t result){
+        Manager * me = (Manager*) self;
+        me->start();
+    }
+
+    void start(){
+        factory = new pp::CompletionCallbackFactory<Manager>(this);
+        request = new NaclRequestOpen(instance, operation.absolute.path());
+        pp::CompletionCallback callback(&Manager::doOnOpen, this);
+        request->start(callback, core);
+    }
+
+    static void doOnOpen(void * self, int32_t result){
+        Manager * me = (Manager*) self;
+        me->OnOpen(result);
+    }
+
     void OnOpen(int32_t response){
         if (response == 0){
             Global::debug(0) << "Opened!" << std::endl;
             operation.success = true;
         } else {
-            Global::debug(0) << "Failed to open :(" << std::endl;
+            Global::debug(0) << "Failed to open :( " << response << std::endl;
             operation.success = false;
         }
 
         run2();
     }
 
-    void doit(){
+    void run(){
         Global::debug(0) << "Requesting a file operation" << std::endl;
+            
+        // Global::debug(0) << "PPB_URLLoader;0.1 = " << pp::Module::Get()->GetBrowserInterface("PPB_URLLoader;0.1") << std::endl;
 
-        request = new NaclRequestOpen(instance, operation.absolute.path());
-        Global::debug(0) << "Made request" << std::endl;
-        request->start(factory.NewCallback(&Manager::OnOpen));
+        Global::debug(0) << "Made request. Making callback.." << std::endl;
+        // pp::CompletionCallback callback = factory->NewCallback(&Manager::OnOpen);
+        pp::CompletionCallback callback(&Manager::doStartOpen, this);
+        Global::debug(0) << "Made callback" << std::endl;
+        core->CallOnMainThread(0, callback, 0);
+        // request->start(callback, core);
         /* the handler will call into the browser. the browser will asynchounsly
          * call the handler again and the handler will call run2 to finish up
          */
         Global::debug(0) << "Releasing control back to the browser" << std::endl;
-    }
-
-    static int run(void * me){
-        Manager * self = (Manager*) me;
-        self->doit();
-        return 0;
     }
 
     void run2(){
@@ -129,6 +149,8 @@ public:
         Global::debug(0) << "File operation done" << std::endl;
         operation.complete = true;
         portal.signal();
+        delete factory;
+        factory = NULL;
         portal.release();
     }
 
@@ -138,10 +160,10 @@ public:
     */
 };
 
-NetworkSystem::NetworkSystem(const string & serverPath, pp::Instance * instance):
+NetworkSystem::NetworkSystem(const string & serverPath, pp::Instance * instance, pp::Core * core):
 instance(instance),
 serverPath(serverPath),
-manager(new Manager(instance, portal)){
+manager(new Manager(instance, core, portal)){
 }
 
 /* TODO */
@@ -204,8 +226,11 @@ public:
 */
 
 void NetworkSystem::run(){
+    manager->run();
+    /*
     Util::Thread::Id thread;
     Util::Thread::createThread(&thread, NULL, &Manager::run, manager);
+    */
     // manager->run();
 }
 
@@ -230,7 +255,17 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     }
     */
     
-    portal.acquire();
+    Global::debug(0) << "Getting portal lock" << std::endl;
+    if (portal.acquire() != 0){
+        Global::debug(0) << "Lock failed!" << std::endl;
+    }
+    /*
+    Global::debug(0) << "Getting portal lock again" << std::endl;
+    if (portal.acquire() != 0){
+        Global::debug(0) << "Lock failed again!" << std::endl;
+    }
+    Global::debug(0) << "Somehow got the portal lock twice??" << std::endl;
+    */
     operation.type = Exists;
     operation.absolute = path;
     operation.complete = false;
@@ -238,11 +273,12 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     Global::debug(0) << "Request open" << std::endl;
     run();
     // portal.signal();
+    Global::debug(0) << "Waiting on portal" << std::endl;
     portal.wait(operation.complete);
     portal.release();
     Global::debug(0) << "Request open complete" << std::endl;
 
-    return false;
+    return operation.success;
     /*
     Handler handler(instance, path);
     handler.start();

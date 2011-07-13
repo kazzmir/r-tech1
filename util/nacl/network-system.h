@@ -9,6 +9,7 @@
 
 namespace pp{
     class Instance;
+    class Core;
 }
 
 namespace Nacl{
@@ -19,7 +20,7 @@ typedef Path::RelativePath RelativePath;
 class Manager;
 class NetworkSystem: public Storage::System {
 public:
-    NetworkSystem(const std::string & serverPath, pp::Instance * instance);
+    NetworkSystem(const std::string & serverPath, pp::Instance * instance, pp::Core * core);
     virtual ~NetworkSystem();
 
     virtual AbsolutePath find(const RelativePath & path);
@@ -38,6 +39,7 @@ public:
 
 protected:
     pp::Instance * instance;
+    pp::Core * core;
     std::string serverPath;
     Util::Thread::LockObject portal;
     Manager * manager;
