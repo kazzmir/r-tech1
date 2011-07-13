@@ -7,15 +7,17 @@ namespace Thread{
 LockObject::LockObject(){
     initializeLock(&lock);
     initializeCondition(&condition);
+    // Global::debug(0) << "Created lock " << lock << std::endl;
+    // Global::debug(0) << "Created condition " << condition << std::endl;
 }
 
-void LockObject::acquire() const {
+int LockObject::acquire() const {
     /* quick hack to get around annoying constness */
-    acquireLock((Lock*) &lock);
+    return acquireLock((Lock*) &lock);
 }
 
-void LockObject::release() const {
-    releaseLock((Lock*) &lock);
+int LockObject::release() const {
+    return releaseLock((Lock*) &lock);
 }
         
 void LockObject::wait() const {
@@ -32,6 +34,9 @@ void LockObject::wait(volatile bool & check) const {
      * was successful as well.
      */
     while (!check || ok != 0){
+        if (ok != 0){
+            // Global::debug(0) << "Wait failed: " << SDL_GetError() << std::endl;
+        }
         ok = conditionWait((Condition*) &condition, (Lock*) &lock);
     }
 }
@@ -65,7 +70,7 @@ bool isUninitialized(Id thread){
     return thread == uninitializedValue;
 }
 
-#ifdef USE_SDL
+#if defined(USE_SDL) && !defined(USE_NACL)
 Id uninitializedValue = NULL;
     
 void initializeLock(Lock * lock){
@@ -86,6 +91,9 @@ void destroyLock(Lock * lock){
     
 void initializeCondition(Condition * condition){
     *condition = SDL_CreateCond();
+    if (condition == NULL){
+        Global::debug(0) << "Could not create condition" << std::endl;
+    }
 }
 
 void destroyCondition(Condition * condition){
@@ -271,7 +279,7 @@ void cancelThread(Id thread){
     /* FIXME: cancel is not implemented for libogc, find another way.
      * thread suspend/resume is there, though.
      */
-#if !defined(WII)
+#if !defined(WII) && !defined(USE_NACL)
     pthread_cancel(thread);
 #endif
 }

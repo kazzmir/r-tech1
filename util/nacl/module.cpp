@@ -4,6 +4,7 @@
 
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/module.h>
+// #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/var.h>
 #include <ppapi/cpp/dev/scriptable_object_deprecated.h>
 #include <SDL/SDL.h>
@@ -22,11 +23,14 @@ namespace nacl{
 
     class PaintownInstance : public pp::Instance {
     public:
-        explicit PaintownInstance(PP_Instance instance) : pp::Instance(instance) {
+        explicit PaintownInstance(PP_Instance instance, pp::Core * core):
+            pp::Instance(instance),
+            core(core){
             the_instance = this;
         }
         virtual ~PaintownInstance() {}
         static PaintownInstance * the_instance;
+        pp::Core * core;
 
         static int launch(void * arg){
             int argc = 1;
@@ -38,6 +42,11 @@ namespace nacl{
 
         /* set up the viewport and run the game as usual */
         void run(){
+
+            /* forces the url loader interface to be loaded in the browser */
+            // pp::URLLoader notNeeded(this);
+            // Global::debug(0) << "PPB_URLLoader;0.1 = " << pp::Module::Get()->GetBrowserInterface("PPB_URLLoader;0.1") << std::endl;
+
             SDL_NACL_SetInstance(pp_instance(), 640, 480);
             int ok = SDL_Init(SDL_INIT_VIDEO |
                               SDL_INIT_AUDIO |
@@ -47,13 +56,13 @@ namespace nacl{
             Global::debug(0) << "SDL Init: " << ok << std::endl;
 
             // Util::setDataPath("http://localhost:5103/data/");
-            Nacl::NetworkSystem * system = new Nacl::NetworkSystem("http://localhost:5103/", this);
+            Nacl::NetworkSystem * system = new Nacl::NetworkSystem("http://localhost:5103/", the_instance, core);
             Storage::setInstance(system);
             Util::Thread::Id thread;
-            Util::Thread::createThread(&thread, NULL, launch, NULL);
+            Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) launch, NULL);
             Global::debug(0) << "Running thread " << thread << std::endl;
             // Global::debug(0) << "Run thread " << Util::Thread::createThread(&thread, NULL, launch, NULL) << std::endl;
-            system->run();
+            // system->run();
         }
 
         virtual pp::Var GetInstanceObject(){
@@ -108,7 +117,7 @@ namespace nacl{
         virtual ~PaintownModule() {}
 
         virtual pp::Instance* CreateInstance(PP_Instance instance) {
-            return new PaintownInstance(instance);
+            return new PaintownInstance(instance, core());
         }
     };
 }

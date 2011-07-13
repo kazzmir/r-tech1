@@ -1,7 +1,11 @@
 #ifndef _paintown_thread_h
 #define _paintown_thread_h
 
-#ifdef USE_SDL
+/* FIXME: NACL should be able to use SDL threads but they are broken
+ * for some reason. SDL is implemented in terms of pthreads anyway
+ * so for now just use the native pthreads implementation.
+ */
+#if defined(USE_SDL) && !defined(USE_NACL)
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #elif USE_ALLEGRO5
@@ -70,8 +74,8 @@ namespace Thread{
     public:
         LockObject();
 
-        void acquire() const;
-        void release() const;
+        int acquire() const;
+        int release() const;
 
         /* wait until check is true.
          * you MUST acquire the lock before calling this function */
