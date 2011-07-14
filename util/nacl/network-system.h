@@ -35,13 +35,15 @@ public:
     virtual AbsolutePath findInsensitive(const RelativePath & path);
     virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
 
-    virtual void run();
+public:
+    int libcOpen(const char * path, int mode, int params);
 
 protected:
     pp::Instance * instance;
     pp::Core * core;
     std::string serverPath;
-    Util::Thread::LockObject portal;
+    /* used to communicate to the main NACL thread */
+    // Util::Thread::LockObject portal;
     Manager * manager;
 };
 
