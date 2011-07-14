@@ -23,6 +23,7 @@
 #include <ppapi/cpp/completion_callback.h>
 
 using std::string;
+using std::map;
 
 namespace Nacl{
 
@@ -61,16 +62,16 @@ struct NaclRequestOpen: public NaclRequest {
         }
 
     void start(){
-        Global::debug(0) << "Request open for url " << url << std::endl;
+        Global::debug(1) << "Request open for url " << url << std::endl;
         pp::CompletionCallback callback(&NaclRequestOpen::onFinish, this);
         int32_t ok = loader.Open(request, callback);
-        Global::debug(0) << "Open " << ok << std::endl;
+        Global::debug(1) << "Open " << ok << std::endl;
         if (ok != PP_OK_COMPLETIONPENDING){
             // Global::debug(0) << "Call on main thread" << std::endl;
             // core->CallOnMainThread(0, callback, ok);
             callback.Run(ok);
         }
-        Global::debug(0) << "Callback running" << std::endl;
+        Global::debug(1) << "Callback running" << std::endl;
     }
 
     static void onFinish(void * me, int32_t result){
@@ -84,6 +85,39 @@ struct NaclRequestOpen: public NaclRequest {
     pp::URLLoader loader;
     string url;
     Manager * manager;
+};
+
+struct NaclRequestRead: public NaclRequest {
+    NaclRequestRead(pp::URLLoader & loader, Manager * manager, void * buffer, int read):
+        loader(loader),
+        manager(manager),
+        buffer(buffer),
+        read(read){
+        }
+
+    void start(){
+        pp::CompletionCallback callback(&NaclRequestRead::onFinish, this);
+        int32_t ok = loader.ReadResponseBody(buffer, read, callback);
+        Global::debug(1) << "Read " << ok << std::endl;
+        if (ok != PP_OK_COMPLETIONPENDING){
+            // Global::debug(0) << "Call on main thread" << std::endl;
+            // core->CallOnMainThread(0, callback, ok);
+            callback.Run(ok);
+        }
+        Global::debug(1) << "Callback running" << std::endl;
+    }
+
+    static void onFinish(void * me, int32_t result){
+        NaclRequestRead * self = (NaclRequestRead*) me;
+        self->finish(result);
+    }
+
+    void finish(int32_t result);
+
+    pp::URLLoader loader;
+    Manager * manager;
+    void * buffer;
+    int read;
 };
 
 class Manager{
@@ -100,6 +134,8 @@ public:
     Util::ReferenceCount<NaclRequest> request;
     pp::CompletionCallbackFactory<Manager> factory;
 
+    map<int, Util::ReferenceCount<NaclRequest> > fileTable;
+
     int next;
 
     struct OpenFileData{
@@ -107,7 +143,18 @@ public:
         int file;
     };
 
+    struct ReadFileData{
+        int file;
+        void * buffer;
+        /* how much to read */
+        int count;
+        /* how much was read */
+        int read;
+    };
+
     OpenFileData openFileData;
+    ReadFileData readFileData;
+
     Util::Thread::LockObject lock;
     volatile bool done;
 
@@ -120,6 +167,45 @@ public:
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
         return openFileData.file;
+    }
+
+    bool exists(const string & path){
+        Util::Thread::ScopedLock scoped(lock);
+        done = false;
+        openFileData.path = path.c_str();
+        openFileData.file = -1;
+        pp::CompletionCallback callback(&Manager::doOpenFile, this);
+        core->CallOnMainThread(0, callback, 0);
+        lock.wait(done);
+        return openFileData.file != -1;
+    }
+
+    ssize_t readFile(int fd, void * buffer, size_t count){
+        Util::Thread::ScopedLock scoped(lock);
+        if (fileTable.find(fd) == fileTable.end()){
+            return EBADF;
+        }
+
+        done = false;
+        readFileData.file = fd;
+        readFileData.buffer = buffer;
+        readFileData.count = count;
+        readFileData.read = 0;
+        pp::CompletionCallback callback(&Manager::doReadFile, this);
+        core->CallOnMainThread(0, callback, 0);
+        lock.wait(done);
+        return readFileData.read;
+    }
+
+    static void doReadFile(void * self, int32_t result){
+        Manager * manager = (Manager*) self;
+        manager->continueReadFile();
+    }
+
+    void continueReadFile(){
+        Util::ReferenceCount<NaclRequestOpen> open = fileTable[readFileData.file].convert<NaclRequestOpen>();
+        request = new NaclRequestRead(open->loader, this, readFileData.buffer, readFileData.count);
+        request->start();
     }
 
     /* called by the main thread */
@@ -147,6 +233,7 @@ public:
         pp::URLResponseInfo info = open.loader.GetResponseInfo();
         if (info.GetStatusCode() == 200){
             openFileData.file = nextFileDescriptor();
+            fileTable[openFileData.file] = request;
         } else {
             openFileData.file = -1;
         }
@@ -159,75 +246,10 @@ public:
         requestComplete();
     }
 
-    bool exists(const string & path){
-        Util::Thread::ScopedLock scoped(lock);
-        done = false;
-        openFileData.path = path.c_str();
-        openFileData.file = -1;
-        pp::CompletionCallback callback(&Manager::doOpenFile, this);
-        core->CallOnMainThread(0, callback, 0);
-        lock.wait(done);
-        return openFileData.file != -1;
+    void success(NaclRequestRead & request, int read){
+        readFileData.read = read;
+        requestComplete();
     }
-
-    /*
-    static void doStartOpen(void * self, int32_t result){
-        Manager * me = (Manager*) self;
-        me->start();
-    }
-
-    void start(){
-        // factory = new pp::CompletionCallbackFactory<Manager>(this);
-        request = new NaclRequestOpen(instance, operation.absolute.path(), this);
-        // pp::CompletionCallback callback(&Manager::doOnOpen, this);
-        // request->start(callback, core);
-        request->start();
-    }
-
-    static void doOnOpen(void * self, int32_t result){
-        Manager * me = (Manager*) self;
-        me->OnOpen(result);
-    }
-
-    void OnOpen(int32_t response){
-        if (response == 0){
-            Global::debug(0) << "Opened!" << std::endl;
-            operation.success = true;
-        } else {
-            Global::debug(0) << "Failed to open :( " << response << std::endl;
-            operation.success = false;
-        }
-
-        run2();
-    }
-
-    void run(){
-        Global::debug(0) << "Requesting a file operation" << std::endl;
-            
-        // Global::debug(0) << "PPB_URLLoader;0.1 = " << pp::Module::Get()->GetBrowserInterface("PPB_URLLoader;0.1") << std::endl;
-
-        Global::debug(0) << "Made request. Making callback.." << std::endl;
-        // pp::CompletionCallback callback = factory->NewCallback(&Manager::OnOpen);
-        pp::CompletionCallback callback(&Manager::doStartOpen, this);
-        Global::debug(0) << "Made callback" << std::endl;
-        core->CallOnMainThread(0, callback, 0);
-        // request->start(callback, core);
-        / * the handler will call into the browser. the browser will asynchounsly
-         * call the handler again and the handler will call run2 to finish up
-         * /
-        Global::debug(0) << "Releasing control back to the browser" << std::endl;
-    }
-
-    void run2(){
-        portal.acquire();
-        Global::debug(0) << "File operation done" << std::endl;
-        operation.complete = true;
-        portal.signal();
-        // delete factory;
-        // factory = NULL;
-        portal.release();
-    }
-    */
 };
 
 void NaclRequestOpen::finish(int32_t result){
@@ -236,6 +258,10 @@ void NaclRequestOpen::finish(int32_t result){
     } else {
         manager->failure(*this);
     }
+}
+
+void NaclRequestRead::finish(int32_t result){
+    manager->success(*this, result);
 }
 
 NetworkSystem::NetworkSystem(const string & serverPath, pp::Instance * instance, pp::Core * core):
@@ -409,6 +435,10 @@ AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, co
 int NetworkSystem::libcOpen(const char * path, int mode, int params){
     return manager->openFile(path);
 }
+    
+ssize_t NetworkSystem::libcRead(int fd, void * buf, size_t count){
+    return manager->readFile(fd, buf, count);
+}
 
 }
 
@@ -425,15 +455,11 @@ extern "C" {
  * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
  */
 int __wrap_open(const char * path, int mode, int params){
-    Global::debug(0, "libc open") << "Opening '" << path << "'" << std::endl;
-    int file = getSystem().libcOpen(path, mode, params);
-    Global::debug(0, "libc open") << "Opened file " << file << std::endl;
-    return file;
+    return getSystem().libcOpen(path, mode, params);
 }
 
 ssize_t __wrap_read(int fd, void * buf, size_t count){
-    // Global::debug(0) << "Called libc read" << std::endl;
-    return EBADF;
+    return getSystem().libcRead(fd, buf, count);
 }
 
 int pipe (int filedes[2]){
