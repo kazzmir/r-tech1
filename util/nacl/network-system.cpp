@@ -152,8 +152,13 @@ public:
         int read;
     };
 
+    struct CloseFileData{
+        int fd;
+    };
+
     OpenFileData openFileData;
     ReadFileData readFileData;
+    CloseFileData closeFileData;
 
     Util::Thread::LockObject lock;
     volatile bool done;
@@ -180,6 +185,33 @@ public:
         return openFileData.file != -1;
     }
 
+    int close(int fd){
+        Util::Thread::ScopedLock scoped(lock);
+        if (fileTable.find(fd) == fileTable.end()){
+            return -1;
+            /* set errno to EBADF */
+        }
+
+        done = false;
+        closeFileData.fd = fd;
+
+        pp::CompletionCallback callback(&Manager::doCloseFile, this);
+        core->CallOnMainThread(0, callback, 0);
+        lock.wait(done);
+        return 0;
+    }
+
+    static void doCloseFile(void * self, int32_t result){
+        Manager * manager = (Manager*) self;
+        manager->continueCloseFile();
+    }
+
+    /* the destructor for the NaclRequestOpen has to occur in the main thread */
+    void continueCloseFile(){
+        fileTable.erase(fileTable.find(closeFileData.fd));
+        lock.lockAndSignal(done, true);
+    }
+
     ssize_t readFile(int fd, void * buffer, size_t count){
         Util::Thread::ScopedLock scoped(lock);
         if (fileTable.find(fd) == fileTable.end()){
@@ -203,6 +235,7 @@ public:
     }
 
     void continueReadFile(){
+        /* hack to get the open request.. */
         Util::ReferenceCount<NaclRequestOpen> open = fileTable[readFileData.file].convert<NaclRequestOpen>();
         request = new NaclRequestRead(open->loader, this, readFileData.buffer, readFileData.count);
         request->start();
@@ -440,6 +473,10 @@ ssize_t NetworkSystem::libcRead(int fd, void * buf, size_t count){
     return manager->readFile(fd, buf, count);
 }
 
+int NetworkSystem::libcClose(int fd){
+    return manager->close(fd);
+}
+
 }
 
 /* NOTE FIXME Missing I/O in Native Client */
@@ -460,6 +497,20 @@ int __wrap_open(const char * path, int mode, int params){
 
 ssize_t __wrap_read(int fd, void * buf, size_t count){
     return getSystem().libcRead(fd, buf, count);
+}
+
+extern int __real_close(int fd);
+
+int __wrap_close(int fd){
+    /* we may be given a file descriptor that we do not own, probably
+     * because some file descriptors are really tied to sockets so
+     * if we don't own the fd then pass it to the real close function.
+     */
+    int ok = getSystem().libcClose(fd);
+    if (ok == -1){
+        return __real_close(fd);
+    }
+    return ok;
 }
 
 int pipe (int filedes[2]){

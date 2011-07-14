@@ -41,6 +41,8 @@ namespace nacl{
 
         /* set up the viewport and run the game as usual */
         void run(){
+            Nacl::NetworkSystem * system = new Nacl::NetworkSystem("http://localhost:5103/", the_instance, core);
+            Storage::setInstance(system);
             SDL_NACL_SetInstance(pp_instance(), 640, 480);
             int ok = SDL_Init(SDL_INIT_VIDEO |
                               SDL_INIT_AUDIO |
@@ -50,8 +52,6 @@ namespace nacl{
             Global::debug(0) << "SDL Init: " << ok << std::endl;
 
             // Util::setDataPath("http://localhost:5103/data/");
-            Nacl::NetworkSystem * system = new Nacl::NetworkSystem("http://localhost:5103/", the_instance, core);
-            Storage::setInstance(system);
             Util::Thread::Id thread;
             Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) launch, NULL);
             Global::debug(0) << "Running thread " << thread << std::endl;

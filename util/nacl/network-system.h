@@ -38,6 +38,7 @@ public:
 public:
     int libcOpen(const char * path, int mode, int params);
     ssize_t libcRead(int fd, void * buf, size_t count);
+    int libcClose(int fd);
 
 protected:
     pp::Instance * instance;
