@@ -4,7 +4,6 @@
 
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/module.h>
-// #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/var.h>
 #include <ppapi/cpp/dev/scriptable_object_deprecated.h>
 #include <SDL/SDL.h>
@@ -42,11 +41,6 @@ namespace nacl{
 
         /* set up the viewport and run the game as usual */
         void run(){
-
-            /* forces the url loader interface to be loaded in the browser */
-            // pp::URLLoader notNeeded(this);
-            // Global::debug(0) << "PPB_URLLoader;0.1 = " << pp::Module::Get()->GetBrowserInterface("PPB_URLLoader;0.1") << std::endl;
-
             SDL_NACL_SetInstance(pp_instance(), 640, 480);
             int ok = SDL_Init(SDL_INIT_VIDEO |
                               SDL_INIT_AUDIO |

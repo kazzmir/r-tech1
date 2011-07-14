@@ -11,6 +11,8 @@
  * 
  */
 
+#include <unistd.h>
+#include <errno.h>
 #include "network-system.h"
 #include "../funcs.h"
 #include "../debug.h"
@@ -330,16 +332,30 @@ AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, co
 
 extern "C" {
 
+/* http://sourceware.org/binutils/docs-2.21/ld/Options.html#index-g_t_002d_002dwrap_003d_0040var_007bsymbol_007d-261
+ * --wrap=symbol
+ * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
+ */
+int __wrap_open(const char * path, int mode, int params){
+    Global::debug(0) << "Called open" << std::endl;
+    return -1;
+}
+
+ssize_t __wrap_read(int fd, void * buf, size_t count){
+    Global::debug(0) << "Called read" << std::endl;
+    return EBADF;
+}
+
 int pipe (int filedes[2]){
-    return 0;
+    return -1;
 }
 
 int mkdir (const char *filename, mode_t mode){
-    return 0;
+    return -1;
 }
 
-int access (const char *filename, int how){
-    return 0;
+int access(const char *filename, int how){
+    return -1;
 }
 
 char * getcwd (char *buffer, size_t size){
@@ -347,15 +363,15 @@ char * getcwd (char *buffer, size_t size){
 }
 
 int lstat (const char *path, struct stat *buf){
-    return 0;
+    return -1;
 }
 
 int rmdir (const char *filename){
-    return 0;
+    return -1;
 }
 
 int chdir (const char *filename){
-    return 0;
+    return -1;
 }
 
 int setuid (uid_t newuid){
@@ -411,15 +427,15 @@ struct group * getgrgid(gid_t gid){
 }
 
 int link (const char *oldname, const char *newname){
-    return 0;
+    return -1;
 }
 
 int unlink (const char *filename){
-    return 0;
+    return -1;
 }
 
 int kill(pid_t pid, int sig){
-    return 0;
+    return -1;
 }
 
 }
