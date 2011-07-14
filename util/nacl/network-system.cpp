@@ -19,6 +19,7 @@
 #include <ppapi/c/pp_errors.h>
 #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/url_request_info.h>
+#include <ppapi/cpp/url_response_info.h>
 #include <ppapi/cpp/completion_callback.h>
 
 using std::string;
@@ -46,19 +47,22 @@ struct NaclRequest{
     virtual ~NaclRequest(){
     }
 
-    virtual void start(pp::CompletionCallback callback, pp::Core * core) = 0;
+    virtual void start() = 0;
 };
 
 struct NaclRequestOpen: public NaclRequest {
-    NaclRequestOpen(pp::Instance * instance, const string & url):
+    NaclRequestOpen(pp::Instance * instance, const string & url, Manager * manager):
         request(instance),
-        loader(instance){
+        loader(instance),
+        url(url),
+        manager(manager){
             request.SetURL(url);
             request.SetMethod("GET");
         }
 
-    void start(pp::CompletionCallback callback, pp::Core * core){
-        Global::debug(0) << "Request open" << std::endl;
+    void start(){
+        Global::debug(0) << "Request open for url " << url << std::endl;
+        pp::CompletionCallback callback(&NaclRequestOpen::onFinish, this);
         int32_t ok = loader.Open(request, callback);
         Global::debug(0) << "Open " << ok << std::endl;
         if (ok != PP_OK_COMPLETIONPENDING){
@@ -69,47 +73,115 @@ struct NaclRequestOpen: public NaclRequest {
         Global::debug(0) << "Callback running" << std::endl;
     }
 
+    static void onFinish(void * me, int32_t result){
+        NaclRequestOpen * self = (NaclRequestOpen*) me;
+        self->finish(result);
+    }
+
+    void finish(int32_t result);
+
     pp::URLRequestInfo request;
     pp::URLLoader loader;
+    string url;
+    Manager * manager;
 };
 
 class Manager{
 public:
-    Manager(pp::Instance * instance, pp::Core * core, Util::Thread::LockObject & portal):
+    Manager(pp::Instance * instance, pp::Core * core):
     instance(instance),
     core(core),
-    portal(portal),
-    factory(NULL){
+    factory(this){
+        next = 2;
     }
 
     pp::Instance * instance;
     pp::Core * core;
-    Util::Thread::LockObject & portal;
     Util::ReferenceCount<NaclRequest> request;
-    pp::CompletionCallbackFactory<Manager> * factory;
+    pp::CompletionCallbackFactory<Manager> factory;
+
+    int next;
+
+    struct OpenFileData{
+        const char * path;
+        int file;
+    };
+
+    OpenFileData openFileData;
+    Util::Thread::LockObject lock;
+    volatile bool done;
+
+    int openFile(const char * path){
+        Util::Thread::ScopedLock scoped(lock);
+        done = false;
+        openFileData.path = path;
+        openFileData.file = -1;
+        pp::CompletionCallback callback(&Manager::doOpenFile, this);
+        core->CallOnMainThread(0, callback, 0);
+        lock.wait(done);
+        return openFileData.file;
+    }
+
+    /* called by the main thread */
+    static void doOpenFile(void * self, int32_t result){
+        Manager * manager = (Manager*) self;
+        manager->continueOpenFile();
+    }
+
+    void continueOpenFile(){
+        request = new NaclRequestOpen(instance, openFileData.path, this);
+        request->start();
+    }
+
+    int nextFileDescriptor(){
+        int n = next;
+        next += 1;
+        return n;
+    }
+
+    void requestComplete(){
+        lock.lockAndSignal(done, true);
+    }
+
+    void success(NaclRequestOpen & open){
+        pp::URLResponseInfo info = open.loader.GetResponseInfo();
+        if (info.GetStatusCode() == 200){
+            openFileData.file = nextFileDescriptor();
+        } else {
+            openFileData.file = -1;
+        }
+        
+        requestComplete();
+    }
+
+    void failure(NaclRequestOpen & open){
+        openFileData.file = -1;
+        requestComplete();
+    }
+
+    bool exists(const string & path){
+        Util::Thread::ScopedLock scoped(lock);
+        done = false;
+        openFileData.path = path.c_str();
+        openFileData.file = -1;
+        pp::CompletionCallback callback(&Manager::doOpenFile, this);
+        core->CallOnMainThread(0, callback, 0);
+        lock.wait(done);
+        return openFileData.file != -1;
+    }
 
     /*
-    void start(){
-        pp::CompletionCallback callback = factory.NewCallback(&Manager::OnOpen);
-        int32_t ok = loader.Open(request, callback);
-        Global::debug(0) << "Open " << ok << std::endl;
-        if (ok != PP_OK_COMPLETIONPENDING){
-            callback.Run(ok);
-        }
-        Global::debug(0) << "Callback running" << std::endl;
-    }
-    */
-
     static void doStartOpen(void * self, int32_t result){
         Manager * me = (Manager*) self;
         me->start();
     }
 
     void start(){
-        factory = new pp::CompletionCallbackFactory<Manager>(this);
-        request = new NaclRequestOpen(instance, operation.absolute.path());
-        pp::CompletionCallback callback(&Manager::doOnOpen, this);
-        request->start(callback, core);
+        // factory = new pp::CompletionCallbackFactory<Manager>(this);
+        request = new NaclRequestOpen(instance, operation.absolute.path(), this);
+        // pp::CompletionCallback callback(&Manager::doOnOpen, this);
+        // request->start(callback, core);
+        request->start();
     }
 
     static void doOnOpen(void * self, int32_t result){
@@ -140,9 +212,9 @@ public:
         Global::debug(0) << "Made callback" << std::endl;
         core->CallOnMainThread(0, callback, 0);
         // request->start(callback, core);
-        /* the handler will call into the browser. the browser will asynchounsly
+        / * the handler will call into the browser. the browser will asynchounsly
          * call the handler again and the handler will call run2 to finish up
-         */
+         * /
         Global::debug(0) << "Releasing control back to the browser" << std::endl;
     }
 
@@ -151,21 +223,25 @@ public:
         Global::debug(0) << "File operation done" << std::endl;
         operation.complete = true;
         portal.signal();
-        delete factory;
-        factory = NULL;
+        // delete factory;
+        // factory = NULL;
         portal.release();
     }
-
-    /*
-    pp::URLRequestInfo request;
-    pp::URLLoader loader;
     */
 };
+
+void NaclRequestOpen::finish(int32_t result){
+    if (result == 0){
+        manager->success(*this);
+    } else {
+        manager->failure(*this);
+    }
+}
 
 NetworkSystem::NetworkSystem(const string & serverPath, pp::Instance * instance, pp::Core * core):
 instance(instance),
 serverPath(serverPath),
-manager(new Manager(instance, core, portal)){
+manager(new Manager(instance, core)){
 }
 
 /* TODO */
@@ -227,14 +303,14 @@ public:
 };
 */
 
+/*
 void NetworkSystem::run(){
-    manager->run();
-    /*
+    // manager->run();
     Util::Thread::Id thread;
     Util::Thread::createThread(&thread, NULL, &Manager::run, manager);
-    */
     // manager->run();
 }
+*/
 
 bool NetworkSystem::exists(const AbsolutePath & path){
     /*
@@ -256,7 +332,10 @@ bool NetworkSystem::exists(const AbsolutePath & path){
         return false;
     }
     */
+
+    return manager->exists(path.path());
     
+#if 0
     Global::debug(0) << "Getting portal lock" << std::endl;
     if (portal.acquire() != 0){
         Global::debug(0) << "Lock failed!" << std::endl;
@@ -287,6 +366,7 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     handler.wait();
     return false;
     */
+#endif
 }
 
 /* TODO */
@@ -303,12 +383,12 @@ std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath,
 
 /* TODO */
 AbsolutePath NetworkSystem::configFile(){
-    return AbsolutePath();
+    return AbsolutePath("paintownrc");
 }
 
 /* TODO */
 AbsolutePath NetworkSystem::userDirectory(){
-    return AbsolutePath();
+    return AbsolutePath("paintownrc");
 }
 
 /* TODO */
@@ -325,10 +405,18 @@ AbsolutePath NetworkSystem::findInsensitive(const RelativePath & path){
 AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, const RelativePath & path){
     return AbsolutePath();
 }
+    
+int NetworkSystem::libcOpen(const char * path, int mode, int params){
+    return manager->openFile(path);
+}
 
 }
 
 /* NOTE FIXME Missing I/O in Native Client */
+
+Nacl::NetworkSystem & getSystem(){
+    return (Nacl::NetworkSystem&) Storage::instance();
+}
 
 extern "C" {
 
@@ -337,12 +425,14 @@ extern "C" {
  * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
  */
 int __wrap_open(const char * path, int mode, int params){
-    Global::debug(0) << "Called open" << std::endl;
-    return -1;
+    Global::debug(0, "libc open") << "Opening '" << path << "'" << std::endl;
+    int file = getSystem().libcOpen(path, mode, params);
+    Global::debug(0, "libc open") << "Opened file " << file << std::endl;
+    return file;
 }
 
 ssize_t __wrap_read(int fd, void * buf, size_t count){
-    Global::debug(0) << "Called read" << std::endl;
+    // Global::debug(0) << "Called libc read" << std::endl;
     return EBADF;
 }
 
