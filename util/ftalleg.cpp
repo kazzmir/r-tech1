@@ -496,7 +496,10 @@ namespace ftalleg{
 
                 kerning = FT_HAS_KERNING(face);
             } else {
-                faceLoaded=false;
+                faceLoaded = false;
+                std::ostringstream fail;
+                fail << "Could not load freetype font " << filename.path();
+                throw Exception(fail.str());
             }
 
             return faceLoaded;
@@ -675,17 +678,17 @@ namespace ftalleg{
             return 0;
         }
 
-	int freetype::calculateHeight( const std::string & str ) const {
-		int max = 0;
-		for ( unsigned int i = 0; i < str.length(); i++ ){
-			int q = height( str[ i ] );
-			// printf( "Height of %c is %d\n", str[ i ], q );
-			if ( q > max ){
-				max = q;
-			}
-		}
+	int freetype::calculateHeight(const std::string & str) const {
+            int max = 0;
+            for ( unsigned int i = 0; i < str.length(); i++ ){
+                int q = height(str[i]);
+                // printf( "Height of %c is %d\n", str[ i ], q );
+                if (q > max){
+                    max = q;
+                }
+            }
 
-		return max;
+            return max;
 	}
 
 	//! Set size
