@@ -504,9 +504,8 @@ void NaclRequestRead::finish(int32_t result){
     manager->success(*this, result);
 }
 
-NetworkSystem::NetworkSystem(const string & serverPath, pp::Instance * instance, pp::Core * core):
+NetworkSystem::NetworkSystem(pp::Instance * instance, pp::Core * core):
 instance(instance),
-serverPath(serverPath),
 manager(new Manager(instance, core)){
 }
 
