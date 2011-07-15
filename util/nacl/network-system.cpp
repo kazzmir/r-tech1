@@ -20,12 +20,15 @@
 #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/url_request_info.h>
 #include <ppapi/cpp/url_response_info.h>
+#include <ppapi/c/ppb_url_request_info.h>
 #include <ppapi/cpp/completion_callback.h>
 
 using std::string;
 using std::map;
 
 namespace Nacl{
+
+static const char * CONTEXT = "nacl";
 
 typedef Path::AbsolutePath AbsolutePath;
 typedef Path::RelativePath RelativePath;
@@ -59,6 +62,7 @@ struct NaclRequestOpen: public NaclRequest {
         manager(manager){
             request.SetURL(url);
             request.SetMethod("GET");
+            // request.SetProperty(PP_URLREQUESTPROPERTY_RECORDDOWNLOADPROGRESS, pp::Var((bool) PP_TRUE));
         }
 
     void start(){
@@ -120,6 +124,166 @@ struct NaclRequestRead: public NaclRequest {
     int read;
 };
 
+class FileHandle{
+public:
+    FileHandle(const Util::ReferenceCount<NaclRequestOpen> & open):
+        open(open),
+        buffer(NULL){
+        }
+
+    ~FileHandle(){
+        delete[] buffer;
+    }
+
+    pp::URLLoader & getLoader(){
+        return open->loader;
+    }
+
+    class Reader{
+    public:
+        static const int PAGE_SIZE = 1024 * 32;
+        struct Page{
+            Page():
+            buffer(NULL),
+            size(0),
+            next(NULL){
+                buffer = new char[PAGE_SIZE];
+            }
+
+            char * buffer;
+            int size;
+            Page * next;
+
+            ~Page(){
+                delete[] buffer;
+                delete next;
+            }
+        };
+
+        Reader(pp::CompletionCallback finish, pp::URLLoader & loader, FileHandle * handle, pp::Core * core):
+        finish(finish),
+        loader(loader),
+        handle(handle),
+        core(core),
+        tries(0){
+            current = &page;
+        }
+
+        int getSize(){
+            Page * use = &page;
+            int total = 0;
+            while (use != NULL){
+                total += use->size;
+                use = use->next;
+            }
+            return total;
+        }
+
+        void copy(char * buffer){
+            Page * use = &page;
+            while (use != NULL){
+                memcpy(buffer, use->buffer, use->size);
+                buffer += use->size;
+                use = use->next;
+            }
+        }
+
+        void read(){
+            pp::CompletionCallback callback(&Reader::onRead, this);
+            if (current->size == PAGE_SIZE){
+                Page * next = new Page();
+                current->next = next;
+                current = next;
+            }
+            int32_t ok = loader.ReadResponseBody(current->buffer + current->size, PAGE_SIZE - current->size, callback);
+            if (ok != PP_OK_COMPLETIONPENDING){
+                callback.Run(ok);
+            }
+        }
+
+        static void onRead(void * self, int32_t result){
+            Reader * reader = (Reader*) self;
+            reader->didRead(result);
+        }
+
+        void didRead(int32_t result){
+            Global::debug(1) << "Read " << result << " bytes" << std::endl;
+            current->size += result;
+            if (result > 0){
+                tries = 0;
+                read();
+            } else {
+                if (tries >= 2){
+                    handle->readDone(this);
+                } else {
+                    tries += 1;
+                    pp::CompletionCallback callback(&Reader::doRead, this);
+                    core->CallOnMainThread(50, callback, 0);
+                }
+            }
+        }
+
+        static void doRead(void * self, int32_t result){
+            Reader * reader = (Reader*) self;
+            reader->read();
+        }
+
+        pp::CompletionCallback finish;
+        pp::URLLoader & loader;
+        Page page;
+        Page * current;
+        FileHandle * handle;
+        pp::Core * core;
+        int tries;
+    };
+
+    void readAll(pp::CompletionCallback finish, pp::Core * core){
+        reader = new Reader(finish, open->loader, this, core);
+        reader->read();
+    }
+
+    void readDone(Reader * reader){
+        length = reader->getSize();
+        Global::debug(1) << "Done reading, got " << length << " bytes" << std::endl;
+        position = 0;
+        buffer = new char[length];
+        reader->copy(buffer);
+        reader->finish.Run(0);
+    }
+
+    int read(void * buffer, size_t count){
+        size_t bytes = position + count < length ? count : (length - position);
+        memcpy(buffer, this->buffer + position, bytes);
+        position += bytes;
+        return bytes;
+    }
+
+    off_t seek(off_t offset, int whence){
+        switch (whence){
+            case SEEK_SET: {
+                position = offset;
+                break;
+            }
+            case SEEK_CUR: {
+                position += offset;
+                break;
+            }
+            case SEEK_END: {
+                position = length - offset - 1;
+                break;
+            }
+        }
+
+        return position;
+    }
+
+    Util::ReferenceCount<NaclRequestOpen> open;
+    off_t position;
+    off_t length;
+    char * buffer;
+    Util::ReferenceCount<Reader> reader;
+};
+
 class Manager{
 public:
     Manager(pp::Instance * instance, pp::Core * core):
@@ -134,7 +298,7 @@ public:
     Util::ReferenceCount<NaclRequest> request;
     pp::CompletionCallbackFactory<Manager> factory;
 
-    map<int, Util::ReferenceCount<NaclRequest> > fileTable;
+    map<int, Util::ReferenceCount<FileHandle> > fileTable;
 
     int next;
 
@@ -164,6 +328,7 @@ public:
     volatile bool done;
 
     int openFile(const char * path){
+        Global::debug(1, CONTEXT) << "open " << path << std::endl;
         Util::Thread::ScopedLock scoped(lock);
         done = false;
         openFileData.path = path;
@@ -175,6 +340,7 @@ public:
     }
 
     bool exists(const string & path){
+        Global::debug(1, CONTEXT) << "exists " << path << std::endl;
         Util::Thread::ScopedLock scoped(lock);
         done = false;
         openFileData.path = path.c_str();
@@ -183,6 +349,17 @@ public:
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
         return openFileData.file != -1;
+    }
+
+    off_t lseek(int fd, off_t offset, int whence){
+        Global::debug(2, CONTEXT) << "seek fd " << fd << " offset " << offset << " whence " << whence << std::endl;
+        Util::Thread::ScopedLock scoped(lock);
+        if (fileTable.find(fd) == fileTable.end()){
+            return -1;
+        }
+
+        Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+        return handle->seek(offset, whence);
     }
 
     int close(int fd){
@@ -209,7 +386,7 @@ public:
     /* the destructor for the NaclRequestOpen has to occur in the main thread */
     void continueCloseFile(){
         fileTable.erase(fileTable.find(closeFileData.fd));
-        lock.lockAndSignal(done, true);
+        requestComplete();
     }
 
     ssize_t readFile(int fd, void * buffer, size_t count){
@@ -218,6 +395,14 @@ public:
             return EBADF;
         }
 
+        /* dont need to sleep on a condition variable because we are
+         * in the game thread.
+         */
+
+        Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+        return handle->read(buffer, count);
+
+        /*
         done = false;
         readFileData.file = fd;
         readFileData.buffer = buffer;
@@ -227,6 +412,7 @@ public:
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
         return readFileData.read;
+        */
     }
 
     static void doReadFile(void * self, int32_t result){
@@ -236,8 +422,8 @@ public:
 
     void continueReadFile(){
         /* hack to get the open request.. */
-        Util::ReferenceCount<NaclRequestOpen> open = fileTable[readFileData.file].convert<NaclRequestOpen>();
-        request = new NaclRequestRead(open->loader, this, readFileData.buffer, readFileData.count);
+        Util::ReferenceCount<FileHandle> open = fileTable[readFileData.file];
+        request = new NaclRequestRead(open->getLoader(), this, readFileData.buffer, readFileData.count);
         request->start();
     }
 
@@ -259,19 +445,38 @@ public:
     }
 
     void requestComplete(){
+        /* delete the reference counted request object in the main thread */
+        request = NULL;
         lock.lockAndSignal(done, true);
     }
 
     void success(NaclRequestOpen & open){
         pp::URLResponseInfo info = open.loader.GetResponseInfo();
         if (info.GetStatusCode() == 200){
+            /*
+            int64_t received = 0;
+            int64_t total = 0;
+            if (open.loader.GetDownloadProgress(&received, &total)){
+                Global::debug(0) << "Downloaded " << received << " total " << total << std::endl;
+            }
+            */
             openFileData.file = nextFileDescriptor();
-            fileTable[openFileData.file] = request;
+            fileTable[openFileData.file] = new FileHandle(request.convert<NaclRequestOpen>());
+            readEntireFile(fileTable[openFileData.file]);
         } else {
             openFileData.file = -1;
+            requestComplete();
         }
-        
-        requestComplete();
+    }
+
+    void readEntireFile(Util::ReferenceCount<FileHandle> & file){
+        pp::CompletionCallback callback(&Manager::completeRead, this);
+        file->readAll(callback, core);
+    }
+
+    static void completeRead(void * self, int32_t result){
+        Manager * manager = (Manager*) self;
+        manager->requestComplete();
     }
 
     void failure(NaclRequestOpen & open){
@@ -476,6 +681,10 @@ ssize_t NetworkSystem::libcRead(int fd, void * buf, size_t count){
 int NetworkSystem::libcClose(int fd){
     return manager->close(fd);
 }
+    
+off_t NetworkSystem::libcLseek(int fd, off_t offset, int whence){
+    return manager->lseek(fd, offset, whence);
+}
 
 }
 
@@ -511,6 +720,10 @@ int __wrap_close(int fd){
         return __real_close(fd);
     }
     return ok;
+}
+
+off_t __wrap_lseek(int fd, off_t offset, int whence){
+    return getSystem().libcLseek(fd, offset, whence);
 }
 
 int pipe (int filedes[2]){
