@@ -498,14 +498,16 @@ namespace ftalleg{
             } else {
                 faceLoaded = false;
                 std::ostringstream fail;
-                fail << "Could not load freetype font " << filename.path();
+                fail << "Could not load freetype font " << filename.path() << " error code " << error;
                 throw Exception(fail.str());
             }
 
             return faceLoaded;
         }
 
-        /* utf8 decoding */
+        /* utf8 decoding
+         * FIXME: handle the case when `position' runs out of bytes
+         */
         static long decodeUnicode(const std::string & input, unsigned int * position){
             unsigned char byte1 = (unsigned char) input[*position];
             /* one byte - ascii */
