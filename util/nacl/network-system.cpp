@@ -75,7 +75,7 @@ struct NaclRequestOpen: public NaclRequest {
             // core->CallOnMainThread(0, callback, ok);
             callback.Run(ok);
         }
-        Global::debug(1) << "Callback running" << std::endl;
+        // Global::debug(1) << "Callback running" << std::endl;
     }
 
     static void onFinish(void * me, int32_t result){
@@ -269,7 +269,7 @@ public:
                 break;
             }
             case SEEK_END: {
-                position = length - offset - 1;
+                position = length - offset;
                 break;
             }
         }
@@ -453,6 +453,7 @@ public:
     void success(NaclRequestOpen & open){
         pp::URLResponseInfo info = open.loader.GetResponseInfo();
         if (info.GetStatusCode() == 200){
+            Global::debug(1) << "Opened file" << std::endl;
             /*
             int64_t received = 0;
             int64_t total = 0;
@@ -464,6 +465,7 @@ public:
             fileTable[openFileData.file] = new FileHandle(request.convert<NaclRequestOpen>());
             readEntireFile(fileTable[openFileData.file]);
         } else {
+            Global::debug(1) << "Could not open file" << std::endl;
             openFileData.file = -1;
             requestComplete();
         }
