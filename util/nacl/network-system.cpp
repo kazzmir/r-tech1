@@ -91,6 +91,37 @@ struct NaclRequestOpen: public NaclRequest {
     Manager * manager;
 };
 
+struct NaclRequestExists: public NaclRequest {
+    NaclRequestExists(pp::Instance * instance, const string & url, Manager * manager):
+        request(instance),
+        loader(instance),
+        url(url),
+        manager(manager){
+            request.SetURL(url);
+            request.SetMethod("GET");
+        }
+
+    void start(){
+        pp::CompletionCallback callback(&NaclRequestExists::onFinish, this);
+        int32_t ok = loader.Open(request, callback);
+        if (ok != PP_OK_COMPLETIONPENDING){
+            callback.Run(ok);
+        }
+    }
+
+    static void onFinish(void * me, int32_t result){
+        NaclRequestExists * self = (NaclRequestExists*) me;
+        self->finish(result);
+    }
+
+    void finish(int32_t result);
+
+    pp::URLRequestInfo request;
+    pp::URLLoader loader;
+    string url;
+    Manager * manager;
+};
+
 struct NaclRequestRead: public NaclRequest {
     NaclRequestRead(pp::URLLoader & loader, Manager * manager, void * buffer, int read):
         loader(loader),
@@ -307,6 +338,11 @@ public:
         int file;
     };
 
+    struct ExistsData{
+        const char * path;
+        bool exists;
+    };
+
     struct ReadFileData{
         int file;
         void * buffer;
@@ -323,6 +359,7 @@ public:
     OpenFileData openFileData;
     ReadFileData readFileData;
     CloseFileData closeFileData;
+    ExistsData existsData;
 
     Util::Thread::LockObject lock;
     volatile bool done;
@@ -343,12 +380,12 @@ public:
         Global::debug(1, CONTEXT) << "exists " << path << std::endl;
         Util::Thread::ScopedLock scoped(lock);
         done = false;
-        openFileData.path = path.c_str();
-        openFileData.file = -1;
-        pp::CompletionCallback callback(&Manager::doOpenFile, this);
+        existsData.exists = false;
+        existsData.path = path.c_str();
+        pp::CompletionCallback callback(&Manager::doExists, this);
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
-        return openFileData.file != -1;
+        return existsData.exists;
     }
 
     off_t lseek(int fd, off_t offset, int whence){
@@ -427,6 +464,26 @@ public:
         request->start();
     }
 
+    static void doExists(void * self, int32_t result){
+        Manager * manager = (Manager*) self;
+        manager->continueExists();
+    }
+
+    void continueExists(){
+        request = new NaclRequestExists(instance, existsData.path, this);
+        request->start();
+    }
+
+    void success(NaclRequestExists & exists){
+        existsData.exists = true;
+        requestComplete();
+    }
+
+    void failure(NaclRequestExists & exists){
+        existsData.exists = false;
+        requestComplete();
+    }
+
     /* called by the main thread */
     static void doOpenFile(void * self, int32_t result){
         Manager * manager = (Manager*) self;
@@ -495,6 +552,19 @@ public:
 void NaclRequestOpen::finish(int32_t result){
     if (result == 0){
         manager->success(*this);
+    } else {
+        manager->failure(*this);
+    }
+}
+
+void NaclRequestExists::finish(int32_t result){
+    if (result == 0){
+        pp::URLResponseInfo info = loader.GetResponseInfo();
+        if (info.GetStatusCode() == 200){
+            manager->success(*this);
+        } else {
+            manager->failure(*this);
+        }
     } else {
         manager->failure(*this);
     }
@@ -583,7 +653,12 @@ void NetworkSystem::run(){
 
 bool NetworkSystem::exists(const AbsolutePath & path){
     Util::Thread::ScopedLock scoped(lock);
-    return manager->exists(path.path());
+    if (existsCache.find(path) != existsCache.end()){
+        return existsCache[path];
+    }
+    bool what = manager->exists(path.path());
+    existsCache[path] = what;
+    return what;
 }
 
 /* TODO */

@@ -3,6 +3,7 @@
 
 #ifdef NACL
 
+#include <map>
 #include <string>
 #include "../file-system.h"
 #include "../thread.h"
@@ -47,6 +48,7 @@ protected:
     /* only one thread at a time to access the network system */
     Util::Thread::LockObject lock;
     Manager * manager;
+    std::map<AbsolutePath, bool> existsCache;
 };
 
 }
