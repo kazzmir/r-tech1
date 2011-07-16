@@ -515,7 +515,11 @@ NetworkSystem::~NetworkSystem(){
 
 /* TODO */
 AbsolutePath NetworkSystem::find(const RelativePath & path){
-    return Util::getDataPath2().join(path);
+    AbsolutePath all = Util::getDataPath2().join(path);
+    if (exists(all)){
+        return all;
+    }
+    throw Storage::NotFound(__FILE__, __LINE__, path.path());
 }
 
 /* TODO */
@@ -578,60 +582,8 @@ void NetworkSystem::run(){
 */
 
 bool NetworkSystem::exists(const AbsolutePath & path){
-    /*
-    Global::debug(0) << "Checking for " << path.path() << std::endl;
-    pp::CompletionCallback::Block blocking;
-    pp::CompletionCallback callback(blocking);
-    pp::URLRequestInfo request(instance);
-    pp::URLLoader loader(instance); 
-    string url = serverPath + path.path();
-    Global::debug(0) << "Url: " << url << std::endl;
-    // request.SetURL(serverPath + path.path());
-    request.SetURL("/" + path.path());
-    request.SetMethod("GT");
-    int32_t ok = loader.Open(request, callback);
-    Global::debug(0) << "Ok: " << ok << std::endl;
-    if (ok == PP_OK){
-        return true;
-    } else {
-        return false;
-    }
-    */
-
+    Util::Thread::ScopedLock scoped(lock);
     return manager->exists(path.path());
-    
-#if 0
-    Global::debug(0) << "Getting portal lock" << std::endl;
-    if (portal.acquire() != 0){
-        Global::debug(0) << "Lock failed!" << std::endl;
-    }
-    /*
-    Global::debug(0) << "Getting portal lock again" << std::endl;
-    if (portal.acquire() != 0){
-        Global::debug(0) << "Lock failed again!" << std::endl;
-    }
-    Global::debug(0) << "Somehow got the portal lock twice??" << std::endl;
-    */
-    operation.type = Exists;
-    operation.absolute = path;
-    operation.complete = false;
-    operation.success = false;
-    Global::debug(0) << "Request open" << std::endl;
-    run();
-    // portal.signal();
-    Global::debug(0) << "Waiting on portal" << std::endl;
-    portal.wait(operation.complete);
-    portal.release();
-    Global::debug(0) << "Request open complete" << std::endl;
-
-    return operation.success;
-    /*
-    Handler handler(instance, path);
-    handler.start();
-    handler.wait();
-    return false;
-    */
-#endif
 }
 
 /* TODO */
@@ -640,9 +592,11 @@ std::vector<AbsolutePath> NetworkSystem::getFilesRecursive(const AbsolutePath & 
     return paths;
 }
 
-/* TODO */
 std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
+
     std::vector<AbsolutePath> paths;
+    paths.push_back(dataPath.join(RelativePath("akuma")));
+    paths.push_back(dataPath.join(RelativePath("kagetsura")));
     return paths;
 }
 
@@ -672,18 +626,22 @@ AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, co
 }
     
 int NetworkSystem::libcOpen(const char * path, int mode, int params){
+    Util::Thread::ScopedLock scoped(lock);
     return manager->openFile(path);
 }
     
 ssize_t NetworkSystem::libcRead(int fd, void * buf, size_t count){
+    Util::Thread::ScopedLock scoped(lock);
     return manager->readFile(fd, buf, count);
 }
 
 int NetworkSystem::libcClose(int fd){
+    Util::Thread::ScopedLock scoped(lock);
     return manager->close(fd);
 }
     
 off_t NetworkSystem::libcLseek(int fd, off_t offset, int whence){
+    Util::Thread::ScopedLock scoped(lock);
     return manager->lseek(fd, offset, whence);
 }
 
