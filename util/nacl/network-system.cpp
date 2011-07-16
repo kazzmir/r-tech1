@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include "network-system.h"
+#include <sstream>
+#include <fstream>
 #include "../funcs.h"
 #include "../debug.h"
 #include <ppapi/c/pp_errors.h>
@@ -25,6 +27,9 @@
 
 using std::string;
 using std::map;
+using std::vector;
+using std::ostringstream;
+using std::ifstream;
 
 namespace Nacl{
 
@@ -667,11 +672,66 @@ std::vector<AbsolutePath> NetworkSystem::getFilesRecursive(const AbsolutePath & 
     return paths;
 }
 
+string NetworkSystem::readFileAsString(const AbsolutePath & path){
+    ostringstream buffer;
+    ifstream input(path.path().c_str());
+    char stuff[1024];
+    while (input.good()){
+        input.read(stuff, sizeof(stuff) - 1);
+        stuff[sizeof(stuff) - 1] = '\0';
+        buffer << stuff;
+    }
+    return buffer.str();
+}
+
+static vector<string> split(string input, char splitter){
+    vector<string> all;
+    size_t found = input.find(splitter);
+    while (found != string::npos){
+        all.push_back(input.substr(0, found));
+        input.erase(0, found + 1);
+        found = input.find(splitter);
+    }
+    if (input.size() != 0){
+        all.push_back(input);
+    }
+    return all;
+}
+
+vector<AbsolutePath> NetworkSystem::readDirectory(const AbsolutePath & dataPath){
+    /* assume existence of 'directory.txt' in the given directory */
+    AbsolutePath fullPath = dataPath.join(RelativePath("directory.txt"));
+    string all = readFileAsString(fullPath);
+    vector<string> files = split(all, '\n');
+    vector<AbsolutePath> paths;
+    for (vector<string>::iterator it = files.begin(); it != files.end(); it++){
+        string what = *it;
+        paths.push_back(dataPath.join(RelativePath(what)));
+    }
+    return paths;
+}
+
+/* check if 'foo/bar/baz.txt' matches *.txt */
+static bool matchFile(const AbsolutePath & path, const string & find){
+    /* TODO */
+    return false;
+}
+
 std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
 
-    std::vector<AbsolutePath> paths;
-    paths.push_back(dataPath.join(RelativePath("akuma")));
-    paths.push_back(dataPath.join(RelativePath("kagetsura")));
+    vector<AbsolutePath> files = readDirectory(dataPath);
+
+    if (find == "*"){
+        return files;
+    }
+
+    vector<AbsolutePath> paths;
+    for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
+        AbsolutePath check = *it;
+        if (matchFile(check, find)){
+            paths.push_back(check);
+        }
+    }
     return paths;
 }
 
