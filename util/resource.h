@@ -2,7 +2,6 @@
 #define _paintown_resource_manager_h
 
 #include "factory/collector.h"
-#include "load_exception.h"
 #include "file-system.h"
 #include "thread.h"
 #include <map>
@@ -19,15 +18,15 @@ class Resource{
 public:
     /* do not prepend Util::getDataPath() to paths. Resource will do it for you.
      */
-    static Sound * getSound(const Filesystem::RelativePath & path) throw (LoadException);
-    static Graphics::Bitmap * getBitmap(const Filesystem::RelativePath & path) throw (LoadException);
+    static Sound * getSound(const Filesystem::RelativePath & path);
+    static Graphics::Bitmap * getBitmap(const Filesystem::RelativePath & path);
 private:
     friend class Collector;
     Resource();
     virtual ~Resource();
 
-    Sound * _getSound(const Filesystem::AbsolutePath & path) throw (LoadException);
-    Graphics::Bitmap * _getBitmap(const Filesystem::AbsolutePath & path) throw (LoadException);
+    Sound * _getSound(const Filesystem::AbsolutePath & path);
+    Graphics::Bitmap * _getBitmap(const Filesystem::AbsolutePath & path);
 
 private:
     static Resource * resource;

@@ -1,6 +1,6 @@
 #include "bitmap.h"
 #include "resource.h"
-#include "factory/collector.h"
+// #include "factory/collector.h"
 #include "funcs.h"
 #include "sound.h"
 #include "load_exception.h"
@@ -11,11 +11,11 @@
 using namespace std;
 
 Resource * Resource::resource = NULL;
-Sound * Resource::getSound(const Filesystem::RelativePath & path) throw (LoadException){
+Sound * Resource::getSound(const Filesystem::RelativePath & path){
     return resource->_getSound(Storage::instance().find(path));
 }
 
-Graphics::Bitmap * Resource::getBitmap(const Filesystem::RelativePath & path) throw (LoadException){
+Graphics::Bitmap * Resource::getBitmap(const Filesystem::RelativePath & path){
     return resource->_getBitmap(Storage::instance().find(path));
 }
 
@@ -34,7 +34,7 @@ Resource::~Resource(){
     }
 }
 
-Sound * Resource::_getSound(const Filesystem::AbsolutePath & path) throw (LoadException){
+Sound * Resource::_getSound(const Filesystem::AbsolutePath & path){
     Util::Thread::ScopedLock locked(lock);
     if (sounds[path.path()] == NULL){
         sounds[path.path()] = new Sound(path.path());
@@ -42,7 +42,7 @@ Sound * Resource::_getSound(const Filesystem::AbsolutePath & path) throw (LoadEx
     return sounds[path.path()];
 }
     
-Graphics::Bitmap * Resource::_getBitmap(const Filesystem::AbsolutePath & path) throw (LoadException){
+Graphics::Bitmap * Resource::_getBitmap(const Filesystem::AbsolutePath & path){
     Util::Thread::ScopedLock locked(lock);
     if (bitmaps[path.path()] == NULL){
         bitmaps[path.path()] = new Graphics::Bitmap(path.path());
