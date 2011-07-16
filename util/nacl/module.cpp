@@ -39,6 +39,11 @@ namespace nacl{
             return 0;
         }
 
+        bool HandleInputEvent(const PP_InputEvent& event){
+            SDL_NACL_PushEvent(&event);
+            return true;
+        }
+
         /* set up the viewport and run the game as usual */
         void run(){
             Nacl::NetworkSystem * system = new Nacl::NetworkSystem(the_instance, core);
