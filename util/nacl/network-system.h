@@ -44,8 +44,8 @@ public:
 protected:
     pp::Instance * instance;
     pp::Core * core;
-    /* used to communicate to the main NACL thread */
-    // Util::Thread::LockObject portal;
+    /* only one thread at a time to access the network system */
+    Util::Thread::LockObject lock;
     Manager * manager;
 };
 

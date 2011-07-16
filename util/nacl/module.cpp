@@ -56,12 +56,9 @@ namespace nacl{
                               SDL_INIT_NOPARACHUTE);
             Global::debug(0) << "SDL Init: " << ok << std::endl;
 
-            // Util::setDataPath("http://localhost:5103/data/");
             Util::Thread::Id thread;
             Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) launch, NULL);
             Global::debug(0) << "Running thread " << thread << std::endl;
-            // Global::debug(0) << "Run thread " << Util::Thread::createThread(&thread, NULL, launch, NULL) << std::endl;
-            // system->run();
         }
 
         virtual pp::Var GetInstanceObject(){

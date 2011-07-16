@@ -20,6 +20,7 @@
 #include "font.h"
 #include "init.h"
 #include <sstream>
+#include "file-system.h"
 
 #ifndef USE_ALLEGRO
 /* FIXME: move this to the filesystem module */
@@ -134,12 +135,16 @@ Filesystem::AbsolutePath Util::getDataPath2(){
     return Filesystem::AbsolutePath(dataPath + "/");
 }
 
+/* FIXME: remove this method */
 bool Util::exists( const string & file ){
+    return Storage::instance().exists(Filesystem::AbsolutePath(file));
+/*
 #ifdef USE_ALLEGRO
     return ::exists(file.c_str()) != 0;
 #else
     return file_exists(file.c_str());
 #endif
+*/
 }
 
 /*
