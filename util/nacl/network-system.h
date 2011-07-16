@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "../file-system.h"
 #include "../thread.h"
 
@@ -41,6 +42,10 @@ public:
     ssize_t libcRead(int fd, void * buf, size_t count);
     int libcClose(int fd);
     off_t libcLseek(int fd, off_t offset, int whence);
+
+protected:
+    std::string readFileAsString(const AbsolutePath & path);
+    std::vector<AbsolutePath> readDirectory(const AbsolutePath & dataPath);
 
 protected:
     pp::Instance * instance;
