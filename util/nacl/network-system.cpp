@@ -71,10 +71,10 @@ struct NaclRequestOpen: public NaclRequest {
         }
 
     void start(){
-        Global::debug(1) << "Request open for url " << url << std::endl;
+        Global::debug(2) << "Request open for url " << url << std::endl;
         pp::CompletionCallback callback(&NaclRequestOpen::onFinish, this);
         int32_t ok = loader.Open(request, callback);
-        Global::debug(1) << "Open " << ok << std::endl;
+        Global::debug(2) << "Open " << ok << std::endl;
         if (ok != PP_OK_COMPLETIONPENDING){
             // Global::debug(0) << "Call on main thread" << std::endl;
             // core->CallOnMainThread(0, callback, ok);
@@ -138,13 +138,12 @@ struct NaclRequestRead: public NaclRequest {
     void start(){
         pp::CompletionCallback callback(&NaclRequestRead::onFinish, this);
         int32_t ok = loader.ReadResponseBody(buffer, read, callback);
-        Global::debug(1) << "Read " << ok << std::endl;
+        Global::debug(2) << "Read " << ok << std::endl;
         if (ok != PP_OK_COMPLETIONPENDING){
             // Global::debug(0) << "Call on main thread" << std::endl;
             // core->CallOnMainThread(0, callback, ok);
             callback.Run(ok);
         }
-        Global::debug(1) << "Callback running" << std::endl;
     }
 
     static void onFinish(void * me, int32_t result){
@@ -243,7 +242,7 @@ public:
         }
 
         void didRead(int32_t result){
-            Global::debug(1) << "Read " << result << " bytes" << std::endl;
+            Global::debug(2) << "Read " << result << " bytes" << std::endl;
             current->size += result;
             if (result > 0){
                 tries = 0;
@@ -280,7 +279,7 @@ public:
 
     void readDone(Reader * reader){
         length = reader->getSize();
-        Global::debug(1) << "Done reading, got " << length << " bytes" << std::endl;
+        Global::debug(2) << "Done reading, got " << length << " bytes" << std::endl;
         position = 0;
         buffer = new char[length];
         reader->copy(buffer);
@@ -588,7 +587,6 @@ manager(new Manager(instance, core)){
 NetworkSystem::~NetworkSystem(){
 }
 
-/* TODO */
 AbsolutePath NetworkSystem::find(const RelativePath & path){
     AbsolutePath all = Util::getDataPath2().join(path);
     if (exists(all)){
@@ -597,9 +595,14 @@ AbsolutePath NetworkSystem::find(const RelativePath & path){
     throw Storage::NotFound(__FILE__, __LINE__, path.path());
 }
 
-/* TODO */
 RelativePath NetworkSystem::cleanse(const AbsolutePath & path){
-    return RelativePath();
+    string str = path.path();
+    if (str.find(Util::getDataPath2().path()) == 0){
+        str.erase(0, Util::getDataPath2().path().length());
+    } else if (str.find(userDirectory().path()) == 0){
+        str.erase(0, userDirectory().path().length());
+    }
+    return RelativePath(str);
 }
 
 bool NetworkSystem::exists(const RelativePath & path){
@@ -611,51 +614,6 @@ bool NetworkSystem::exists(const RelativePath & path){
     }
 }
 
-/*
-class Handler{
-public:
-    Handler(pp::Instance * instance, const AbsolutePath & path, NetworkSystem * system):
-    request(instance),
-    loader(instance),
-    factory(this),
-    http(false),
-    system(system){
-        request.SetURL(path.path());
-        request.SetMethod("GET");
-    }
-
-    virtual void start(){
-        pp::CompletionCallback callback = factory.NewCallback(&Handler::OnOpen);
-        int32_t ok = loader.Open(request, callback);
-        Global::debug(0) << "Open " << ok << std::endl;
-        if (ok != PP_OK_COMPLETIONPENDING){
-            callback.Run(ok);
-        }
-        Global::debug(0) << "Callback running" << std::endl;
-    }
-
-    virtual void OnOpen(int32_t ok){
-        Global::debug(0) << "Opened! " << ok << std::endl;
-        system->run2();
-    }
-
-    pp::URLRequestInfo request;
-    pp::URLLoader loader;
-    pp::CompletionCallbackFactory<Handler> factory;
-    volatile bool http;
-    NetworkSystem * system;
-};
-*/
-
-/*
-void NetworkSystem::run(){
-    // manager->run();
-    Util::Thread::Id thread;
-    Util::Thread::createThread(&thread, NULL, &Manager::run, manager);
-    // manager->run();
-}
-*/
-
 bool NetworkSystem::exists(const AbsolutePath & path){
     Util::Thread::ScopedLock scoped(lock);
     if (existsCache.find(path) != existsCache.end()){
@@ -664,12 +622,6 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     bool what = manager->exists(path.path());
     existsCache[path] = what;
     return what;
-}
-
-/* TODO */
-std::vector<AbsolutePath> NetworkSystem::getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
-    std::vector<AbsolutePath> paths;
-    return paths;
 }
 
 string NetworkSystem::readFileAsString(const AbsolutePath & path){
@@ -713,18 +665,25 @@ vector<AbsolutePath> NetworkSystem::readDirectory(const AbsolutePath & dataPath)
 
 /* check if 'foo/bar/baz.txt' matches *.txt */
 static bool matchFile(const AbsolutePath & path, const string & find){
-    /* TODO */
-    return false;
+    string file = path.getFilename().path();
+    unsigned int index = 0;
+    while (index < file.size()){
+        if (index >= find.size()){
+            return false;
+        }
+        if (find[index] == '*'){
+            return true;
+        }
+        if (find[index] != file[index]){
+            return false;
+        }
+        index += 1;
+    }
+    return true;
 }
 
 std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
-
     vector<AbsolutePath> files = readDirectory(dataPath);
-
-    if (find == "*"){
-        return files;
-    }
-
     vector<AbsolutePath> paths;
     for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
         AbsolutePath check = *it;
@@ -735,14 +694,27 @@ std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath,
     return paths;
 }
 
-/* TODO */
+std::vector<AbsolutePath> NetworkSystem::getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
+    vector<AbsolutePath> files = readDirectory(dataPath);
+    vector<AbsolutePath> paths;
+    for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
+        AbsolutePath check = *it;
+        if (matchFile(check, find)){
+            paths.push_back(check);
+        }
+
+        vector<AbsolutePath> more = getFilesRecursive(check, find, caseInsensitive);
+        paths.insert(paths.end(), more.begin(), more.end());
+    }
+    return paths;
+}
+
 AbsolutePath NetworkSystem::configFile(){
     return AbsolutePath("paintownrc");
 }
 
-/* TODO */
 AbsolutePath NetworkSystem::userDirectory(){
-    return AbsolutePath("paintownrc");
+    return AbsolutePath("paintown-user");
 }
 
 /* TODO */
