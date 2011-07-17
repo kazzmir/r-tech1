@@ -8,6 +8,7 @@
 #include <vector>
 #include "../file-system.h"
 #include "../thread.h"
+#include "../pointer.h"
 
 namespace pp{
     class Instance;
@@ -52,7 +53,7 @@ protected:
     pp::Core * core;
     /* only one thread at a time to access the network system */
     Util::Thread::LockObject lock;
-    Manager * manager;
+    Util::ReferenceCount<Manager> manager;
     std::map<AbsolutePath, bool> existsCache;
 };
 
