@@ -402,6 +402,10 @@ static void startTimers(ostream & out){
     running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
     running_timers.push_back(start_timer(inc_second_counter, 1));
 }
+
+#ifdef PS3
+#include "rsxutil.cpp"
+#endif
     
 static void initSystem(ostream & out){
     out << "SDL Init: ";
@@ -422,6 +426,12 @@ static void initSystem(ostream & out){
     pthread_init();
 #endif
 */
+
+#ifdef PS3
+    void * screen_memory = memalign(1024*1024, HOST_SIZE);
+    /* from rsxutil */
+    init_screen(screen_memory, HOST_SIZE);
+#endif
 
     try{
         SDL_Surface * icon = SDL_LoadBMP(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
