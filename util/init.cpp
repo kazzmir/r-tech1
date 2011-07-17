@@ -428,9 +428,11 @@ static void initSystem(ostream & out){
 */
 
 #ifdef PS3
-    void * screen_memory = memalign(1024*1024, HOST_SIZE);
     /* from rsxutil */
+    /*
+    void * screen_memory = memalign(1024*1024, HOST_SIZE);
     init_screen(screen_memory, HOST_SIZE);
+    */
 #endif
 
     try{
