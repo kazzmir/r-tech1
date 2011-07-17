@@ -209,6 +209,12 @@ void MusicRenderer::create(int frequency, int channels){
         configuration = ALLEGRO_MONO;
     }
     stream = play_audio_stream(BUFFER_SIZE, 16, configuration, frequency, 255, 128);
+    if (!stream){
+        throw MusicException(__FILE__, __LINE__, "Could not create Allegro stream");
+    }
+    if (stream->len != BUFFER_SIZE){
+        throw MusicException(__FILE__, __LINE__, "Buffer size mismatch");
+    }
     voice_set_priority(stream->voice, 255);
 }
 
