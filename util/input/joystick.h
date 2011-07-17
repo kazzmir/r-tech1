@@ -64,6 +64,7 @@ public:
     virtual void pressButton(int button);
     virtual void releaseButton(int button);
     virtual void axisMotion(int axis, int motion);
+    virtual void hatMotion(int motion);
 
     static Joystick * create();
 

@@ -21,6 +21,7 @@ public:
     virtual int fromNative(int button) = 0;
     virtual Joystick::Key toKey(int button) = 0;
     virtual void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events) = 0;
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events) = 0;
 };
 
 class DefaultButtonMapping: public ButtonMapping {
@@ -44,6 +45,9 @@ public:
             case 6: return Joystick::Button6;
             default: return Joystick::Invalid;
         }
+    }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
     }
 
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
@@ -136,6 +140,9 @@ public:
     /* TODO */
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
     }
+
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+    }
 };
 
 class LogitechPrecision: public ButtonMapping {
@@ -198,6 +205,9 @@ public:
                 events.push_back(Joystick::Event(Joystick::Down, false));
             }
         }
+    }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
     }
 };
 
@@ -266,6 +276,96 @@ public:
     /* TODO */
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
     }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+    }
+};
+
+class XBox360Controller: public ButtonMapping {
+public:
+    enum Buttons{
+        A = 0,
+        B = 1,
+        X = 2,
+        Y = 3,
+        L1 = 4,
+        R1 = 5,
+        Start = 6,
+        Xbox = 7,
+        L3 = 8,
+        R3 = 9,
+        select = 10
+    };
+
+    int toNative(int button){
+        return 0;
+    }
+
+    int fromNative(int button){
+    	return 0;
+    }
+    
+    Joystick::Key toKey(int button){
+        switch (button){
+            case A: return Joystick::Button1;
+            case B: return Joystick::Button2;
+            case X: return Joystick::Button3;
+            case Y: return Joystick::Button4;
+            case L1: return Joystick::Button5;
+            case R1: return Joystick::Button6;
+            case Start: return Joystick::Quit;
+        }
+        return Joystick::Invalid;
+    }
+    
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+    /* axis 6 and 7 are the hats. sdl passes them as hat events */
+    #if 0
+        if (axis == 6){
+            if (motion < 0){
+                events.push_back(Joystick::Event(Joystick::Left, true));
+            } else if (motion > 0){
+                events.push_back(Joystick::Event(Joystick::Right, true));
+            } else if (motion == 0){
+                /* fake a release for left and right */
+                events.push_back(Joystick::Event(Joystick::Left, false));
+                events.push_back(Joystick::Event(Joystick::Right, false));
+            }
+        } else if (axis == 7){
+            if (motion < 0){
+                events.push_back(Joystick::Event(Joystick::Up, true));
+            } else if (motion > 0){
+                events.push_back(Joystick::Event(Joystick::Down, true));
+            } else if (motion == 0){
+                events.push_back(Joystick::Event(Joystick::Up, false));
+                events.push_back(Joystick::Event(Joystick::Down, false));
+            }
+        }
+        #endif
+    }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+        bool up = false;
+        bool down = false;
+        bool left = false;
+        bool right = false;
+        switch (motion){
+            case SDL_HAT_CENTERED: break;
+            case SDL_HAT_UP: up = true; break;
+            case SDL_HAT_RIGHT: right = true; break;
+            case SDL_HAT_DOWN: down = true; break;
+            case SDL_HAT_LEFT: left = true; break;
+            case SDL_HAT_RIGHTUP: right = true; up = true; break;
+            case SDL_HAT_RIGHTDOWN: right = true; down = true; break;
+            case SDL_HAT_LEFTUP: left = true; up = true; break;
+            case SDL_HAT_LEFTDOWN: left = true; down = true; break;
+        }
+
+        events.push_back(Joystick::Event(Joystick::Left, left));
+        events.push_back(Joystick::Event(Joystick::Right, right));
+        events.push_back(Joystick::Event(Joystick::Down, down));
+        events.push_back(Joystick::Event(Joystick::Up, up));
+    }
 };
 
 ButtonMapping * makeButtonMapping(string name){
@@ -277,6 +377,9 @@ ButtonMapping * makeButtonMapping(string name){
     }
     if (name == "Logitech Logitech(R) Precision(TM) Gamepad"){
         return new LogitechPrecision();
+    }
+    if (name == "Microsoft X-Box 360 pad"){
+    	return new XBox360Controller();
     }
     return new DefaultButtonMapping();
 }
@@ -392,6 +495,12 @@ void SDLJoystick::releaseButton(int button){
         if (event != Invalid){
             events.push_back(Event(event, false));
         }
+    }
+}
+
+void SDLJoystick::hatMotion(int motion){
+    if (joystick){
+        buttonMapping->hatMotionEvents(motion, events);
     }
 }
 

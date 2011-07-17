@@ -53,6 +53,11 @@ static void handleJoystickButtonUp(Joystick * joystick, const SDL_Event & event)
 static void handleJoystickHat(Joystick * joystick, const SDL_Event & event){
     int device = event.jhat.which;
     int motion = event.jhat.value;
+    if (device == joystick->getDeviceId()){
+        joystick->hatMotion(motion);
+    }
+
+#if 0
     /* should up/down control left/right -- flip these values? */
 #if WII
     const int axis_up_down = 0;
@@ -78,6 +83,7 @@ static void handleJoystickHat(Joystick * joystick, const SDL_Event & event){
         case SDL_HAT_LEFT: joystick->axisMotion(axis_left_right, left); break;
         default: break;
     }
+#endif
 }
 
 static void handleJoystickButtonDown(Joystick * joystick, const SDL_Event & event){
