@@ -583,7 +583,6 @@ instance(instance),
 manager(new Manager(instance, core)){
 }
 
-/* TODO */
 NetworkSystem::~NetworkSystem(){
 }
 
@@ -625,6 +624,11 @@ bool NetworkSystem::exists(const AbsolutePath & path){
 }
 
 string NetworkSystem::readFileAsString(const AbsolutePath & path){
+    if (!exists(path)){
+        ostringstream fail;
+        fail << "Could not read " << path.path();
+        throw Filesystem::NotFound(__FILE__, __LINE__, fail.str());
+    }
     ostringstream buffer;
     ifstream input(path.path().c_str());
     char stuff[1024];
@@ -664,7 +668,7 @@ vector<AbsolutePath> NetworkSystem::readDirectory(const AbsolutePath & dataPath)
 }
 
 /* check if 'foo/bar/baz.txt' matches *.txt */
-static bool matchFile(const AbsolutePath & path, const string & find){
+static bool matchFile(const AbsolutePath & path, const string & find, bool insensitive = false){
     string file = path.getFilename().path();
     unsigned int index = 0;
     while (index < file.size()){
@@ -674,8 +678,14 @@ static bool matchFile(const AbsolutePath & path, const string & find){
         if (find[index] == '*'){
             return true;
         }
-        if (find[index] != file[index]){
-            return false;
+        if (insensitive){
+            if (tolower(find[index]) != tolower(file[index])){
+                return false;
+            }
+        } else {
+            if (find[index] != file[index]){
+                return false;
+            }
         }
         index += 1;
     }
@@ -717,19 +727,46 @@ AbsolutePath NetworkSystem::userDirectory(){
     return AbsolutePath("paintown-user");
 }
 
-/* TODO */
 std::vector<AbsolutePath> NetworkSystem::findDirectories(const RelativePath & path){
-    return std::vector<AbsolutePath>();
+    vector<AbsolutePath> files = readDirectory(find(path));
+    vector<AbsolutePath> paths;
+    for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
+        AbsolutePath check = *it;
+        try{
+            /* if we can read directory contents then its a directory */
+            vector<AbsolutePath> more = readDirectory(check);
+            paths.push_back(check);
+        } catch (const Filesystem::NotFound & fail){
+        }
+    }
+    return paths;
+
 }
 
-/* TODO */
 AbsolutePath NetworkSystem::findInsensitive(const RelativePath & path){
-    return AbsolutePath();
+    try{
+        /* try sensitive lookup first */
+        return find(path);
+    } catch (const Filesystem::NotFound & fail){
+    }
+    /* get the base directory */
+    AbsolutePath directory = find(path.getDirectory());
+    return lookupInsensitive(directory, path.getFilename());
+
 }
 
-/* TODO */
 AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, const RelativePath & path){
-    return AbsolutePath();
+    vector<AbsolutePath> files = readDirectory(directory);
+    vector<AbsolutePath> paths;
+    for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
+        AbsolutePath check = *it;
+        if (matchFile(check, path.path(), true)){
+            return check;
+        }
+    }
+    ostringstream out;
+    out << "Cannot find " << path.path() << " in " << directory.path();
+    throw Filesystem::NotFound(__FILE__, __LINE__, out.str());
 }
     
 int NetworkSystem::libcOpen(const char * path, int mode, int params){
