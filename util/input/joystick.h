@@ -73,7 +73,14 @@ public:
         Quit,
     };
 
-    typedef Key Event;
+    struct Event{
+        Event(Key key, bool enabled):
+        key(key), enabled(enabled){
+        }
+
+        Key key;
+        bool enabled;
+    };
     
     virtual inline const std::vector<Event> & getEvents() const {
         return events;

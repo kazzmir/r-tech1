@@ -5,6 +5,9 @@
 
 #include <SDL.h>
 #include "../joystick.h"
+#include "util/pointer.h"
+
+class ButtonMapping;
 
 class SDLJoystick: public Joystick {
 public:
@@ -19,8 +22,13 @@ public:
 
     friend class Joystick;
 protected:
+    /* convert buttons between what paintown wants and what sdl wants */
+    int to_native_button(int button);
+    int from_native_button(int button);
+
     SDLJoystick();
     SDL_Joystick * joystick;
+    Util::ReferenceCount<ButtonMapping> buttonMapping;
 };
 
 #endif
