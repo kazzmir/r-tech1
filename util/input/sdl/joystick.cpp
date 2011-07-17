@@ -4,8 +4,10 @@
 #include "joystick.h"
 #include "util/debug.h"
 #include <string>
+#include <vector>
 
 using std::string;
+using std::vector;
 
 class ButtonMapping{
 public:
@@ -18,7 +20,7 @@ public:
     virtual int toNative(int button) = 0;
     virtual int fromNative(int button) = 0;
     virtual Joystick::Key toKey(int button) = 0;
-    virtual Joystick::Key axisMotionToKey(int axis, int motion) = 0;
+    virtual void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events) = 0;
 };
 
 class DefaultButtonMapping: public ButtonMapping {
@@ -42,7 +44,7 @@ public:
         }
     }
 
-    Joystick::Key axisMotionToKey(int axis, int motion){
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
         /* FIXME */
         /*
         if (axis == 0){
@@ -60,7 +62,6 @@ public:
         }
         */
 
-        return Joystick::Invalid;
     }
 };
 
@@ -129,8 +130,68 @@ public:
     }
     
     /* TODO */
-    Joystick::Key axisMotionToKey(int axis, int motion){
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+    }
+};
+
+class LogitechPrecision: public ButtonMapping {
+public:
+    enum Buttons{
+        Button1 = 0,
+        Button2 = 1,
+        Button3 = 2,
+        Button4 = 3,
+        Start = 8,
+        Select = 9,
+        R2 = 7,
+        R1 = 5,
+        L2 = 6,
+        L1 = 4
+    };
+
+    int toNative(int button){
+        return -1;
+    }
+
+    int fromNative(int button){
+        return -1;
+    }
+    
+    Joystick::Key toKey(int button){
+        switch (button){
+            case Button1: return Joystick::Button1;
+            case Button2: return Joystick::Button2;
+            case Button3: return Joystick::Button3;
+            case Button4: return Joystick::Button4;
+            case Start: return Joystick::Quit;
+        }
         return Joystick::Invalid;
+    }
+    
+    /* axis 1. negative up, positive down
+     * axis 0, negative left, positive right
+     */
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+        if (axis == 0){
+            if (motion < 0){
+                events.push_back(Joystick::Event(Joystick::Left, true));
+            } else if (motion > 0){
+                events.push_back(Joystick::Event(Joystick::Right, true));
+            } else if (motion == 0){
+                /* fake a release for left and right */
+                events.push_back(Joystick::Event(Joystick::Left, false));
+                events.push_back(Joystick::Event(Joystick::Right, false));
+            }
+        } else if (axis == 1){
+            if (motion < 0){
+                events.push_back(Joystick::Event(Joystick::Up, true));
+            } else if (motion > 0){
+                events.push_back(Joystick::Event(Joystick::Down, true));
+            } else if (motion == 0){
+                events.push_back(Joystick::Event(Joystick::Up, false));
+                events.push_back(Joystick::Event(Joystick::Down, false));
+            }
+        }
     }
 };
 
@@ -189,8 +250,7 @@ public:
     }
 
     /* TODO */
-    Joystick::Key axisMotionToKey(int axis, int motion){
-        return Joystick::Invalid;
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
     }
 };
 
@@ -200,6 +260,9 @@ ButtonMapping * makeButtonMapping(string name){
 #endif
     if (name == "Sony PLAYSTATION(R)3 Controller"){
         return new Playstation3Controller();
+    }
+    if (name == "Logitech Logitech(R) Precision(TM) Gamepad"){
+        return new LogitechPrecision();
     }
     return new DefaultButtonMapping();
 }
@@ -319,11 +382,15 @@ void SDLJoystick::releaseButton(int button){
 }
 
 void SDLJoystick::axisMotion(int axis, int motion){
+    // Global::debug(0) << "Axis motion on " << axis << " motion " << motion << std::endl;
     if (joystick){
-        Key move = buttonMapping->axisMotionToKey(axis, motion);
-        if (move != Invalid){
-            events.push_back(Event(move, true));
+        buttonMapping->axisMotionEvents(axis, motion, events);
+        /*
+        Event move = buttonMapping->axisMotionToEvent(axis, motion);
+        if (move.key != Invalid){
+            events.push_back(move);
         }
+        */
     }
 }
 
