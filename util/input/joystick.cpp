@@ -59,15 +59,17 @@ bool Joystick::pressed(){
     
 const char * Joystick::keyToName(Key key){
     switch (key){
-        case Invalid : return "Invalid";
-        case Up : return "Up";
-        case Down : return "Down";
-        case Left : return "Left";
-        case Right : return "Right";
-        case Button1 : return "Button1";
-        case Button2 : return "Button2";
-        case Button3 : return "Button3";
-        case Button4 : return "Button4";
+        case Invalid: return "Invalid";
+        case Up: return "Up";
+        case Down: return "Down";
+        case Left: return "Left";
+        case Right: return "Right";
+        case Button1: return "Button1";
+        case Button2: return "Button2";
+        case Button3: return "Button3";
+        case Button4: return "Button4";
+	case Button5: return "Button5";
+	case Button6: return "Button6";
         case Quit: return "Quit";
     }
     return "Unknown";
@@ -80,4 +82,7 @@ void Joystick::releaseButton(int button){
 }
 
 void Joystick::axisMotion(int axis, int motion){
+}
+
+void Joystick::hatMotion(int motion){
 }
