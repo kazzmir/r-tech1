@@ -13,6 +13,8 @@ struct JoystickInput{
         button2(false),
         button3(false),
         button4(false),
+        button5(false),
+        button6(false),
         quit(false){
     }
 
@@ -25,6 +27,8 @@ struct JoystickInput{
         button2(copy.button2),
         button3(copy.button3),
         button4(copy.button4),
+        button5(copy.button5),
+        button6(copy.button6),
         quit(copy.quit){
     }
 
@@ -32,6 +36,7 @@ struct JoystickInput{
     bool pressed(){
         return left || right || up || down ||
                button1 || button2 || button3 || button4 ||
+               button5 || button6 ||
                quit;
     }
 
@@ -43,6 +48,8 @@ struct JoystickInput{
     bool button2;
     bool button3;
     bool button4;
+    bool button5;
+    bool button6;
     bool quit;
 };
 
@@ -70,6 +77,8 @@ public:
         Button2,
         Button3,
         Button4,
+        Button5,
+        Button6,
         Quit,
     };
 

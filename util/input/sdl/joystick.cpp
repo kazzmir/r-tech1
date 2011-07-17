@@ -40,6 +40,8 @@ public:
             case 2: return Joystick::Button3;
             case 3: return Joystick::Button4;
             case 4: return Joystick::Quit;
+            case 5: return Joystick::Button5;
+            case 6: return Joystick::Button6;
             default: return Joystick::Invalid;
         }
     }
@@ -120,6 +122,8 @@ public:
             case Cross: return Joystick::Button2;
             case Circle: return Joystick::Button3;
             case Triangle: return Joystick::Button4;
+            case L1: return Joystick::Button5;
+            case R1: return Joystick::Button6;
             case Start: return Joystick::Quit;
             case Up: return Joystick::Up;
             case Down: return Joystick::Down;
@@ -163,6 +167,8 @@ public:
             case Button2: return Joystick::Button2;
             case Button3: return Joystick::Button3;
             case Button4: return Joystick::Button4;
+            case L1: return Joystick::Button5;
+            case R1: return Joystick::Button6;
             case Start: return Joystick::Quit;
         }
         return Joystick::Invalid;
@@ -208,7 +214,13 @@ public:
         Square = 8,
         Cross = 9,
         Circle = 10,
-        Triangle = 11
+        Triangle = 11,
+        L1 = 13,
+        R1 = 12,
+        L2 = 15,
+        R2 = 14,
+        L3 = 6,
+        R3 = 5
     };
 
     int toNative(int button){
@@ -240,6 +252,8 @@ public:
             case Cross: return Joystick::Button2;
             case Circle: return Joystick::Button3;
             case Triangle: return Joystick::Button4;
+            case L1: return Joystick::Button5;
+            case R1: return Joystick::Button6;
             case Start: return Joystick::Quit;
             case Up: return Joystick::Up;
             case Down: return Joystick::Down;
