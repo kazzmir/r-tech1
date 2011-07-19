@@ -429,6 +429,66 @@ public:
     }
 };
 
+class GamecubePad: public ButtonMapping {
+public:
+    enum Buttons{
+        A = 0,
+        B = 1,
+        X = 2,
+        Y = 3,
+        Z = 4,
+        Start = 7
+    };
+
+    int toNative(int button){
+        return 0;
+    }
+
+    int fromNative(int button){
+    	return 0;
+    }
+    
+    Joystick::Key toKey(int button){
+        switch (button){
+            case A: return Joystick::Button1;
+            case B: return Joystick::Button2;
+            case X: return Joystick::Button3;
+            case Y: return Joystick::Button4;
+            case Z: return Joystick::Button5;
+            case Start: return Joystick::Quit;
+        }
+        return Joystick::Invalid;
+    }
+    
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+        // printf("axis %d motion %d\n", axis, motion);
+    }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+        bool up = false;
+        bool down = false;
+        bool left = false;
+        bool right = false;
+        switch (motion){
+            case SDL_HAT_CENTERED: break;
+            case SDL_HAT_UP: up = true; break;
+            case SDL_HAT_RIGHT: right = true; break;
+            case SDL_HAT_DOWN: down = true; break;
+            case SDL_HAT_LEFT: left = true; break;
+            case SDL_HAT_RIGHTUP: right = true; up = true; break;
+            case SDL_HAT_RIGHTDOWN: right = true; down = true; break;
+            case SDL_HAT_LEFTUP: left = true; up = true; break;
+            case SDL_HAT_LEFTDOWN: left = true; down = true; break;
+        }
+
+        events.push_back(Joystick::Event(Joystick::Left, left));
+        events.push_back(Joystick::Event(Joystick::Right, right));
+        events.push_back(Joystick::Event(Joystick::Down, down));
+        events.push_back(Joystick::Event(Joystick::Up, up));
+    }
+
+};
+
 ButtonMapping * makeButtonMapping(string name){
 #ifdef PS3
     return new Ps3Controller();
@@ -444,6 +504,9 @@ ButtonMapping * makeButtonMapping(string name){
     }
     if (name.find("Wiimote") != string::npos){
         return new Wiimote();
+    }
+    if (name.find("Gamecube") != string::npos){
+        return new GamecubePad();
     }
     return new DefaultButtonMapping();
 }
@@ -536,10 +599,11 @@ SDLJoystick::~SDLJoystick(){
 
 SDLJoystick::SDLJoystick():
 joystick(NULL){
+    /* TODO: don't always open joystick 0, try to support all of them */
     if (SDL_NumJoysticks() > 0){
-        joystick = SDL_JoystickOpen(0);
         Global::debug(1) << "Opened joystick '" << SDL_JoystickName(0) << "'" << std::endl;
-        // printf("Opened joystick '%s'\n", SDL_JoystickName(0));
+        joystick = SDL_JoystickOpen(0);
+        // printf("Opened joystick '%s'\n", SDL_JoystickName(4));
         buttonMapping = makeButtonMapping(SDL_JoystickName(0));
     }
 }
