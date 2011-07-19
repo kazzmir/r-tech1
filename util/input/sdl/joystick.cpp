@@ -48,6 +48,26 @@ public:
     }
     
     virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+        bool up = false;
+        bool down = false;
+        bool left = false;
+        bool right = false;
+        switch (motion){
+            case SDL_HAT_CENTERED: break;
+            case SDL_HAT_UP: up = true; break;
+            case SDL_HAT_RIGHT: right = true; break;
+            case SDL_HAT_DOWN: down = true; break;
+            case SDL_HAT_LEFT: left = true; break;
+            case SDL_HAT_RIGHTUP: right = true; up = true; break;
+            case SDL_HAT_RIGHTDOWN: right = true; down = true; break;
+            case SDL_HAT_LEFTUP: left = true; up = true; break;
+            case SDL_HAT_LEFTDOWN: left = true; down = true; break;
+        }
+
+        events.push_back(Joystick::Event(Joystick::Left, left));
+        events.push_back(Joystick::Event(Joystick::Right, right));
+        events.push_back(Joystick::Event(Joystick::Down, down));
+        events.push_back(Joystick::Event(Joystick::Up, up));
     }
 
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
@@ -185,22 +205,23 @@ public:
      * axis 0, negative left, positive right
      */
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+        int tolerance = 10;
         if (axis == 0){
-            if (motion < 0){
+            if (motion < -tolerance){
                 events.push_back(Joystick::Event(Joystick::Left, true));
-            } else if (motion > 0){
+            } else if (motion > tolerance){
                 events.push_back(Joystick::Event(Joystick::Right, true));
-            } else if (motion == 0){
+            } else {
                 /* fake a release for left and right */
                 events.push_back(Joystick::Event(Joystick::Left, false));
                 events.push_back(Joystick::Event(Joystick::Right, false));
             }
         } else if (axis == 1){
-            if (motion < 0){
+            if (motion < -tolerance){
                 events.push_back(Joystick::Event(Joystick::Up, true));
-            } else if (motion > 0){
+            } else if (motion > tolerance){
                 events.push_back(Joystick::Event(Joystick::Down, true));
-            } else if (motion == 0){
+            } else {
                 events.push_back(Joystick::Event(Joystick::Up, false));
                 events.push_back(Joystick::Event(Joystick::Down, false));
             }
@@ -496,7 +517,7 @@ ButtonMapping * makeButtonMapping(string name){
     if (name == "Sony PLAYSTATION(R)3 Controller"){
         return new Playstation3Controller();
     }
-    if (name == "Logitech Logitech(R) Precision(TM) Gamepad"){
+    if (name.find("Logitech(R) Precision(TM) Gamepad") != string::npos){
         return new LogitechPrecision();
     }
     if (name == "Microsoft X-Box 360 pad"){
