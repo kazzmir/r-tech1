@@ -408,6 +408,13 @@ static void startTimers(ostream & out){
 #endif
     
 static void initSystem(ostream & out){
+#ifdef PS3
+    /* from rsxutil */
+    // void * screen_memory = memalign(1024*1024, HOST_SIZE);
+    // init_screen(screen_memory, HOST_SIZE);
+    // init_screen2();
+#endif
+
     out << "SDL Init: ";
     int ok = SDL_Init(SDL_INIT_VIDEO |
                       SDL_INIT_AUDIO |
@@ -426,14 +433,6 @@ static void initSystem(ostream & out){
     pthread_init();
 #endif
 */
-
-#ifdef PS3
-    /* from rsxutil */
-    /*
-    void * screen_memory = memalign(1024*1024, HOST_SIZE);
-    init_screen(screen_memory, HOST_SIZE);
-    */
-#endif
 
     try{
         SDL_Surface * icon = SDL_LoadBMP(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());

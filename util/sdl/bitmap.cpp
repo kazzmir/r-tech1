@@ -465,8 +465,29 @@ void initializeExtraStuff(){
 #endif
 }
 
+#ifdef PS3
+#include <rsx/rsx.h>
+#include <sysutil/video.h>
+void getNativePs3Resolution(int * width, int * height){
+    videoState state;
+    videoGetState(0,0,&state);
+    videoResolution resolution;
+    videoGetResolution(state.displayMode.resolution, &resolution);
+    *height = resolution.height;
+    /* preserve 640x480 aspect ratio */
+    *width = (int)((*height) * 1.33333);
+}
+#endif
+
 int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
+
+    /* HACK! On the ps3 we query what the native resolution is and
+     * set the width/height based on it.
+     */
+#ifdef PS3
+    getNativePs3Resolution(&width, &height);
+#endif
 
     switch (mode){
         case WINDOWED : {

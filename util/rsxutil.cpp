@@ -46,6 +46,22 @@ static void wait_rsx_idle(){
     wait_finish();
 }
 
+void init_screen2(){
+    videoState state;
+    videoGetState(0,0,&state);
+
+    videoGetResolution(state.displayMode.resolution,&res);
+
+    videoConfiguration vconfig;
+    memset(&vconfig,0,sizeof(videoConfiguration));
+
+    vconfig.resolution = state.displayMode.resolution;
+    vconfig.format = VIDEO_BUFFER_FORMAT_XRGB;
+    vconfig.pitch = res.width*sizeof(u32);
+
+    videoConfigure(0,&vconfig,NULL,0);
+}
+
 void init_screen(void *host_addr,u32 size){
     context = rsxInit(CB_SIZE,size,host_addr);
 
