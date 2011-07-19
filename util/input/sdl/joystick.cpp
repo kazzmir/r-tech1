@@ -368,6 +368,67 @@ public:
     }
 };
 
+class Wiimote: public ButtonMapping {
+public:
+    enum Buttons{
+        A = 0,
+        B = 1,
+        Button1 = 2,
+        Button2 = 3,
+        Minus = 4,
+        Plus = 5,
+        Home = 6
+    };
+
+    int toNative(int button){
+        return 0;
+    }
+
+    int fromNative(int button){
+    	return 0;
+    }
+    
+    Joystick::Key toKey(int button){
+        switch (button){
+            case A: return Joystick::Button1;
+            case B: return Joystick::Button2;
+            case Button1: return Joystick::Button3;
+            case Button2: return Joystick::Button4;
+            case Minus: return Joystick::Button5;
+            case Plus: return Joystick::Button6;
+            case Home: return Joystick::Quit;
+        }
+        return Joystick::Invalid;
+    }
+    
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+    }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+        /* rotate all the directions 90 degrees */
+        bool up = false; // right
+        bool down = false; // left
+        bool left = false; // up
+        bool right = false; // down
+        switch (motion){
+            case SDL_HAT_CENTERED: break;
+            case SDL_HAT_UP: right = true; break;
+            case SDL_HAT_RIGHT: down = true; break;
+            case SDL_HAT_DOWN: left = true; break;
+            case SDL_HAT_LEFT: up = true; break;
+            case SDL_HAT_RIGHTUP: down = true; right = true; break;
+            case SDL_HAT_RIGHTDOWN: down = true; left = true; break;
+            case SDL_HAT_LEFTUP: up = true; right = true; break;
+            case SDL_HAT_LEFTDOWN: up = true; left = true; break;
+        }
+
+        events.push_back(Joystick::Event(Joystick::Left, left));
+        events.push_back(Joystick::Event(Joystick::Right, right));
+        events.push_back(Joystick::Event(Joystick::Down, down));
+        events.push_back(Joystick::Event(Joystick::Up, up));
+    }
+};
+
 ButtonMapping * makeButtonMapping(string name){
 #ifdef PS3
     return new Ps3Controller();
@@ -380,6 +441,9 @@ ButtonMapping * makeButtonMapping(string name){
     }
     if (name == "Microsoft X-Box 360 pad"){
     	return new XBox360Controller();
+    }
+    if (name.find("Wiimote") != string::npos){
+        return new Wiimote();
     }
     return new DefaultButtonMapping();
 }
@@ -475,6 +539,7 @@ joystick(NULL){
     if (SDL_NumJoysticks() > 0){
         joystick = SDL_JoystickOpen(0);
         Global::debug(1) << "Opened joystick '" << SDL_JoystickName(0) << "'" << std::endl;
+        // printf("Opened joystick '%s'\n", SDL_JoystickName(0));
         buttonMapping = makeButtonMapping(SDL_JoystickName(0));
     }
 }
