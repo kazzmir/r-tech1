@@ -97,7 +97,7 @@ protected:
 /* uses the GME library, plays nintendo music files and others */
 class GMEPlayer: public MusicPlayer {
 public:
-    GMEPlayer(const char * path);
+    GMEPlayer(std::string path);
     virtual void setVolume(double volume);
     virtual ~GMEPlayer();
     virtual void render(void * stream, int length);
@@ -125,7 +125,7 @@ struct OggPage{
 /* Maybe have some common sdl mixer class that this can inherit? */
 class OggPlayer: public MusicPlayer {
 public:
-    OggPlayer(const char * path);
+    OggPlayer(std::string path);
     virtual void setVolume(double volume);
     virtual void render(void * stream, int length);
 
@@ -149,7 +149,7 @@ protected:
 /* Interface for mp3s */
 class Mp3Player: public MusicPlayer {
 public:
-    Mp3Player(const char * path);
+    Mp3Player(std::string path);
     virtual void setVolume(double volume);
     virtual void render(void * data, int length);
 
@@ -166,14 +166,14 @@ protected:
 /* interface to DUMB, plays mod/s3m/xm/it */
 class DumbPlayer: public MusicPlayer {
 public:
-    DumbPlayer(const char * path);
+    DumbPlayer(std::string path);
     virtual void setVolume(double volume);
     virtual void render(void * data, int samples);
 
     virtual ~DumbPlayer();
 
 protected:
-    DUH * loadDumbFile(const char * path);
+    DUH * loadDumbFile(std::string path);
 
 protected:
     DUH * music_file;

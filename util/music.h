@@ -20,12 +20,10 @@ public:
 
 	virtual ~Music();
 
-	static bool loadSong( const char * song );
-	static bool loadSong( const std::string & song );
-
+	static bool loadSong(const std::string & song);
         static void changeSong();
 
-	/* load one of the songs in 'songs' */
+	/* randomnly select a song from 'songs' and load it */
 	static void loadSong(std::vector<Filesystem::AbsolutePath> songs);
 
 	static void pause();
@@ -42,6 +40,7 @@ public:
 	void doPlay();
 
 protected:
+	static bool doLoadSong(std::string song);
 
 	void _setVolume( double vol );
 	void _play();
@@ -56,7 +55,7 @@ protected:
 
 	int fading;
 
-	bool internal_loadSong( const char * path );
+	bool internal_loadSong(std::string path);
 
         Util::MusicPlayer * musicPlayer;
 	

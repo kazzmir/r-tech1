@@ -23,8 +23,6 @@ static bool alive = true;
 
 static void * playMusic( void * );
 
-#define synchronized for( int __l( ! Util::Thread::acquireLock(&musicMutex)); __l; __l = 0, Util::Thread::releaseLock(&musicMutex) )
-
 #define LOCK Util::Thread::acquireLock(&musicMutex);
 #define UNLOCK Util::Thread::releaseLock(&musicMutex);
 
@@ -188,7 +186,7 @@ void Music::_fadeOut(){
     // fading = -1;
 }
 
-bool Music::loadSong( const char * song ){
+bool Music::doLoadSong(string song){
     bool loaded = false;
     LOCK;{
         if (instance != NULL){
@@ -219,40 +217,17 @@ static Tx_ removeVectorElement( vector< Tx_ > & toRemove, int pos ){
 }
 	
 void Music::loadSong(vector<Filesystem::AbsolutePath> songs){
-
-    /*
-       cout << "Songs = " << &Songs << endl;
-       if ( ! loadSong( "music/song5.xm" ) ){
-       cerr << "Could not load music/song5.xm" << endl;
-       }
-       return;
-       */
-
-    /*
-    vector<Filesystem::AbsolutePath> _songs = Songs;
-    vector<Filesystem::AbsolutePath> songs;
-    while ( ! _songs.empty() ){
-        int i = Util::rnd(_songs.size());
-        songs.push_back(removeVectorElement(_songs, i));
-    }
-    */
-
-    /*
-       songs.clear();
-       songs.push_back( "music/song3.xm" );
-       */
-
     std::random_shuffle(songs.begin(), songs.end());
     for (vector<Filesystem::AbsolutePath>::iterator it = songs.begin(); it != songs.end(); it++){
         Global::debug(1) << "Trying to load song " << (*it).path() << endl;
-        if (loadSong((*it).path())){
+        if (doLoadSong((*it).path())){
             break;
         }
     }
 }
 
-bool Music::loadSong( const string & song ){
-    return loadSong( song.c_str() );
+bool Music::loadSong(const string & song){
+    return doLoadSong(song);
 }
 
 void Music::_play(){
@@ -354,13 +329,12 @@ Music::~Music(){
     }
     UNLOCK;
 
-    Global::debug( 1 ) << "Waiting for music thread to die" << endl;
+    Global::debug(1) << "Waiting for music thread to die" << endl;
     Util::Thread::joinThread(musicThread);
 
 }
 
-static string getExtension(const char * path_){
-    string path(path_);
+static string getExtension(string path){
     if (path.rfind('.') != string::npos){
         return Util::lowerCaseAll(path.substr(path.rfind('.') + 1));
     }
@@ -368,7 +342,7 @@ static string getExtension(const char * path_){
 }
 
 /* true if the file extension is something DUMB will probably recognize */
-static bool isDumbFile(const char * path){
+static bool isDumbFile(string path){
     string extension = getExtension(path);
     return extension == "mod" ||
            extension == "s3m" ||
@@ -376,24 +350,24 @@ static bool isDumbFile(const char * path){
            extension == "xm";
 }
 
-static bool isGMEFile(const char * path){
+static bool isGMEFile(string path){
     string extension = getExtension(path);
     return extension == "nsf" ||
            extension == "spc" ||
            extension == "gym";
 }
 
-static bool isOggFile(const char * path){
+static bool isOggFile(string path){
     string extension = getExtension(path);
     return extension == "ogg";
 }
 
-static bool isMp3File(const char * path){
+static bool isMp3File(string path){
     string extension = getExtension(path);
     return extension == "mp3";
 }
 
-bool Music::internal_loadSong( const char * path ){
+bool Music::internal_loadSong(string path){
     if (!enabled){
         return false;
     }
@@ -401,10 +375,10 @@ bool Music::internal_loadSong( const char * path ){
     // cout << "Trying to load '" << path << "'" << endl;
 
     // Check current song and/or set it
-    if (currentSong.compare(std::string(path))==0){
+    if (currentSong.compare(path)==0){
         return true;
     } else {
-        currentSong = std::string(path);
+        currentSong = path;
     }
 
     if (musicPlayer != NULL){
@@ -450,12 +424,11 @@ bool Music::internal_loadSong( const char * path ){
 }
 
 void Music::changeSong(){
-    pause();
+    // pause();
     fadeIn(0.3);
     loadSong(Storage::instance().getFiles(Storage::instance().find(Filesystem::RelativePath("music/")), "*"));
     play();
 }
 
-#undef synchronized
 #undef LOCK
 #undef UNLOCK

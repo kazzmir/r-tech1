@@ -21,6 +21,8 @@ typedef Path::AbsolutePath AbsolutePath;
 typedef Path::RelativePath RelativePath;
     
 class Manager;
+class FileHandle;
+
 class NetworkSystem: public Storage::System {
 public:
     NetworkSystem(pp::Instance * instance, pp::Core * core);
@@ -53,8 +55,10 @@ protected:
     pp::Core * core;
     /* only one thread at a time to access the network system */
     Util::Thread::LockObject lock;
-    Util::ReferenceCount<Manager> manager;
+    // Util::ReferenceCount<Manager> manager;
     std::map<AbsolutePath, bool> existsCache;
+    std::map<int, Util::ReferenceCount<FileHandle> > fileTable;
+
 };
 
 }
