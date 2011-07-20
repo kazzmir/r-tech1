@@ -127,51 +127,14 @@ struct NaclRequestExists: public NaclRequest {
     Manager * manager;
 };
 
-struct NaclRequestRead: public NaclRequest {
-    NaclRequestRead(pp::URLLoader & loader, Manager * manager, void * buffer, int read):
-        loader(loader),
-        manager(manager),
-        buffer(buffer),
-        read(read){
-        }
-
-    void start(){
-        pp::CompletionCallback callback(&NaclRequestRead::onFinish, this);
-        int32_t ok = loader.ReadResponseBody(buffer, read, callback);
-        Global::debug(2) << "Read " << ok << std::endl;
-        if (ok != PP_OK_COMPLETIONPENDING){
-            // Global::debug(0) << "Call on main thread" << std::endl;
-            // core->CallOnMainThread(0, callback, ok);
-            callback.Run(ok);
-        }
-    }
-
-    static void onFinish(void * me, int32_t result){
-        NaclRequestRead * self = (NaclRequestRead*) me;
-        self->finish(result);
-    }
-
-    void finish(int32_t result);
-
-    pp::URLLoader loader;
-    Manager * manager;
-    void * buffer;
-    int read;
-};
-
 class FileHandle{
 public:
-    FileHandle(const Util::ReferenceCount<NaclRequestOpen> & open):
-        open(open),
-        buffer(NULL){
-        }
+    FileHandle():
+    buffer(NULL){
+    }
 
     ~FileHandle(){
         delete[] buffer;
-    }
-
-    pp::URLLoader & getLoader(){
-        return open->loader;
     }
 
     class Reader{
@@ -248,12 +211,12 @@ public:
                 tries = 0;
                 read();
             } else {
-                if (tries >= 2){
+                if (tries >= 3){
                     handle->readDone(this);
                 } else {
                     tries += 1;
                     pp::CompletionCallback callback(&Reader::doRead, this);
-                    core->CallOnMainThread(50, callback, 0);
+                    core->CallOnMainThread((tries - 1) * 25, callback, 0);
                 }
             }
         }
@@ -272,8 +235,8 @@ public:
         int tries;
     };
 
-    void readAll(pp::CompletionCallback finish, pp::Core * core){
-        reader = new Reader(finish, open->loader, this, core);
+    void readAll(pp::CompletionCallback finish, pp::Core * core, pp::URLLoader & loader){
+        reader = new Reader(finish, loader, this, core);
         reader->read();
     }
 
@@ -312,7 +275,6 @@ public:
         return position;
     }
 
-    Util::ReferenceCount<NaclRequestOpen> open;
     off_t position;
     off_t length;
     char * buffer;
@@ -333,13 +295,11 @@ public:
     Util::ReferenceCount<NaclRequest> request;
     pp::CompletionCallbackFactory<Manager> factory;
 
-    map<int, Util::ReferenceCount<FileHandle> > fileTable;
-
     int next;
 
     struct OpenFileData{
         const char * path;
-        int file;
+        Util::ReferenceCount<FileHandle> file;
     };
 
     struct ExistsData{
@@ -347,33 +307,22 @@ public:
         bool exists;
     };
 
-    struct ReadFileData{
-        int file;
-        void * buffer;
-        /* how much to read */
-        int count;
-        /* how much was read */
-        int read;
-    };
-
     struct CloseFileData{
         int fd;
     };
 
     OpenFileData openFileData;
-    ReadFileData readFileData;
     CloseFileData closeFileData;
     ExistsData existsData;
 
     Util::Thread::LockObject lock;
     volatile bool done;
 
-    int openFile(const char * path){
+    Util::ReferenceCount<FileHandle> openFile(const char * path){
         Global::debug(1, CONTEXT) << "open " << path << std::endl;
         Util::Thread::ScopedLock scoped(lock);
         done = false;
         openFileData.path = path;
-        openFileData.file = -1;
         pp::CompletionCallback callback(&Manager::doOpenFile, this);
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
@@ -390,82 +339,6 @@ public:
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
         return existsData.exists;
-    }
-
-    off_t lseek(int fd, off_t offset, int whence){
-        Global::debug(2, CONTEXT) << "seek fd " << fd << " offset " << offset << " whence " << whence << std::endl;
-        Util::Thread::ScopedLock scoped(lock);
-        if (fileTable.find(fd) == fileTable.end()){
-            return -1;
-        }
-
-        Util::ReferenceCount<FileHandle> handle = fileTable[fd];
-        return handle->seek(offset, whence);
-    }
-
-    int close(int fd){
-        Util::Thread::ScopedLock scoped(lock);
-        if (fileTable.find(fd) == fileTable.end()){
-            return -1;
-            /* set errno to EBADF */
-        }
-
-        done = false;
-        closeFileData.fd = fd;
-
-        pp::CompletionCallback callback(&Manager::doCloseFile, this);
-        core->CallOnMainThread(0, callback, 0);
-        lock.wait(done);
-        return 0;
-    }
-
-    static void doCloseFile(void * self, int32_t result){
-        Manager * manager = (Manager*) self;
-        manager->continueCloseFile();
-    }
-
-    /* the destructor for the NaclRequestOpen has to occur in the main thread */
-    void continueCloseFile(){
-        fileTable.erase(fileTable.find(closeFileData.fd));
-        requestComplete();
-    }
-
-    ssize_t readFile(int fd, void * buffer, size_t count){
-        Util::Thread::ScopedLock scoped(lock);
-        if (fileTable.find(fd) == fileTable.end()){
-            return EBADF;
-        }
-
-        /* dont need to sleep on a condition variable because we are
-         * in the game thread.
-         */
-
-        Util::ReferenceCount<FileHandle> handle = fileTable[fd];
-        return handle->read(buffer, count);
-
-        /*
-        done = false;
-        readFileData.file = fd;
-        readFileData.buffer = buffer;
-        readFileData.count = count;
-        readFileData.read = 0;
-        pp::CompletionCallback callback(&Manager::doReadFile, this);
-        core->CallOnMainThread(0, callback, 0);
-        lock.wait(done);
-        return readFileData.read;
-        */
-    }
-
-    static void doReadFile(void * self, int32_t result){
-        Manager * manager = (Manager*) self;
-        manager->continueReadFile();
-    }
-
-    void continueReadFile(){
-        /* hack to get the open request.. */
-        Util::ReferenceCount<FileHandle> open = fileTable[readFileData.file];
-        request = new NaclRequestRead(open->getLoader(), this, readFileData.buffer, readFileData.count);
-        request->start();
     }
 
     static void doExists(void * self, int32_t result){
@@ -499,14 +372,8 @@ public:
         request->start();
     }
 
-    int nextFileDescriptor(){
-        int n = next;
-        next += 1;
-        return n;
-    }
-
     void requestComplete(){
-        /* delete the reference counted request object in the main thread */
+        /* destroy request on the main thread */
         request = NULL;
         lock.lockAndSignal(done, true);
     }
@@ -522,19 +389,19 @@ public:
                 Global::debug(0) << "Downloaded " << received << " total " << total << std::endl;
             }
             */
+            Util::ReferenceCount<FileHandle> handle = new FileHandle();
+            pp::CompletionCallback callback(&Manager::completeRead, this);
+            openFileData.file = handle;
+            handle->readAll(callback, core, open.loader);
+            /*
             openFileData.file = nextFileDescriptor();
             fileTable[openFileData.file] = new FileHandle(request.convert<NaclRequestOpen>());
             readEntireFile(fileTable[openFileData.file]);
+            */
         } else {
             Global::debug(1) << "Could not open file" << std::endl;
-            openFileData.file = -1;
             requestComplete();
         }
-    }
-
-    void readEntireFile(Util::ReferenceCount<FileHandle> & file){
-        pp::CompletionCallback callback(&Manager::completeRead, this);
-        file->readAll(callback, core);
     }
 
     static void completeRead(void * self, int32_t result){
@@ -543,12 +410,6 @@ public:
     }
 
     void failure(NaclRequestOpen & open){
-        openFileData.file = -1;
-        requestComplete();
-    }
-
-    void success(NaclRequestRead & request, int read){
-        readFileData.read = read;
         requestComplete();
     }
 };
@@ -574,13 +435,9 @@ void NaclRequestExists::finish(int32_t result){
     }
 }
 
-void NaclRequestRead::finish(int32_t result){
-    manager->success(*this, result);
-}
-
 NetworkSystem::NetworkSystem(pp::Instance * instance, pp::Core * core):
 instance(instance),
-manager(new Manager(instance, core)){
+core(core){
 }
 
 NetworkSystem::~NetworkSystem(){
@@ -618,7 +475,8 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     if (existsCache.find(path) != existsCache.end()){
         return existsCache[path];
     }
-    bool what = manager->exists(path.path());
+    Manager manager(instance, core);
+    bool what = manager.exists(path.path());
     existsCache[path] = what;
     return what;
 }
@@ -768,25 +626,53 @@ AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, co
     out << "Cannot find " << path.path() << " in " << directory.path();
     throw Filesystem::NotFound(__FILE__, __LINE__, out.str());
 }
-    
+
+int nextFileDescriptor(){
+    static int next = 3;
+    int n = next;
+    next += 1;
+    return n;
+}
+
 int NetworkSystem::libcOpen(const char * path, int mode, int params){
+    Manager manager(instance, core);
+    Util::ReferenceCount<FileHandle> handle = manager.openFile(path);
     Util::Thread::ScopedLock scoped(lock);
-    return manager->openFile(path);
+    int file = nextFileDescriptor();
+    fileTable[file] = handle;
+    return file;
 }
     
-ssize_t NetworkSystem::libcRead(int fd, void * buf, size_t count){
+ssize_t NetworkSystem::libcRead(int fd, void * buffer, size_t count){
     Util::Thread::ScopedLock scoped(lock);
-    return manager->readFile(fd, buf, count);
+    if (fileTable.find(fd) == fileTable.end()){
+        return EBADF;
+    }
+
+    Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+    return handle->read(buffer, count);
 }
 
 int NetworkSystem::libcClose(int fd){
     Util::Thread::ScopedLock scoped(lock);
-    return manager->close(fd);
+    if (fileTable.find(fd) == fileTable.end()){
+        return -1;
+        /* set errno to EBADF */
+    }
+        
+    fileTable.erase(fileTable.find(fd));
+    return 0;
 }
     
 off_t NetworkSystem::libcLseek(int fd, off_t offset, int whence){
+    Global::debug(2, CONTEXT) << "seek fd " << fd << " offset " << offset << " whence " << whence << std::endl;
     Util::Thread::ScopedLock scoped(lock);
-    return manager->lseek(fd, offset, whence);
+    if (fileTable.find(fd) == fileTable.end()){
+        return -1;
+    }
+
+    Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+    return handle->seek(offset, whence);
 }
 
 }

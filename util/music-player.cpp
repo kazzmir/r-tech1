@@ -42,6 +42,8 @@
 #include "sdl/mixer/SDL_mixer.h"
 #endif
 
+using std::string;
+
 namespace Util{
 
 class MusicException: public Exception::Base {
@@ -157,6 +159,7 @@ void MusicRenderer::create(int frequency, int channels){
     if (bigEndian()){
         format = AUDIO_S16MSB;
     }
+    Global::debug(1) << "Convert between " << format << ", " << channels << ", " << frequency << " to " << Sound::Info.format << ", " << Sound::Info.channels << ", " << Sound::Info.frequency << std::endl;
     SDL_BuildAudioCVT(&convert, format, channels, frequency,
                                 Sound::Info.format, Sound::Info.channels,
                                 Sound::Info.frequency);
@@ -166,7 +169,7 @@ void MusicRenderer::create(int frequency, int channels){
 void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
     MusicPlayer * player = (MusicPlayer*) arg;
     int size = (int)((float) bytes / player->getRenderer()->convert.len_ratio / (float) player->getRenderer()->convert.len_mult);
-    // Global::debug(0) << "Incoming " << bytes << " render " << size << std::endl;
+    Global::debug(2) << "Incoming " << bytes << " render " << size << std::endl;
     player->getRenderer()->convert.buf = player->getRenderer()->data;
     player->getRenderer()->convert.len = size;
     // player->render(stream, bytes / 4);
@@ -283,7 +286,7 @@ static const char * typeToExtension( int i ){
 }
 
 /* expects each sample to be 4 bytes, 2 bytes per sample * 2 channels */
-DumbPlayer::DumbPlayer(const char * path){
+DumbPlayer::DumbPlayer(string path){
     music_file = loadDumbFile(path);
     if (music_file == NULL){
         std::ostringstream error;
@@ -315,7 +318,7 @@ DumbPlayer::~DumbPlayer(){
     unload_duh(music_file);
 }
 
-DUH * DumbPlayer::loadDumbFile(const char * path){
+DUH * DumbPlayer::loadDumbFile(string path){
     DUH * what;
     for (int i = 0; i < 4; i++){
         /* the order of trying xm/s3m/it/mod matters because mod could be
@@ -323,19 +326,19 @@ DUH * DumbPlayer::loadDumbFile(const char * path){
          */
         switch (i){
             case 0 : {
-                what = dumb_load_xm_quick(path);
+                what = dumb_load_xm_quick(path.c_str());
                 break;
             }
             case 1 : {
-                what = dumb_load_s3m_quick(path);
+                what = dumb_load_s3m_quick(path.c_str());
                 break;
             }
             case 2 : {
-                what = dumb_load_it_quick(path);
+                what = dumb_load_it_quick(path.c_str());
                 break;
             }
             case 3 : {
-                what = dumb_load_mod_quick(path);
+                what = dumb_load_mod_quick(path.c_str());
                 break;
             }
         }
@@ -348,9 +351,9 @@ DUH * DumbPlayer::loadDumbFile(const char * path){
     return NULL;
 }
 
-GMEPlayer::GMEPlayer(const char * path):
+GMEPlayer::GMEPlayer(string path):
 emulator(NULL){
-    gme_err_t fail = gme_open_file(path, &emulator, Sound::Info.frequency);
+    gme_err_t fail = gme_open_file(path.c_str(), &emulator, Sound::Info.frequency);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
         throw MusicException(__FILE__, __LINE__, "Could not load GME file");
@@ -408,7 +411,7 @@ GMEPlayer::~GMEPlayer(){
 
 #ifdef HAVE_MP3_MPG123
 /* initialize the mpg123 library and open up an mp3 file for reading */
-static void initializeMpg123(mpg123_handle ** mp3, const char * path){
+static void initializeMpg123(mpg123_handle ** mp3, string path){
     /* Initialize */
     if (mpg123_init() != MPG123_OK){
 	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
@@ -430,7 +433,7 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
         }
         
         /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
-        error = mpg123_open(*mp3, (char*) path);
+        error = mpg123_open(*mp3, (char*) path.c_str());
         if (error == -1){
             std::ostringstream error;
             error << "Could not open mpg123 file " << path << " error code " << error;
@@ -451,7 +454,7 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
 	mpg123_close(*mp3);
 	
         /* stream has progressed a little bit so reset it by opening it again */
-	error = mpg123_open(*mp3, (char*) path);
+	error = mpg123_open(*mp3, (char*) path.c_str());
         if (error == -1){
             std::ostringstream error;
             error << "Could not open mpg123 file " << path << " error code " << error;
@@ -493,7 +496,7 @@ static void initializeMpg123(mpg123_handle ** mp3, const char * path){
 }
 
 static const int MPG123_BUFFER_SIZE = 1 << 11;
-Mp3Player::Mp3Player(const char * path):
+Mp3Player::Mp3Player(string path):
 mp3(NULL){
     initializeMpg123(&mp3, path);
     long rate = 0;
@@ -533,9 +536,9 @@ Mp3Player::~Mp3Player(){
 
 #ifdef HAVE_OGG
 int OGG_BUFFER_SIZE = 1024 * 32;
-OggPlayer::OggPlayer(const char * path):
+OggPlayer::OggPlayer(string path):
 path(path){
-    file = fopen(path, "rb");
+    file = fopen(path.c_str(), "rb");
     if (!file) {
         throw MusicException(__FILE__, __LINE__, "Could not open file");
     }
@@ -629,7 +632,7 @@ OggPlayer::~OggPlayer(){
 
 #ifdef HAVE_MP3_MAD
     /* TODO */
-Mp3Player::Mp3Player(const char * path){
+Mp3Player::Mp3Player(string path){
     /* TODO */
 }
 
