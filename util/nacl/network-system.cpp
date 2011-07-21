@@ -287,15 +287,12 @@ public:
     instance(instance),
     core(core),
     factory(this){
-        next = 2;
     }
 
     pp::Instance * instance;
     pp::Core * core;
     Util::ReferenceCount<NaclRequest> request;
     pp::CompletionCallbackFactory<Manager> factory;
-
-    int next;
 
     struct OpenFileData{
         const char * path;
@@ -307,12 +304,7 @@ public:
         bool exists;
     };
 
-    struct CloseFileData{
-        int fd;
-    };
-
     OpenFileData openFileData;
-    CloseFileData closeFileData;
     ExistsData existsData;
 
     Util::Thread::LockObject lock;

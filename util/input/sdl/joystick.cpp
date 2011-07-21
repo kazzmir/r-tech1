@@ -433,14 +433,14 @@ public:
         bool right = false; // down
         switch (motion){
             case SDL_HAT_CENTERED: break;
-            case SDL_HAT_UP: right = true; break;
-            case SDL_HAT_RIGHT: down = true; break;
-            case SDL_HAT_DOWN: left = true; break;
-            case SDL_HAT_LEFT: up = true; break;
-            case SDL_HAT_RIGHTUP: down = true; right = true; break;
-            case SDL_HAT_RIGHTDOWN: down = true; left = true; break;
-            case SDL_HAT_LEFTUP: up = true; right = true; break;
-            case SDL_HAT_LEFTDOWN: up = true; left = true; break;
+            case SDL_HAT_UP: up = true; break;
+            case SDL_HAT_RIGHT: right = true; break;
+            case SDL_HAT_DOWN: down = true; break;
+            case SDL_HAT_LEFT: left = true; break;
+            case SDL_HAT_RIGHTUP: up = true; right = true; break;
+            case SDL_HAT_RIGHTDOWN: down = true; right = true; break;
+            case SDL_HAT_LEFTUP: up = true; left = true; break;
+            case SDL_HAT_LEFTDOWN: down = true; left = true; break;
         }
 
         events.push_back(Joystick::Event(Joystick::Left, left));
