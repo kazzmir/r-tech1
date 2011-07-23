@@ -486,7 +486,7 @@ int setGraphicsMode(int mode, int width, int height){
      * set the width/height based on it.
      */
 #ifdef PS3
-    getNativePs3Resolution(&width, &height);
+    // getNativePs3Resolution(&width, &height);
 #endif
 
     switch (mode){
