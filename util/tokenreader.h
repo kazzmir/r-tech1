@@ -33,7 +33,7 @@ protected:
     std::ifstream ifile;
     std::string myfile;
     */
-    std::vector< Token * > my_tokens;
+    std::vector<Token *> my_tokens;
 };
 
 #endif
