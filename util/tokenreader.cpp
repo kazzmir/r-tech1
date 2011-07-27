@@ -8,6 +8,7 @@
 #include "token.h"
 #include "token_exception.h"
 #include "tokenreader.h"
+#include "pointer.h"
 
 using namespace std;
 
@@ -95,23 +96,26 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
 
     // string token_string;
 
-    char open_paren = 'x';
-    int parens = 1;
-    int position = 0;
+    // char open_paren = 'x';
+    int parens = 0;
+    // int position = 0;
+    /*
     while (input.good() && open_paren != '('){
         input >> open_paren;
         position += 1;
     }
+    */
     // token_string += '(';
 
-    Token * cur_token = new Token();
+    Token * currentToken = NULL;
+    // Token * cur_token = new Token();
     // cur_token->setFile(myfile);
-    my_tokens.push_back( cur_token );
-    Token * first = cur_token;
-    vector< Token * > token_stack;
+    // my_tokens.push_back(cur_token);
+    // Token * first = cur_token;
+    vector<Token *> token_stack;
     /* tokens that were ignored using ;@, and should be deleted */
-    vector<Token*> ignore_list;
-    token_stack.push_back( cur_token );
+    vector<Util::ReferenceCount<Token> > ignore_list;
+    // token_stack.push_back(cur_token);
 
     /* when a ;@ is seen, read the next s-expression but throw it away */
     bool do_ignore = false;
@@ -124,20 +128,16 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
 
     /* escaped unconditionally adds the next character to the string */
     bool escaped = false;
-    while ( !token_stack.empty() ){
-        if ( !input ){
-            // cout<<__FILE__<<": "<<myfile<<" is bad. Open parens "<<parens<<endl;
-            // cout<<"Dump: "<< token_string << "Last token = [" << n << "]" << (int)n << endl;
-            // first->print( " " );
-            ostringstream failure;
-            failure << "Wrong number of parentheses. Open parens is " << parens;
-            throw TokenException(__FILE__, __LINE__, failure.str());
-        }
-        // char n;
+    while (input.good() && !input.eof()){
+            // char n;
         // slow as we go
         input >> n;
-        position += 1;
-        // printf("Read character '%c' %d\n", n, n);
+        if (input.eof()){
+            break;
+        }
+        // position += 1;
+        // printf("Read character '%c' %d at %d\n", n, n, input.tellg());
+        // cout << "Read character '" << n << "' " << (int) n << " at " << input.tellg() << endl;
 
         const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
         const char * nonalpha = " ;()#\"";
@@ -158,25 +158,28 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
             continue;
         }
 
-        if ( n == '\\' ){
+        if (n == '\\'){
             escaped = true;
             continue;
         }
 
-        if ( in_quote ){
-            if ( n == '"' ){
+        if (in_quote){
+            if (n == '"'){
                 in_quote = false;
 
-                Token * sub = new Token( cur_string, false );
-                sub->setParent( cur_token );
-                if (do_ignore){
-                    ignore_list.push_back(sub);
-                    do_ignore = false;
+                Token * sub = new Token(cur_string, false);
+                if (currentToken != NULL){
+                    sub->setParent(currentToken);
+                    if (do_ignore){
+                        ignore_list.push_back(sub);
+                        do_ignore = false;
+                    } else {
+                        currentToken->addToken(sub);
+                    }
+                    cur_string = "";
                 } else {
-                    cur_token->addToken( sub );
+                    delete sub;
                 }
-                cur_string = "";
-
             } else {
                 cur_string += n;
             }
@@ -189,18 +192,22 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 cur_string += n;
             } else if (cur_string != "" && strchr(nonalpha, n) != NULL){
                 // cout<<"Made new token "<<cur_string<<endl;
-                Token * sub = new Token( cur_string, false );
-                sub->setParent( cur_token );
-                if (do_ignore){
-                    do_ignore = false;
-                    ignore_list.push_back(sub);
+                Token * sub = new Token(cur_string, false);
+                if (currentToken != NULL){
+                    sub->setParent(currentToken);
+                    if (do_ignore){
+                        do_ignore = false;
+                        ignore_list.push_back(sub);
+                    } else {
+                        currentToken->addToken(sub);
+                    }
                 } else {
-                    cur_token->addToken( sub );
+                    delete sub;
                 }
                 cur_string = "";
             }
 
-            if ( n == '#' || n == ';' ){
+            if (n == '#' || n == ';'){
                 input >> n;
 
                 /* if the next character is a @ then ignore the next entire s-expression
@@ -209,47 +216,57 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 if (n == '@'){
                     do_ignore = true;
                 } else {
-                    while ( n != '\n' && !input.eof() ){
+                    while (n != '\n' && !input.eof()){
                         input >> n;
                     }
                     continue;
                 }
-            } else if ( n == '(' ){
+            } else if (n == '('){
                 Token * another = new Token();
-                another->setParent( cur_token );
+                if (currentToken != NULL){
+                    another->setParent(currentToken);
+                }
 
                 if (do_ignore){
                     ignore_list.push_back(another);
                     do_ignore = false;
                 } else {
-                    cur_token->addToken(another);
+                    if (currentToken != NULL){
+                        currentToken->addToken(another);
+                    } else {
+                        /* top level token */
+                        my_tokens.push_back(another);
+                    }
                 }
 
-                cur_token = another;
-                token_stack.push_back( cur_token );
-                /*
-                   parens++;
-                   cout<<"Inc Parens is "<<parens<<endl;
-                   */
-            } else if ( n == ')' ){
-                if ( token_stack.empty() ){
-                    cout<<"Stack is empty"<<endl;
+                parens += 1;
+                currentToken = another;
+                token_stack.push_back(currentToken);
+            } else if (n == ')'){
+                parens -= 1;
+                if (token_stack.empty()){
+                    // cout << "Stack is empty"<<endl;
                     throw TokenException(__FILE__, __LINE__, "Stack is empty");
                 }
                 token_stack.pop_back();
 
-                if ( ! token_stack.empty() ){
-                    cur_token = token_stack.back();
+                if (! token_stack.empty()){
+                    currentToken = token_stack.back();
+                } else {
+                    currentToken = NULL;
                 }
             }
         }
     }
 
-    for (vector<Token*>::iterator it = ignore_list.begin(); it != ignore_list.end(); it++){
-        delete (*it);
+    if (!token_stack.empty()){
+        ostringstream failure;
+        failure << "Wrong number of parentheses. Open parens is " << parens;
+        throw TokenException(__FILE__, __LINE__, failure.str());
     }
 
-    // first->print("");
-    first->finalize();
-    // return first;
+    for (vector<Token*>::iterator it = my_tokens.begin(); it != my_tokens.end(); it++){
+        Token * token = *it;
+        token->finalize();
+    }
 }
