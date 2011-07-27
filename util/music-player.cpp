@@ -199,7 +199,7 @@ int BUFFER_SIZE = 1 << 11;
 static int ALLEGRO_MONO = 0;
 static int ALLEGRO_STEREO = 1;
 MusicRenderer::MusicRenderer(){
-    create(Sound::Info.frequency, 1);
+    create(Sound::Info.frequency, 2);
 }
 
 MusicRenderer::MusicRenderer(int frequency, int channels){
