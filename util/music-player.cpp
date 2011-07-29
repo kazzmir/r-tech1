@@ -82,7 +82,7 @@ static double scaleVolume(double start){
  */
 /* FIXME: move this to global or something and find a better #ifdef */
 int bigEndian(){
-#ifdef PS3
+#if defined(PS3) || defined(WII)
     return 1;
 #else
     return 0;
