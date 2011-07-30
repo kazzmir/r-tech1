@@ -26,6 +26,8 @@ namespace nacl{
             pp::Instance(instance),
             core(core){
             the_instance = this;
+            RequestInputEvents(PP_INPUTEVENT_CLASS_MOUSE);
+            RequestFilteringInputEvents(PP_INPUTEVENT_CLASS_KEYBOARD);
         }
         virtual ~PaintownInstance() {}
         static PaintownInstance * the_instance;
@@ -39,8 +41,8 @@ namespace nacl{
             return 0;
         }
 
-        bool HandleInputEvent(const PP_InputEvent& event){
-            SDL_NACL_PushEvent(&event);
+        bool HandleInputEvent(const pp::InputEvent & event){
+            SDL_NACL_PushEvent((pp::InputEvent*) &event);
             return true;
         }
 
@@ -61,10 +63,12 @@ namespace nacl{
             Global::debug(0) << "Running thread " << thread << std::endl;
         }
 
+        /*
         virtual pp::Var GetInstanceObject(){
             PaintownScript * object = new PaintownScript();
             return pp::Var(this, object);
         }
+        */
 
         /* when the browser does paintownModule.postMessage('run') this will
          * get executed.

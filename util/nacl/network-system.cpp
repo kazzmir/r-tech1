@@ -373,7 +373,6 @@ public:
     void success(NaclRequestOpen & open){
         pp::URLResponseInfo info = open.loader.GetResponseInfo();
         if (info.GetStatusCode() == 200){
-            Global::debug(1) << "Opened file" << std::endl;
             /*
             int64_t received = 0;
             int64_t total = 0;
@@ -629,6 +628,9 @@ int nextFileDescriptor(){
 int NetworkSystem::libcOpen(const char * path, int mode, int params){
     Manager manager(instance, core);
     Util::ReferenceCount<FileHandle> handle = manager.openFile(path);
+    if (handle == NULL){
+        return -1;
+    }
     Util::Thread::ScopedLock scoped(lock);
     int file = nextFileDescriptor();
     fileTable[file] = handle;
@@ -640,8 +642,10 @@ ssize_t NetworkSystem::libcRead(int fd, void * buffer, size_t count){
     if (fileTable.find(fd) == fileTable.end()){
         return EBADF;
     }
-
     Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+    if (handle == NULL){
+        Global::debug(0) << "Handle is null!!" << std::endl;
+    }
     return handle->read(buffer, count);
 }
 
