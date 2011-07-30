@@ -54,8 +54,12 @@ protected:
     void create(int frequency, int channels);
 #ifdef USE_SDL
     static void mixer(void * arg, Uint8 * stream, int length);
+    void fill(MusicPlayer * player);
+    void read(MusicPlayer * player, Uint8 * stream, int bytes);
     SDL_AudioCVT convert;
     Uint8 * data;
+    int position;
+    int converted;
 #endif
 
 #ifdef USE_ALLEGRO

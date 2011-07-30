@@ -146,6 +146,7 @@ void MusicRenderer::poll(MusicPlayer & player){
     }
 }
 #elif USE_SDL
+static const int BUFFER_SIZE = 4096;
 MusicRenderer::MusicRenderer(){
     create(Sound::Info.frequency, Sound::Info.channels);
 }
@@ -163,11 +164,52 @@ void MusicRenderer::create(int frequency, int channels){
     SDL_BuildAudioCVT(&convert, format, channels, frequency,
                                 Sound::Info.format, Sound::Info.channels,
                                 Sound::Info.frequency);
-    data = new Uint8[1024 * 32];
+    data = new Uint8[BUFFER_SIZE * convert.len_mult];
+    position = 0;
+    converted = 0;
+}
+
+void MusicRenderer::fill(MusicPlayer * player){
+    position = 0;
+    /* read samples in dual-channel, 16-bit, signed form */
+    player->render(data, BUFFER_SIZE / 4);
+    if (convert.needed){
+        convert.buf = data;
+        convert.len = BUFFER_SIZE;
+        /* then convert to whatever the real output wants */
+        SDL_ConvertAudio(&convert);
+        converted = convert.len_cvt;
+    } else {
+        converted = BUFFER_SIZE;
+    }
+}
+
+void MusicRenderer::read(MusicPlayer * player, Uint8 * stream, int bytes){
+    while (bytes > 0){
+        int length = bytes;
+        if (length + position >= converted){
+            length = converted - position;
+        }
+
+        /* data contains samples in the same format as the output */
+        memcpy(stream, data + position, length);
+        stream += length;
+        position += length;
+        bytes -= length;
+        if (position >= converted){
+            fill(player);
+        }
+    }
 }
 
 void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
     MusicPlayer * player = (MusicPlayer*) arg;
+
+    player->getRenderer()->read(player, stream, bytes);
+    
+
+
+    /*
     int size = (int)((float) bytes / player->getRenderer()->convert.len_ratio / (float) player->getRenderer()->convert.len_mult);
     Global::debug(2) << "Incoming " << bytes << " render " << size << std::endl;
     player->getRenderer()->convert.buf = player->getRenderer()->data;
@@ -177,6 +219,7 @@ void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
 
     SDL_ConvertAudio(&player->getRenderer()->convert);
     memcpy(stream, player->getRenderer()->data, bytes);
+    */
 }
 
 void MusicRenderer::play(MusicPlayer & player){
