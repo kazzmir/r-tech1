@@ -435,6 +435,30 @@ void Draw::updateFrames(){
     frames += 1;
 }
 
+static void changeScreenMode(){
+    Configuration::setFullscreen(!Configuration::getFullscreen());
+    int gfx = (Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED);
+    Graphics::setGraphicsMode(gfx, Global::getScreenWidth(), Global::getScreenHeight());
+}
+
+static void checkFullscreen(){
+    InputMap<int> input;
+    input.set(Keyboard::Key_F11, 0, true, 5);
+    std::vector<InputMap<int>::InputEvent> events = InputManager::getEvents(input);
+
+    for (std::vector<InputMap<int>::InputEvent>::iterator it = events.begin(); it != events.end(); it++){
+        InputMap<int>::InputEvent event = *it;
+
+        if (!event.enabled){
+            continue;
+        }
+
+        if (event.out == 5){
+            changeScreenMode();
+        }
+    }
+}
+
 static void doStandardLoop(Logic & logic, Draw & draw){
     const Graphics::Bitmap & screen = *Graphics::screenParameter.current();
     draw.drawFirst(screen);
@@ -450,6 +474,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 while (runCounter >= 1.0){
                     need_draw = true;
                     InputManager::poll();
+                    checkFullscreen();
                     runCounter -= 1;
                     logic.run();
 
