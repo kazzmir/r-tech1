@@ -81,7 +81,16 @@ public:
     virtual void setVolume(double volume) = 0;
     virtual ~MusicPlayer();
 
-    /* length is in samples not bytes */
+    /* length is in samples not bytes.
+     * this function must produce samples that are
+     *  signed
+     *  16-bit
+     *  use the native endian of the machine
+     *  dual-channel
+     *
+     *  Which means each sample should be 4 bytes
+     *    2 bytes * 2 channels
+     */
     virtual void render(void * stream, int length) = 0;
 
     virtual inline double getVolume() const {
