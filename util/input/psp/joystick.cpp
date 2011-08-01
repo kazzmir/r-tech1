@@ -23,13 +23,13 @@ JoystickInput PSPJoystick::readAll(){
 
 void PSPJoystick::pressButton(int button){
     /* NOTE This can easily be done in doKeys instead of feeding it back into SDL to run this */
-    Event event = Invalid;
+    Event event = Event(Joystick::Invalid, false);
     switch (button){
-	case 0: event = Button1; break;
-	case 1: event = Button2; break;
-	case 2: event = Button3; break;
-	case 3: event = Button4; break;
-	case 4: event = Quit; break;
+        case 0: event = Event(Joystick::Button1, true); break;
+        case 1: event = Event(Joystick::Button2, true); break;
+        case 2: event = Event(Joystick::Button3, true); break;
+        case 3: event = Event(Joystick::Button4, true); break;
+        case 4: event = Event(Joystick::Quit, true); break;
     }
     events.push_back(event);
 }
@@ -40,15 +40,15 @@ void PSPJoystick::releaseButton(int button){
 void PSPJoystick::axisMotion(int axis, int motion){
     if (axis == 0){
 	if (motion < 0){
-	    events.push_back(Left);
+	    events.push_back(Event(Joystick::Left, true));
 	} else if (motion > 0){
-	    events.push_back(Right);
+	    events.push_back(Event(Joystick::Right, true));
 	}
     } else if (axis == 1){
 	if (motion < 0){
-	    events.push_back(Up);
+	    events.push_back(Event(Joystick::Up, true));
 	} else if (motion > 0){
-	    events.push_back(Down);
+	    events.push_back(Event(Joystick::Down, true));
 	}
     }
 }
@@ -184,7 +184,7 @@ void PSPJoystick::doKeys(){
 	
         if(!(buffer.left) && (joystick.Buttons & PSP_CTRL_LEFT)){
             buffer.left = true;
-	    events.push_back(Left);
+	    events.push_back(Event(Joystick::Left, true));
 #if 0
 	    // Create SDL joy button event
 	    SDL_Event event;
@@ -211,7 +211,7 @@ void PSPJoystick::doKeys(){
         
         if(!(buffer.right) && (joystick.Buttons & PSP_CTRL_RIGHT)){
             buffer.right = true;
-	    events.push_back(Right);
+	    events.push_back(Event(Joystick::Right, true));
 #if 0
 	    // Create SDL joy button event
 	    SDL_Event event;
@@ -238,7 +238,7 @@ void PSPJoystick::doKeys(){
         
         if(!(buffer.down) && (joystick.Buttons & PSP_CTRL_DOWN)){
             buffer.down = true;
-	    events.push_back(Down);
+	    events.push_back(Event(Joystick::Down, true));
 #if 0
 	    // Create SDL joy button event
 	    SDL_Event event;
@@ -265,7 +265,7 @@ void PSPJoystick::doKeys(){
         
         if(!(buffer.up) && (joystick.Buttons & PSP_CTRL_UP)){
             buffer.up = true;
-	    events.push_back(Up);
+	    events.push_back(Event(Joystick::Up, true));
 #if 0
 	    // Create SDL joy button event
 	    SDL_Event event;
