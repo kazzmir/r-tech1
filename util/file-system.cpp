@@ -464,8 +464,12 @@ Filesystem::AbsolutePath Filesystem::configFile(){
 
 Filesystem::AbsolutePath Filesystem::userDirectory(){
     ostringstream str;
-    /* what if HOME isn't set? */
-    str << getenv("HOME") << "/.paintown/";
+    char * home = getenv("HOME");
+    if (home == NULL){
+        str << "/tmp/paintown";
+    } else {
+        str << home << "/.paintown/";
+    }
     return Filesystem::AbsolutePath(str.str());
 }
 #endif
@@ -618,6 +622,9 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
     DIRST sflEntry;
     // bool ok = open_dir(&sflEntry, removeTrailingSlash(dataPath.path()).c_str());
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
+    if (!ok){
+        return files;
+    }
     while (ok){
         if (file_matches(sflEntry.file_name, find.c_str())){
             files.push_back(AbsolutePath(dataPath.path() + "/" + string(sflEntry.file_name)));
@@ -652,6 +659,9 @@ vector<Filesystem::AbsolutePath> Filesystem::getAllDirectories(const AbsolutePat
 }
 
 vector<Filesystem::AbsolutePath> Filesystem::getFilesRecursive(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
+    if (!exists(dataPath)){
+        return vector<AbsolutePath>();
+    }
     vector<AbsolutePath> directories = getAllDirectories(dataPath);
     directories.push_back(dataPath);
     vector<AbsolutePath> files;
