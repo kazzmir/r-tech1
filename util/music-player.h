@@ -2,6 +2,7 @@
 #define _paintown_music_player_h
 
 #include <string>
+#include <vector>
 #include <stdio.h>
 
 #ifdef USE_SDL
@@ -172,6 +173,39 @@ protected:
     mpg123_handle * mp3;
     double base_volume;
 #elif HAVE_MP3_MAD
+    void output(mad_header const * header, mad_pcm * pcm);
+    static mad_flow error(void * data, mad_stream * stream, mad_frame * frame);
+    static mad_flow input(void * data, mad_stream * stream);
+    void discoverInfo(FILE * handle, int * rate, int * channels);
+    void fill();
+
+    mad_stream stream;
+    mad_frame frame;
+    mad_synth synth;
+
+    char * available;
+    int bytesLeft;
+    int position;
+    bool readMore;
+    struct Data{
+        Data():
+            data(NULL),
+            length(0){
+            }
+
+        Data(char * data, int length):
+            data(data), length(length){
+            }
+
+        ~Data(){
+        }
+
+        char * data;
+        int length;
+    };
+    std::vector<Data> pages;
+    unsigned char * raw;
+    int rawLength;
 #endif
 };
 #endif

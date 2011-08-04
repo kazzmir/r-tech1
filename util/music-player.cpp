@@ -674,12 +674,195 @@ OggPlayer::~OggPlayer(){
 #endif /* OGG */
 
 #ifdef HAVE_MP3_MAD
-    /* TODO */
-Mp3Player::Mp3Player(string path){
-    /* TODO */
+Mp3Player::Mp3Player(string path):
+available(NULL),
+bytesLeft(0),
+position(0),
+raw(NULL){
+    FILE * handle = fopen(path.c_str(), "rb");
+    if (!handle){
+        std::ostringstream out;
+        out << "Could not open mp3 file " << path;
+        throw MusicException(__FILE__, __LINE__, out.str());
+    }
+
+    int rate = 44100, channels = 2;
+    discoverInfo(handle, &rate, &channels);
+    setRenderer(new MusicRenderer(rate, channels));
+
+    fseek(handle, 0, SEEK_END);
+    rawLength = ftell(handle);
+    fseek(handle, 0, SEEK_SET);
+    raw = new unsigned char[rawLength];
+    
+    int toRead = rawLength;
+    int where =0;
+    while (toRead > 0){
+        int got = fread(raw + where, 1, toRead, handle);
+        toRead -= got;
+    }
+    fclose(handle);
+
+    mad_stream_init(&stream);
+    mad_stream_buffer(&stream, raw, rawLength);
+
+    fill();
+}
+
+/* read the first frame and get the rate and channels from the header.
+ * assume all other frames use the same rate and channels
+ */ 
+void Mp3Player::discoverInfo(FILE * handle, int * rate, int * channels){
+    mad_frame frame;
+    mad_stream stream;
+    mad_frame_init(&frame);
+    mad_stream_init(&stream);
+    unsigned char data[1024 * 4];
+    int read = fread(data, 1, sizeof(data), handle);
+    fseek(handle, 0, SEEK_SET);
+    mad_stream_buffer(&stream, data, read);
+    int ok = mad_header_decode(&frame.header, &stream);
+    while (ok == -1){
+        if (MAD_RECOVERABLE(stream.error)){
+            ok = mad_header_decode(&frame.header, &stream);
+        } else {
+            throw MusicException(__FILE__, __LINE__, "Could not decode mp3 frame");
+        }
+    }
+    *rate = frame.header.samplerate;
+    switch (frame.header.mode){
+        case MAD_MODE_SINGLE_CHANNEL: *channels = 1; break;
+        case MAD_MODE_DUAL_CHANNEL: *channels = 2; break;
+        case MAD_MODE_JOINT_STEREO: *channels = 2; break;
+        case MAD_MODE_STEREO: *channels = 2; break;
+    }
+
+    mad_frame_finish(&frame);
+    mad_stream_finish(&stream);
+}
+
+mad_flow Mp3Player::error(void * data, mad_stream * stream, mad_frame * frame){
+    if (MAD_RECOVERABLE(stream->error)){
+        return MAD_FLOW_CONTINUE;
+    }
+    throw MusicException(__FILE__, __LINE__, "Error decoding mp3 stream");
+}
+
+static inline signed int mad_scale(mad_fixed_t sample){
+    /* round */
+    sample += (1L << (MAD_F_FRACBITS - 16));
+
+    /* clip */
+    if (sample >= MAD_F_ONE)
+        sample = MAD_F_ONE - 1;
+    else if (sample < -MAD_F_ONE)
+        sample = -MAD_F_ONE;
+
+    /* quantize */
+    return sample >> (MAD_F_FRACBITS + 1 - 16);
+}
+
+void Mp3Player::output(mad_header const * header, mad_pcm * pcm){
+    unsigned int channels = pcm->channels;
+    unsigned int samples = pcm->length;
+    mad_fixed_t const * left = pcm->samples[0];
+    mad_fixed_t const * right = pcm->samples[1];
+
+    unsigned short * out = new unsigned short[samples * 2];
+    for (int index = 0; index < samples; index++){
+        out[index * 2] = mad_scale(*left) & 0xffff;
+        out[index * 2 + 1] = mad_scale(*right) & 0xffff;
+        left += 1;
+        right += 1;
+    }
+
+    /* 2 channels * 2 bytes per sample */
+    pages.push_back(Data((char*) out, samples * 2 * 2));
+}
+
+mad_flow Mp3Player::input(void * data, mad_stream * stream){
+    /*
+    Mp3Player * player = (Mp3Player*) data;
+    if (!player->readMore){
+        return MAD_FLOW_STOP;
+    } else {
+        player->readMore = false;
+    }
+    int read = fread(player->raw, 1, RAW_SIZE, player->handle);
+    if (feof(player->handle)){
+        / * start over * /
+        fseek(player->handle, 0, SEEK_SET);
+    }
+    mad_stream_buffer(stream, player->raw, read);
+    return MAD_FLOW_CONTINUE;
+    */
+    return MAD_FLOW_CONTINUE;
+}
+
+void Mp3Player::fill(){
+    mad_frame_init(&frame);
+    mad_synth_init(&synth);
+
+    for (int i = 0; i < 4; i++){
+        int headerError = mad_header_decode(&frame.header, &stream);
+        while (headerError == -1){
+            if (MAD_RECOVERABLE(stream.error)){
+            } else {
+                if (stream.error == MAD_ERROR_BUFLEN){
+                    mad_stream_init(&stream);
+                    mad_stream_buffer(&stream, raw, rawLength);
+                    mad_frame_init(&frame);
+                }
+            }
+            headerError = mad_header_decode(&frame.header, &stream);
+        }
+
+        mad_frame_decode(&frame, &stream);
+        mad_synth_frame(&synth, &frame);
+        output(&frame.header, &synth.pcm);
+    }
+
+    /*
+    readMore = true;
+    int result = mad_decoder_run(&decoder, MAD_DECODER_MODE_SYNC);
+    */
+
+    bytesLeft = 0;
+    for (std::vector<Data>::iterator it = pages.begin(); it != pages.end(); it++){
+        bytesLeft += it->length;
+    }
+
+    delete[] available;
+    available = new char[bytesLeft];
+    position = 0;
+    int here = 0;
+    for (std::vector<Data>::iterator it = pages.begin(); it != pages.end(); it++){
+        memcpy(available + here, it->data, it->length);
+        here += it->length;
+
+        delete[] it->data;
+    }
+
+    pages.clear();
 }
 
 void Mp3Player::render(void * data, int length){
+    length *= 4;
+    while (length > 0){
+        int left = length;
+        if (left > bytesLeft){
+            left = bytesLeft;
+        }
+        memcpy(data, available + position, left);
+        length -= left;
+        bytesLeft -= left;
+        position += left;
+        data = ((char*) data) + left;
+
+        if (bytesLeft == 0){
+            fill();
+        }
+    }
 }
 
 void Mp3Player::setVolume(double volume){
@@ -687,7 +870,9 @@ void Mp3Player::setVolume(double volume){
 }
 
 Mp3Player::~Mp3Player(){
-    /* TODO */
+    delete[] raw;
+    delete[] available;
+    // mad_decoder_finish(&decoder);
 }
 #endif /* MP3_MAD */
 
