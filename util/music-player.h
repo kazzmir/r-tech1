@@ -177,7 +177,7 @@ protected:
     static mad_flow error(void * data, mad_stream * stream, mad_frame * frame);
     static mad_flow input(void * data, mad_stream * stream);
     void discoverInfo(FILE * handle, int * rate, int * channels);
-    void fill();
+    void fill(int frames);
 
     mad_stream stream;
     mad_frame frame;

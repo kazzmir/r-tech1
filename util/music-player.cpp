@@ -704,9 +704,11 @@ raw(NULL){
     fclose(handle);
 
     mad_stream_init(&stream);
+    mad_frame_init(&frame);
+    mad_synth_init(&synth);
     mad_stream_buffer(&stream, raw, rawLength);
 
-    fill();
+    fill(4);
 }
 
 /* read the first frame and get the rate and channels from the header.
@@ -769,7 +771,7 @@ void Mp3Player::output(mad_header const * header, mad_pcm * pcm){
     mad_fixed_t const * right = pcm->samples[1];
 
     unsigned short * out = new unsigned short[samples * 2];
-    for (int index = 0; index < samples; index++){
+    for (unsigned int index = 0; index < samples; index++){
         out[index * 2] = mad_scale(*left) & 0xffff;
         out[index * 2 + 1] = mad_scale(*right) & 0xffff;
         left += 1;
@@ -799,19 +801,21 @@ mad_flow Mp3Player::input(void * data, mad_stream * stream){
     return MAD_FLOW_CONTINUE;
 }
 
-void Mp3Player::fill(){
-    mad_frame_init(&frame);
-    mad_synth_init(&synth);
-
-    for (int i = 0; i < 4; i++){
+void Mp3Player::fill(int frames){
+    for (int i = 0; i < frames; i++){
         int headerError = mad_header_decode(&frame.header, &stream);
         while (headerError == -1){
             if (MAD_RECOVERABLE(stream.error)){
             } else {
                 if (stream.error == MAD_ERROR_BUFLEN){
+                    mad_stream_finish(&stream);
+                    mad_frame_finish(&frame);
+                    mad_synth_finish(&synth);
+
                     mad_stream_init(&stream);
-                    mad_stream_buffer(&stream, raw, rawLength);
                     mad_frame_init(&frame);
+                    mad_synth_init(&synth);
+                    mad_stream_buffer(&stream, raw, rawLength);
                 }
             }
             headerError = mad_header_decode(&frame.header, &stream);
@@ -831,6 +835,8 @@ void Mp3Player::fill(){
     for (std::vector<Data>::iterator it = pages.begin(); it != pages.end(); it++){
         bytesLeft += it->length;
     }
+
+    // Global::debug(0) << "Read " << bytesLeft << std::endl;
 
     delete[] available;
     available = new char[bytesLeft];
@@ -860,7 +866,7 @@ void Mp3Player::render(void * data, int length){
         data = ((char*) data) + left;
 
         if (bytesLeft == 0){
-            fill();
+            fill(4);
         }
     }
 }
@@ -872,6 +878,9 @@ void Mp3Player::setVolume(double volume){
 Mp3Player::~Mp3Player(){
     delete[] raw;
     delete[] available;
+    mad_stream_finish(&stream);
+    mad_frame_finish(&frame);
+    mad_synth_finish(&synth);
     // mad_decoder_finish(&decoder);
 }
 #endif /* MP3_MAD */
