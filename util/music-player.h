@@ -176,7 +176,7 @@ protected:
     void output(mad_header const * header, mad_pcm * pcm);
     static mad_flow error(void * data, mad_stream * stream, mad_frame * frame);
     static mad_flow input(void * data, mad_stream * stream);
-    void discoverInfo(FILE * handle, int * rate, int * channels);
+    void discoverInfo(unsigned char * raw, int length, int * rate, int * channels);
     void fill(int frames);
 
     mad_stream stream;

@@ -686,10 +686,6 @@ raw(NULL){
         throw MusicException(__FILE__, __LINE__, out.str());
     }
 
-    int rate = 44100, channels = 2;
-    discoverInfo(handle, &rate, &channels);
-    setRenderer(new MusicRenderer(rate, channels));
-
     fseek(handle, 0, SEEK_END);
     rawLength = ftell(handle);
     fseek(handle, 0, SEEK_SET);
@@ -703,6 +699,12 @@ raw(NULL){
     }
     fclose(handle);
 
+    int rate = 44100, channels = 2;
+    discoverInfo(raw, rawLength, &rate, &channels);
+    setRenderer(new MusicRenderer(rate, channels));
+
+    Global::debug(0) << "Opened mp3 file " << path << " rate " << rate << " channels " << channels << std::endl;
+
     mad_stream_init(&stream);
     mad_frame_init(&frame);
     mad_synth_init(&synth);
@@ -714,15 +716,12 @@ raw(NULL){
 /* read the first frame and get the rate and channels from the header.
  * assume all other frames use the same rate and channels
  */ 
-void Mp3Player::discoverInfo(FILE * handle, int * rate, int * channels){
+void Mp3Player::discoverInfo(unsigned char * raw, int length, int * rate, int * channels){
     mad_frame frame;
     mad_stream stream;
     mad_frame_init(&frame);
     mad_stream_init(&stream);
-    unsigned char data[1024 * 4];
-    int read = fread(data, 1, sizeof(data), handle);
-    fseek(handle, 0, SEEK_SET);
-    mad_stream_buffer(&stream, data, read);
+    mad_stream_buffer(&stream, raw, length);
     int ok = mad_header_decode(&frame.header, &stream);
     while (ok == -1){
         if (MAD_RECOVERABLE(stream.error)){
