@@ -42,7 +42,7 @@ namespace nacl{
         }
 
         bool HandleInputEvent(const pp::InputEvent & event){
-            SDL_NACL_PushEvent((pp::InputEvent*) &event);
+            SDL_NACL_PushEvent(event);
             return true;
         }
 
