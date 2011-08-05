@@ -77,6 +77,10 @@ namespace Thread{
         int acquire() const;
         int release() const;
 
+        Lock & getLock(){
+            return lock;
+        }
+
         /* wait until check is true.
          * you MUST acquire the lock before calling this function */
         void wait(volatile bool & check) const;
