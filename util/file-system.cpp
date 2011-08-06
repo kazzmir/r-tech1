@@ -300,6 +300,22 @@ std::string stripDir(const std::string & str){
     return str; 
 }
 
+/* a/b/c/d -> a/b/c/ */
+std::string stripFilename(const std::string & str){
+    std::string temp = str;
+    if( str.find( "/") != std::string::npos || str.find( "\\") != std::string::npos ){
+        size_t rem = temp.find_last_of( "/" );
+        if( rem != std::string::npos ){
+            return str.substr(0,rem+1);
+        }
+        rem = temp.find_last_of( "\\" );
+        if( rem != std::string::npos ){
+            return str.substr(0,rem+1);
+        }
+    }
+    return "";
+}
+
 }
 
 namespace Storage{

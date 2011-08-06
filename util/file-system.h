@@ -86,6 +86,9 @@ namespace Path{
 
     /* basename, just get the filename and remove the directory part */
     std::string stripDir(const std::string & str);
+    
+    /* dirname, just get the directory and remove the filename part */
+    std::string stripFilename(const std::string & str);
 }
 
 namespace Storage{
