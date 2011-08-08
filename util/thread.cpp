@@ -132,7 +132,9 @@ bool createThread(Id * thread, void * attributes, ThreadFunction function, void 
 }
 
 void joinThread(Id thread){
-    SDL_WaitThread(thread, NULL);
+    if (!isUninitialized(thread)){
+        SDL_WaitThread(thread, NULL);
+    }
 }
 
 void cancelThread(Id thread){
@@ -207,7 +209,9 @@ bool createThread(Id * thread, void * attributes, ThreadFunction function, void 
 }
 
 void joinThread(Id thread){
-    al_join_thread(thread, NULL);
+    if (!isUninitialized(thread)){
+        al_join_thread(thread, NULL);
+    }
 }
     
 void cancelThread(Id thread){
@@ -272,7 +276,9 @@ bool createThread(Id * thread, void * attributes, ThreadFunction function, void 
 }
 
 void joinThread(Id thread){
-    pthread_join(thread, NULL);
+    if (!isUninitialized(thread)){
+        pthread_join(thread, NULL);
+    }
 }
     
 void cancelThread(Id thread){
