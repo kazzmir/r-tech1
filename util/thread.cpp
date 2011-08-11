@@ -70,6 +70,27 @@ bool isUninitialized(Id thread){
     return thread == uninitializedValue;
 }
 
+ThreadObject::ThreadObject(void * data, void * (function)(void * arg)):
+data(data),
+function(function),
+thread(uninitializedValue){
+}
+
+bool ThreadObject::start(){
+    if (thread == uninitializedValue){
+        return createThread(&thread, NULL, (Thread::ThreadFunction) function, data);
+    } else {
+        return false;
+    }
+}
+
+ThreadObject::~ThreadObject(){
+    if (thread != uninitializedValue){
+        joinThread(thread);
+        thread = uninitializedValue;
+    }
+}
+
 #if defined(USE_SDL) && !defined(USE_NACL)
 Id uninitializedValue = NULL;
     

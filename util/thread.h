@@ -111,6 +111,20 @@ namespace Thread{
     private:
         const LockObject & lock;
     };
+
+    class ThreadObject{
+    public:
+        ThreadObject(void * data, void * (function)(void * arg));
+
+        /* true if the thread was started, false otherwise */
+        virtual bool start();
+        virtual ~ThreadObject();
+
+    protected:
+        void * data;
+        void * (*function)(void * arg);
+        Id thread;
+    };
 }
 
 class WaitThread{
