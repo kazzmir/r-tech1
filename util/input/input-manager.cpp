@@ -1,6 +1,6 @@
 #include "input-manager.h"
 #include "configuration.h"
-/* FIXME: break this dependancy */
+/* FIXME: break this dependancy. this is used for PaintownInput */
 #include "paintown-engine/object/object.h"
 #include "joystick.h"
 #include "util/events.h"
@@ -41,10 +41,13 @@ bool InputManager::_anyInput(){
     }
 
     if (joystick){
+        return joystick->getEvents().size() > 0;
+        /*
         JoystickInput all_joystick = joystick->readAll();
         if (all_joystick.pressed()){
             return true;
         }
+        */
     }
 
     return false;
