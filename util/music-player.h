@@ -9,6 +9,7 @@
 /* for Uint8 */
 #include <SDL.h>
 #include "sdl/mixer/SDL_mixer.h"
+#include "audio.h"
 #endif
 
 #ifdef HAVE_MP3_MPG123
@@ -57,7 +58,8 @@ protected:
     static void mixer(void * arg, Uint8 * stream, int length);
     void fill(MusicPlayer * player);
     void read(MusicPlayer * player, Uint8 * stream, int bytes);
-    SDL_AudioCVT convert;
+    AudioConverter convert;
+    // SDL_AudioCVT convert;
     Uint8 * data;
     int position;
     int converted;

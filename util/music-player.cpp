@@ -147,24 +147,34 @@ void MusicRenderer::poll(MusicPlayer & player){
 }
 #elif USE_SDL
 static const int BUFFER_SIZE = 4096;
-MusicRenderer::MusicRenderer(){
+int formatType(){
+    if (bigEndian()){
+        return AUDIO_S16MSB;
+    } else {
+        return AUDIO_S16;
+    }
+}
+MusicRenderer::MusicRenderer():
+convert(formatType(), Sound::Info.channels, Sound::Info.frequency,
+        formatType(), Sound::Info.channels, Sound::Info.frequency){
     create(Sound::Info.frequency, Sound::Info.channels);
 }
 
-MusicRenderer::MusicRenderer(int frequency, int channels){
+MusicRenderer::MusicRenderer(int frequency, int channels):
+convert(formatType(), channels, frequency,
+        formatType(), Sound::Info.channels, Sound::Info.frequency){
     create(frequency, channels);
 }
 
 void MusicRenderer::create(int frequency, int channels){
-    int format = AUDIO_S16;
-    if (bigEndian()){
-        format = AUDIO_S16MSB;
-    }
-    Global::debug(1) << "Convert between " << format << ", " << channels << ", " << frequency << " to " << Sound::Info.format << ", " << Sound::Info.channels << ", " << Sound::Info.frequency << std::endl;
+    
+    // Global::debug(1) << "Convert between " << format << ", " << channels << ", " << frequency << " to " << Sound::Info.format << ", " << Sound::Info.channels << ", " << Sound::Info.frequency << std::endl;
+    /*
     SDL_BuildAudioCVT(&convert, format, channels, frequency,
                                 Sound::Info.format, Sound::Info.channels,
                                 Sound::Info.frequency);
-    data = new Uint8[BUFFER_SIZE * convert.len_mult];
+                                */
+    data = new Uint8[convert.convertedLength(BUFFER_SIZE)];
     position = 0;
     converted = 0;
 }
@@ -173,6 +183,8 @@ void MusicRenderer::fill(MusicPlayer * player){
     position = 0;
     /* read samples in dual-channel, 16-bit, signed form */
     player->render(data, BUFFER_SIZE / 4);
+    converted = convert.convert(data, BUFFER_SIZE);
+#if 0
     if (convert.needed){
         convert.buf = data;
         convert.len = BUFFER_SIZE;
@@ -182,6 +194,7 @@ void MusicRenderer::fill(MusicPlayer * player){
     } else {
         converted = BUFFER_SIZE;
     }
+#endif
 }
 
 void MusicRenderer::read(MusicPlayer * player, Uint8 * stream, int bytes){

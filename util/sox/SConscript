@@ -1,0 +1,7 @@
+Import('use')
+
+source = Split("""src/formats.c
+""")
+
+x = use.StaticLibrary('sox', source)
+Return('x')
