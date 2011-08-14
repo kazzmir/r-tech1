@@ -7,6 +7,7 @@ void AllegroJoystick::poll(){
     ::poll_joystick();
 }
 
+/*
 JoystickInput AllegroJoystick::readAll(){
     JoystickInput input;
     JOYSTICK_INFO * info = &joy[0];
@@ -42,6 +43,7 @@ JoystickInput AllegroJoystick::readAll(){
 
     return input;
 }
+*/
 
 AllegroJoystick::~AllegroJoystick(){
 }

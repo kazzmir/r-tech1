@@ -12,8 +12,6 @@
 class LinuxJoystick: public Joystick {
 public:
     virtual void poll();
-    virtual JoystickInput readAll();
-    virtual bool pressed();
 
     virtual ~LinuxJoystick();
 

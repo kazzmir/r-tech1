@@ -17,10 +17,6 @@ int PSPJoystick::getDeviceId() const {
     return 0;
 }
 
-JoystickInput PSPJoystick::readAll(){
-    return buffer;
-}
-
 void PSPJoystick::pressButton(int button){
     /* NOTE This can easily be done in doKeys instead of feeding it back into SDL to run this */
     Event event = Event(Joystick::Invalid, false);

@@ -12,7 +12,7 @@ class ButtonMapping;
 class SDLJoystick: public Joystick {
 public:
     virtual void poll();
-    virtual JoystickInput readAll();
+    // virtual JoystickInput readAll();
     virtual int getDeviceId() const;
     virtual void pressButton(int button);
     virtual void releaseButton(int button);

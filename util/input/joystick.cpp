@@ -49,13 +49,6 @@ Joystick::Joystick(){
     
 Joystick::~Joystick(){
 }
-
-bool Joystick::pressed(){
-    JoystickInput input = readAll();
-    return input.up || input.down || input.left || input.right ||
-           input.button1 || input.button2 || input.button3 || input.button4 ||
-           input.quit; 
-}
     
 const char * Joystick::keyToName(Key key){
     switch (key){
@@ -73,6 +66,10 @@ const char * Joystick::keyToName(Key key){
         case Quit: return "Quit";
     }
     return "Unknown";
+}
+
+bool Joystick::pressed() const {
+    return events.size() > 0;
 }
     
 void Joystick::pressButton(int button){

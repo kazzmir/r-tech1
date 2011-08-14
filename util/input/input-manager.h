@@ -236,10 +236,12 @@ protected:
 
         input.read(all_keys, &output);
 
+        /*
         if (joystick != NULL){
             JoystickInput all_joystick = joystick->readAll();
             input.read(all_joystick, &output);
         }
+        */
 
         /* just bumps an internal counter */
         input.update();
@@ -264,10 +266,12 @@ protected:
 
         out = input.pressed(all_keys, result);
 
+        /*
         if (joystick != NULL){
             JoystickInput all_joystick = joystick->readAll();
             out |= input.pressed(all_joystick, result);
         }
+        */
 
         return out;
     }

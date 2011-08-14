@@ -56,8 +56,8 @@ struct JoystickInput{
 class Joystick{
 public:
     virtual void poll() = 0;
-    virtual JoystickInput readAll() = 0;
-    virtual bool pressed();
+    // virtual JoystickInput readAll() = 0;
+    virtual bool pressed() const;
     virtual ~Joystick();
 
     virtual int getDeviceId() const = 0;

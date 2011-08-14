@@ -10,6 +10,7 @@ void WiiJoystick::poll(){
     WPAD_ScanPads();
 }
 
+#if 0
 JoystickInput WiiJoystick::readAll(){
     JoystickInput input;
     // Number passed should be a port 1-4 I believe same with gc pad this can be modified later for multiplayer
@@ -121,6 +122,7 @@ JoystickInput WiiJoystick::readAll(){
 
     return input;
 }
+#endif
     
 int WiiJoystick::getDeviceId() const {
     /* FIXME! Figure out the device id */
