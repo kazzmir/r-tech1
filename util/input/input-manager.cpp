@@ -41,7 +41,7 @@ bool InputManager::_anyInput(){
     }
 
     if (joystick){
-        return joystick->getEvents().size() > 0;
+        return joystick->pressed();
         /*
         JoystickInput all_joystick = joystick->readAll();
         if (all_joystick.pressed()){

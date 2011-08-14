@@ -129,24 +129,7 @@ void LinuxJoystick::poll(){
     }
 }
 
-bool LinuxJoystick::pressed(){
-    if (file == -1){
-        return false;
-    }
-
-    for (int i = 0; i < axes; i++){
-        if (axis[i]){
-            return true;
-        }
-    }
-    for (int i = 0; i < buttons; i++){
-        if (button[i]){
-            return true;
-        }
-    }
-    return false;
-}
-    
+/*
 JoystickInput LinuxJoystick::readAll(){
     JoystickInput input;
     if (file == -1){
@@ -193,6 +176,7 @@ JoystickInput LinuxJoystick::readAll(){
                               << endl;
     return input;
 }
+*/
 
 #if 0
 int main (int argc, char **argv)

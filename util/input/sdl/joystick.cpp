@@ -540,6 +540,7 @@ static bool read_button(SDL_Joystick * joystick, int button){
     return SDL_JoystickGetButton(joystick, button);
 }
 
+/*
 JoystickInput SDLJoystick::readAll(){
     JoystickInput input;
     return input;
@@ -611,6 +612,7 @@ JoystickInput SDLJoystick::readAll(){
 
     return input;
 }
+*/
 
 SDLJoystick::~SDLJoystick(){
     if (joystick){
