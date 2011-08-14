@@ -41,7 +41,7 @@
 /* #undef HAVE_AO */
 
 /* Define to 1 if you have the <byteswap.h> header file. */
-#define HAVE_BYTESWAP_H 1
+/* #define HAVE_BYTESWAP_H 1 */
 
 /* Define to 1 if you have coreaudio. */
 /* #undef HAVE_COREAUDIO */
