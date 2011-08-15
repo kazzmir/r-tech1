@@ -91,31 +91,31 @@ Size clamp(double input){
 }
 
 template <class Size>
-void doConvertStereo(Size * input, Size * buffer, int length, double ratio){
+void doConvertRate(Size * input, Size * buffer, int length, double ratio, int channels){
     int maximum = length * ratio;
     for (int sample = 0; sample < maximum; sample += 1){
         double inputSample = sample / ratio;
 
-        for (int channel = 0; channel < 2; channel += 1){
+        for (int channel = 0; channel < channels; channel += 1){
 
-            int sample0 = ((int) inputSample - 1) * 2 + channel;
-            int sample1 = ((int) inputSample + 0) * 2 + channel;
-            int sample2 = ((int) inputSample + 1) * 2 + channel;
-            int sample3 = ((int) inputSample + 2) * 2 + channel;
+            int sample0 = ((int) inputSample - 1) * channels + channel;
+            int sample1 = ((int) inputSample + 0) * channels + channel;
+            int sample2 = ((int) inputSample + 1) * channels + channel;
+            int sample3 = ((int) inputSample + 2) * channels + channel;
 
             if (sample0 < 0){
                 sample0 = sample1;
             }
 
-            if (sample2 >= length * 2){
+            if (sample2 >= length * channels){
                 sample2 = sample1;
             }
 
-            if (sample3 >= length * 2){
+            if (sample3 >= length * channels){
                 sample3 = sample2;
             }
 
-            buffer[sample * 2 + channel] = clamp<Size>(CubicInterpolate(input[sample0], input[sample1], input[sample2], input[sample3], inputSample - (int) inputSample));
+            buffer[sample * channels + channel] = clamp<Size>(CubicInterpolate(input[sample0], input[sample1], input[sample2], input[sample3], inputSample - (int) inputSample));
 
             // Global::debug(0) << "Input[" << sample << "] " << channel << ": " << input[sample1] << " Output: " << buffer[sample * 2 + channel] << std::endl;
         }
@@ -127,11 +127,17 @@ int AudioConverter::convert(void * input, int length){
     if (this->input == this->output){
         return length;
     }
+
     int total = convertedLength(length);
+    /* make sure we get an even number of samples */
+    if (total % byteSize(output) != 0){
+        total -= byteSize(output);
+    }
+
     char * buffer = new char[total];
 
     switch (this->input.bytes){
-        case Signed16: doConvertStereo<signed short>((signed short*) input, (signed short*) buffer, length / 4, sizeRatio); break;
+        case Signed16: doConvertRate<signed short>((signed short*) input, (signed short*) buffer, length / 2 / output.channels, sizeRatio, output.channels); break;
     }
     
     memcpy(input, buffer, total);
