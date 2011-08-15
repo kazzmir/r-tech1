@@ -14,8 +14,10 @@
 
 namespace Util{
 
+/* endianness is always native */
 enum Encoding{
-    Signed16
+    Signed16,
+    Float32
 };
 
 class AudioConverter{
@@ -28,7 +30,7 @@ public:
 
     /* convert the audio, put the output in the same buffer passed in -- 'input'
      * and returns the number of converted samples.
-     * 'length' is the number of input samples
+     * 'length' is the number of input samples in *bytes*
      * 'input' should be large enough to hold convertedLength(length) samples
      */
     int convert(void * input, int length);

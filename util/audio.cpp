@@ -54,6 +54,7 @@ int AudioConverter::byteSize(const Format & what){
 int AudioConverter::encodingBytes(Encoding what){
     switch (what){
         case Signed16: return 2;
+        case Float32: return 4;
     }
 
     return 1;
@@ -136,8 +137,12 @@ int AudioConverter::convert(void * input, int length){
 
     char * buffer = new char[total];
 
-    switch (this->input.bytes){
-        case Signed16: doConvertRate<signed short>((signed short*) input, (signed short*) buffer, length / 2 / output.channels, sizeRatio, output.channels); break;
+    if (this->input.channels == output.channels &&
+        this->input.bytes == output.bytes){
+        switch (this->input.bytes){
+            case Signed16: doConvertRate<signed short>((signed short*) input, (signed short*) buffer, length / sizeof(signed short) / output.channels, sizeRatio, output.channels); break;
+            case Float32: doConvertRate<float>((float*) input, (float*) buffer, length / sizeof(float) / output.channels, sizeRatio, output.channels);
+        }
     }
     
     memcpy(input, buffer, total);
