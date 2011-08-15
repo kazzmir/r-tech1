@@ -14,7 +14,9 @@
 
 namespace Util{
 
-typedef int Encoding;
+enum Encoding{
+    Signed16
+};
 
 class AudioConverter{
 public:
@@ -26,6 +28,8 @@ public:
 
     /* convert the audio, put the output in the same buffer passed in -- 'input'
      * and returns the number of converted samples.
+     * 'length' is the number of input samples
+     * 'input' should be large enough to hold convertedLength(length) samples
      */
     int convert(void * input, int length);
 
@@ -35,6 +39,19 @@ protected:
 #ifdef USE_SDL
     SDL_AudioCVT conversion;
 #endif
+    struct Format{
+        Encoding bytes;
+        int channels;
+        int frequency;
+
+        bool operator==(const Format & him) const;
+    };
+    
+    int byteSize(const Format & what);
+    int encodingBytes(Encoding what);
+
+    Format input, output;
+    double sizeRatio;
 };
 
 }

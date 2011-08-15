@@ -147,11 +147,14 @@ void MusicRenderer::poll(MusicPlayer & player){
 }
 #elif USE_SDL
 static const int BUFFER_SIZE = 4096;
-int formatType(){
+// static const int BUFFER_SIZE = 65536 * 2;
+Encoding formatType(){
     if (bigEndian()){
-        return AUDIO_S16MSB;
+        // return AUDIO_S16MSB;
+        return Signed16;
     } else {
-        return AUDIO_S16;
+        // return AUDIO_S16;
+        return Signed16;
     }
 }
 MusicRenderer::MusicRenderer():
@@ -174,9 +177,30 @@ void MusicRenderer::create(int frequency, int channels){
                                 Sound::Info.format, Sound::Info.channels,
                                 Sound::Info.frequency);
                                 */
-    data = new Uint8[convert.convertedLength(BUFFER_SIZE)];
+    int size = convert.convertedLength(BUFFER_SIZE);
+    data = new Uint8[size < BUFFER_SIZE ? BUFFER_SIZE : size];
     position = 0;
     converted = 0;
+}
+
+static int sampleSize(){
+    int size = 1;
+    switch (Sound::Info.format){
+        case AUDIO_U8:
+        case AUDIO_S8: size = 1; break;
+        case AUDIO_U16LSB:
+        case AUDIO_S16LSB:
+        case AUDIO_U16MSB:
+        case AUDIO_S16MSB: size = 2; break;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+        case AUDIO_S32LSB:
+        case AUDIO_S32MSB:
+        case AUDIO_F32LSB:
+        case AUDIO_F32MSB: size = 2; break;
+#endif
+        default: size = 2; break;
+    }
+    return size * Sound::Info.channels;
 }
 
 void MusicRenderer::fill(MusicPlayer * player){
@@ -184,6 +208,12 @@ void MusicRenderer::fill(MusicPlayer * player){
     /* read samples in dual-channel, 16-bit, signed form */
     player->render(data, BUFFER_SIZE / 4);
     converted = convert.convert(data, BUFFER_SIZE);
+    /* sort of a hack, but we need exactly a multiple of 4 */
+    int totalSample = sampleSize();
+    if (converted % totalSample != 0){
+        converted -= converted % totalSample;
+    }
+    // Global::debug(0) << "Filled " << converted << " bytes" << std::endl;
 #if 0
     if (convert.needed){
         convert.buf = data;
@@ -198,12 +228,23 @@ void MusicRenderer::fill(MusicPlayer * player){
 }
 
 void MusicRenderer::read(MusicPlayer * player, Uint8 * stream, int bytes){
+    // Global::debug(0) << "Need " << bytes << " bytes. Have " << (converted - position) << std::endl;
     while (bytes > 0){
         int length = bytes;
         if (length + position >= converted){
             length = converted - position;
         }
+        /*
+        if (length % 4 != 0){
+            length -= length % 4;
+            if (length == 0){
+                fill(player);
+                continue;
+            }
+        }
+        */
 
+        // Global::debug(0) << "Copy " << length << " bytes" << std::endl;
         /* data contains samples in the same format as the output */
         memcpy(stream, data + position, length);
         stream += length;
@@ -861,11 +902,14 @@ void Mp3Player::fill(int frames){
         delete[] it->data;
     }
 
+    // Global::debug(0) << "Filled mp3 with " << bytesLeft << std::endl;
+
     pages.clear();
 }
 
 void Mp3Player::render(void * data, int length){
     length *= 4;
+    // Global::debug(0) << "Mp3 render " << length << " have " << bytesLeft << std::endl;
     while (length > 0){
         int left = length;
         if (left > bytesLeft){
