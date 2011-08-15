@@ -148,24 +148,39 @@ void MusicRenderer::poll(MusicPlayer & player){
 #elif USE_SDL
 static const int BUFFER_SIZE = 4096;
 // static const int BUFFER_SIZE = 65536 * 2;
-Encoding formatType(){
+Encoding formatType(int sdlFormat){
+    switch (sdlFormat){
+        case AUDIO_S16SYS: return Signed16;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+        case AUDIO_F32MSB: return Float32;
+        case AUDIO_F32LSB: return Float32;
+#endif
+    }
+
+    return Signed16;
+    /*
     if (bigEndian()){
-        // return AUDIO_S16MSB;
+        switch (Sound::Info.format){
+            case AUDIO_S16MSB: return Signed16;
+        }
         return Signed16;
     } else {
-        // return AUDIO_S16;
+        switch (Sound::Info.format){
+            case AUDIO_S16LSB: return Signed16;
+        }
         return Signed16;
     }
+    */
 }
 MusicRenderer::MusicRenderer():
-convert(formatType(), Sound::Info.channels, Sound::Info.frequency,
-        formatType(), Sound::Info.channels, Sound::Info.frequency){
+convert(formatType(AUDIO_S16SYS), Sound::Info.channels, Sound::Info.frequency,
+        formatType(Sound::Info.format), Sound::Info.channels, Sound::Info.frequency){
     create(Sound::Info.frequency, Sound::Info.channels);
 }
 
 MusicRenderer::MusicRenderer(int frequency, int channels):
-convert(formatType(), channels, frequency,
-        formatType(), Sound::Info.channels, Sound::Info.frequency){
+convert(formatType(AUDIO_S16SYS), channels, frequency,
+        formatType(Sound::Info.format), Sound::Info.channels, Sound::Info.frequency){
     create(frequency, channels);
 }
 
