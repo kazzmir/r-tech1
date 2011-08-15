@@ -146,7 +146,7 @@ void MusicRenderer::poll(MusicPlayer & player){
     }
 }
 #elif USE_SDL
-static const int BUFFER_SIZE = 4096;
+static const int BUFFER_SIZE = 1024 * 16;
 // static const int BUFFER_SIZE = 65536 * 2;
 Encoding formatType(int sdlFormat){
     switch (sdlFormat){
@@ -157,7 +157,10 @@ Encoding formatType(int sdlFormat){
 #endif
     }
 
-    return Signed16;
+    std::ostringstream out;
+    out << "Don't know how to deal with SDL format " << sdlFormat << std::endl;
+    throw MusicException(__FILE__, __LINE__, out.str());
+
     /*
     if (bigEndian()){
         switch (Sound::Info.format){
