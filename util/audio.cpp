@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "audio.h"
 #include "debug.h"
 
