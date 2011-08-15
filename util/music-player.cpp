@@ -209,10 +209,12 @@ void MusicRenderer::fill(MusicPlayer * player){
     player->render(data, BUFFER_SIZE / 4);
     converted = convert.convert(data, BUFFER_SIZE);
     /* sort of a hack, but we need exactly a multiple of 4 */
+    /*
     int totalSample = sampleSize();
     if (converted % totalSample != 0){
         converted -= converted % totalSample;
     }
+    */
     // Global::debug(0) << "Filled " << converted << " bytes" << std::endl;
 #if 0
     if (convert.needed){
