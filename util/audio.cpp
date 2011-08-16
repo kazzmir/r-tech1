@@ -99,30 +99,32 @@ float clamp(double input){
 }
 
 template <class Size>
-void doConvertRate(Size * input, Size * buffer, int length, int outputLength, double ratio, int channels){
-    for (int sample = 0; sample < outputLength; sample += 1){
+void doConvertRate(Size * input, int inputSamples, int inputChannels, Size * buffer, int outputSamples, int outputChannels, double ratio){
+    for (int sample = 0; sample < outputSamples; sample += 1){
         double inputSample = sample / ratio;
 
-        for (int channel = 0; channel < channels; channel += 1){
+        for (int channel = 0; channel < outputChannels; channel += 1){
 
-            int sample0 = ((int) inputSample - 1) * channels + channel;
-            int sample1 = ((int) inputSample + 0) * channels + channel;
-            int sample2 = ((int) inputSample + 1) * channels + channel;
-            int sample3 = ((int) inputSample + 2) * channels + channel;
+            int inputChannel = inputChannels > channel ? channel : inputChannels - 1;
+
+            int sample0 = ((int) inputSample - 1) * inputChannels + inputChannel;
+            int sample1 = ((int) inputSample + 0) * inputChannels + inputChannel;
+            int sample2 = ((int) inputSample + 1) * inputChannels + inputChannel;
+            int sample3 = ((int) inputSample + 2) * inputChannels + inputChannel;
 
             if (sample0 < 0){
                 sample0 = sample1;
             }
 
-            if (sample2 >= length * channels){
+            if (sample2 >= inputSamples * inputChannels){
                 sample2 = sample1;
             }
 
-            if (sample3 >= length * channels){
+            if (sample3 >= inputSamples * inputChannels){
                 sample3 = sample2;
             }
 
-            buffer[sample * channels + channel] = clamp<Size>(CubicInterpolate(input[sample0], input[sample1], input[sample2], input[sample3], inputSample - (int) inputSample));
+            buffer[sample * outputChannels + channel] = clamp<Size>(CubicInterpolate(input[sample0], input[sample1], input[sample2], input[sample3], inputSample - (int) inputSample));
 
             // Global::debug(0) << "Input[" << sample << "] " << channel << ": " << input[sample1] << " Output: " << buffer[sample * 2 + channel] << std::endl;
         }
@@ -148,11 +150,15 @@ int AudioConverter::convert(void * input, int length){
         buffer = new char[bufferSize];
     }
 
-    if (this->input.channels == output.channels &&
-        this->input.bytes == output.bytes){
+    double frequencyRatio = (double) output.frequency / (double) this->input.frequency;
+
+    if (this->input.bytes == output.bytes){
         switch (this->input.bytes){
-            case Signed16: doConvertRate<signed short>((signed short*) input, (signed short*) buffer, length / sizeof(signed short) / this->input.channels, total / sizeof(signed short) / output.channels, sizeRatio, output.channels); break;
-            case Float32: doConvertRate<float>((float*) input, (float*) buffer, length / sizeof(float) / this->input.channels, total / sizeof(float) / output.channels, sizeRatio, output.channels);
+            case Signed16: doConvertRate<signed short>((signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
+                                                       (signed short*) buffer, total / sizeof(signed short) / output.channels, output.channels,
+                                                       frequencyRatio); break;
+            case Float32: doConvertRate<float>((float*) input, length / sizeof(float) / this->input.channels, this->input.channels,
+                                               (float*) buffer, total / sizeof(float) / output.channels, output.channels, frequencyRatio); break;
         }
     }
     
