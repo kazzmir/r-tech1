@@ -33,7 +33,9 @@ int AudioConverter::convert(void * input, int length){
 }
 #else
 AudioConverter::AudioConverter(Encoding inputEncoding, int inputChannels, int inputFrequency,
-               Encoding outputEncoding, int outputChannels, int outputFrequency){
+               Encoding outputEncoding, int outputChannels, int outputFrequency):
+buffer(NULL),
+bufferSize(0){
 
     input.bytes = inputEncoding;
     input.channels = inputChannels;
@@ -139,7 +141,12 @@ int AudioConverter::convert(void * input, int length){
         total -= total % byteSize(output);
     }
 
-    char * buffer = new char[total];
+    /* cache the buffer for future use */
+    if (total > bufferSize){
+        delete[] buffer;
+        bufferSize = total;
+        buffer = new char[bufferSize];
+    }
 
     if (this->input.channels == output.channels &&
         this->input.bytes == output.bytes){
@@ -150,12 +157,12 @@ int AudioConverter::convert(void * input, int length){
     }
     
     memcpy(input, buffer, total);
-    delete[] buffer;
 
     return total;
 }
 
 AudioConverter::~AudioConverter(){
+    delete[] buffer;
 }
         
 bool AudioConverter::Format::operator==(const AudioConverter::Format & him) const {

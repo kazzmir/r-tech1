@@ -54,6 +54,8 @@ protected:
 
     Format input, output;
     double sizeRatio;
+    char * buffer;
+    int bufferSize;
 };
 
 }
