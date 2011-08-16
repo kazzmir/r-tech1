@@ -91,10 +91,14 @@ Size clamp(double input){
     return input;
 }
 
+template <>
+float clamp(double input){
+    return input;
+}
+
 template <class Size>
-void doConvertRate(Size * input, Size * buffer, int length, double ratio, int channels){
-    int maximum = length * ratio;
-    for (int sample = 0; sample < maximum; sample += 1){
+void doConvertRate(Size * input, Size * buffer, int length, int outputLength, double ratio, int channels){
+    for (int sample = 0; sample < outputLength; sample += 1){
         double inputSample = sample / ratio;
 
         for (int channel = 0; channel < channels; channel += 1){
@@ -132,7 +136,7 @@ int AudioConverter::convert(void * input, int length){
     int total = convertedLength(length);
     /* make sure we get an even number of samples */
     if (total % byteSize(output) != 0){
-        total -= byteSize(output);
+        total -= total % byteSize(output);
     }
 
     char * buffer = new char[total];
@@ -140,13 +144,14 @@ int AudioConverter::convert(void * input, int length){
     if (this->input.channels == output.channels &&
         this->input.bytes == output.bytes){
         switch (this->input.bytes){
-            case Signed16: doConvertRate<signed short>((signed short*) input, (signed short*) buffer, length / sizeof(signed short) / output.channels, sizeRatio, output.channels); break;
-            case Float32: doConvertRate<float>((float*) input, (float*) buffer, length / sizeof(float) / output.channels, sizeRatio, output.channels);
+            case Signed16: doConvertRate<signed short>((signed short*) input, (signed short*) buffer, length / sizeof(signed short) / this->input.channels, total / sizeof(signed short) / output.channels, sizeRatio, output.channels); break;
+            case Float32: doConvertRate<float>((float*) input, (float*) buffer, length / sizeof(float) / this->input.channels, total / sizeof(float) / output.channels, sizeRatio, output.channels);
         }
     }
     
     memcpy(input, buffer, total);
     delete[] buffer;
+
     return total;
 }
 
