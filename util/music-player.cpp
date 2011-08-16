@@ -840,19 +840,24 @@ static inline signed int mad_scale(mad_fixed_t sample){
 void Mp3Player::output(mad_header const * header, mad_pcm * pcm){
     unsigned int channels = pcm->channels;
     unsigned int samples = pcm->length;
+    /*
     mad_fixed_t const * left = pcm->samples[0];
     mad_fixed_t const * right = pcm->samples[1];
+    */
 
-    unsigned short * out = new unsigned short[samples * 2];
+    unsigned short * out = new unsigned short[samples * channels];
     for (unsigned int index = 0; index < samples; index++){
-        out[index * 2] = mad_scale(*left) & 0xffff;
-        out[index * 2 + 1] = mad_scale(*right) & 0xffff;
-        left += 1;
-        right += 1;
+        for (int channel = 0; channel < channels; channel++){
+            mad_fixed_t const * left = pcm->samples[channel] + index;
+            out[index * channels + channel] = mad_scale(*left) & 0xffff;
+            // out[index * 2 + 1] = mad_scale(*right) & 0xffff;
+        }
+        // left += 1;
+        // right += 1;
     }
 
-    /* 2 channels * 2 bytes per sample */
-    pages.push_back(Data((char*) out, samples * 2 * 2));
+    /* N channels * 2 bytes per sample */
+    pages.push_back(Data((char*) out, samples * channels * 2));
 }
 
 mad_flow Mp3Player::input(void * data, mad_stream * stream){
