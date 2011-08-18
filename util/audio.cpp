@@ -63,7 +63,15 @@ int AudioConverter::encodingBytes(Encoding what){
 }
  
 int AudioConverter::convertedLength(int length){
-    return length * sizeRatio;
+    // return length * sizeRatio;
+
+    int total = length * sizeRatio;
+
+    /* make sure we get an even number of samples */
+    if (total % byteSize(output) != 0){
+        total -= total % byteSize(output);
+    }
+    return total;
 }
 
 double CubicInterpolate(double y0,double y1,
@@ -138,10 +146,11 @@ int AudioConverter::convert(void * input, int length){
     }
 
     int total = convertedLength(length);
-    /* make sure we get an even number of samples */
+    /*
     if (total % byteSize(output) != 0){
         total -= total % byteSize(output);
     }
+    */
 
     /* cache the buffer for future use */
     if (total > bufferSize){

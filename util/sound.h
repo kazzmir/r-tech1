@@ -44,7 +44,7 @@ public:
     // static const int FREQUENCY = 22050;
     struct SoundInfo{
         SoundInfo():
-            frequency(22050),
+            frequency(44100),
             channels(2),
             format(0){
             }
