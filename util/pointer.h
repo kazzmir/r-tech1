@@ -77,6 +77,11 @@ public:
         return *data;
     }
 
+    /* get the raw pointer -- be ultra careful! */
+    Data * raw() const {
+        return data;
+    }
+
     bool operator<(const ReferenceCount<Data> & him) const {
         return data < him.data;
     }
