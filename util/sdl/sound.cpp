@@ -1,6 +1,7 @@
 #include "../sound.h"
 #include <SDL.h>
 #include "mixer/SDL_mixer.h"
+#include "util/debug.h"
 
 Sound::Sound():
 own(NULL){
@@ -48,6 +49,8 @@ void Sound::initialize(){
     Info.frequency = audio_rate;
     Info.channels = audio_channels;
     Info.format = audio_format;
+
+    Global::debug(0) << "Opened audio at rate " << audio_rate << " channels " << audio_channels << " format " << audio_format << std::endl;
 }
 
 void Sound::uninitialize(){

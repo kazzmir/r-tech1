@@ -16,7 +16,9 @@ namespace Util{
 
 /* endianness is always native */
 enum Encoding{
+    Unsigned8,
     Signed16,
+    Unsigned16,
     Float32
 };
 
