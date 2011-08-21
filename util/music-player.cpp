@@ -8,6 +8,7 @@
 #include <iostream>
 #include "configuration.h"
 #include "sound.h"
+#include "timedifference.h"
 #include "dumb/include/dumb.h"
 #include "gme/Music_Emu.h"
 #include "exceptions/exception.h"
@@ -146,7 +147,12 @@ void MusicRenderer::poll(MusicPlayer & player){
     }
 }
 #elif USE_SDL
+#ifdef PS3
+static const int BUFFER_SIZE = 1024 * 4;
+#else
 static const int BUFFER_SIZE = 1024 * 16;
+#endif
+
 // static const int BUFFER_SIZE = 65536 * 2;
 Encoding formatType(int sdlFormat){
     switch (sdlFormat){
@@ -225,8 +231,16 @@ static int sampleSize(){
 void MusicRenderer::fill(MusicPlayer * player){
     position = 0;
     /* read samples in dual-channel, 16-bit, signed form */
+    // TimeDifference time;
+    // time.startTime();
     player->render(data, BUFFER_SIZE / 4);
+    // time.endTime();
+    // Global::debug(0) << time.printTime("Render time") << std::endl;
+
+    // time.startTime();
     converted = convert.convert(data, BUFFER_SIZE);
+    // time.endTime();
+    // Global::debug(0) << time.printTime("Convert time") << std::endl;
     /* sort of a hack, but we need exactly a multiple of 4 */
     /*
     int totalSample = sampleSize();
@@ -948,7 +962,7 @@ void Mp3Player::render(void * data, int length){
         data = ((char*) data) + left;
 
         if (bytesLeft == 0){
-            fill(4);
+            fill(2);
         }
     }
 }
