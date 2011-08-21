@@ -150,6 +150,7 @@ static const int BUFFER_SIZE = 1024 * 16;
 // static const int BUFFER_SIZE = 65536 * 2;
 Encoding formatType(int sdlFormat){
     switch (sdlFormat){
+        case AUDIO_U8: return Unsigned8;
         case AUDIO_S16SYS: return Signed16;
 #if SDL_VERSION_ATLEAST(1, 3, 0)
         case AUDIO_F32MSB: return Float32;

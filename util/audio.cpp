@@ -55,7 +55,9 @@ int AudioConverter::byteSize(const Format & what){
 /* how many bytes an encoding takes up */
 int AudioConverter::encodingBytes(Encoding what){
     switch (what){
+        case Unsigned8: return 1;
         case Signed16: return 2;
+        case Unsigned16: return 2;
         case Float32: return 4;
     }
 
@@ -74,8 +76,8 @@ int AudioConverter::convertedLength(int length){
     return total;
 }
 
-double CubicInterpolate(double y0,double y1,
-                        double y2,double y3,
+double CubicInterpolate(double y0, double y1,
+                        double y2, double y3,
                         double mu){
     double a0,a1,a2,a3,mu2;
 
@@ -88,10 +90,10 @@ double CubicInterpolate(double y0,double y1,
     return (a0*mu*mu2+a1*mu2+a2*mu+a3);
 }
 
-template <class Size>
-Size clamp(double input){
-    Size top = (1 << (sizeof(Size) * 8 - 1)) - 1;
-    Size bottom = -(1 << (sizeof(Size) * 8 - 1));
+template <class Input, class Output>
+Output clamp(double input){
+    Output top = (1 << (sizeof(Output) * 8 - 1)) - 1;
+    Output bottom = -(1 << (sizeof(Output) * 8 - 1));
     if (input > top){
         return top;
     }
@@ -102,12 +104,42 @@ Size clamp(double input){
 }
 
 template <>
-float clamp(double input){
+float clamp<float>(double input){
     return input;
 }
 
-template <class Size>
-void doConvertRate(Size * input, int inputSamples, int inputChannels, Size * buffer, int outputSamples, int outputChannels, double ratio){
+template <>
+unsigned short clamp<signed short>(double input){
+    return (int) clamp<signed short, signed short>(input) + (int) (1 << (sizeof(signed short) * 8 - 1));
+}
+
+template <>
+unsigned char clamp<signed short>(double input){
+    double out = input / (1 << (sizeof(signed short) * 8 - 1));
+    if (out > 1){
+        return 1;
+    }
+    if (out < -1){
+        return -1;
+    }
+    /* -1,1 -> 0,255 */
+    return (unsigned char)((out + 1) * 128);
+}
+
+template <>
+float clamp<signed short>(double input){
+    double out = input / (1 << (sizeof(signed short) * 8 - 1));
+    if (out > 1){
+        return 1;
+    }
+    if (out < -1){
+        return -1;
+    }
+    return out;
+}
+
+template <class SizeInput, class SizeOutput>
+void doConvertRate(SizeInput * input, int inputSamples, int inputChannels, SizeOutput * buffer, int outputSamples, int outputChannels, double ratio){
     for (int sample = 0; sample < outputSamples; sample += 1){
         double inputSample = sample / ratio;
 
@@ -132,7 +164,7 @@ void doConvertRate(Size * input, int inputSamples, int inputChannels, Size * buf
                 sample3 = sample2;
             }
 
-            buffer[sample * outputChannels + channel] = clamp<Size>(CubicInterpolate(input[sample0], input[sample1], input[sample2], input[sample3], inputSample - (int) inputSample));
+            buffer[sample * outputChannels + channel] = clamp<SizeInput, SizeOutput>(CubicInterpolate(input[sample0], input[sample1], input[sample2], input[sample3], inputSample - (int) inputSample));
 
             // Global::debug(0) << "Input[" << sample << "] " << channel << ": " << input[sample1] << " Output: " << buffer[sample * 2 + channel] << std::endl;
         }
@@ -161,15 +193,53 @@ int AudioConverter::convert(void * input, int length){
 
     double frequencyRatio = (double) output.frequency / (double) this->input.frequency;
 
+    switch (this->input.bytes){
+        case Signed16: {
+            switch (this->output.bytes){
+                case Signed16: doConvertRate<signed short, signed short>(
+                                   (signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
+                                   (signed short*) buffer, total / sizeof(signed short) / output.channels, output.channels,
+                                   frequencyRatio); break;
+                case Unsigned8: doConvertRate<signed short, unsigned char>(
+                                   (signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
+                                   (unsigned char*) buffer, total / sizeof(unsigned char) / output.channels, output.channels,
+                                   frequencyRatio); break;
+                case Unsigned16: doConvertRate<signed short, unsigned short>(
+                                   (signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
+                                   (unsigned short*) buffer, total / sizeof(unsigned short) / output.channels, output.channels,
+                                   frequencyRatio); break;
+                case Float32: doConvertRate<signed short, float>(
+                                   (signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
+                                   (float*) buffer, total / sizeof(float) / output.channels, output.channels,
+                                   frequencyRatio); break;
+
+            }
+            break;
+        }
+        case Float32: {
+            switch (this->output.bytes){
+                case Float32: doConvertRate<float, float>(
+                                   (float*) input, length / sizeof(float) / this->input.channels, this->input.channels,
+                                   (float*) buffer, total / sizeof(float) / output.channels, output.channels,
+                                   frequencyRatio); break;
+                default: break;
+            }
+            break;
+        }
+        default: break;
+    }
+
+    /*
     if (this->input.bytes == output.bytes){
         switch (this->input.bytes){
-            case Signed16: doConvertRate<signed short>((signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
+            case Signed16: doConvertRate<signed short, signed short>((signed short*) input, length / sizeof(signed short) / this->input.channels, this->input.channels,
                                                        (signed short*) buffer, total / sizeof(signed short) / output.channels, output.channels,
                                                        frequencyRatio); break;
-            case Float32: doConvertRate<float>((float*) input, length / sizeof(float) / this->input.channels, this->input.channels,
+            case Float32: doConvertRate<float, float>((float*) input, length / sizeof(float) / this->input.channels, this->input.channels,
                                                (float*) buffer, total / sizeof(float) / output.channels, output.channels, frequencyRatio); break;
         }
     }
+    */
     
     memcpy(input, buffer, total);
 
