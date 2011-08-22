@@ -40,6 +40,8 @@
 #include "dynamic_mp3.h"
 #include "dynamic_ogg.h"
 
+#include "convert.h"
+
 #define __MIX_INTERNAL_EFFECT__
 #include "effects_internal.h"
 
@@ -598,6 +600,7 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 #endif
 
 	/* Build the audio converter and create conversion buffers */
+#if 0
 	if ( SDL_BuildAudioCVT(&wavecvt,
 			wavespec.format, wavespec.channels, wavespec.freq,
 			mixer.format, mixer.channels, mixer.freq) < 0 ) {
@@ -623,9 +626,11 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 		free(chunk);
 		return(NULL);
 	}
-	chunk->allocated = 1;
 	chunk->abuf = wavecvt.buf;
 	chunk->alen = wavecvt.len_cvt;
+#endif
+        convertAudio(&wavespec, &mixer, chunk);
+	chunk->allocated = 1;
 	chunk->volume = MIX_MAX_VOLUME;
 	return(chunk);
 }

@@ -16,7 +16,7 @@ except KeyError:
 
 source = Split(""" music.c mixer.c music_ogg.c music_flac.c music_mad.c
 dynamic_ogg.c effect_position.c effects_internal.c effect_stereoreverse.c
-load_voc.c load_ogg.c load_aiff.c wavestream.c """)
+load_voc.c load_ogg.c load_aiff.c wavestream.c convert.cpp""")
 
 library = mixer.StaticLibrary('sdl-mixer', source)
 Return('library')

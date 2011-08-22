@@ -1,0 +1,57 @@
+#include "convert.h"
+#include "SDL_mixer.h"
+#include "util/audio.h"
+
+Util::Encoding encoding(int format){
+    switch (format){
+        case AUDIO_U8: return Util::Unsigned8;
+        case AUDIO_S16: return Util::Signed16;
+        case AUDIO_U16: return Util::Unsigned16;
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+        case AUDIO_F32: return Util::Float32;
+#endif
+    }
+    return Util::Signed16;
+}
+
+extern "C" void convertAudio(SDL_AudioSpec * wav, SDL_AudioSpec * mixer, Mix_Chunk *chunk){
+    // printf("Convert format %d, channels %d, frequency %d to format %d, channels %d, frequency %d\n", wav->format, wav->channels, wav->freq, mixer->format, mixer->channels, mixer->freq);
+    Util::AudioConverter convert(encoding(wav->format), wav->channels, wav->freq,
+                                 encoding(mixer->format), mixer->channels, mixer->freq);
+    int size = convert.convertedLength(chunk->alen);
+    unsigned char * data = (unsigned char *) malloc(size > chunk->alen ? size : chunk->alen);
+    memcpy(data, chunk->abuf, chunk->alen);
+    convert.convert(data, chunk->alen); 
+    SDL_FreeWAV(chunk->abuf);
+    
+    chunk->abuf = data;
+    chunk->alen = size;
+
+    /*
+    SDL_AudioCVT wavecvt;
+    int samplesize;
+    if ( SDL_BuildAudioCVT(&wavecvt,
+			wav->format, wav->channels, wav->freq,
+			mixer->format, mixer->channels, mixer->freq) < 0 ) {
+		SDL_FreeWAV(chunk->abuf);
+		free(chunk);
+	}
+	samplesize = ((wav->format & 0xFF)/8)*wav->channels;
+	wavecvt.len = chunk->alen & ~(samplesize-1);
+	wavecvt.buf = (Uint8 *)malloc(wavecvt.len*wavecvt.len_mult);
+	if ( wavecvt.buf == NULL ) {
+		SDL_SetError("Out of memory");
+		SDL_FreeWAV(chunk->abuf);
+		free(chunk);
+	}
+	memcpy(wavecvt.buf, chunk->abuf, chunk->alen);
+	SDL_FreeWAV(chunk->abuf);
+
+	if ( SDL_ConvertAudio(&wavecvt) < 0 ) {
+		free(wavecvt.buf);
+		free(chunk);
+	}
+	chunk->abuf = wavecvt.buf;
+	chunk->alen = wavecvt.len_cvt;
+        */
+}
