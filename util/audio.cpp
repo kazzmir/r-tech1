@@ -104,13 +104,55 @@ Output clamp(double input){
 }
 
 template <>
-float clamp<float>(double input){
+signed short clamp<unsigned char>(double input){
+    return ((input - 127) / 255) * (1 << (sizeof(signed short) * 8 - 1));
+}
+
+template <>
+unsigned char clamp<unsigned char>(double input){
+    if (input > 255){
+        input = 255;
+    }
+    if (input < 0){
+        input = 0;
+    }
     return input;
 }
 
 template <>
+float clamp<float>(double input){
+    return input;
+}
+
+
+template <>
 unsigned short clamp<signed short>(double input){
     return (int) clamp<signed short, signed short>(input) + (int) (1 << (sizeof(signed short) * 8 - 1));
+}
+
+template <>
+float clamp<short unsigned int>(double input){
+    double out = input / (1 << (sizeof(unsigned short) * 8));
+    if (out > 1){
+        return 1;
+    }
+    if (out < -1){
+        return -1;
+    }
+    return out;
+}
+
+template <>
+float clamp<unsigned char>(double input){
+    double out = input / (1 << (sizeof(unsigned char) * 8));
+    if (out > 1){
+        return 1;
+    }
+    if (out < -1){
+        return -1;
+    }
+    return out;
+
 }
 
 template <>
@@ -171,6 +213,37 @@ void doConvertRate(SizeInput * input, int inputSamples, int inputChannels, SizeO
     }
 }
 
+template <class Input, class Output>
+void doConvert3(void * input, int inputLength, int inputChannels,
+                void * output, int outputLength, int outputChannels,
+                double ratio){
+    doConvertRate<Input, Output>((Input*) input, inputLength / sizeof(Input) / inputChannels, inputChannels,
+                                 (Output*) output, outputLength / sizeof(Output) / outputChannels, outputChannels,
+                                 ratio);
+}
+
+template <class Input>
+void doConvert2(void * input, int inputLength, int inputChannels,
+                Encoding outputType, void * output, int outputLength, int outputChannels,
+                double ratio){
+    switch (outputType){
+        case Unsigned8: doConvert3<Input, unsigned char>(input, inputLength, inputChannels, output, outputLength, outputChannels, ratio); break;
+        case Signed16: doConvert3<Input, signed short>(input, inputLength, inputChannels, output, outputLength, outputChannels, ratio); break;
+        case Unsigned16: doConvert3<Input, unsigned short>(input, inputLength, inputChannels, output, outputLength, outputChannels, ratio); break;
+        case Float32: doConvert3<Input, float>(input, inputLength, inputChannels, output, outputLength, outputChannels, ratio); break;
+    }
+}
+
+void doConvert1(Encoding inputType, void * input, int inputLength, int inputChannels,
+                Encoding outputType, void * output, int outputLength, int outputChannels, double ratio){
+    switch (inputType){
+        case Unsigned8: doConvert2<unsigned char>(input, inputLength, inputChannels, outputType, output, outputLength, outputChannels, ratio); break;
+        case Signed16: doConvert2<signed short>(input, inputLength, inputChannels, outputType, output, outputLength, outputChannels, ratio); break;
+        case Unsigned16: doConvert2<unsigned short>(input, inputLength, inputChannels, outputType, output, outputLength, outputChannels, ratio); break;
+        case Float32: doConvert2<float>(input, inputLength, inputChannels, outputType, output, outputLength, outputChannels, ratio); break;
+    }
+}
+
 int AudioConverter::convert(void * input, int length){
     /* no conversion needed */
     if (this->input == this->output){
@@ -193,7 +266,22 @@ int AudioConverter::convert(void * input, int length){
 
     double frequencyRatio = (double) output.frequency / (double) this->input.frequency;
 
+    doConvert1(this->input.bytes, input, length, this->input.channels, output.bytes, buffer, total, output.channels, frequencyRatio);
+
+    /*
     switch (this->input.bytes){
+        case Unsigned8: {
+            switch (this->output.bytes){
+                case Unsigned8: doConvertRate<unsigned char, unsigned char>(
+                                   (unsigned char*) input, length / sizeof(unsigned char) / this->input.channels, this->input.channels,
+                                   (unsigned char*) buffer, total / sizeof(unsigned char) / output.channels, output.channels,
+                                   frequencyRatio); break;
+                case Signed16: doConvertRate<unsigned char, unsigned char>(
+                                   (unsigned char*) input, length / sizeof(unsigned char) / this->input.channels, this->input.channels,
+                                   (unsigned char*) buffer, total / sizeof(unsigned char) / output.channels, output.channels,
+                                   frequencyRatio); break;
+            }
+        }
         case Signed16: {
             switch (this->output.bytes){
                 case Signed16: doConvertRate<signed short, signed short>(
@@ -228,6 +316,7 @@ int AudioConverter::convert(void * input, int length){
         }
         default: break;
     }
+    */
 
     /*
     if (this->input.bytes == output.bytes){

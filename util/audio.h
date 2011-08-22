@@ -1,10 +1,6 @@
 #ifndef _paintown_audio_h
 #define _paintown_audio_h
 
-#ifdef USE_SDL
-#include <SDL.h>
-#endif
-
 /* Deals with audio conversion between any source format and any destination format.
  * A format consists of
  *   byte encoding (8/16/32 bit, signed/unsigned, floating point/integer)
@@ -40,9 +36,6 @@ public:
     virtual ~AudioConverter();
 
 protected:
-#ifdef USE_SDL
-    SDL_AudioCVT conversion;
-#endif
     struct Format{
         Encoding bytes;
         int channels;
