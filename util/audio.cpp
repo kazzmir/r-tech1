@@ -121,6 +121,12 @@ unsigned char clamp<unsigned char>(double input){
 
 template <>
 float clamp<float>(double input){
+    if (input > 1){
+        input = 1;
+    }
+    if (input < -1){
+        input = -1;
+    }
     return input;
 }
 
