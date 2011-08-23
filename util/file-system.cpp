@@ -286,7 +286,7 @@ std::string removeExtension(const std::string & str){
 
 /* a/b/c/d -> d */
 std::string stripDir(const std::string & str){
-    if (str.find("/") != std::string::npos || str.find( "\\") != std::string::npos){
+    if (str.find("/") != std::string::npos || str.find("\\") != std::string::npos){
         std::string temp = str;
         size_t rem = temp.find_last_of( "/" );
         if (rem != std::string::npos){

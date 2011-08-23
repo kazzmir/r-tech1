@@ -19,6 +19,7 @@ namespace Nacl{
 
 typedef Path::AbsolutePath AbsolutePath;
 typedef Path::RelativePath RelativePath;
+typedef Path::InsensitivePath InsensitivePath;
     
 class Manager;
 class FileHandle;

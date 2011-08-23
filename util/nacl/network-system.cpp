@@ -18,6 +18,7 @@
 #include <fstream>
 #include "../funcs.h"
 #include "../debug.h"
+#include "../sfl/sfl.h"
 #include <ppapi/c/pp_errors.h>
 #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/url_request_info.h>
@@ -426,9 +427,12 @@ void NaclRequestExists::finish(int32_t result){
     }
 }
 
+static void testMatchFile();
+
 NetworkSystem::NetworkSystem(pp::Instance * instance, pp::Core * core):
 instance(instance),
 core(core){
+    // testMatchFile();
 }
 
 NetworkSystem::~NetworkSystem(){
@@ -483,7 +487,8 @@ string NetworkSystem::readFileAsString(const AbsolutePath & path){
     char stuff[1024];
     while (input.good()){
         input.read(stuff, sizeof(stuff) - 1);
-        stuff[sizeof(stuff) - 1] = '\0';
+        int in = input.gcount();
+        stuff[in] = '\0';
         buffer << stuff;
     }
     return buffer.str();
@@ -511,14 +516,42 @@ vector<AbsolutePath> NetworkSystem::readDirectory(const AbsolutePath & dataPath)
     vector<AbsolutePath> paths;
     for (vector<string>::iterator it = files.begin(); it != files.end(); it++){
         string what = *it;
-        paths.push_back(dataPath.join(RelativePath(what)));
+        if (what != ""){
+            paths.push_back(dataPath.join(RelativePath(what)));
+        }
     }
     return paths;
 }
 
-/* check if 'foo/bar/baz.txt' matches *.txt */
 static bool matchFile(const AbsolutePath & path, const string & find, bool insensitive = false){
+    return false;
+    /*
+    string file = path.path();
+    for (unsigned int index = 0; index < find.size(); index += 1){
+        if (index >= file.size()){
+            return false;
+        }
+        char find_letter = find[find.size() - index - 1];
+        char file_letter = file[file.size() - index - 1];
+        if (insensitive){
+            if (tolower(find_letter) != tolower(file_letter)){
+                return false;
+            }
+        } else {
+            if (find_letter != file_letter){
+                return false;
+            }
+        }
+    }
+
+    return true;
+    */
+}
+
+/* check if 'foo/bar/baz.txt' matches *.txt */
+static bool matchFile2(const AbsolutePath & path, const string & find, bool insensitive = false){
     string file = path.getFilename().path();
+    Global::debug(0) << "Find " << find << " in " << path.path() << " insensitive? " << insensitive << std::endl;
     unsigned int index = 0;
     while (index < file.size()){
         if (index >= find.size()){
@@ -541,12 +574,31 @@ static bool matchFile(const AbsolutePath & path, const string & find, bool insen
     return true;
 }
 
+static void testMatchFile(){
+#define test_match(check, against, insensitive) if (!matchFile(Filesystem::AbsolutePath(check), against, insensitive)){ Global::debug(0) << "Test failed, expected a match: file " << check << " find " << against << std::endl; }
+#define test_no_match(check, against, insensitive) if (matchFile(Filesystem::AbsolutePath(check), against, insensitive)){ Global::debug(0) << "Test failed, expected no match: file " << check << " find " << against << std::endl; }
+
+    test_match("foo", "foo", false);
+    test_match("fOo", "foO", true);
+    test_match("bar/foo", "foo", false);
+    test_match("bar/fOo", "foO", true);
+    test_match("bar/baz/foo.txt", "baz/foo.txt", false);
+    test_match("foobar.txt", "*.txt", false);
+    test_match("bar/foobar.txt", "*.txt", false);
+    test_no_match("fuz", "foo", false);
+    test_no_match("foo/bar.txt", "foo", false);
+    test_no_match("buz/foobar.txt", "bar/*.txt", false);
+
+#undef test_match
+#undef test_no_match
+}
+
 std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
     vector<AbsolutePath> files = readDirectory(dataPath);
     vector<AbsolutePath> paths;
     for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
         AbsolutePath check = *it;
-        if (matchFile(check, find)){
+        if (file_matches(check.getFilename().path().c_str(), find.c_str())){
             paths.push_back(check);
         }
     }
@@ -604,6 +656,7 @@ AbsolutePath NetworkSystem::findInsensitive(const RelativePath & path){
 
 }
 
+/*
 AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, const RelativePath & path){
     vector<AbsolutePath> files = readDirectory(directory);
     vector<AbsolutePath> paths;
@@ -616,6 +669,34 @@ AbsolutePath NetworkSystem::lookupInsensitive(const AbsolutePath & directory, co
     ostringstream out;
     out << "Cannot find " << path.path() << " in " << directory.path();
     throw Filesystem::NotFound(__FILE__, __LINE__, out.str());
+}
+*/
+
+Filesystem::AbsolutePath NetworkSystem::lookupInsensitive(const Filesystem::AbsolutePath & directory, const Filesystem::RelativePath & path){
+    if (path.path() == ""){
+        throw Filesystem::NotFound(__FILE__, __LINE__, "Given empty path to lookup");
+    }
+    if (path.path() == "."){
+        return directory;
+    }
+    if (path.path() == ".."){
+        return directory.getDirectory();
+    }
+    if (path.isFile()){
+        vector<AbsolutePath> all = getFiles(directory, "*", true);
+        for (vector<AbsolutePath>::iterator it = all.begin(); it != all.end(); it++){
+            AbsolutePath & check = *it;
+            if (InsensitivePath(check.getFilename()) == path){
+                return check;
+            }
+        }
+
+        ostringstream out;
+        out << "Cannot find " << path.path() << " in " << directory.path();
+        throw Filesystem::NotFound(__FILE__, __LINE__, out.str());
+    } else {
+        return lookupInsensitive(lookupInsensitive(directory, path.firstDirectory()), path.removeFirstDirectory());
+    }
 }
 
 int nextFileDescriptor(){
@@ -719,7 +800,11 @@ int mkdir (const char *filename, mode_t mode){
     return -1;
 }
 
-int access(const char *filename, int how){
+int __wrap_access(const char *filename, int mode){
+    Global::debug(0) << "Access for " << filename << std::endl;
+    if (mode == R_OK){
+        return getSystem().exists(Filesystem::AbsolutePath(filename));
+    }
     return -1;
 }
 
@@ -727,7 +812,8 @@ char * getcwd (char *buffer, size_t size){
     return NULL;
 }
 
-int lstat (const char *path, struct stat *buf){
+int __wrap_lstat (const char *path, struct stat *buf){
+    Global::debug(0) << "Lstat for " << path << std::endl;
     return -1;
 }
 
