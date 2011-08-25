@@ -38,7 +38,7 @@ public:
     /* returns true if any input device is activated (keys pressed, joystick button */
     static bool anyInput();
 
-    static std::vector<Input::PaintownInput> getInput(const Configuration & configuration, const int facing);
+    // static std::vector<Input::PaintownInput> getInput(const Configuration & configuration, const int facing);
     static void poll();
     /*
     static void enableBufferInput();
@@ -145,7 +145,7 @@ protected:
 
     virtual int _readKey();
     
-    virtual std::vector<Input::PaintownInput> _getInput(const Configuration & configuration, const int facing);
+    // virtual std::vector<Input::PaintownInput> _getInput(const Configuration & configuration, const int facing);
 
     template <typename X>
     void _captureInput(InputMap<X> & input){

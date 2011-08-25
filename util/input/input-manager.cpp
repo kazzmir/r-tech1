@@ -53,6 +53,7 @@ bool InputManager::_anyInput(){
     return false;
 }
 
+/*
 vector<Input::PaintownInput> InputManager::getInput(const Configuration & configuration, const int facing){
     if (manager == 0){
         Global::debug(0) << "*BUG* Input manager not set up" << endl;
@@ -61,6 +62,7 @@ vector<Input::PaintownInput> InputManager::getInput(const Configuration & config
 
     return manager->_getInput(configuration, facing);
 }
+*/
     
 /*
 void InputManager::enableBufferInput(){
@@ -209,6 +211,7 @@ void InputManager::_poll(){
     // bufferedKeys.insert(bufferedKeys.end(), keys.begin(), keys.end());
 }
 
+#if 0
 vector<Input::PaintownInput> InputManager::_getInput(const Configuration & configuration, const int facing){
 
     InputMap<Input::PaintownInput> input;
@@ -236,3 +239,4 @@ vector<Input::PaintownInput> InputManager::_getInput(const Configuration & confi
     return real_input;
     */
 }
+#endif
