@@ -288,6 +288,12 @@ bit8MaskColor(0){
 Bitmap::Bitmap(int w, int h):
 mustResize(false),
 bit8MaskColor(0){
+    if (w < 1){
+        w = 1;
+    }
+    if (h < 1){
+        h = 1;
+    }
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
     if (surface == NULL){
         std::ostringstream out;
