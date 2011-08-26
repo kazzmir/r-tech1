@@ -612,6 +612,11 @@ bool Global::init(int gfx){
     temp.BlitToScreen(sx / 2, sy / 2);
     */
     Graphics::Bitmap white(Graphics::getScreenBuffer());
+    /* for nacl which takes a while to run exists(), we just want
+     * to show some progress
+     */
+    white.fill(Graphics::makeColor(128, 128, 128));
+    white.BlitToScreen();
     if (!Storage::instance().exists(Util::getDataPath2())){
         Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
         white.fill(Graphics::makeColor(255, 0, 0));
