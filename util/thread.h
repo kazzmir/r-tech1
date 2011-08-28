@@ -6,6 +6,7 @@
  * so for now just use the native pthreads implementation.
  */
 #if defined(USE_SDL) && !defined(USE_NACL)
+#include <SDL.h>
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #elif USE_ALLEGRO5

@@ -636,7 +636,7 @@ void SPG_BlendBlit(SDL_Surface* source, SDL_Rect* srect, SDL_Surface* dest, SDL_
     }
     
     
-#ifndef PS3
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
     // Get the per-surface alpha
     Uint8 perSAlpha = source->format->alpha;
 
@@ -746,7 +746,7 @@ SDL_Surface* SPG_ReplaceColor(SDL_Surface* src, SDL_Rect* srcrect, SDL_Surface* 
 {
     if(src == NULL || dest == NULL)
         return NULL;
-#ifndef PS3   
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
     // Save per-surface alpha
     Uint32 srcAlpha = src->flags & SDL_SRCALPHA;
     Uint32 destAlpha = dest->flags & SDL_SRCALPHA;

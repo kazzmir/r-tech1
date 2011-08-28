@@ -340,7 +340,7 @@ SDL_Rect SPG_transformNorm(SDL_Surface *src, SDL_Surface *dst, float angle, floa
 	Sint32 dy, sx, sy;
 	Sint16 x, y, rx, ry;
 	SDL_Rect r;
-#ifdef PS3
+#if SDL_VERSION_ATLEAST(1, 3, 0)
             /* Hack for the ps3 because it doesn't have src->format->colorkey.
              * we know that paintown always uses 255,0,255 for the colorkey
              * so we just hack it in here.
@@ -458,7 +458,7 @@ SDL_Rect SPG_transformAA(SDL_Surface *src, SDL_Surface *dst, float angle, float 
 	Sint32 dy, sx, sy;
 	Sint16 x, y, rx, ry;
 	SDL_Rect r;
-#ifdef PS3
+#if SDL_VERSION_ATLEAST(1, 3, 0)
             int colorkey = SDL_MapRGB(src->format, 255, 0, 255);
 #else
             int colorkey = src->format->colorkey;
@@ -619,7 +619,7 @@ SDL_Surface* SPG_Transform(SDL_Surface *src, Uint32 bgColor, float angle, float 
 
 	// Copy flag settings (passes on colorkey and alpha blending)
 	dest->flags = src->flags;
-#ifndef PS3
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
 	dest->format->alpha = src->format->alpha;
 	dest->format->colorkey = src->format->colorkey;
 #endif 

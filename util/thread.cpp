@@ -159,7 +159,7 @@ void joinThread(Id thread){
 }
 
 void cancelThread(Id thread){
-#ifndef PS3
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
     SDL_KillThread(thread);
 #endif
 }
