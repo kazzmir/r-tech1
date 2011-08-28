@@ -3,7 +3,7 @@
 #include "../input-manager.h"
 #include "util/funcs.h"
 
-#ifdef PS3
+#if SDL_VERSION_ATLEAST(1, 3, 0)
     Uint8 * getKeyState(int * keys){
 	return SDL_GetKeyboardState(keys);
     }

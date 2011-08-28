@@ -465,12 +465,13 @@ void initializeExtraStuff(){
     format565.Gmask = 2016;
     format565.Bmask = 31;
     format565.Amask = 0;
-#ifndef PS3
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
     format565.colorkey = 0;
     format565.alpha = 255;
 #endif
 }
 
+/* This code isn't used but leave it here for reference */
 #ifdef PS3
 #include <rsx/rsx.h>
 #include <sysutil/video.h>
@@ -487,13 +488,6 @@ void getNativePs3Resolution(int * width, int * height){
 
 int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
-
-    /* HACK! On the ps3 we query what the native resolution is and
-     * set the width/height based on it.
-     */
-#ifdef PS3
-    // getNativePs3Resolution(&width, &height);
-#endif
 
     switch (mode){
         case WINDOWED : {
@@ -532,7 +526,7 @@ int setGraphicsMode(int mode, int width, int height){
                         " gmask: " << (int) screen->format->Gmask <<
                         " bmask: " << (int) screen->format->Bmask <<
                         " amask: " << (int) screen->format->Amask <<
-#ifndef PS3
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
                         " colorkey: " << (int) screen->format->colorkey <<
                         " alpha: " << (int) screen->format->alpha << std::endl;
 #else 
@@ -1283,7 +1277,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     Bitmap out(display, true);
 
     if (pcx->format->BitsPerPixel == 8){
-#ifdef PS3
+#if SDL_VERSION_ATLEAST(1, 3, 0)
         SDL_Color color = pcxMaskColor(data, length);
 #else
         SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
