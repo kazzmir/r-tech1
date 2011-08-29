@@ -17,6 +17,7 @@
 #include "input/keyboard.h"
 #include "input/joystick.h"
 #include "input/input-manager.h"
+#include "input/input-source.h"
 
 namespace Util{
 
@@ -444,7 +445,7 @@ static void changeScreenMode(){
 static void checkFullscreen(){
     InputMap<int> input;
     input.set(Keyboard::Key_F11, 0, true, 5);
-    std::vector<InputMap<int>::InputEvent> events = InputManager::getEvents(input);
+    std::vector<InputMap<int>::InputEvent> events = InputManager::getEvents(input, InputSource());
 
     for (std::vector<InputMap<int>::InputEvent>::iterator it = events.begin(); it != events.end(); it++){
         InputMap<int>::InputEvent event = *it;

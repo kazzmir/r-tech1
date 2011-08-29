@@ -1,6 +1,7 @@
 #include "input-map.h"
 #include "text-input.h"
 #include "input-manager.h"
+#include "input-source.h"
 #include "keyboard.h"
 #include <string.h>
 #include <sstream>
@@ -63,7 +64,7 @@ bool TextInput::doInput(){
     const Keyboard::unicode_t control_w = 23;
 
     if (enabled){
-        vector<InputEvent> events = InputManager::getEvents(*this);
+        vector<InputEvent> events = InputManager::getEvents(*this, InputSource());
 
         /* the order of reading input is arbitrary right now. I'm not
          * sure it matters what order things are done in, but probably
