@@ -12,6 +12,7 @@
 
 class Configuration;
 class Joystick;
+class InputSource;
 
 template <class Output>
 class InputHandler{
@@ -82,13 +83,13 @@ public:
     }
 
     template <typename X>
-    static typename std::vector<typename InputMap<X>::InputEvent> getEvents(InputMap<X> & input){
-        return manager->_getEvents(input);
+    static typename std::vector<typename InputMap<X>::InputEvent> getEvents(InputMap<X> & input, const InputSource & source){
+        return manager->_getEvents(input, source);
     }
 
     template <typename X>
-    static void handleEvents(InputMap<X> & input, InputHandler<X> & handler){
-        typename std::vector<typename InputMap<X>::InputEvent> events = getEvents(input);
+    static void handleEvents(InputMap<X> & input, const InputSource & source, InputHandler<X> & handler){
+        typename std::vector<typename InputMap<X>::InputEvent> events = getEvents(input, source);
         for (typename std::vector<typename InputMap<X>::InputEvent>::iterator it = events.begin(); it != events.end(); it++){
             const typename InputMap<X>::InputEvent & event = *it;
             if (event.enabled){
@@ -187,7 +188,8 @@ protected:
     }
 
     template <typename X>
-    typename std::vector<typename InputMap<X>::InputEvent> _getEvents(InputMap<X> & input){
+    typename std::vector<typename InputMap<X>::InputEvent> _getEvents(InputMap<X> & input, const InputSource & source){
+        /* FIXME: get events from the source */
         std::vector<typename InputMap<X>::InputEvent> events;
         if (capture != NULL && capture != &input){
             return events;
