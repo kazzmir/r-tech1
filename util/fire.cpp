@@ -60,7 +60,7 @@ void Fire::updateHotspots(){
     for (int i = 0; i < MAX_HOTSPOTS; i++){
         for (int x = -hotspot_length/2; x < hotspot_length/2; x++){
             int position = ((int) hotspots[i] + x + MAX_X) % MAX_X;
-            int more = (int) (data[MAX_Y-1][position] + (hotspot_length / 2 - fabs(x)));
+            int more = (int) (data[MAX_Y-1][position] + (hotspot_length / 2 - fabs((double) x)));
             if (more >= MAX_COLORS){
                 more = MAX_COLORS - 1;
             }
