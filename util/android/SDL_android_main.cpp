@@ -38,11 +38,11 @@ extern "C" void Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass c
 extern "C" void Java_org_libsdl_app_SDLActivity_setExternalLocation(JNIEnv* env, jclass cls, jstring jpath)
 {
     jboolean iscopy;
-    const jbyte *path = (*env)->GetStringUTFChars(env, jpath, &iscopy);
+    const char *path = env->GetStringUTFChars(jpath, &iscopy);
     const std::string & externalLocation = std::string(path);
     // Set data path in paintown
     Util::setDataPath(externalLocation + "/paintown/data/");
-    (*env)->ReleaseStringUTFChars(env, jpath, path);
+    env->ReleaseStringUTFChars(jpath, path);
 }
 
 
