@@ -7,6 +7,8 @@
 *******************************************************************************/
 #include <jni.h>
 
+#include "util/funcs.h"
+
 // Called before SDL_main() to initialize JNI bindings in SDL library
 extern "C" void SDL_Android_Init(JNIEnv* env, jclass cls);
 
@@ -37,9 +39,9 @@ extern "C" void Java_org_libsdl_app_SDLActivity_setExternalLocation(JNIEnv* env,
 {
     jboolean iscopy;
     const jbyte *path = (*env)->GetStringUTFChars(env, jpath, &iscopy);
-    const char * externalLocation = strdup(path);
-    // TODO Set data path in paintown
-    
+    const std::string & externalLocation = std::string(path);
+    // Set data path in paintown
+    Util::setDataPath(externalLocation + "/paintown/data/");
     (*env)->ReleaseStringUTFChars(env, jpath, path);
 }
 
