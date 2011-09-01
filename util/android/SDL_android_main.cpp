@@ -33,4 +33,15 @@ extern "C" void Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass c
     exit(status);
 }
 
+extern "C" void Java_org_libsdl_app_SDLActivity_setExternalLocation(JNIEnv* env, jclass cls, jstring jpath)
+{
+    jboolean iscopy;
+    const jbyte *path = (*env)->GetStringUTFChars(env, jpath, &iscopy);
+    const char * externalLocation = strdup(path);
+    // TODO Set data path in paintown
+    
+    (*env)->ReleaseStringUTFChars(env, jpath, path);
+}
+
+
 /* vi: set ts=4 sw=4 expandtab: */
