@@ -110,7 +110,12 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
         joystick->poll();
     }
     SDL_Event event;
+    /* FIXME: android gets into an infinite loop while reading events */
+#ifdef ANDROID
+    if (SDL_PollEvent(&event) == 1){
+#else
     while (SDL_PollEvent(&event) == 1){
+#endif
         switch (event.type){
             case SDL_QUIT : {
                 dispatch(CloseWindow);
