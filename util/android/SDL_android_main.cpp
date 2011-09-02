@@ -41,7 +41,7 @@ extern "C" void Java_org_libsdl_app_SDLActivity_setExternalLocation(JNIEnv* env,
     const char *path = env->GetStringUTFChars(jpath, &iscopy);
     const std::string & externalLocation = std::string(path);
     // Set data path in paintown
-    Util::setDataPath(externalLocation + "/paintown/data/");
+    Util::setDataPath(externalLocation);
     env->ReleaseStringUTFChars(jpath, path);
 }
 
