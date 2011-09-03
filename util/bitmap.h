@@ -21,6 +21,7 @@
 namespace Graphics{
 
 class TranslucentBitmap;
+class LitBitmap;
 class Bitmap;
 
 extern Util::Parameter<Bitmap*> screenParameter;
@@ -123,6 +124,7 @@ public:
         virtual TranslucentBitmap translucent() const;
         /* will call transBlender() with the supplied values for you */
         virtual TranslucentBitmap translucent(int red, int green, int blue, int alpha) const;
+        virtual LitBitmap lit() const;
 
 	virtual void save( const std::string & str ) const;
 
