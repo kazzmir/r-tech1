@@ -198,7 +198,7 @@ loop(0),
 allowReset(true){
     images[-1] = 0;
     std::string basedir = "";
-    if ( *the_token != "anim" ){
+    if ( *the_token != "anim" && *the_token != "animation" ){
         throw LoadException(__FILE__, __LINE__, "Not an animation");
     }
     /* The usual setup of an animation is
@@ -342,6 +342,25 @@ allowReset(true){
     if (bmp->getError()){
         delete bmp;
         throw LoadException(__FILE__,__LINE__, "Problem loading file: " + background);
+    } else {
+        images[0] = bmp;
+    }
+    Frame *frame = new Frame(bmp);
+    frames.push_back(frame);
+}
+
+Animation::Animation(const Filesystem::AbsolutePath & path) throw (LoadException):
+id(0),
+depth(BackgroundBottom),
+ticks(0),
+currentFrame(0),
+loop(0),
+allowReset(true){
+    // add bitmap
+    Graphics::Bitmap *bmp = new Graphics::Bitmap(path.path());
+    if (bmp->getError()){
+        delete bmp;
+        throw LoadException(__FILE__,__LINE__, "Problem loading file: " + path.path());
     } else {
         images[0] = bmp;
     }
