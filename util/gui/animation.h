@@ -7,10 +7,17 @@
 #include "../load_exception.h"
 #include "coordinate.h"
 
-class Token;
-namespace Graphics{
-class Bitmap;
+class Filesystem;
+namespace Path{
+    class AbsolutePath;
 }
+typedef Path::AbsolutePath AbsolutePath;
+
+namespace Graphics{
+    class Bitmap;
+}
+
+class Token;
 
 namespace Gui{
 
@@ -38,6 +45,7 @@ public:
     Animation(const Token *token) throw (LoadException);
     /*! Load only a single bitmap (for bacwards compatibility of backgrounds in menu) */
     Animation(const std::string &) throw (LoadException);
+    Animation(const AbsolutePath &) throw (LoadException);
     /* use an existing bitmap */
     Animation(Graphics::Bitmap * image);
     virtual ~Animation();
