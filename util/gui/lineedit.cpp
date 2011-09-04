@@ -9,7 +9,7 @@
 
 using namespace Gui;
 
-static std::ostream & debug( int level ){
+static Global::stream_type & debug(int level){
     Global::debug(level) << "[line edit] ";
     return Global::debug(level);
 }

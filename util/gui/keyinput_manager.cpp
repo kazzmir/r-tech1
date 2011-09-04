@@ -42,9 +42,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include "globals.h"
 #include "util/debug.h"
 
-static std::ostream & debug( int level ){
-	Global::debug( level ) << "[key input manager] ";
-	return Global::debug( level );
+static Global::stream_type & debug(int level){
+    Global::debug(level) << "[key input manager] ";
+    return Global::debug(level);
 }
 	
 #ifdef USE_ALLEGRO
