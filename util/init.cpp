@@ -408,11 +408,9 @@ static void startTimers(ostream & out){
 #endif
     
 static void initSystem(ostream & out){
-#ifdef PS3
-    /* from rsxutil */
-    // void * screen_memory = memalign(1024*1024, HOST_SIZE);
-    // init_screen(screen_memory, HOST_SIZE);
-    // init_screen2();
+#ifdef ANDROID
+    /* opengles2 is the default renderer but it doesn't work */
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles");
 #endif
 
     out << "SDL Init: ";
