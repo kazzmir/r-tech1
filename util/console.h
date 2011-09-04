@@ -5,9 +5,9 @@
 #include <vector>
 #include <sstream>
 #include <map>
-#include "util/input/input-map.h"
-#include "util/input/text-input.h"
-#include "util/file-system.h"
+#include "input/input-map.h"
+#include "input/text-input.h"
+#include "file-system.h"
 
 namespace Graphics{
 class Bitmap;
