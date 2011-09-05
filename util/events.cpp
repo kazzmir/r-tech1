@@ -112,9 +112,10 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
     SDL_Event event;
     /* FIXME: android gets into an infinite loop while reading events */
 #ifdef ANDROID
-    int good = SDL_PollEvent(&event);
-    for (int check = 0; check < 10 && good; check++, good = SDL_PollEvent(&event)){
+    // int good = SDL_PollEvent(&event);
+    // for (int check = 0; check < 10 && good; check++, good = SDL_PollEvent(&event)){
     // if (SDL_PollEvent(&event) == 1){
+    while (SDL_PollEvent(&event) == 1){
 #else
     while (SDL_PollEvent(&event) == 1){
 #endif
