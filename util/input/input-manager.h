@@ -5,6 +5,7 @@
 #include <algorithm>
 #include "input.h"
 #include "input-map.h"
+#include "input-source.h"
 #include "util/funcs.h"
 #include "util/events.h"
 #include "keyboard.h"
@@ -204,6 +205,7 @@ protected:
             }
         }
 
+        Joystick * joystick = joysticks[source.getJoystick()];
         if (joystick){
             const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();
             for (std::vector<Joystick::Event>::const_iterator it = joystickEvents.begin(); it != joystickEvents.end(); it++){
@@ -283,7 +285,7 @@ protected:
 private:
     static InputManager * manager;
     void * capture;
-    Joystick * joystick;
+    std::map<int, Joystick *> joysticks;
     Keyboard keyboard;
     Util::EventManager eventManager;
     // std::vector<int> bufferedKeys;

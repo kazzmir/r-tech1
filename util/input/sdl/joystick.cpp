@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include <exception>
+
 using std::string;
 using std::vector;
 
@@ -620,14 +622,18 @@ SDLJoystick::~SDLJoystick(){
     }
 }
 
-SDLJoystick::SDLJoystick():
+SDLJoystick::SDLJoystick(int id):
 joystick(NULL){
     /* TODO: don't always open joystick 0, try to support all of them */
     if (SDL_NumJoysticks() > 0){
-        Global::debug(1) << "Opened joystick '" << SDL_JoystickName(0) << "'" << std::endl;
-        joystick = SDL_JoystickOpen(0);
+        joystick = SDL_JoystickOpen(id);
+        if (joystick == NULL){
+            Global::debug(0) << "Could not open joystick at index " << id << std::endl;
+        } else {
+            Global::debug(1) << "Opened joystick '" << SDL_JoystickName(id) << "'" << std::endl;
+        }
         // printf("Opened joystick '%s'\n", SDL_JoystickName(4));
-        buttonMapping = makeButtonMapping(SDL_JoystickName(0));
+        buttonMapping = makeButtonMapping(SDL_JoystickName(id));
     }
 }
     
@@ -675,6 +681,10 @@ int SDLJoystick::getDeviceId() const {
     }
 
     return -1;
+}
+
+int Joystick::numberOfJoysticks(){
+    return SDL_NumJoysticks();
 }
 
 #endif

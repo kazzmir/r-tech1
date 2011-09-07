@@ -14,16 +14,21 @@ using namespace std;
 InputManager * InputManager::manager = 0;
 
 InputManager::InputManager():
-capture(0),
-joystick(NULL){
+capture(0){
     manager = this;
     if (Configuration::isJoystickEnabled()){
-        joystick = Joystick::create();
+        for (int i = 0; i < Joystick::numberOfJoysticks(); i++){
+            joysticks[i] = Joystick::create(i);
+        }
     }
 }
 
 InputManager::~InputManager(){
-    delete joystick;
+    /* FIXME: use reference counts for joysticks */
+    for (map<int, Joystick*>::iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        Joystick * joystick = it->second;
+        delete joystick;
+    }
 }
     
 bool InputManager::anyInput(){
@@ -40,14 +45,11 @@ bool InputManager::_anyInput(){
         return true;
     }
 
-    if (joystick){
-        return joystick->pressed();
-        /*
-        JoystickInput all_joystick = joystick->readAll();
-        if (all_joystick.pressed()){
-            return true;
+    for (map<int, Joystick*>::iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        Joystick * joystick = it->second;
+        if (joystick){
+            return joystick->pressed();
         }
-        */
     }
 
     return false;
@@ -198,7 +200,7 @@ void InputManager::_poll(){
         eventManager.enableKeyBuffer();
     }
     */
-    eventManager.run(keyboard, joystick);
+    eventManager.run(keyboard, joysticks);
 
     // keyboard.poll();
     /*

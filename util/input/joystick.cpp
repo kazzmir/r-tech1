@@ -21,18 +21,18 @@
 #endif
 #endif
 
-Joystick * Joystick::create(){
+Joystick * Joystick::create(int i){
 #ifdef USE_ALLEGRO
     return new AllegroJoystick();
 #endif
 #ifdef USE_SDL
 #ifdef WII
-    return new SDLJoystick();
+    return new SDLJoystick(i);
     // return new WiiJoystick();
 #elif MINPSPW
     return new PSPJoystick();
 #else
-    return new SDLJoystick();
+    return new SDLJoystick(i);
 #endif
 #endif
 /*
