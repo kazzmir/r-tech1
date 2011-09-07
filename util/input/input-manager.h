@@ -196,12 +196,14 @@ protected:
             return events;
         }
 
-        const std::vector<typename Keyboard::KeyData> & buffer = keyboard.getBufferedKeys();
-        for (std::vector<Keyboard::KeyData>::const_iterator it = buffer.begin(); it != buffer.end(); it++){
-            const Keyboard::KeyData & data = *it;
-            KeyState<X> * state = input.getState(data.key);
-            if (state != NULL){
-                events.push_back(typename InputMap<X>::InputEvent(state->out, data.unicode, data.enabled));
+        if (source.useKeyboard()){
+            const std::vector<typename Keyboard::KeyData> & buffer = keyboard.getBufferedKeys();
+            for (std::vector<Keyboard::KeyData>::const_iterator it = buffer.begin(); it != buffer.end(); it++){
+                const Keyboard::KeyData & data = *it;
+                KeyState<X> * state = input.getState(data.key);
+                if (state != NULL){
+                    events.push_back(typename InputMap<X>::InputEvent(state->out, data.unicode, data.enabled));
+                }
             }
         }
 

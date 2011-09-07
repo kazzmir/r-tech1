@@ -8,9 +8,15 @@
 class InputSource{
 public:
     InputSource();
+    InputSource(bool keyboard, int joystick);
     virtual ~InputSource();
 
+    virtual bool useKeyboard() const;
     virtual int getJoystick() const;
+
+private:
+    bool keyboard;
+    int joystick;
 };
 
 #endif
