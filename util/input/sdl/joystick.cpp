@@ -624,8 +624,7 @@ SDLJoystick::~SDLJoystick(){
 
 SDLJoystick::SDLJoystick(int id):
 joystick(NULL){
-    /* TODO: don't always open joystick 0, try to support all of them */
-    if (SDL_NumJoysticks() > 0){
+    if (SDL_NumJoysticks() > id){
         joystick = SDL_JoystickOpen(id);
         if (joystick == NULL){
             Global::debug(0) << "Could not open joystick at index " << id << std::endl;
