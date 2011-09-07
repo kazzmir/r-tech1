@@ -5,6 +5,7 @@
 #include <allegro5/allegro.h>
 #endif
 #include <vector>
+#include <map>
 #include "bitmap.h"
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
@@ -18,6 +19,8 @@
 #include "input/joystick.h"
 #include "input/input-manager.h"
 #include "input/input-source.h"
+
+using std::map;
 
 namespace Util{
 
@@ -43,18 +46,20 @@ static void handleKeyUp(Keyboard & keyboard, const SDL_Event & event){
     keyboard.release(event.key.keysym.sym);
 }
 
-static void handleJoystickButtonUp(Joystick * joystick, const SDL_Event & event){
+static void handleJoystickButtonUp(map<int, Joystick *> joysticks, const SDL_Event & event){
     int device = event.jbutton.which;
     int button = event.jbutton.button;
-    if (device == joystick->getDeviceId()){
+    Joystick * joystick = joysticks[device];
+    if (joystick != NULL){
         joystick->releaseButton(button);
     }
 }
 
-static void handleJoystickHat(Joystick * joystick, const SDL_Event & event){
+static void handleJoystickHat(map<int, Joystick *> joysticks, const SDL_Event & event){
     int device = event.jhat.which;
     int motion = event.jhat.value;
-    if (device == joystick->getDeviceId()){
+    Joystick * joystick = joysticks[device];
+    if (joystick != NULL){
         joystick->hatMotion(motion);
     }
 
@@ -87,27 +92,32 @@ static void handleJoystickHat(Joystick * joystick, const SDL_Event & event){
 #endif
 }
 
-static void handleJoystickButtonDown(Joystick * joystick, const SDL_Event & event){
+static void handleJoystickButtonDown(map<int, Joystick *> joysticks, const SDL_Event & event){
     int device = event.jbutton.which;
     int button = event.jbutton.button;
-    if (device == joystick->getDeviceId()){
+    Joystick * joystick = joysticks[device];
+    if (joystick != NULL){
         joystick->pressButton(button);
     }
 }
 
-static void handleJoystickAxis(Joystick * joystick, const SDL_Event & event){
+static void handleJoystickAxis(map<int, Joystick *> joysticks, const SDL_Event & event){
     int device = event.jaxis.which;
     int axis = event.jaxis.axis;
     int value = event.jaxis.value;
-    if (device == joystick->getDeviceId()){
+    Joystick * joystick = joysticks[device];
+    if (joystick != NULL){
         joystick->axisMotion(axis, value);
     }
 }
 
-void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
+void EventManager::runSDL(Keyboard & keyboard, map<int, Joystick *> joysticks){
     keyboard.poll();
-    if (joystick){
-        joystick->poll();
+    for (map<int, Joystick*>::iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        Joystick * joystick = it->second;
+        if (joystick != NULL){
+            joystick->poll();
+        }
     }
     SDL_Event event;
     /* FIXME: android gets into an infinite loop while reading events */
@@ -134,27 +144,19 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
                 break;
             }
             case SDL_JOYBUTTONDOWN: {
-                if (joystick != NULL){
-                    handleJoystickButtonDown(joystick, event);
-                }
+                handleJoystickButtonDown(joysticks, event);
                 break;
             }
             case SDL_JOYHATMOTION : {
-                if (joystick != NULL){
-                    handleJoystickHat(joystick, event);
-                }
+                handleJoystickHat(joysticks, event);
                 break;
             }
             case SDL_JOYBUTTONUP: {
-                if (joystick != NULL){
-                    handleJoystickButtonUp(joystick, event);
-                }
+                handleJoystickButtonUp(joysticks, event);
                 break;
             }
             case SDL_JOYAXISMOTION: {
-                if (joystick != NULL){
-                    handleJoystickAxis(joystick, event);
-                }
+                handleJoystickAxis(joysticks, event);
                 break;
             }
             case SDL_VIDEORESIZE : {
@@ -181,7 +183,7 @@ void EventManager::runSDL(Keyboard & keyboard, Joystick * joystick){
 #endif
 
 #ifdef USE_ALLEGRO
-void EventManager::runAllegro(Keyboard & keyboard, Joystick * joystick){
+void EventManager::runAllegro(Keyboard & keyboard, map<int, Joystick *> joystick){
     keyboard.poll();
 }
 #endif
@@ -225,7 +227,7 @@ static void handleResize(const ALLEGRO_EVENT & event){
     al_use_transform(&transformation);
 }
 
-void EventManager::runAllegro5(Keyboard & keyboard, Joystick * joystick){
+void EventManager::runAllegro5(Keyboard & keyboard, map<int, Joystick *> joystick){
     keyboard.poll();
 
     ALLEGRO_EVENT event;
@@ -321,13 +323,13 @@ void EventManager::runAllegro5(Keyboard & keyboard, Joystick * joystick){
 }
 #endif
 
-void EventManager::run(Keyboard & keyboard, Joystick * joystick){
+void EventManager::run(Keyboard & keyboard, std::map<int, Joystick *> joysticks){
 #ifdef USE_SDL
-    runSDL(keyboard, joystick);
+    runSDL(keyboard, joysticks);
 #elif USE_ALLEGRO
-    runAllegro(keyboard, joystick);
+    runAllegro(keyboard, joysticks);
 #elif USE_ALLEGRO5
-    runAllegro5(keyboard, joystick);
+    runAllegro5(keyboard, joysticks);
 #endif
 }
 

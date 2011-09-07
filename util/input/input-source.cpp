@@ -5,3 +5,7 @@ InputSource::InputSource(){
 
 InputSource::~InputSource(){
 }
+    
+int InputSource::getJoystick() const {
+    return 0;
+}

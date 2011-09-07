@@ -27,7 +27,7 @@ protected:
     int to_native_button(int button);
     int from_native_button(int button);
 
-    SDLJoystick();
+    SDLJoystick(int i);
     SDL_Joystick * joystick;
     Util::ReferenceCount<ButtonMapping> buttonMapping;
 };

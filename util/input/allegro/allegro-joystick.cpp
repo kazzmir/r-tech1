@@ -55,4 +55,8 @@ int AllegroJoystick::getDeviceId() const {
     return 0;
 }
 
+int Joystick::numberOfJoysticks(){
+    return ::num_joysticks;
+}
+
 #endif

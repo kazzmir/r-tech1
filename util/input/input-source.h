@@ -9,6 +9,8 @@ class InputSource{
 public:
     InputSource();
     virtual ~InputSource();
+
+    virtual int getJoystick() const;
 };
 
 #endif
