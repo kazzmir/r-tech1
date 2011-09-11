@@ -24,9 +24,30 @@ public:
 
     void addOption(const Util::ReferenceCount<ContextItem> & item);
 
+    virtual void render(const Graphics::Bitmap & work, const Font & font);
+    virtual void act(const Font & font);
+    virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
+
+    virtual const Gui::ContextBox & getContext() const {
+        return context;
+    }
+
+    virtual Gui::ContextBox & getContext(){
+        return context;
+    }
+
+    virtual void close();
+    virtual void open();
+    virtual void previous(const Font & font);
+    virtual void next(const Font & font);
+    virtual void adjustLeft();
+    virtual void adjustRight();
+    virtual int getCurrentIndex();
+
     std::string name;
-    Gui::ContextBox context;
     bool active;
+private:
+    Gui::ContextBox context;
 };
 
 class TabbedBox : public Widget{
