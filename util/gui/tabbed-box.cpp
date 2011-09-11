@@ -265,50 +265,62 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
     for (std::vector<Gui::Tab *>::iterator i = tabs.begin(); i != tabs.end(); ++i){
         Gui::Tab * tab = *i;
         const int textWidth = vFont.textLength(tab->name.c_str()) + 5;
-	// for last tab
-	int modifier = 0;
-	// Check last tab so we can ensure proper sizing
-	if ( i == (tabs.begin() + tabs.size() -1)){
-	    if ( ( (tabWidthMax * (tabs.size() - 1) ) + textWidth ) != (unsigned int)location.getWidth() ){
-		modifier = location.getWidth() - x - (tab->active ? textWidth : tabWidthMax);
-	    }
-	}
-	
-	if (tab->context.transforms.getRadius() > 0){
+        // for last tab
+        int modifier = 0;
+        // Check last tab so we can ensure proper sizing
+        if ( i == (tabs.begin() + tabs.size() -1)){
+            if ( ( (tabWidthMax * (tabs.size() - 1) ) + textWidth ) != (unsigned int)location.getWidth() ){
+            modifier = location.getWidth() - x - (tab->active ? textWidth : tabWidthMax);
+            }
+        }
+        
+        if (tab->context.transforms.getRadius() > 0){
         } else {
             if (tab->active){
-		if (!inTab){
-		    //bmp.translucent().rectangle(x, 0, x+textWidth + modifier - 1, tabHeight, colors.border);
-		    bmp.translucent().vLine(0,x,tabHeight,colors.border);
-		    bmp.translucent().hLine(x,0,x+textWidth+modifier-1,colors.border);
-		    bmp.translucent().vLine(0,x+textWidth+modifier-1,tabHeight,colors.border);
-		    bmp.translucent().rectangleFill( x+1, 1, x+textWidth + modifier - 2, tabHeight, colors.body);
+                if (!inTab){
+                    //bmp.translucent().rectangle(x, 0, x+textWidth + modifier - 1, tabHeight, colors.border);
+                    bmp.translucent().vLine(0,x,tabHeight,colors.border);
+                    bmp.translucent().hLine(x,0,x+textWidth+modifier-1,colors.border);
+                    bmp.translucent().vLine(0,x+textWidth+modifier-1,tabHeight,colors.border);
+                    bmp.translucent().rectangleFill( x+1, 1, x+textWidth + modifier - 2, tabHeight, colors.body);
 
-		    bmp.setClipRect(x, 0, x+textWidth + modifier, tabHeight-1);
-		    vFont.printf(x + (((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, currentTabFontColor, bmp, tab->name, 0 );
-		} else {
-		    //bmp.translucent().rectangle(x, 0, x+textWidth + modifier -1, tabHeight, colors.border);
-		    bmp.translucent().vLine(0,x,tabHeight,colors.border);
-		    bmp.translucent().hLine(x,0,x+textWidth+modifier-1,colors.border);
-		    bmp.translucent().vLine(0,x+textWidth+modifier-1,tabHeight,colors.border);
-		    bmp.translucent().rectangleFill( x+1, 1, x+textWidth-2 + modifier, tabHeight, colors.body );
-		    
-		    bmp.setClipRect(x, 0, x+textWidth + modifier, tabHeight-1);
-		    vFont.printf(x + (((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), bmp, tab->name, 0 );
-		}
+                    bmp.setClipRect(x, 0, x+textWidth + modifier, tabHeight-1);
+                    vFont.printf(x + (((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, currentTabFontColor, bmp, tab->name, 0 );
+                } else {
+                    //bmp.translucent().rectangle(x, 0, x+textWidth + modifier -1, tabHeight, colors.border);
+                    bmp.translucent().vLine(0,x,tabHeight,colors.border);
+                    bmp.translucent().hLine(x,0,x+textWidth+modifier-1,colors.border);
+                    bmp.translucent().vLine(0,x+textWidth+modifier-1,tabHeight,colors.border);
+                    bmp.translucent().rectangleFill( x+1, 1, x+textWidth-2 + modifier, tabHeight, colors.body );
+                    
+                    bmp.setClipRect(x, 0, x+textWidth + modifier, tabHeight-1);
+                    vFont.printf(x + (((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), bmp, tab->name, 0 );
+                }
 
-		x+=textWidth + modifier;
+                x+=textWidth + modifier;
             } else {
-		const int heightMod = tabHeight * .15;
-		bmp.translucent().rectangle(x, 1 + heightMod, x+tabWidthMax + modifier -1, tabHeight, tabColors.border);
-		bmp.translucent().hLine(x,tabHeight,x+tabWidthMax+modifier-1,colors.border);
-		bmp.translucent().rectangleFill( x+1, 2 + heightMod, x+tabWidthMax + modifier -2, tabHeight-2, tabColors.body);
-		
-		bmp.setClipRect(x+2, 6 + heightMod, x+tabWidthMax + modifier -3, tabHeight-1);
-		vFont.printf(x + (((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, bmp, tab->name, 0 );
-		x += tabWidthMax + modifier;
+                const int heightMod = tabHeight * .15;
+                // FIXME make background tabs customizable for now just make it gray
+                bmp.translucent().rectangle(x, 1 + heightMod, x+tabWidthMax + modifier -1, tabHeight, Graphics::makeColor(58, 58, 58));
+                bmp.translucent().hLine(x,tabHeight,x+tabWidthMax+modifier-1,colors.border);
+                // FIXME make background tabs customizable for now just make it gray
+                bmp.translucent().rectangleFill( x+1, 2 + heightMod, x+tabWidthMax + modifier -2, tabHeight-2, Graphics::makeColor(105, 105, 105));
+                
+                bmp.setClipRect(x+2, 6 + heightMod, x+tabWidthMax + modifier -3, tabHeight-1);
+                
+#if 0
+                // FIXME find a way to make the font smaller
+                const int oldsizex = vFont.getSizeX();
+                const int oldsizey = vFont.getSizeY();
+                vFont.setSize(oldsizex/2, oldsizey/2);
+                const int disabledTextWidth = vFont.textLength(tab->name.c_str()) + 5;
+                vFont.printf(x + (((tabWidthMax + modifier)/2)-((disabledTextWidth + modifier)/2)), 0, tabFontColor, bmp, tab->name, 0 );
+                vFont.setSize(oldsizex, oldsizey);
+#endif
+                vFont.printf(x + (((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, bmp, tab->name, 0 );
+                x += tabWidthMax + modifier;
             }
-	    bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
+            bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
         }
     }
 }
