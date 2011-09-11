@@ -44,13 +44,15 @@ public:
     virtual void adjustRight();
     virtual int getCurrentIndex();
 
+    virtual void setName(const std::string & name);
+
     std::string name;
     bool active;
-private:
+protected:
     Gui::ContextBox context;
 };
 
-class TabbedBox : public Widget{
+class TabbedBox: public Widget {
     public:
         TabbedBox();
         TabbedBox( const TabbedBox & );
