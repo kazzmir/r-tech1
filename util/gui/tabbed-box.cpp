@@ -64,6 +64,10 @@ void Tab::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
     context.setList(list);
 }
 
+void Tab::setName(const std::string & name){
+    this->name = name;
+}
+
 void Tab::close(){
     context.close();
 }
@@ -133,7 +137,11 @@ void TabbedBox::act(const Font & font){
         // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
         //tabWidthMax = location.getWidth()/tabs.size();
         const int width = font.textLength(tabs[current]->name.c_str()) + 5;
-        tabWidthMax = (location.getWidth() - width) / (tabs.size() - 1);
+        if (tabs.size() > 1){
+            tabWidthMax = (location.getWidth() - width) / (tabs.size() - 1);
+        } else {
+            tabWidthMax = location.getWidth() - width;
+        }
     } else {
         return;
     }

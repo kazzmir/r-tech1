@@ -31,7 +31,7 @@ protected:
     const ContextBox & parent;
 };
 
-class ContextBox : public Widget {
+class ContextBox: public Widget {
     public:
         ContextBox();
         ContextBox(const ContextBox &);
@@ -102,6 +102,10 @@ class ContextBox : public Widget {
         virtual inline void setRenderOnlyText(bool render){
 	    this->renderOnlyText = render;
 	}
+
+        virtual PopupBox & getBoard(){
+            return board;
+        }
 
     private:
 	
