@@ -9,6 +9,17 @@ InputSource::InputSource(bool keyboard, int joystick):
 keyboard(keyboard),
 joystick(joystick){
 }
+    
+InputSource::InputSource(const InputSource & copy):
+keyboard(copy.keyboard),
+joystick(copy.joystick){
+}
+    
+InputSource & InputSource::operator=(const InputSource & copy){
+    this->keyboard = copy.keyboard;
+    this->joystick = copy.joystick;
+    return *this;
+}
 
 InputSource::~InputSource(){
 }

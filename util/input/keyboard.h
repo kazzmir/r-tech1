@@ -103,6 +103,11 @@ public:
     static void pushRepeatState(bool enabled);
     static void popRepeatState();
 
+    /* true on systems that probably have a keyboard, like pc.
+     * false on ps3, wii, etc.
+     */
+    static bool haveKeyboard();
+
     void setDelay( const int key, const int delay );
     void setAllDelay( const int delay );
 
