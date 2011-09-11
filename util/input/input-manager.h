@@ -207,7 +207,7 @@ protected:
             }
         }
 
-        if (source.getJoystick() >= 0 && source.getJoystick() < joysticks.size()){
+        if (source.getJoystick() >= 0 && (unsigned) source.getJoystick() < joysticks.size()){
             Joystick * joystick = joysticks[source.getJoystick()];
             if (joystick){
                 const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();
