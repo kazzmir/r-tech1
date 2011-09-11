@@ -9,7 +9,10 @@ class InputSource{
 public:
     InputSource();
     InputSource(bool keyboard, int joystick);
+    InputSource(const InputSource & copy);
     virtual ~InputSource();
+
+    InputSource & operator=(const InputSource &);
 
     virtual bool useKeyboard() const;
     virtual int getJoystick() const;

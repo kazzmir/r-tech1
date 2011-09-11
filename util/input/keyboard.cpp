@@ -414,6 +414,13 @@ void Keyboard::popRepeatState(){
         }
     }
 }
+    
+bool Keyboard::haveKeyboard(){
+#if defined(WII) || defined(PS3)
+    return false;
+#endif
+    return true;
+}
 
 /*
 void Keyboard::addObserver(ObserverCallback observer, void * data){
