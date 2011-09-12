@@ -31,6 +31,31 @@ android_ostream & operator<<(android_ostream & stream, const long int);
 android_ostream & operator<<(android_ostream & stream, const unsigned long int);
 android_ostream & operator<<(android_ostream & stream, const void *);
 android_ostream & operator<<(android_ostream & stream, std::ostream & (*f)(std::ostream &));
+#elif defined(WII) && defined(DEBUG)
+class wii_ostream: public std::ostream {
+public:
+    wii_ostream(bool enabled = true);
+    static wii_ostream stream;
+    /* make these private at some point */
+public:
+    bool enabled;
+    std::ostringstream buffer;
+};
+
+typedef wii_ostream stream_type;
+wii_ostream & operator<<(wii_ostream & stream, const std::string & input);
+wii_ostream & operator<<(wii_ostream & stream, const char * input);
+wii_ostream & operator<<(wii_ostream & stream, const char);
+wii_ostream & operator<<(wii_ostream & stream, const double);
+wii_ostream & operator<<(wii_ostream & stream, const int);
+wii_ostream & operator<<(wii_ostream & stream, const short int);
+wii_ostream & operator<<(wii_ostream & stream, const short unsigned int);
+wii_ostream & operator<<(wii_ostream & stream, const unsigned int);
+wii_ostream & operator<<(wii_ostream & stream, const bool);
+wii_ostream & operator<<(wii_ostream & stream, const long int);
+wii_ostream & operator<<(wii_ostream & stream, const unsigned long int);
+wii_ostream & operator<<(wii_ostream & stream, const void *);
+wii_ostream & operator<<(wii_ostream & stream, std::ostream & (*f)(std::ostream &));
 #else
 typedef std::ostream stream_type;
 #endif

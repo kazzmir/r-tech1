@@ -1,6 +1,7 @@
 #include "debug.h"
 #include <iostream>
 #include <string>
+#include <stdio.h>
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -13,7 +14,6 @@ static int global_debug_level = 0;
 
 namespace Global{
 #ifdef ANDROID
-
 android_ostream::android_ostream(bool enabled):
 enabled(enabled){
 }
@@ -90,6 +90,83 @@ android_ostream & operator<<(android_ostream & stream, std::ostream & (*f)(std::
 
 android_ostream android_ostream::stream;
 static android_ostream nullcout(false);
+#elif defined(WII) && defined(DEBUG)
+wii_ostream::wii_ostream(bool enabled):
+enabled(enabled){
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const std::string & input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const char * input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const char input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const double input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const int input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const short int input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const short unsigned int input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const unsigned int input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const bool input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const long int input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const unsigned long int input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, const void * input){
+    stream.buffer << input;
+    return stream;
+}
+
+wii_ostream & operator<<(wii_ostream & stream, std::ostream & (*f)(std::ostream &)){
+    if (stream.enabled){
+        printf("%s\n", stream.buffer.str().c_str());
+    }
+    stream.buffer.str("");
+    stream.buffer.rdbuf()->pubseekoff(0, ios_base::end, ios_base::out);
+    stream.buffer.clear();
+    return stream;
+}
+
+wii_ostream wii_ostream::stream;
+static wii_ostream nullcout(false);
 #else
 class nullstreambuf_t: public std::streambuf {
 public:
@@ -110,6 +187,8 @@ static nullcout_t nullcout;
 
 #ifdef ANDROID
 stream_type & default_stream = android_ostream::stream;
+#elif defined(WII) && defined(DEBUG)
+stream_type & default_stream = wii_ostream::stream;
 #else
 stream_type & default_stream = std::cout;
 #endif
