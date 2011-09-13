@@ -72,6 +72,7 @@ public:
         return manager->_readText(input, output);
     }
 
+#if 0
     template <typename X>
     static typename InputMap<X>::Output getMap(InputMap<X> & input){
         if (manager){
@@ -82,6 +83,7 @@ public:
         /* make the compiler happy about returning something */
         return *(typename InputMap<X>::Output*)1;
     }
+#endif
 
     template <typename X>
     static typename std::vector<typename InputMap<X>::InputEvent> getEvents(InputMap<X> & input, const InputSource & source){
@@ -224,6 +226,7 @@ protected:
         return events;
     }
 
+#if 0
     template <typename X>
     typename InputMap<X>::Output _getMap(InputMap<X> & input){
         typename InputMap<X>::Output output;
@@ -256,6 +259,7 @@ protected:
 
         return output;
     }
+#endif
 
     template <typename X>
     bool _pressed(InputMap<X> & input, X result){
