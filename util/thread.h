@@ -208,9 +208,7 @@ public:
     }
 
     virtual ~Future(){
-        if (Thread::isUninitialized(thread)){
-            Thread::joinThread(thread);
-        }
+        Thread::joinThread(thread);
         // Thread::destroySemaphore(&future);
         delete exception;
     }
