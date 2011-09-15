@@ -240,7 +240,12 @@ namespace Storage{
         virtual bool exists(const RelativePath & path) = 0;
         virtual bool exists(const AbsolutePath & path) = 0;
         virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
+
+        /* search for a pattern of a single file within a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
+
+        /* search for some path which may contain wildcards in a directory */
+        virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const RelativePath & find, bool caseInsensitive);
         virtual AbsolutePath configFile() = 0;
         virtual AbsolutePath userDirectory() = 0;
         virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path) = 0;
@@ -304,6 +309,7 @@ public:
     /* user specific path to store the configuration file */
     AbsolutePath configFile();
 
+    using Storage::System::getFiles;
     /* search a directory for some files matching pattern `find' */
     std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
 

@@ -34,6 +34,7 @@ public:
     virtual bool exists(const RelativePath & path);
     virtual bool exists(const AbsolutePath & path);
     virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+    using Storage::System::getFiles;
     virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
     virtual AbsolutePath configFile();
     virtual AbsolutePath userDirectory();
