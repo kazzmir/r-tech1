@@ -377,7 +377,32 @@ System::System(){
 
 System::~System(){
 }
-        
+
+vector<Filesystem::AbsolutePath> System::getFiles(const Filesystem::AbsolutePath & dataPath, const Filesystem::RelativePath & find, bool caseInsensitive){
+    if (find.isFile()){
+        return getFiles(dataPath, find.path(), caseInsensitive);
+    }
+
+    /* split the path into its consituent parts
+     * a/b/c -> a/b and c
+     * search for a/b, then search for c in the results
+     */
+    Filesystem::RelativePath directory = find.getDirectory();
+    Filesystem::RelativePath file = find.getFilename();
+
+    vector<Filesystem::AbsolutePath> more = getFiles(dataPath, directory, caseInsensitive);
+    vector<Filesystem::AbsolutePath> out;
+    for (vector<Filesystem::AbsolutePath>::iterator it = more.begin(); it != more.end(); it++){
+        Filesystem::AbsolutePath path = *it;
+        /* if its not a directory then we can't keep searching */
+        if (::System::isDirectory(path.path())){
+            vector<Filesystem::AbsolutePath> findMore = getFiles(path, file, caseInsensitive);
+            out.insert(out.end(), findMore.begin(), findMore.end());
+        }
+    }
+    return out;
+}
+
 Util::ReferenceCount<System> self;
 System & instance(){
     if (self != NULL){
@@ -617,13 +642,12 @@ static string removeTrailingSlash(string str){
     return str;
 }
 
-
 vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataPath, const string & find, bool caseInsensitive){
 #ifdef USE_ALLEGRO
     struct al_ffblk info;
     vector<AbsolutePath> files;
 
-    if ( al_findfirst( (dataPath.path() + "/" + find).c_str(), &info, FA_ALL ) != 0 ){
+    if (al_findfirst((dataPath.path() + "/" + find).c_str(), &info, FA_ALL ) != 0){
         return files;
     }
     files.push_back(AbsolutePath(dataPath.path() + "/" + string(info.name)));
