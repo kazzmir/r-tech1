@@ -139,7 +139,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
         // printf("Read character '%c' %d at %d\n", n, n, input.tellg());
         // cout << "Read character '" << n << "' " << (int) n << " at " << input.tellg() << endl;
 
-        const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
+        const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:*";
         const char * nonalpha = " ;()#\"";
         // cout<<"Alpha char: "<<n<<endl;
 
