@@ -4,12 +4,15 @@
 #include "../token.h"
 #include "../load_exception.h"
 
+#include "util/debug.h"
+
+
 using namespace Gui;
 
 FadeTool::FadeTool():
 currentState(FadeIn),
 lastState(FadeIn),
-fadeTime(0),
+fadeTime(255),
 fadeInTime(0),
 fadeOutTime(0),
 fadeInColor(Graphics::makeColor(0,0,0)),
@@ -30,55 +33,15 @@ void FadeTool::parseDefaults(const Token * token){
     */
     const Token & ourToken = *token;
     TokenView view = ourToken.view();
-    /* FIXME: this code looks like its expecting a structure like
-     *  (in (color ...) (out ...))
-     * But its not parsing that way, rewrite it
-     */
+    
     while (view.hasMore()){
         try{
             const Token * tok;
             view >> tok;
             if (*tok == "in"){
-                TokenView inView = tok->view();
-                /* FIXME: this loop is pretty wierd, shouldn't the if's be on the outside? */
-                while (inView.hasMore()){
-                    if (*tok == "color"){
-                        int r=0,g=0,b=0;
-                        try {
-                            inView >> r >> g >> b;
-                        } catch (const TokenException & ex){
-                        }
-                        setFadeInColor(Graphics::makeColor(r,b,g));
-                    } else if (*tok == "time"){
-                        int time=0;
-                        try {
-                            inView >> time;
-                        } catch (const TokenException & ex){
-                        }
-                        setFadeInTime(time);
-                    }
-                }
+                readFade(tok, FadeIn);
             } else if (*tok == "out"){
-                /*
-                Token & out = *tok;
-                while (out.hasTokens()){
-                    if (out == "color"){
-                        int r=0,g=0,b=0;
-                        try {
-                            out >> r >> g >> b;
-                        } catch (const TokenException & ex){
-                        }
-                        setFadeOutColor(Bitmap::makeColor(r,b,g));
-                    } else if (out == "time"){
-                        int time=0;
-                        try {
-                            out >> time;
-                        } catch (const TokenException & ex){
-                        }
-                        setFadeOutTime(time);
-                    }
-                }
-            */
+                readFade(tok, FadeOut);
             } 
         } catch ( const TokenException & ex ) {
             throw LoadException(__FILE__, __LINE__, ex, "Fade tool parse error");
@@ -87,7 +50,8 @@ void FadeTool::parseDefaults(const Token * token){
         }
     }
 }
-	
+
+
 
 void FadeTool::setState( const State & f){
     lastState = currentState;
@@ -143,6 +107,48 @@ void FadeTool::draw(const Graphics::Bitmap &bmp){
 	case EndFade:
 	default:
 	    break;
+    }
+}
+
+void FadeTool::readFade(const Token * token, const State & type){
+    TokenView view = token->view();
+    while (view.hasMore()){
+        try{
+            const Token * tok;
+            view >> tok;
+            if ( *tok == "color" ){
+                int r=0,g=0,b=0;
+                try {
+                    tok->view() >> r >> g >> b;
+                } catch (const TokenException & ex){
+                }
+                if (type == FadeIn){
+                    setFadeInColor(Graphics::makeColor(r,b,g));
+                } else if (type == FadeOut){
+                    setFadeOutColor(Graphics::makeColor(r,b,g));
+                }
+            } else if ( *tok == "time" ){
+                int time=0;
+                try {
+                    tok->view() >> time;
+                } catch (const TokenException & ex){
+                }
+                if (type == FadeIn){
+                    setFadeInTime(time);
+                } else if (type == FadeOut){
+                    setFadeOutTime(time);
+                }
+            } else {
+                Global::debug(3) << "Unhandled FadeTool attribute: " << std::endl;
+                if (Global::getDebug() >= 3){
+                    tok->print(" ");
+                }
+            }
+        } catch ( const TokenException & ex ) {
+            throw LoadException(__FILE__, __LINE__, ex, "FadeTool parse error");
+        } catch ( const LoadException & ex ) {
+            throw ex;
+        }
     }
 }
 
