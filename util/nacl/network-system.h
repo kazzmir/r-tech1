@@ -23,6 +23,7 @@ typedef Path::InsensitivePath InsensitivePath;
     
 class Manager;
 class FileHandle;
+class File;
 
 class NetworkSystem: public Storage::System {
 public:
@@ -59,7 +60,14 @@ protected:
     Util::Thread::LockObject lock;
     // Util::ReferenceCount<Manager> manager;
     std::map<AbsolutePath, bool> existsCache;
-    std::map<int, Util::ReferenceCount<FileHandle> > fileTable;
+
+    /* map a filesystem path to an object that holds the data for the file */
+    std::map<std::string, Util::ReferenceCount<FileHandle> > files;
+
+    /* map a file descriptor number to an object that stores information for
+     * reading from the file
+     */
+    std::map<int, Util::ReferenceCount<File> > fileTable;
 
 };
 

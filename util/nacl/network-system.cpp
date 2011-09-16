@@ -128,6 +128,8 @@ struct NaclRequestExists: public NaclRequest {
     Manager * manager;
 };
 
+/* responsible for reading the data from the nacl pepper input stream
+ */
 class FileHandle{
 public:
     FileHandle():
@@ -244,17 +246,40 @@ public:
     void readDone(Reader * reader){
         length = reader->getSize();
         Global::debug(2) << "Done reading, got " << length << " bytes" << std::endl;
-        position = 0;
         buffer = new char[length];
         reader->copy(buffer);
         reader->finish.Run(0);
     }
 
-    int read(void * buffer, size_t count){
+    int read(void * buffer, off_t position, size_t count){
         size_t bytes = position + count < length ? count : (length - position);
         memcpy(buffer, this->buffer + position, bytes);
-        position += bytes;
         return bytes;
+    }
+
+    off_t getLength() const {
+        return length;
+    }
+
+    off_t length;
+    char * buffer;
+    Util::ReferenceCount<Reader> reader;
+};
+
+/* acts similar to an stdio FILE object in that this stores the current
+ * position in the buffer.
+ */
+class File{
+public:
+    File(const Util::ReferenceCount<FileHandle> & handle):
+    position(0),
+    handle(handle){
+    }
+
+    int read(void * buffer, size_t count){
+        int got = handle->read(buffer, position, count);
+        position += got;
+        return got;
     }
 
     off_t seek(off_t offset, int whence){
@@ -268,7 +293,7 @@ public:
                 break;
             }
             case SEEK_END: {
-                position = length - offset;
+                position = handle->getLength() - offset;
                 break;
             }
         }
@@ -276,10 +301,9 @@ public:
         return position;
     }
 
+protected:
     off_t position;
-    off_t length;
-    char * buffer;
-    Util::ReferenceCount<Reader> reader;
+    Util::ReferenceCount<FileHandle> handle;
 };
 
 class Manager{
@@ -707,14 +731,18 @@ int nextFileDescriptor(){
 }
 
 int NetworkSystem::libcOpen(const char * path, int mode, int params){
-    Manager manager(instance, core);
-    Util::ReferenceCount<FileHandle> handle = manager.openFile(path);
-    if (handle == NULL){
-        return -1;
-    }
     Util::Thread::ScopedLock scoped(lock);
+    if (files[path] == NULL){
+        Manager manager(instance, core);
+        Util::ReferenceCount<FileHandle> handle = manager.openFile(path);
+        if (handle == NULL){
+            return -1;
+        }
+        files[path] = handle;
+    }
+
     int file = nextFileDescriptor();
-    fileTable[file] = handle;
+    fileTable[file] = new File(files[path]);
     return file;
 }
     
@@ -723,7 +751,7 @@ ssize_t NetworkSystem::libcRead(int fd, void * buffer, size_t count){
     if (fileTable.find(fd) == fileTable.end()){
         return EBADF;
     }
-    Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+    Util::ReferenceCount<File> handle = fileTable[fd];
     if (handle == NULL){
         Global::debug(0) << "Handle is null!!" << std::endl;
     }
@@ -748,7 +776,7 @@ off_t NetworkSystem::libcLseek(int fd, off_t offset, int whence){
         return -1;
     }
 
-    Util::ReferenceCount<FileHandle> handle = fileTable[fd];
+    Util::ReferenceCount<File> handle = fileTable[fd];
     return handle->seek(offset, whence);
 }
 
