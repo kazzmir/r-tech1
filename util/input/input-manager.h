@@ -46,8 +46,8 @@ public:
     static void enableBufferInput();
     static void disableBufferInput();
     */
-    static void waitForKeys(int key1, int key2);
-    static void waitForKeys(int key1);
+    static void waitForKeys(int key1, int key2, const InputSource & source);
+    static void waitForKeys(int key1, const InputSource & source);
     static int readKey();
     static void waitForClear();
 
@@ -104,9 +104,9 @@ public:
     }
 
     template <typename X>
-    static bool pressed(InputMap<X> & input, X out){
+    static bool pressed(InputMap<X> & input, const InputSource & source, X out){
         if (manager){
-            return manager->_pressed(input, out);
+            return manager->_pressed(input, source, out);
         }
         return false;
     }
@@ -116,16 +116,16 @@ public:
      * being generated to stop.
      */
     template <typename X>
-    static void waitForRelease(InputMap<X> & input, X out){
-        while (InputManager::pressed(input, out)){
+    static void waitForRelease(InputMap<X> & input, const InputSource & source, X out){
+        while (InputManager::pressed(input, source, out)){
             Util::rest(1);
             InputManager::poll();
         }
     }
 
     template <typename X>
-    static void waitForPress(InputMap<X> & input, X out){
-        while (!InputManager::pressed(input, out)){
+    static void waitForPress(InputMap<X> & input, const InputSource & source, X out){
+        while (!InputManager::pressed(input, source, out)){
             Util::rest(1);
             InputManager::poll();
         }
@@ -262,7 +262,8 @@ protected:
 #endif
 
     template <typename X>
-    bool _pressed(InputMap<X> & input, X result){
+    bool _pressed(InputMap<X> & input, const InputSource & source, X result){
+        /* FIXME: use the input source, luke */
 
         if (capture != 0 && capture != &input){
             return false;

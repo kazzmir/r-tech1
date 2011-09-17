@@ -8,17 +8,23 @@
 class InputSource{
 public:
     InputSource();
-    InputSource(bool keyboard, int joystick);
+    /* keyboard specifies the configuration to use.
+     * joystick specifies the configuration and which physical joystick to use.
+     * -1 for keyboard/joystick means don't use it
+     */
+    InputSource(int keyboard, int joystick);
     InputSource(const InputSource & copy);
     virtual ~InputSource();
 
     InputSource & operator=(const InputSource &);
 
     virtual bool useKeyboard() const;
+    virtual int getKeyboard() const;
+    virtual bool useJoystick() const;
     virtual int getJoystick() const;
 
 private:
-    bool keyboard;
+    int keyboard;
     int joystick;
 };
 
