@@ -84,21 +84,21 @@ void InputManager::waitForClear(){
     }
 }
 
-void InputManager::waitForKeys(int key1, int key2){
+void InputManager::waitForKeys(int key1, int key2, const InputSource & source){
     InputMap<int> wait;
     wait.set(key1, 0, false, 1);
     wait.set(key2, 0, false, 1);
-    InputManager::waitForRelease(wait, 1);
-    InputManager::waitForPress(wait, 1);
-    InputManager::waitForRelease(wait, 1);
+    InputManager::waitForRelease(wait, source, 1);
+    InputManager::waitForPress(wait, source, 1);
+    InputManager::waitForRelease(wait, source, 1);
 }
 
-void InputManager::waitForKeys(int key){
+void InputManager::waitForKeys(int key, const InputSource & source){
     InputMap<int> wait;
     wait.set(key, 0, false, 1);
-    InputManager::waitForRelease(wait, 1);
-    InputManager::waitForPress(wait, 1);
-    InputManager::waitForRelease(wait, 1);
+    InputManager::waitForRelease(wait, source, 1);
+    InputManager::waitForPress(wait, source, 1);
+    InputManager::waitForRelease(wait, source, 1);
 }
 
 /* these mappings should agree with configuration.cpp:defaultJoystick1Keys,

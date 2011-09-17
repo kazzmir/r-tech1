@@ -1,11 +1,11 @@
 #include "input-source.h"
 
 InputSource::InputSource():
-keyboard(true),
+keyboard(0),
 joystick(0){
 }
     
-InputSource::InputSource(bool keyboard, int joystick):
+InputSource::InputSource(int keyboard, int joystick):
 keyboard(keyboard),
 joystick(joystick){
 }
@@ -25,6 +25,14 @@ InputSource::~InputSource(){
 }
     
 bool InputSource::useKeyboard() const {
+    return keyboard >= 0;
+}
+
+bool InputSource::useJoystick() const {
+    return joystick >= 0;
+}
+
+int InputSource::getKeyboard() const{
     return keyboard;
 }
     
