@@ -64,6 +64,7 @@ int ContextItem::size(const Font & font) const {
 
 ContextBox::ContextBox():
 fadeState(NotActive),
+list(new ScrollList()),
 /*
 fontWidth(0),
 fontHeight(0),
@@ -79,6 +80,7 @@ renderOnlyText(false){
 }
 ContextBox::ContextBox( const ContextBox & copy ):
 fadeState(NotActive),
+list(new ScrollList()),
 selectedGradient(standardGradient()),
 renderOnlyText(false){
     this->list = copy.list;
@@ -123,7 +125,7 @@ void ContextBox::act(const Font & font){
     
     // Calculate text info
     // calculateText(font);
-    list.act();
+    list->act();
     
     // do fade
     doFade();
@@ -147,7 +149,7 @@ bool ContextBox::next(const Font & font){
 	return false;
     }
 
-    list.next();
+    list->next();
 
     /*
     cursorLocation += (int)(font.getHeight()/FONT_SPACER);
@@ -166,7 +168,7 @@ bool ContextBox::previous(const Font & font){
 	return false;
     }
 
-    list.previous();
+    list->previous();
 
     /*
     cursorLocation -= (int)(font.getHeight()/FONT_SPACER);
@@ -324,15 +326,38 @@ void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 }
 
 void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
-    this->list.clearItems();
+    this->list->clearItems();
     for (vector<Util::ReferenceCount<ContextItem> >::const_iterator it = list.begin(); it != list.end(); it++){
         const Util::ReferenceCount<ContextItem> & item = *it;
-        this->list.addItem(item.convert<ScrollItem>());
+        this->list->addItem(item.convert<ScrollItem>());
     }
 }
         
 void ContextBox::addItem(const Util::ReferenceCount<ContextItem> & item){
-    this->list.addItem(item.convert<ScrollItem>());
+    this->list->addItem(item.convert<ScrollItem>());
+}
+
+void ContextBox::setListType(const ListType & type){
+    switch (type){
+        case Normal:{
+            Util::ReferenceCount<ScrollListInterface> newList = new NormalList();
+            newList->addItems(list->getItems());
+            list = newList;
+            break;
+        }
+        case Scroll:{
+            Util::ReferenceCount<ScrollListInterface> newList = new ScrollList();
+            newList->addItems(list->getItems());
+            list = newList;
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void ContextBox::setListWrap(bool wrap){
+    list->setWrap(wrap);
 }
 
 void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
@@ -352,7 +377,7 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
     // int min_y = location.getX() - font.getHeight() - y1;
     // int max_y = location.getX2() + font.getHeight() - y1;
 
-    list.render(area, font);
+    list->render(area, font);
 
 #if 0
     /* draw from the current selection down */

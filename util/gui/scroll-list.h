@@ -37,6 +37,7 @@ public:
 /* pure virtual */
 class ScrollListInterface{
 public:
+    ScrollListInterface();
     virtual ~ScrollListInterface();
 
     //! Logic
@@ -50,7 +51,10 @@ public:
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items) = 0;
-
+    
+    //! Get vector of text
+    virtual const std::vector<Util::ReferenceCount<ScrollItem> > & getItems() const = 0;
+    
     virtual void clearItems() = 0;
     
     virtual unsigned int getCurrentIndex() const = 0;
@@ -59,6 +63,21 @@ public:
 
     //! Previous
     virtual bool previous() = 0;
+    
+    //! Set wrap
+    virtual inline void setWrap(bool wrap){
+        this->allowWrap = wrap;
+    }
+    
+    //! Get wrap
+    virtual inline bool getWrap() const {
+        return this->allowWrap;
+    }
+    
+protected:
+    
+    //! Is wrappable
+    bool allowWrap;
 
 };
 
@@ -84,6 +103,8 @@ public:
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);
+    
+    virtual const std::vector<Util::ReferenceCount<ScrollItem> > & getItems() const;
 
     virtual void clearItems();
     
@@ -160,16 +181,6 @@ public:
         return this->useHighlight;
     }
     
-    //! Set wrap
-    virtual inline void setWrap(bool wrap){
-        this->allowWrap = wrap;
-    }
-    
-    //! Get wrap
-    virtual inline bool getWrap() const {
-        return this->allowWrap;
-    }
-
     virtual inline void setJustification(Justify what){
         this->justification = what;
     }
@@ -208,9 +219,6 @@ private:
 
     //! Use highlight
     bool useHighlight;
-    
-    //! Is wrappable
-    bool allowWrap;
 
     /* how much to scroll by */
     double scroll;
@@ -234,6 +242,8 @@ public:
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);
+    
+    virtual const std::vector<Util::ReferenceCount<ScrollItem> > & getItems() const;
 
     virtual void clearItems();
     

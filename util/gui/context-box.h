@@ -11,11 +11,14 @@
 #include "../gradient.h"
 #include "../file-system.h"
 
+#include "util/pointer.h"
+
 namespace Gui{
 
 Effects::Gradient standardGradient();
 
 class ContextBox;
+class ScrollListInterface;
 class ContextItem: public ScrollItem {
 public:
     ContextItem(const ContextBox & parent);
@@ -61,6 +64,14 @@ class ContextBox: public Widget {
         virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
         virtual void addItem(const Util::ReferenceCount<ContextItem> & item);
         
+        /*! Scroll or Normal */
+        enum ListType{
+            Normal,
+            Scroll,
+        };
+        virtual void setListType(const ListType &);
+        virtual void setListWrap(bool wrap);
+        
         virtual Graphics::Color getSelectedColor() const;
 
         /*
@@ -73,7 +84,7 @@ class ContextBox: public Widget {
         */
         //! Get current index
         virtual inline unsigned int getCurrentIndex(){
-            return this->list.getCurrentIndex();
+            return this->list->getCurrentIndex();
         }
         //! Is active?
 	virtual inline bool isActive(){
@@ -130,7 +141,8 @@ class ContextBox: public Widget {
 
         //! Context list
         // std::vector<ContextItem *> context;
-        ScrollList list;
+        //ScrollList list;
+        Util::ReferenceCount<ScrollListInterface> list;
 	
 	//! Current font
         /*
