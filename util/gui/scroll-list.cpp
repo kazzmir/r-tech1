@@ -33,6 +33,10 @@ int justify(Justify justification, int left, int right, int size){
     }
     return 0;
 }
+
+ScrollListInterface::ScrollListInterface():
+allowWrap(true){
+}
     
 ScrollListInterface::~ScrollListInterface(){
 }
@@ -54,7 +58,6 @@ scrollMotion(1.2),
 // selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 // useGradient(false),
 useHighlight(false),
-allowWrap(true),
 scroll(0),
 justification(CenterJustify){}
 
@@ -67,7 +70,6 @@ scrollWait(copy.scrollWait),
 // selectedGradient(GradientMax, selectedGradientStart(), selectedGradientEnd()),
 // useGradient(copy.useGradient),
 useHighlight(copy.useHighlight),
-allowWrap(true),
 scroll(0){}
 
 ScrollList::~ScrollList(){}
@@ -155,6 +157,10 @@ void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> & text){
     
 void ScrollList::addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & texts){
     this->text.insert(text.end(), texts.begin(), texts.end());
+}
+
+const std::vector<Util::ReferenceCount<ScrollItem> > & ScrollList::getItems() const{
+    return this->text;
 }
 
 void ScrollList::clearItems(){
@@ -260,6 +266,10 @@ void NormalList::addItems(const std::vector<Util::ReferenceCount<ScrollItem> > &
     this->text.insert(text.end(), texts.begin(), texts.end());
 }
 
+const std::vector<Util::ReferenceCount<ScrollItem> > & NormalList::getItems() const{
+    return this->text;
+}
+
 void NormalList::clearItems(){
     this->text.clear();
 }
@@ -269,7 +279,7 @@ unsigned int NormalList::getCurrentIndex() const {
 }
 
 bool NormalList::next(){
-    if (position < text.size() - 1){
+    if ((unsigned int)position < text.size() - 1){
         position += 1;
         return true;
     }
