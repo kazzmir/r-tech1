@@ -294,12 +294,6 @@
 #   if (defined (__UTYPE_IBMAIX) || defined(__UTYPE_QNX))
 #       include <sys/select.h>
 #   endif
-
-#ifdef ANDROID
-#define S_IREAD S_IRUSR
-#define S_IWRITE S_IWUSR
-#define S_IEXEC S_IXUSR
-#endif
 #endif
 
 #if defined(WII) || defined(NDS) || defined(NACL)

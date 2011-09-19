@@ -232,9 +232,9 @@ populate_entry (DIRST *dir)
         else
             dir-> file_mode |= S_IFREG;
         if (!(dir-> _dir_entry.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
-            dir-> file_mode |= S_IREAD;
+            dir-> file_mode |= S_IRUSR;
         if (!(dir-> _dir_entry.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
-            dir-> file_mode |= S_IWRITE;
+            dir-> file_mode |= S_IWUSR;
         dir-> file_nlink = 1;
         dir-> owner = NULL;
         dir-> group = NULL;
@@ -270,9 +270,9 @@ populate_entry (DIRST *dir)
     /*  Prepare DOS-ish permission bits                                      */
 #if (defined (__UNIX__) || defined (__VMS_XOPEN) || defined (__OS2__))
     dir-> file_attrs = 0;
-    if ((stat_buf.st_mode & S_IREAD)  == 0)
+    if ((stat_buf.st_mode & S_IRUSR)  == 0)
         dir-> file_attrs |= ATTR_HIDDEN;
-    if ((stat_buf.st_mode & S_IWRITE) == 0)
+    if ((stat_buf.st_mode & S_IWUSR) == 0)
         dir-> file_attrs |= ATTR_RDONLY;
     if ((stat_buf.st_mode & S_IFDIR)  != 0)
         dir-> file_attrs |= ATTR_SUBDIR;
@@ -443,9 +443,9 @@ format_mode (
     *bufptr++ = ((mode & S_IFDIR) ? 'd' : '-');
     for (field = 0; field < 3; field++)
       {
-        *bufptr++ = ((mode & (S_IREAD  >> (field * 3))) ? 'r' : '-');
-        *bufptr++ = ((mode & (S_IWRITE >> (field * 3))) ? 'w' : '-');
-        *bufptr   = ((mode & (S_IEXEC  >> (field * 3))) ? 'x' : '-');
+        *bufptr++ = ((mode & (S_IRUSR  >> (field * 3))) ? 'r' : '-');
+        *bufptr++ = ((mode & (S_IWUSR >> (field * 3))) ? 'w' : '-');
+        *bufptr   = ((mode & (S_IXUSR  >> (field * 3))) ? 'x' : '-');
 
 #if (defined (S_ISUID))
         if (field == 0 && (mode & S_ISUID))
@@ -498,7 +498,7 @@ format_name (DIRST *dir, Bool full)
         if (dir-> file_mode & S_IFDIR)
            *bufptr++ = '/';
         else
-        if (dir-> file_mode & S_IEXEC)
+        if (dir-> file_mode & S_IXUSR)
            *bufptr++ = '*';
       }
     *bufptr = '\0';

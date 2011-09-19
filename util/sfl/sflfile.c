@@ -607,13 +607,13 @@ file_mode (const char *filename)
         mode |= S_IFREG;
 
     if (!(dwfa & FILE_ATTRIBUTE_HIDDEN))
-        mode |= S_IREAD;
+        mode |= S_IRUSR;
 
     if (!(dwfa & FILE_ATTRIBUTE_READONLY))
-        mode |= S_IWRITE;
+        mode |= S_IWUSR;
 
     if (is_exe_file (filename))
-        mode |= S_IEXEC;
+        mode |= S_IXUSR;
 
     return (mode);
 
@@ -631,7 +631,7 @@ file_mode (const char *filename)
     && ((filename [2] == '\\' && filename [3] == '\0')
     ||  (filename [2] == '/'  && filename [3] == '\0')
     ||  (filename [2] == '\0')))
-        return (S_IFDIR | S_IREAD | S_IWRITE);
+        return (S_IFDIR | S_IRUSR | S_IWUSR);
 #   endif
 
     if (strnull (filename))
@@ -1360,7 +1360,7 @@ safe_to_extend (
     if (system_devicename (filename))
         return (FALSE);                 /*  Not allowed on device names      */
 
-    handle = open (filename, O_RDWR + O_BINARY, S_IREAD | S_IWRITE);
+    handle = open (filename, O_RDWR + O_BINARY, S_IRUSR | S_IWUSR);
     if (handle)                         /*  If not found, ignore             */
       {
         lseek (handle, -1, SEEK_END);
@@ -1623,12 +1623,12 @@ file_is_readable (
 {
     ASSERT (filename);
     if (file_is_directory (filename))
-        return ((file_mode (clean_path (filename)) & S_IREAD) != 0);
+        return ((file_mode (clean_path (filename)) & S_IRUSR) != 0);
     else
     if (strlast (filename) == '/')
         return (FALSE);
     else
-        return ((file_mode (filename) & S_IREAD) != 0);
+        return ((file_mode (filename) & S_IRUSR) != 0);
 }
 
 
@@ -1647,12 +1647,12 @@ file_is_writeable (
     ASSERT (filename);
 
     if (file_is_directory (filename))
-        return ((file_mode (clean_path (filename)) & S_IWRITE) != 0);
+        return ((file_mode (clean_path (filename)) & S_IWUSR) != 0);
     else
     if (strlast (filename) == '/')
         return (FALSE);
     else
-        return ((file_mode (filename) & S_IREAD) != 0);
+        return ((file_mode (filename) & S_IRUSR) != 0);
 }
 
 
@@ -1693,7 +1693,7 @@ file_is_executable (
 #if (defined (__UNIX__))
     ASSERT (filename);
 
-    return ((file_mode (filename) & S_IEXEC) != 0
+    return ((file_mode (filename) & S_IXUSR) != 0
          && (file_mode (filename) & S_IFDIR) == 0);
 
 #elif (defined (MSDOS_FILESYSTEM))
@@ -1769,19 +1769,19 @@ file_is_executable (
 
     /*  Find file extension, if any                                          */
     extension = strrchr (filename, '.');
-    if ((file_mode (filename) & S_IEXEC) != 0)
+    if ((file_mode (filename) & S_IXUSR) != 0)
         executable = TRUE;
     else
     /*  If the extension is empty, try .exe and .com                         */
     if (!extension)
       {
         default_extension (work_name, filename, "exe");
-        if ((file_mode (work_name) & S_IEXEC) != 0)
+        if ((file_mode (work_name) & S_IXUSR) != 0)
             executable = TRUE;
         else
           {
             default_extension (work_name, filename, "com");
-            if ((file_mode (work_name) & S_IEXEC) != 0)
+            if ((file_mode (work_name) & S_IXUSR) != 0)
                 executable = TRUE;
             else
                 executable = FALSE;
@@ -1827,7 +1827,7 @@ file_is_program (
     ASSERT (filename);
 
     found_file = file_where ('r', "PATH", filename, "");
-    if (found_file && (file_mode (found_file) & S_IEXEC))
+    if (found_file && (file_mode (found_file) & S_IXUSR))
         executable = TRUE;              /*  Executable file found            */
 
 #elif (defined (__VMS__))
@@ -1842,7 +1842,7 @@ file_is_program (
     if (!found_file)
         found_file = file_where ('r', "PATH", filename, ".com");
 
-    if (found_file && (file_mode (found_file) & S_IEXEC))
+    if (found_file && (file_mode (found_file) & S_IXUSR))
         executable = TRUE;              /*  Executable file found            */
 
 #elif (defined (MSDOS_FILESYSTEM))
@@ -2005,7 +2005,7 @@ file_exec_name (
 
     strcpy (exec_name, filename);
 
-    if (file_mode (exec_name) & S_IEXEC)
+    if (file_mode (exec_name) & S_IXUSR)
         return (exec_name);
     else
         return (NULL);
