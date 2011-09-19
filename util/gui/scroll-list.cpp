@@ -282,7 +282,12 @@ bool NormalList::next(){
     if ((unsigned int)position < text.size() - 1){
         position += 1;
         return true;
-    }
+    } else {
+        if (allowWrap){
+            position = 0;
+            return false;
+        }
+    }   
     return false;
 }
 
@@ -290,6 +295,11 @@ bool NormalList::previous(){
     if (position > 0){
         position -= 1;
         return true;
+    } else {
+        if (allowWrap){ 
+            position = text.size()-1;
+            return false;
+        }
     }
     return false;
 }
