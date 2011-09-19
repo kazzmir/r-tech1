@@ -622,6 +622,29 @@ SDLJoystick::~SDLJoystick(){
     }
 }
 
+#if 0
+#include <io/pad.h>
+#include <fstream>
+void hack(){
+    padInfo padinfo;
+    int ok = ioPadGetInfo(&padinfo);
+    if (ok == 0){
+        std::ofstream out("/dev_hdd0/tmp/p.txt");
+        out << "PS3 Pad Info" << std::endl;
+        out << " max " << padinfo.max << std::endl;
+        out << " connected " << padinfo.connected << std::endl;
+        out << " status 0 " << (int) padinfo.status[0] << std::endl;
+        out << " status 1 " << (int) padinfo.status[1] << std::endl;
+        out << " status 2 " << (int) padinfo.status[2] << std::endl;
+        out << " status 3 " << (int) padinfo.status[3] << std::endl;
+        out << " status 4 " << (int) padinfo.status[4] << std::endl;
+        out.close();
+    } else {
+        Global::debug(0) << "Could not get pad info" << std::endl;
+    }
+}
+#endif
+
 SDLJoystick::SDLJoystick(int id):
 joystick(NULL){
     if (SDL_NumJoysticks() > id){
@@ -682,7 +705,19 @@ int SDLJoystick::getDeviceId() const {
     return -1;
 }
 
+extern "C" int SDL_JoystickInit();
 int Joystick::numberOfJoysticks(){
+    /* FIXME: hack for the ps3. at the start of the program only 1 joystick is enabled
+     * even if more than 1 is connected, so we force another call to JoystickInit
+     * to pick up all joysticks.
+     */
+#ifdef PS3
+    static int hacker = 0;
+    if (hacker == 0){
+        hacker = 1;
+        SDL_JoystickInit();
+    }
+#endif
     return SDL_NumJoysticks();
 }
 
