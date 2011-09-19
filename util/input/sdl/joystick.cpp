@@ -705,19 +705,7 @@ int SDLJoystick::getDeviceId() const {
     return -1;
 }
 
-extern "C" int SDL_JoystickInit();
 int Joystick::numberOfJoysticks(){
-    /* FIXME: hack for the ps3. at the start of the program only 1 joystick is enabled
-     * even if more than 1 is connected, so we force another call to JoystickInit
-     * to pick up all joysticks.
-     */
-#ifdef PS3
-    static int hacker = 0;
-    if (hacker == 0){
-        hacker = 1;
-        SDL_JoystickInit();
-    }
-#endif
     return SDL_NumJoysticks();
 }
 

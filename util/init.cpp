@@ -417,7 +417,10 @@ static void initSystem(ostream & out){
     int ok = SDL_Init(SDL_INIT_VIDEO |
                       SDL_INIT_AUDIO |
                       SDL_INIT_TIMER |
+/* FIXME: dont initialize the ps3 joystick until after a video mode is set */
+#ifndef PS3
                       SDL_INIT_JOYSTICK |
+#endif
                       SDL_INIT_NOPARACHUTE);
     if (ok == 0){
         out << "Ok" << endl;
@@ -526,6 +529,17 @@ void Global::close(){
     }
 }
 
+#ifdef PS3
+extern "C" int SDL_JoystickInit();
+static void ps3JoystickHack(){
+    /* FIXME: hack for the ps3. at the start of the program only 1 joystick is enabled
+     * even if more than 1 is connected, so we force another call to JoystickInit
+     * to pick up all joysticks.
+     */
+    SDL_JoystickInit();
+}
+#endif
+
 bool Global::init(int gfx){
     ostream & out = Global::debug( 0 );
     out << "-- BEGIN init --" << endl;
@@ -625,6 +639,10 @@ bool Global::init(int gfx){
         white.fill(Graphics::makeColor(255, 255, 255));
         white.BlitToScreen();
     }
+
+#ifdef PS3
+    ps3JoystickHack();
+#endif
 
     return true;
 }
