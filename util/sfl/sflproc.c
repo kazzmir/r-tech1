@@ -464,13 +464,13 @@ process_open_io (
     if (access_type == 'w')
       {
         mode += O_WRONLY | O_CREAT | O_TRUNC;
-        permissions = S_IREAD | S_IWRITE;
+        permissions = S_IRUSR | S_IWUSR;
       }
     else
     if (access_type == 'a')
       {
         mode += O_WRONLY | O_CREAT | O_APPEND;
-        permissions = S_IREAD | S_IWRITE;
+        permissions = S_IRUSR | S_IWUSR;
       }
     handle = open (filename, mode, permissions);
 #if (defined (WIN32))

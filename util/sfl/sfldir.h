@@ -76,10 +76,10 @@ typedef unsigned short      nlink_t;
 #   define stat _stat
 #endif
 
-/*  BeOS does not define S_IEXEC so we build this mask ourselves             */
+/*  BeOS does not define S_IXUSR so we build this mask ourselves             */
 
-#if (!defined (S_IEXEC))
-#    define S_IEXEC  00100  /*  Owner may execute                            */
+#if (!defined (S_IXUSR))
+#    define S_IXUSR  00100  /*  Owner may execute                            */
 #endif
 
 /*  We define DEFAULT_DIR as the default current directory, so that we       */
