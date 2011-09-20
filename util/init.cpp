@@ -417,10 +417,7 @@ static void initSystem(ostream & out){
     int ok = SDL_Init(SDL_INIT_VIDEO |
                       SDL_INIT_AUDIO |
                       SDL_INIT_TIMER |
-/* FIXME: dont initialize the ps3 joystick until after a video mode is set */
-#ifndef PS3
                       SDL_INIT_JOYSTICK |
-#endif
                       SDL_INIT_NOPARACHUTE);
     if (ok == 0){
         out << "Ok" << endl;
@@ -641,7 +638,7 @@ bool Global::init(int gfx){
     }
 
 #ifdef PS3
-    ps3JoystickHack();
+    // ps3JoystickHack();
 #endif
 
     return true;
