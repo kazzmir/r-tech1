@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <map>
+#include "pointer.h"
 
 #ifdef USE_ALLEGRO5
 struct ALLEGRO_EVENT_SOURCE;
@@ -32,7 +33,7 @@ class WaitThread;
 class EventManager{
 public:
     EventManager();
-    virtual void run(Keyboard & keyboard, std::map<int, Joystick *> joysticks);
+    virtual void run(Keyboard & keyboard, std::map<int, ReferenceCount<Joystick> > joysticks);
     virtual void waitForThread(WaitThread & thread);
     virtual ~EventManager();
 
@@ -61,13 +62,13 @@ private:
     virtual void dispatch(Event type);
 
 #ifdef USE_SDL
-    virtual void runSDL(Keyboard &, std::map<int, Joystick *>);
+    virtual void runSDL(Keyboard &, std::map<int, ReferenceCount<Joystick> >);
 #endif
 #ifdef USE_ALLEGRO
-    virtual void runAllegro(Keyboard & keyboard, std::map<int, Joystick *>);
+    virtual void runAllegro(Keyboard & keyboard, std::map<int, ReferenceCount<Joystick> >);
 #endif
 #ifdef USE_ALLEGRO5
-    virtual void runAllegro5(Keyboard & keyboard, std::map<int, Joystick *>);
+    virtual void runAllegro5(Keyboard & keyboard, std::map<int, ReferenceCount<Joystick> >);
     ALLEGRO_EVENT_QUEUE * queue;
 #endif
 
