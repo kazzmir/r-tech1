@@ -46,19 +46,19 @@ static void handleKeyUp(Keyboard & keyboard, const SDL_Event & event){
     keyboard.release(event.key.keysym.sym);
 }
 
-static void handleJoystickButtonUp(map<int, Joystick *> joysticks, const SDL_Event & event){
+static void handleJoystickButtonUp(map<int, ReferenceCount<Joystick> > joysticks, const SDL_Event & event){
     int device = event.jbutton.which;
     int button = event.jbutton.button;
-    Joystick * joystick = joysticks[device];
+    ReferenceCount<Joystick> joystick = joysticks[device];
     if (joystick != NULL){
         joystick->releaseButton(button);
     }
 }
 
-static void handleJoystickHat(map<int, Joystick *> joysticks, const SDL_Event & event){
+static void handleJoystickHat(map<int, ReferenceCount<Joystick> > joysticks, const SDL_Event & event){
     int device = event.jhat.which;
     int motion = event.jhat.value;
-    Joystick * joystick = joysticks[device];
+    ReferenceCount<Joystick> joystick = joysticks[device];
     if (joystick != NULL){
         joystick->hatMotion(motion);
     }
@@ -92,29 +92,29 @@ static void handleJoystickHat(map<int, Joystick *> joysticks, const SDL_Event & 
 #endif
 }
 
-static void handleJoystickButtonDown(map<int, Joystick *> joysticks, const SDL_Event & event){
+static void handleJoystickButtonDown(map<int, ReferenceCount<Joystick> > joysticks, const SDL_Event & event){
     int device = event.jbutton.which;
     int button = event.jbutton.button;
-    Joystick * joystick = joysticks[device];
+    ReferenceCount<Joystick> joystick = joysticks[device];
     if (joystick != NULL){
         joystick->pressButton(button);
     }
 }
 
-static void handleJoystickAxis(map<int, Joystick *> joysticks, const SDL_Event & event){
+static void handleJoystickAxis(map<int, ReferenceCount<Joystick> > joysticks, const SDL_Event & event){
     int device = event.jaxis.which;
     int axis = event.jaxis.axis;
     int value = event.jaxis.value;
-    Joystick * joystick = joysticks[device];
+    ReferenceCount<Joystick> joystick = joysticks[device];
     if (joystick != NULL){
         joystick->axisMotion(axis, value);
     }
 }
 
-void EventManager::runSDL(Keyboard & keyboard, map<int, Joystick *> joysticks){
+void EventManager::runSDL(Keyboard & keyboard, map<int, ReferenceCount<Joystick> > joysticks){
     keyboard.poll();
-    for (map<int, Joystick*>::iterator it = joysticks.begin(); it != joysticks.end(); it++){
-        Joystick * joystick = it->second;
+    for (map<int, ReferenceCount<Joystick> >::iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        ReferenceCount<Joystick> joystick = it->second;
         if (joystick != NULL){
             joystick->poll();
         }
@@ -183,7 +183,7 @@ void EventManager::runSDL(Keyboard & keyboard, map<int, Joystick *> joysticks){
 #endif
 
 #ifdef USE_ALLEGRO
-void EventManager::runAllegro(Keyboard & keyboard, map<int, Joystick *> joystick){
+void EventManager::runAllegro(Keyboard & keyboard, map<int, ReferenceCount<Joystick> > joystick){
     keyboard.poll();
 }
 #endif
@@ -227,7 +227,7 @@ static void handleResize(const ALLEGRO_EVENT & event){
     al_use_transform(&transformation);
 }
 
-void EventManager::runAllegro5(Keyboard & keyboard, map<int, Joystick *> joystick){
+void EventManager::runAllegro5(Keyboard & keyboard, map<int, ReferenceCount<Joystick> > joystick){
     keyboard.poll();
 
     ALLEGRO_EVENT event;
@@ -323,7 +323,7 @@ void EventManager::runAllegro5(Keyboard & keyboard, map<int, Joystick *> joystic
 }
 #endif
 
-void EventManager::run(Keyboard & keyboard, std::map<int, Joystick *> joysticks){
+void EventManager::run(Keyboard & keyboard, std::map<int, ReferenceCount<Joystick> > joysticks){
 #ifdef USE_SDL
     runSDL(keyboard, joysticks);
 #elif USE_ALLEGRO

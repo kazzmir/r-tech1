@@ -7,12 +7,13 @@
 #include "input-map.h"
 #include "input-source.h"
 #include "util/funcs.h"
+#include "util/pointer.h"
 #include "util/events.h"
 #include "keyboard.h"
+#include "joystick.h"
 #include "exceptions/exception.h"
 
 class Configuration;
-class Joystick;
 class InputSource;
 
 template <class Output>
@@ -210,8 +211,8 @@ protected:
         }
 
         if (source.getJoystick() >= 0 && (unsigned) source.getJoystick() < joysticks.size()){
-            Joystick * joystick = joysticks[source.getJoystick()];
-            if (joystick){
+            Util::ReferenceCount<Joystick> joystick = joysticks[source.getJoystick()];
+            if (joystick != NULL){
                 const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();
                 for (std::vector<Joystick::Event>::const_iterator it = joystickEvents.begin(); it != joystickEvents.end(); it++){
                     Joystick::Event event = *it;
@@ -291,10 +292,14 @@ protected:
 
     virtual void _poll();
 
+protected:
+    void installJoysticks();
+    void checkJoysticks();
+
 private:
     static InputManager * manager;
     void * capture;
-    std::map<int, Joystick *> joysticks;
+    std::map<int, Util::ReferenceCount<Joystick> > joysticks;
     Keyboard keyboard;
     Util::EventManager eventManager;
     // std::vector<int> bufferedKeys;

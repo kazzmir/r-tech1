@@ -17,18 +17,46 @@ InputManager::InputManager():
 capture(0){
     manager = this;
     if (Configuration::isJoystickEnabled()){
-        for (int i = 0; i < Joystick::numberOfJoysticks(); i++){
-            joysticks[i] = Joystick::create(i);
+        installJoysticks();
+    }
+}
+
+void InputManager::installJoysticks(){
+    joysticks.clear();
+    for (int i = 0; i < Joystick::numberOfJoysticks(); i++){
+        joysticks[i] = Joystick::create(i);
+    }
+}
+
+#ifdef PS3
+#include <io/pad.h>
+extern "C" int SDL_JoystickInit();
+extern "C" int SDL_JoystickQuit();
+#endif
+static bool needJoystickUpdate(){
+#ifdef PS3
+    padInfo pad;
+    if (ioPadGetInfo(&pad) == 0){
+        /* re-initialize the joystick stuff if we have a different
+         * number of joysticks according to lv2
+         */
+        if (pad.connected != (unsigned) SDL_NumJoysticks()){
+            SDL_JoystickQuit();
+            SDL_JoystickInit();
+            return true;
         }
+    }
+#endif
+    return false;
+}
+
+void InputManager::checkJoysticks(){
+    if (needJoystickUpdate()){
+        installJoysticks();
     }
 }
 
 InputManager::~InputManager(){
-    /* FIXME: use reference counts for joysticks */
-    for (map<int, Joystick*>::iterator it = joysticks.begin(); it != joysticks.end(); it++){
-        Joystick * joystick = it->second;
-        delete joystick;
-    }
 }
     
 bool InputManager::anyInput(){
@@ -45,9 +73,9 @@ bool InputManager::_anyInput(){
         return true;
     }
 
-    for (map<int, Joystick*>::iterator it = joysticks.begin(); it != joysticks.end(); it++){
-        Joystick * joystick = it->second;
-        if (joystick){
+    for (map<int, Util::ReferenceCount<Joystick> >::iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        Util::ReferenceCount<Joystick> joystick = it->second;
+        if (joystick != NULL){
             return joystick->pressed();
         }
     }
@@ -200,6 +228,9 @@ void InputManager::_poll(){
         eventManager.enableKeyBuffer();
     }
     */
+#ifdef PS3
+    checkJoysticks();
+#endif
     eventManager.run(keyboard, joysticks);
 
     // keyboard.poll();
