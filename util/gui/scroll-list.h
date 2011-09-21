@@ -257,6 +257,9 @@ public:
     }
 
 protected:
+    virtual void checkEndPosition();
+    virtual bool allItemsViewable();
+    
     std::vector<Util::ReferenceCount<ScrollItem> > text;
     int position;
     mutable int endPosition;
