@@ -6,7 +6,7 @@
 #include <math.h>
 #include "../debug.h"
 
-namespace Gui{
+using namespace Gui;
 
 static const double FONT_SPACER = 1.3;
 // static const int GradientMax = 50;
@@ -256,13 +256,9 @@ void NormalList::act(){
 void NormalList::render(const Graphics::Bitmap & work, const Font & font) const {
     /* FIXME 
      *  - Get spacing somewhere else, for now update it here 
-     *  - Get visible items properly elsewhere 
-     *  - Set endPosition elsewhere */
+     *  - Get visible items properly elsewhere */
     fontHeight = (font.getHeight() / FONT_SPACER) + fontSpaceY;
     visibleItems = (work.getHeight() / fontHeight);
-    if (endPosition == 0){
-        endPosition = visibleItems+1;
-    }
     if (first == -1){
         first = 0;
         last = Util::min(visibleItems, text.size());
@@ -311,17 +307,24 @@ unsigned int NormalList::getCurrentIndex() const {
 }
 
 bool NormalList::next(){
+    // First move forward check if endpostition has been set
+    checkEndPosition();
     if ((unsigned int)position < text.size() - 1){
         position += 1;
-        if (position > endPosition){
-            moveToY-=fontHeight;
-            endPosition++;
+        if (allItemsViewable()){
+            if (position > endPosition){
+                moveToY-=fontHeight;
+                endPosition++;
+            }
         }
         return true;
     } else {
         if (allowWrap){
-            position = moveToY = 0;
-            endPosition = visibleItems-1;
+            position = 0;
+            if (allItemsViewable()){
+                endPosition = visibleItems-1;
+                moveToY = 0;
+            }
             return false;
         }
     }   
@@ -331,19 +334,32 @@ bool NormalList::next(){
 bool NormalList::previous(){
     if (position > 0){
         position -= 1;
-        if (position < (endPosition - visibleItems+1)){
-            moveToY+=fontHeight;
-            endPosition--;
+        if (allItemsViewable()){
+            if (position < (endPosition - visibleItems+1)){
+                moveToY+=fontHeight;
+                endPosition--;
+            }
         }
         return true;
     } else {
         if (allowWrap){ 
-            position = endPosition = text.size()-1;
-            moveToY = ((position - visibleItems+1) * fontHeight) * -1;
+            position = text.size()-1;
+            if (allItemsViewable()){
+                endPosition = position;
+                moveToY = ((position - visibleItems+1) * fontHeight) * -1;
+            }
             return false;
         }
     }
     return false;
 }
 
+void NormalList::checkEndPosition(){
+    if (endPosition == 0){
+        endPosition = visibleItems-1;
+    }
+}
+
+bool NormalList::allItemsViewable(){
+    return ((unsigned int)visibleItems < text.size());
 }
