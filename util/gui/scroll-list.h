@@ -259,8 +259,15 @@ public:
 protected:
     std::vector<Util::ReferenceCount<ScrollItem> > text;
     int position;
+    mutable int endPosition;
     mutable int first, last;
     Justify justification;
+    mutable double fontHeight;
+    double moveToX, moveToY;
+    double currentX, currentY;
+    int fontBeginOffsetX, fontBeginOffsetY;
+    int fontSpaceX, fontSpaceY;
+    mutable int visibleItems;
 };
 
 }
