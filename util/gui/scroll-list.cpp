@@ -218,22 +218,54 @@ bool ScrollList::setCurrentIndex(unsigned int index){
 
 NormalList::NormalList():
 position(0),
+endPosition(0),
 first(-1),
 last(-1),
-justification(CenterJustify){
+justification(CenterJustify),
+fontHeight(0),
+moveToX(0), 
+moveToY(0),
+currentX(0), 
+currentY(0),
+fontBeginOffsetX(0),
+fontBeginOffsetY(0),
+fontSpaceX(0),
+fontSpaceY(0),
+visibleItems(0){
 }
 
 NormalList::~NormalList(){
 }
 
 void NormalList::act(){
+    /* FIXME smooth scrolling needed (location/current?) */
+    const int speed = fontHeight/2;
+    if (currentY < moveToY){
+        currentY += speed;
+        if (currentY > moveToY){
+            currentY = moveToY;
+        }
+    } else if (currentY > moveToY){
+        currentY -= speed;
+        if (currentY < moveToY){
+            currentY = moveToY;
+        }
+    }
 }
 
 void NormalList::render(const Graphics::Bitmap & work, const Font & font) const {
-    int maxItems = work.getHeight() / (font.getHeight() + FONT_SPACER);
+    /* FIXME 
+     *  - Get spacing somewhere else, for now update it here 
+     *  - Get visible items properly elsewhere 
+     *  - Set endPosition elsewhere */
+    fontHeight = (font.getHeight() / FONT_SPACER) + fontSpaceY;
+    visibleItems = (work.getHeight() / fontHeight);
+    if (endPosition == 0){
+        endPosition = visibleItems+1;
+    }
     if (first == -1){
         first = 0;
-        last = Util::min(maxItems, text.size());
+        last = Util::min(visibleItems, text.size());
     }
     if (position < first){
         int difference = first - position;
@@ -248,13 +280,13 @@ void NormalList::render(const Graphics::Bitmap & work, const Font & font) const 
     first = 0;
     last = text.size();
 
-    double y = 0;
+    double y = currentY;
     for (int index = first; index < last; index += 1){
         int distance = position - index;
         Util::ReferenceCount<ScrollItem> option = text[index];
         const int x = justify(justification, 1, work.getWidth() - 1, option->size(font));
         option->draw(x, y, work, font, distance);
-        y += font.getHeight() / FONT_SPACER;
+        y += fontHeight;
     }
 }
 
@@ -281,10 +313,15 @@ unsigned int NormalList::getCurrentIndex() const {
 bool NormalList::next(){
     if ((unsigned int)position < text.size() - 1){
         position += 1;
+        if (position > endPosition){
+            moveToY-=fontHeight;
+            endPosition++;
+        }
         return true;
     } else {
         if (allowWrap){
-            position = 0;
+            position = moveToY = 0;
+            endPosition = visibleItems-1;
             return false;
         }
     }   
@@ -294,10 +331,15 @@ bool NormalList::next(){
 bool NormalList::previous(){
     if (position > 0){
         position -= 1;
+        if (position < (endPosition - visibleItems+1)){
+            moveToY+=fontHeight;
+            endPosition--;
+        }
         return true;
     } else {
         if (allowWrap){ 
-            position = text.size()-1;
+            position = endPosition = text.size()-1;
+            moveToY = ((position - visibleItems+1) * fontHeight) * -1;
             return false;
         }
     }
