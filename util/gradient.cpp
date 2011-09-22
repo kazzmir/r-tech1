@@ -22,6 +22,16 @@ index(copy.index){
         colors[i] = copy.colors[i];
     }
 }
+    
+Gradient & Gradient::operator=(const Gradient & copy){
+    delete[] colors;
+    size = copy.size;
+    index = copy.index;
+    colors = new Graphics::Color[size];
+    for (unsigned int i = 0; i < size; i++){
+        colors[i] = copy.colors[i];
+    }
+}
 
 void Gradient::forward(){
     index = (index + 1) % size;

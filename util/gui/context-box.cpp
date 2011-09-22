@@ -69,50 +69,21 @@ const ListValues & ListValues::operator=(const ListValues & copy){
 void ListValues::getValues(const Token * token){
     TokenView view = token->view();
     while (view.hasMore()){
-        const Token * tok;
-        view >> tok;
+        const Token * token;
+        view >> token;
         try{
-            if (*tok == "color-low"){
-                int r = 0, g = 0, b = 0;
-                try {
-                    tok->view() >> r >> g >> b;
-                } catch (const TokenException & ex){
-                }
-                lowColor = Graphics::makeColor(r, g, b);
-            } else if (*tok == "color-high"){
-                int r = 0, g = 0, b = 0;
-                try {
-                    tok->view() >> r >> g >> b;
-                } catch (const TokenException & ex){
-                }
-                highColor = Graphics::makeColor(r, g, b);
-            } else if (*tok == "selected-color"){
-                int r = 0, g = 0, b = 0;
-                try {
-                    tok->view() >> r >> g >> b;
-                } catch (const TokenException & ex){
-                }
-                selectedColor = Graphics::makeColor(r, g, b);
-            } else if (*tok == "selected-color-alpha"){
-                int alpha = 255;
-                try {
-                    tok->view() >> alpha;
-                } catch (const TokenException & ex){
-                }
+            int red = 0, green = 0, blue = 0, alpha = 0;
+            if (token->match("color-low", red, green, blue)){
+                lowColor = Graphics::makeColor(red, green, blue);
+            } else if (token->match("color-high", red, green, blue)){
+                highColor = Graphics::makeColor(red, green, blue);
+            } else if (token->match("selected-color", red, green, blue)){
+                selectedColor = Graphics::makeColor(red, green, blue);
+            } else if (token->match("selected-color-alpha", alpha)){
                 selectedAlpha = alpha;
-            } else if (*tok == "other-color"){
-                int r = 0, g = 0, b = 0;
-                try {
-                    tok->view() >> r >> g >> b;
-                } catch (const TokenException & ex){
-                }
-                otherColor = Graphics::makeColor(r, g, b);
-            } else if (*tok == "other-color-alpha"){
-                int alpha = 255;
-                try {
-                    tok->view() >> alpha;
-                } catch (const TokenException & ex){
-                }
+            } else if (token->match("other-color", red, green, blue)){
+                otherColor = Graphics::makeColor(red, green, blue);
+            } else if (token->match("other-color-alpha", alpha)){
                 otherAlpha = alpha;
             }
         } catch (const TokenException & ex){

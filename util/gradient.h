@@ -10,6 +10,8 @@ public:
     Gradient(int size, Graphics::Color startColor, Graphics::Color endColor);
     Gradient(const Gradient & copy);
 
+    Gradient & operator=(const Gradient & copy);
+
     /* move to next color. update is an alias for `forward' */
     void update();
     void forward();
