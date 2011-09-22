@@ -42,6 +42,7 @@ selectedAlpha(255),
 otherColor(Graphics::makeColor(255, 255, 255)),
 otherAlpha(255){
 }
+
 ListValues::ListValues(const ListValues & copy):
 lowColor(copy.lowColor),
 highColor(copy.highColor),
@@ -50,8 +51,10 @@ selectedAlpha(copy.selectedAlpha),
 otherColor(copy.otherColor),
 otherAlpha(copy.otherAlpha){
 }
+
 ListValues::~ListValues(){
 }
+
 const ListValues & ListValues::operator=(const ListValues & copy){
     lowColor = copy.lowColor;
     highColor = copy.highColor;
@@ -119,7 +122,7 @@ void ListValues::getValues(const Token * token){
 }
 
 ContextItem::ContextItem(const std::string & name, const ContextBox & parent):
-name(name),
+text(name),
 parent(parent){
 }
 
@@ -129,19 +132,23 @@ ContextItem::~ContextItem(){
 void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const {
     if (distance == 0){
         Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
-        font.printf(x, y, parent.getSelectedColor(), where.translucent(), name, 0);
+        font.printf(x, y, parent.getSelectedColor(), where.translucent(), getText(), 0);
     } else {
         int alpha = parent.getFadeAlpha() - fabs((double) distance) * 35;
         if (alpha < 0){
             alpha = 0;
         }
         Graphics::Bitmap::transBlender(0, 0, 0, alpha);
-        font.printf(x, y, Graphics::makeColor(255, 255, 255), where.translucent(), name, 0);
+        font.printf(x, y, Graphics::makeColor(255, 255, 255), where.translucent(), getText(), 0);
     }
+}
+    
+void ContextItem::setText(const LanguageString & t){
+    text = t;
 }
 
 int ContextItem::size(const Font & font) const {
-    return font.textLength(name.c_str());
+    return font.textLength(getText().c_str());
 }
 
 ContextBox::ContextBox():
@@ -302,127 +309,49 @@ void ContextBox::close(){
 
 
 void ContextBox::doFade(){
-    switch ( fadeState ){
-	case FadeIn: {
-	    if (fadeAlpha < 255){
-            fadeAlpha += (fadeSpeed+2);
-	    }
-
-	    if (fadeAlpha >= 255){
-            fadeAlpha = 255;
-            if (board.isActive()){
-                fadeState = Active;
+    switch (fadeState){
+        case FadeIn: {
+            if (fadeAlpha < 255){
+                fadeAlpha += (fadeSpeed+2);
             }
-	    }
-	    break;
-	}
-	case FadeOut: {
-	    if (fadeAlpha > 0){
-		fadeAlpha -= (fadeSpeed+2);
-	    }
 
-	    if (fadeAlpha <= 0){
-		fadeAlpha = 0;
+            if (fadeAlpha >= 255){
+                fadeAlpha = 255;
+                if (board.isActive()){
+                    fadeState = Active;
+                }
+            }
+            break;
+        }
+        case FadeOut: {
+            if (fadeAlpha > 0){
+                fadeAlpha -= (fadeSpeed+2);
+            }
+
+            if (fadeAlpha <= 0){
+                fadeAlpha = 0;
                 if (!board.isActive()){
                     fadeState = NotActive;
                 }
-	    }
-	    break;
-	}
-	case Active:
-	case NotActive:
-	default:
-	    break;
-    }
-}
-
-void ContextBox::calculateText(const Font & vFont){
-    /*
-    if (context.empty()){
-        return;
-    } 
-    
-    // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
-    
-    cursorCenter = (location.getY() + (int)location.getHeight()/2) - vFont.getHeight()/2;//(position.y + (int)position.height/2) - vFont.getHeight()/2;
-    
-    if (cursorLocation == cursorCenter){
-        scrollWait = 4;
-    } else {
-	if (scrollWait <= 0){
-	    cursorLocation = (cursorLocation + cursorCenter)/2;
-	    scrollWait = 4;
-	} else {
-	    scrollWait--;
-	}
-    }
-    */
-}
-
-/* draws the text, fading the items according to the distance from the
- * current selection.
- */
-void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction){
-#if 0
-    while (y < max_y && y > min_y){
-        int pick = current;
-        while (pick < 0){
-            pick += context.size();
-        }
-        pick = pick % context.size();
-
-        ContextItem * option = context[pick];
-        const int startx = middle_x - font.textLength(option->getName().c_str())/2;
-
-        /* draw current selection, make it glow */
-        if (current == selected){
-            Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
-            Graphics::TranslucentBitmap translucent(area);
-            const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
-            font.printf(x + startx, y, color, translucent, option->getName(), 0 );
-            if (option->isAdjustable()){
-                const int triangleSize = 14;
-                int cx = startx - 15;
-                int cy = (int)(y + (font.getHeight()/FONT_SPACER) / 2 + 2);
-
-                /* do the triangles need to be translucent? */
-                translucent.equilateralTriangle(cx, cy, 180, triangleSize, option->getLeftColor());
-
-                cx = (x + startx + font.textLength(option->getName().c_str()))+15;
-                translucent.equilateralTriangle(cx, cy, 0, triangleSize, option->getRightColor());
             }
-        } else {
-            /* draw some other item, and fade it */
-            int count = (int) fabs((double) current - (double) selected);
-            /* TODO: maybe scale by the number of total items instead of using 35 */
-            int textAlpha = fadeAlpha - (count * 35);
-            if (textAlpha < 0){
-                textAlpha = 0;
-            }
-            Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
-            const int color = Graphics::makeColor(255,255,255);
-            font.printf(x + startx, y, color, area.translucent(), option->getName(), 0);
+            break;
         }
-
-        if (context.size() == 1){
-            return;
-        }
-
-        current += direction;
-        y += direction * font.getHeight() / FONT_SPACER;
+        case Active:
+        case NotActive:
+        default:
+            break;
     }
-#endif
 }
 
-void ContextBox::setList(const std::vector<Util::ReferenceCount<ScrollItem> > & list){
+void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
     this->list->clearItems();
-    for (vector<Util::ReferenceCount<ScrollItem> >::const_iterator it = list.begin(); it != list.end(); it++){
-        const Util::ReferenceCount<ScrollItem> & item = *it;
+    for (vector<Util::ReferenceCount<ContextItem> >::const_iterator it = list.begin(); it != list.end(); it++){
+        const Util::ReferenceCount<ContextItem> & item = *it;
         this->list->addItem(item.convert<ScrollItem>());
     }
 }
         
-void ContextBox::addItem(const Util::ReferenceCount<ScrollItem> & item){
+void ContextBox::addItem(const Util::ReferenceCount<ContextItem> & item){
     this->list->addItem(item.convert<ScrollItem>());
 }
 
@@ -450,12 +379,6 @@ void ContextBox::setListWrap(bool wrap){
 }
 
 void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
-    /*
-    if (context.empty()){
-        return;
-    }
-    */
-    // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
     const int x1 = board.getArea().getX()+(int)(board.getTransforms().getRadius()/2);
     const int y1 = board.getArea().getY()+2;//(board.getArea().radius/2);
     const int x2 = board.getArea().getX2()-(int)(board.getTransforms().getRadius()/2);
@@ -463,106 +386,7 @@ void ContextBox::drawText(const Graphics::Bitmap & bmp, const Font & font){
             
     Graphics::Bitmap area(bmp, x1, y1, x2 - x1, y2 - y1);
 
-    // int min_y = location.getX() - font.getHeight() - y1;
-    // int max_y = location.getX2() + font.getHeight() - y1;
-
     list->render(area, font);
-
-#if 0
-    /* draw from the current selection down */
-    doDraw(0, cursorLocation - y1, area.getWidth() / 2, min_y, max_y, font, current, current, area, 1);
-
-    /* draw above the current selection */
-    doDraw(0, cursorLocation - y1 - font.getHeight() / FONT_SPACER, area.getWidth() / 2, min_y, max_y, font, current - 1, current, area, -1);
-#endif
-
-#if 0
-    int currentOption = current;
-    int count = 0;
-    /* draw the current selection and everything below it */
-    while (locationY < location.getX2() + vFont.getHeight()){
-        const int startx = (location.getWidth()/2)-(vFont.textLength(context[currentOption]->getName().c_str())/2);
-        if (count == 0){
-            Graphics::Bitmap::transBlender(0, 0, 0, fadeAlpha);
-            Graphics::TranslucentBitmap translucent(area);
-            // Bitmap::drawingMode( Bitmap::MODE_TRANS );
-            const int color = useGradient ? selectedGradient.current() : selectedGradientStart();
-            vFont.printf(location.getX() + startx - x1, locationY - y1, color, translucent, context[currentOption]->getName(), 0 );
-            if (context[currentOption]->isAdjustable()){
-                const int triangleSize = 14;
-                int cx = (location.getX() + startx) - 15;
-                int cy = (int)(locationY + (vFont.getHeight()/FONT_SPACER) / 2 + 2);
-
-                /*
-                int cx1 = cx + triangleSize / 2;
-                int cy1 = cy - triangleSize / 2;
-                int cx2 = cx - triangleSize;
-                int cy2 = cy;
-                int cx3 = cx + triangleSize / 2;
-                int cy3 = cy + triangleSize / 2;
-                */
-
-                /* do the triangles need to be translucent? */
-                // translucent.triangle(cx1, cy1, cx2, cy2, cx3, cy3, context[currentOption]->getLeftColor());
-                translucent.equilateralTriangle(cx, cy, 180, triangleSize, context[currentOption]->getLeftColor());
-
-                cx = (location.getX()+startx + vFont.textLength(context[currentOption]->getName().c_str()))+15;
-                translucent.equilateralTriangle(cx, cy, 0, triangleSize, context[currentOption]->getLeftColor());
-                // translucent.triangle( cx - triangleSize / 2, cy - triangleSize / 2, cx + triangleSize, cy, cx - triangleSize / 2, cy + triangleSize / 2, context[currentOption]->getRightColor() );
-            }
-            // Bitmap::drawingMode(Bitmap::MODE_SOLID);
-        } else {
-            int textAlpha = fadeAlpha - (count * 35);
-            if (textAlpha < 0){
-                textAlpha = 0;
-            }
-            Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
-            // Bitmap::drawingMode( Bitmap::MODE_TRANS );
-            const int color = Graphics::makeColor(255,255,255);
-            vFont.printf(location.getX() + startx - x1, locationY - y1, color, area.translucent(), context[currentOption]->getName(), 0 );
-            // Bitmap::drawingMode( Bitmap::MODE_SOLID );
-        }
-        if (context.size() == 1){
-            // area.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
-            return;
-        }
-        currentOption++;
-        if (currentOption == (int)context.size()){
-            currentOption = 0;
-        }
-        locationY += (int)(vFont.getHeight()/FONT_SPACER);
-        count++;
-        /*if (context.size() < 2 && count == 2){
-            break;
-        }*/
-    }
-    locationY = cursorLocation - (int)(vFont.getHeight()/FONT_SPACER);
-    currentOption = current;
-    currentOption--;
-    count = 0;
-
-    /* this draws the stuff above the current selection */
-    while (locationY > location.getX() - vFont.getHeight()){
-        if (currentOption < 0){
-            currentOption = context.size()-1;
-        }
-        const int startx = (location.getWidth()/2)-(vFont.textLength(context[currentOption]->getName().c_str())/2);
-        int textAlpha = fadeAlpha - (count * 35);
-        if (textAlpha < 0){
-            textAlpha = 0;
-        }
-        Graphics::Bitmap::transBlender(0, 0, 0, textAlpha);
-        const int color = Graphics::makeColor(255,255,255);
-        vFont.printf(location.getX() + startx - x1, locationY - y1, color, area.translucent(), context[currentOption]->getName(), 0 );
-        currentOption--;
-        locationY -= (int)(vFont.getHeight()/FONT_SPACER);
-        count++;
-        /*if (context.size() < 2 && count == 1){
-            break;
-        }*/
-    }
-    // bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
-#endif
 }
 
 }
