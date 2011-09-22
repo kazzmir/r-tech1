@@ -442,9 +442,19 @@ void initializeExtraStuff(){
 
 int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
+
+    /* FIXME: the configuration should pass in fullscreen mode here */
+#ifdef IPHONE
+    mode = FULLSCREEN;
+#endif
     switch (mode){
         case FULLSCREEN: {
+#ifdef IPHONE
+            al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
+            al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+#else
             al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+#endif
             break;
         }
         case WINDOWED: {
@@ -460,6 +470,9 @@ int setGraphicsMode(int mode, int width, int height){
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
 
+    // Global::debug(0) << "Set width " << al_get_display_width(the_display) << " height " << al_get_display_height(the_display) << std::endl;
+    // Global::debug(0) << "Backbuffer width " << al_get_bitmap_width(al_get_backbuffer(the_display)) << " height " << al_get_bitmap_height(al_get_backbuffer(the_display)) << std::endl;
+
     /* TODO: maybe find a more general way to get the icon */
     ALLEGRO_BITMAP * icon = al_load_bitmap(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
     if (icon != NULL){
@@ -468,6 +481,13 @@ int setGraphicsMode(int mode, int width, int height){
     Screen = new Bitmap(al_get_backbuffer(the_display));
     /* dont destroy the backbuffer */
     Screen->getData()->setDestroy(false);
+
+    ALLEGRO_TRANSFORM transformation;
+    al_identity_transform(&transformation);
+    al_scale_transform(&transformation, (double) Screen->getWidth() / (double) width, (double) Screen->getHeight() / (double) height);
+    al_set_target_bitmap(Screen->getData()->getBitmap());
+    al_use_transform(&transformation);
+
     // Scaler = new Bitmap(width, height);
     /* default drawing mode */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
