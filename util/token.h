@@ -37,6 +37,9 @@ public:
 
     template <typename X1, typename X2>
     bool match(X1 & obj1, X2 & obj2);
+    
+    template <typename X1, typename X2, typename X3>
+    bool match(X1 & obj1, X2 & obj2, X3 & obj3);
 
     TokenMatcher & operator=(const TokenMatcher & matcher);
 
@@ -113,11 +116,10 @@ public:
     template <typename X1, typename X2, typename X3>
     bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3) const {
         TokenMatcher matcher = getMatcher(subject);
-        return matcher.match(obj1) &&
-               matcher.match(obj2) &&
-               matcher.match(obj3);
+        return matcher.match(obj1, obj2, obj3);
     }
 
+    /*
     template <typename X1, typename X2, typename X3, typename X4>
     bool match(const std::string & subject, X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4) const {
         TokenMatcher matcher = getMatcher(subject);
@@ -136,6 +138,7 @@ public:
                matcher.match(obj4) &&
                matcher.match(obj5);
     }
+    */
 
     TokenView view() const;
 
@@ -249,5 +252,25 @@ bool TokenMatcher::match(X1 & obj1, X2 & obj2){
     return false;
 
 }
+
+template <typename X1, typename X2, typename X3>
+bool TokenMatcher::match(X1 & obj1, X2 & obj2, X3 & obj3){
+    if (current == tokens.end()){
+        return false;
+    }
+
+    const Token * token = *current;
+    current++;
+
+    try{
+        token->view() >> obj1 >> obj2 >> obj3;
+        return true;
+    } catch (const TokenException & t){
+    }
+
+    return false;
+
+}
+
 
 #endif
