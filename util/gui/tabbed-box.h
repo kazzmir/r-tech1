@@ -15,18 +15,17 @@ class Token;
 namespace Gui{
 
 class ContextBox;
-class ScrollItem;
 
 class Tab{
 public:
     Tab();
     virtual ~Tab();
 
-    void addOption(const Util::ReferenceCount<ScrollItem> & item);
+    void addOption(const Util::ReferenceCount<ContextItem> & item);
 
     virtual void render(const Graphics::Bitmap & work, const Font & font);
     virtual void act(const Font & font);
-    virtual void setList(const std::vector<Util::ReferenceCount<ScrollItem> > & list);
+    virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
 
     virtual const Gui::ContextBox & getContext() const {
         return context;
@@ -70,7 +69,7 @@ class TabbedBox: public Widget {
         virtual void render(const Graphics::Bitmap &, const Font &);
         
         //! Add tab
-        virtual void addTab(const std::string &, const std::vector<Util::ReferenceCount<ScrollItem> > & list);
+        virtual void addTab(const std::string &, const std::vector<Util::ReferenceCount<ContextItem> > & list);
         virtual void addTab(Tab * tab);
         
         //! Up

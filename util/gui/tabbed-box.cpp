@@ -48,7 +48,7 @@ Tab::~Tab(){
     // delete context;
 }
     
-void Tab::addOption(const Util::ReferenceCount<ScrollItem> & item){
+void Tab::addOption(const Util::ReferenceCount<ContextItem> & item){
     context.addItem(item);
 }
 
@@ -60,7 +60,7 @@ void Tab::act(const Font & font){
     context.act(font);
 }
     
-void Tab::setList(const std::vector<Util::ReferenceCount<ScrollItem> > & list){
+void Tab::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
     context.setList(list);
 }
 
@@ -188,7 +188,7 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
 }
 
 // Add tab
-void TabbedBox::addTab(const std::string & name, const std::vector<Util::ReferenceCount<ScrollItem> > & list){
+void TabbedBox::addTab(const std::string & name, const std::vector<Util::ReferenceCount<ContextItem> > & list){
     for (std::vector<Tab *>::iterator i = tabs.begin(); i != tabs.end(); ++i){
         Tab * tab = *i;
         if (tab->name == name){

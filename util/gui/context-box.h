@@ -8,6 +8,7 @@
 #include "popup-box.h"
 #include "scroll-list.h"
 
+#include "../language-string.h"
 #include "../gradient.h"
 #include "../file-system.h"
 
@@ -84,8 +85,15 @@ public:
     
     virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const;
     virtual int size(const Font & font) const;
+
+    virtual void setText(const LanguageString & t);
+    inline const LanguageString & getLanguageText() const {
+        return text;
+    }
+    virtual inline std::string getText() const { return text.get(); }
+
 protected:
-    const std::string name;
+    LanguageString text;
     const ContextBox & parent;
 };
 
@@ -116,8 +124,8 @@ class ContextBox: public Widget {
 	//! Close context box
 	virtual void close();
         //! Set context list
-        virtual void setList(const std::vector<Util::ReferenceCount<ScrollItem> > & list);
-        virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
+        virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
+        virtual void addItem(const Util::ReferenceCount<ContextItem> & item);
         
         /*! Scroll or Normal */
         enum ListType{
@@ -183,9 +191,6 @@ class ContextBox: public Widget {
 	
 	void doFade();
 	
-	void calculateText(const Font & font);
-	
-        void doDraw(int x, int y, int middle_x, int min_y, int max_y, const Font & font, int current, int selected, const Graphics::Bitmap & area, int direction);
 	void drawText(const Graphics::Bitmap &, const Font & font);
 	
 	enum FadeState{
