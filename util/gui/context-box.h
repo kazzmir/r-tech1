@@ -13,24 +13,79 @@
 
 #include "util/pointer.h"
 
+class Token;
+
 namespace Gui{
 
 Effects::Gradient standardGradient();
+Effects::Gradient modifiedGradient(Graphics::Color low, Graphics::Color high);
+
+class ListValues{
+public:
+    ListValues();
+    ListValues(const ListValues &);
+    virtual ~ListValues();
+    const ListValues & operator=(const ListValues &);
+    
+    void getValues(const Token *);
+    
+    virtual inline Graphics::Color getLowColor() const {
+        return this->lowColor;
+    }
+    virtual inline void setLowColor(Graphics::Color color){
+        this->lowColor = color;
+    }
+    virtual inline Graphics::Color getHighColor() const {
+        return this->highColor;
+    }
+    virtual inline void setHighColor(Graphics::Color color){
+        this->highColor = color;
+    }
+    virtual inline Graphics::Color getSelectedColor() const {
+        return this->selectedColor;
+    }
+    virtual inline void setSelectedColor(Graphics::Color color){
+        this->selectedColor = color;
+    }
+    virtual inline int getSelectedAlpha() const {
+        return this->selectedAlpha;
+    }
+    virtual inline void setSelectedAlpha(int alpha){
+        this->selectedAlpha = alpha;
+    }
+    virtual inline Graphics::Color getOtherColor() const {
+        return this->otherColor;
+    }
+    virtual inline void setOtherColor(Graphics::Color color){
+        this->otherColor = color;
+    }
+    virtual inline int getOtherAlpha() const {
+        return this->otherAlpha;
+    }
+    virtual inline void setOtherAlpha(int alpha){
+        this->otherAlpha = alpha;
+    }
+    
+protected:
+    Graphics::Color lowColor, highColor;
+    Graphics::Color selectedColor;
+    int selectedAlpha;
+    Graphics::Color otherColor;
+    int otherAlpha;
+};
 
 class ContextBox;
 class ScrollListInterface;
+
 class ContextItem: public ScrollItem {
 public:
-    ContextItem(const ContextBox & parent);
+    ContextItem(const std::string &, const ContextBox &);
     virtual ~ContextItem();
     
-    virtual const std::string getName() const = 0;
-    virtual bool isAdjustable();
-    virtual int getLeftColor();
-    virtual int getRightColor();
     virtual void draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const;
     virtual int size(const Font & font) const;
 protected:
+    const std::string name;
     const ContextBox & parent;
 };
 
@@ -61,8 +116,8 @@ class ContextBox: public Widget {
 	//! Close context box
 	virtual void close();
         //! Set context list
-        virtual void setList(const std::vector<Util::ReferenceCount<ContextItem> > & list);
-        virtual void addItem(const Util::ReferenceCount<ContextItem> & item);
+        virtual void setList(const std::vector<Util::ReferenceCount<ScrollItem> > & list);
+        virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
         
         /*! Scroll or Normal */
         enum ListType{
@@ -111,12 +166,18 @@ class ContextBox: public Widget {
         
         //! Set to use only text on background
         virtual inline void setRenderOnlyText(bool render){
-	    this->renderOnlyText = render;
-	}
+            this->renderOnlyText = render;
+        }
 
-        virtual PopupBox & getBoard(){
+        virtual inline PopupBox & getBoard(){
             return board;
         }
+        
+        virtual inline const Gui::ListValues & getListValues() const {
+            return this->values;
+        }
+        
+        virtual void setListValues(const Gui::ListValues & values);
 
     private:
 	
@@ -175,6 +236,9 @@ class ContextBox: public Widget {
 	
 	//! Render Text only
 	bool renderOnlyText;
+
+    /*! List Values */
+    Gui::ListValues values;
 };
 
 }

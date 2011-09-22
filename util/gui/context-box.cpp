@@ -5,6 +5,8 @@
 #include "util/font.h"
 #include <math.h>
 
+#include "util/token.h"
+
 static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
 
@@ -27,39 +29,119 @@ Effects::Gradient standardGradient(){
     return standard;
 }
 
-ContextItem::ContextItem(const ContextBox & parent):
+Effects::Gradient modifiedGradient(Graphics::Color low, Graphics::Color high){
+    Effects::Gradient modified(GradientMax, low, high);
+    return modified;
+}
+
+ListValues::ListValues():
+lowColor(selectedGradientStart()),
+highColor(selectedGradientEnd()),
+selectedColor(Graphics::makeColor(255, 255, 255)),
+selectedAlpha(255),
+otherColor(Graphics::makeColor(255, 255, 255)),
+otherAlpha(255){
+}
+ListValues::ListValues(const ListValues & copy):
+lowColor(copy.lowColor),
+highColor(copy.highColor),
+selectedColor(copy.selectedColor),
+selectedAlpha(copy.selectedAlpha),
+otherColor(copy.otherColor),
+otherAlpha(copy.otherAlpha){
+}
+ListValues::~ListValues(){
+}
+const ListValues & ListValues::operator=(const ListValues & copy){
+    lowColor = copy.lowColor;
+    highColor = copy.highColor;
+    selectedColor = copy.selectedColor;
+    selectedAlpha = copy.selectedAlpha;
+    otherColor = copy.otherColor;
+    otherAlpha = copy.otherAlpha;
+    
+    return *this;
+}
+
+void ListValues::getValues(const Token * token){
+    TokenView view = token->view();
+    while (view.hasMore()){
+        const Token * tok;
+        view >> tok;
+        try{
+            if (*tok == "color-low"){
+                int r = 0, g = 0, b = 0;
+                try {
+                    tok->view() >> r >> g >> b;
+                } catch (const TokenException & ex){
+                }
+                lowColor = Graphics::makeColor(r, g, b);
+            } else if (*tok == "color-high"){
+                int r = 0, g = 0, b = 0;
+                try {
+                    tok->view() >> r >> g >> b;
+                } catch (const TokenException & ex){
+                }
+                highColor = Graphics::makeColor(r, g, b);
+            } else if (*tok == "selected-color"){
+                int r = 0, g = 0, b = 0;
+                try {
+                    tok->view() >> r >> g >> b;
+                } catch (const TokenException & ex){
+                }
+                selectedColor = Graphics::makeColor(r, g, b);
+            } else if (*tok == "selected-color-alpha"){
+                int alpha = 255;
+                try {
+                    tok->view() >> alpha;
+                } catch (const TokenException & ex){
+                }
+                selectedAlpha = alpha;
+            } else if (*tok == "other-color"){
+                int r = 0, g = 0, b = 0;
+                try {
+                    tok->view() >> r >> g >> b;
+                } catch (const TokenException & ex){
+                }
+                otherColor = Graphics::makeColor(r, g, b);
+            } else if (*tok == "other-color-alpha"){
+                int alpha = 255;
+                try {
+                    tok->view() >> alpha;
+                } catch (const TokenException & ex){
+                }
+                otherAlpha = alpha;
+            }
+        } catch (const TokenException & ex){
+            // Output something
+        }
+    }
+}
+
+ContextItem::ContextItem(const std::string & name, const ContextBox & parent):
+name(name),
 parent(parent){
 }
 
 ContextItem::~ContextItem(){
 }
 
-bool ContextItem::isAdjustable(){
-    return false;
-}
-int ContextItem::getLeftColor(){
-    return 0;
-}
-int ContextItem::getRightColor(){
-    return 0;
-}
-
 void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const {
     if (distance == 0){
         Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
-        font.printf(x, y, parent.getSelectedColor(), where.translucent(), getName(), 0);
+        font.printf(x, y, parent.getSelectedColor(), where.translucent(), name, 0);
     } else {
         int alpha = parent.getFadeAlpha() - fabs((double) distance) * 35;
         if (alpha < 0){
             alpha = 0;
         }
         Graphics::Bitmap::transBlender(0, 0, 0, alpha);
-        font.printf(x, y, Graphics::makeColor(255, 255, 255), where.translucent(), getName(), 0);
+        font.printf(x, y, Graphics::makeColor(255, 255, 255), where.translucent(), name, 0);
     }
 }
 
 int ContextItem::size(const Font & font) const {
-    return font.textLength(getName().c_str());
+    return font.textLength(name.c_str());
 }
 
 ContextBox::ContextBox():
@@ -184,6 +266,13 @@ bool ContextBox::previous(const Font & font){
         
 Graphics::Color ContextBox::getSelectedColor() const {
     return useGradient ? selectedGradient.current() : selectedGradientStart();
+}
+
+void ContextBox::setListValues(const Gui::ListValues & values){
+    this->values = values;
+    if (useGradient){
+        selectedGradient = modifiedGradient(values.getLowColor(), values.getHighColor());
+    }
 }
 
 void ContextBox::adjustLeft(){
@@ -325,15 +414,15 @@ void ContextBox::doDraw(int x, int y, int middle_x, int min_y, int max_y, const 
 #endif
 }
 
-void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > & list){
+void ContextBox::setList(const std::vector<Util::ReferenceCount<ScrollItem> > & list){
     this->list->clearItems();
-    for (vector<Util::ReferenceCount<ContextItem> >::const_iterator it = list.begin(); it != list.end(); it++){
-        const Util::ReferenceCount<ContextItem> & item = *it;
+    for (vector<Util::ReferenceCount<ScrollItem> >::const_iterator it = list.begin(); it != list.end(); it++){
+        const Util::ReferenceCount<ScrollItem> & item = *it;
         this->list->addItem(item.convert<ScrollItem>());
     }
 }
         
-void ContextBox::addItem(const Util::ReferenceCount<ContextItem> & item){
+void ContextBox::addItem(const Util::ReferenceCount<ScrollItem> & item){
     this->list->addItem(item.convert<ScrollItem>());
 }
 
