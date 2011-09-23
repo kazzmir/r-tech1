@@ -30,6 +30,12 @@ public:
     
     void getValues(const Token *);
     
+    virtual inline bool getInterpolate() const {
+        return this->interpolate;
+    }
+    virtual inline void setInterpolate(bool interpolate){
+        this->interpolate = interpolate;
+    }
     virtual inline Graphics::Color getLowColor() const {
         return this->lowColor;
     }
@@ -66,13 +72,21 @@ public:
     virtual inline void setOtherAlpha(int alpha){
         this->otherAlpha = alpha;
     }
+    virtual inline bool getDistanceFade() const {
+        return this->fade;
+    }
+    virtual inline void setDistanceFade(bool fade){
+        this->fade = fade;
+    }
     
 protected:
+    bool interpolate;
     Graphics::Color lowColor, highColor;
     Graphics::Color selectedColor;
     int selectedAlpha;
     Graphics::Color otherColor;
     int otherAlpha;
+    bool fade;
 };
 
 class ContextBox;

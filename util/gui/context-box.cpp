@@ -35,33 +35,39 @@ Effects::Gradient modifiedGradient(Graphics::Color low, Graphics::Color high){
 }
 
 ListValues::ListValues():
+interpolate(true),
 lowColor(selectedGradientStart()),
 highColor(selectedGradientEnd()),
-selectedColor(Graphics::makeColor(255, 255, 255)),
+selectedColor(selectedGradientStart()),
 selectedAlpha(255),
 otherColor(Graphics::makeColor(255, 255, 255)),
-otherAlpha(255){
+otherAlpha(255),
+fade(true){
 }
 
 ListValues::ListValues(const ListValues & copy):
+interpolate(copy.interpolate),
 lowColor(copy.lowColor),
 highColor(copy.highColor),
 selectedColor(copy.selectedColor),
 selectedAlpha(copy.selectedAlpha),
 otherColor(copy.otherColor),
-otherAlpha(copy.otherAlpha){
+otherAlpha(copy.otherAlpha),
+fade(copy.fade){
 }
 
 ListValues::~ListValues(){
 }
 
 const ListValues & ListValues::operator=(const ListValues & copy){
+    interpolate = copy.interpolate;
     lowColor = copy.lowColor;
     highColor = copy.highColor;
     selectedColor = copy.selectedColor;
     selectedAlpha = copy.selectedAlpha;
     otherColor = copy.otherColor;
     otherAlpha = copy.otherAlpha;
+    fade = copy.fade;
     
     return *this;
 }
@@ -73,7 +79,8 @@ void ListValues::getValues(const Token * token){
         view >> token;
         try{
             int red = 0, green = 0, blue = 0, alpha = 0;
-            if (token->match("color-low", red, green, blue)){
+            if (token->match("interpolate-selected", interpolate)){
+            } else if (token->match("color-low", red, green, blue)){
                 lowColor = Graphics::makeColor(red, green, blue);
             } else if (token->match("color-high", red, green, blue)){
                 highColor = Graphics::makeColor(red, green, blue);
@@ -85,6 +92,7 @@ void ListValues::getValues(const Token * token){
                 otherColor = Graphics::makeColor(red, green, blue);
             } else if (token->match("other-color-alpha", alpha)){
                 otherAlpha = alpha;
+            } else if (token->match("distance-fade", fade)){
             }
         } catch (const TokenException & ex){
             // Output something
@@ -102,15 +110,25 @@ ContextItem::~ContextItem(){
 
 void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font & font, int distance) const {
     if (distance == 0){
-        Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
-        font.printf(x, y, parent.getSelectedColor(), where.translucent(), getText(), 0);
-    } else {
-        int alpha = parent.getFadeAlpha() - fabs((double) distance) * 35;
-        if (alpha < 0){
-            alpha = 0;
+        if (parent.getListValues().getInterpolate()){
+            Graphics::Bitmap::transBlender(0, 0, 0, parent.getFadeAlpha());
+            font.printf(x, y, parent.getSelectedColor(), where.translucent(), getText(), 0);
+        } else {
+            Graphics::Bitmap::transBlender(0, 0, 0, parent.getListValues().getSelectedAlpha());
+            font.printf(x, y, parent.getListValues().getSelectedColor(), where.translucent(), getText(), 0);
         }
-        Graphics::Bitmap::transBlender(0, 0, 0, alpha);
-        font.printf(x, y, Graphics::makeColor(255, 255, 255), where.translucent(), getText(), 0);
+    } else {
+        if (parent.getListValues().getDistanceFade()){
+            int alpha = parent.getFadeAlpha() - fabs((double) distance) * 35;
+            if (alpha < 0){
+                alpha = 0;
+            }
+            Graphics::Bitmap::transBlender(0, 0, 0, alpha);
+            font.printf(x, y, parent.getListValues().getOtherColor(), where.translucent(), getText(), 0);
+        } else {
+            Graphics::Bitmap::transBlender(0, 0, 0, parent.getListValues().getOtherAlpha());
+            font.printf(x, y, parent.getListValues().getOtherColor(), where.translucent(), getText(), 0);
+        }
     }
 }
     
