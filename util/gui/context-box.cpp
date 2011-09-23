@@ -134,7 +134,7 @@ void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font 
         }
     } else {
         if (parent.getListValues().getDistanceFade()){
-            int alpha = parent.getFadeAlpha() - fabs((double) distance) * 35;
+            int alpha = parent.getListValues().getOtherAlpha() - fabs((double) distance) * 35;
             if (alpha < 0){
                 alpha = 0;
             }
