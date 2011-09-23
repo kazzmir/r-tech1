@@ -75,7 +75,7 @@ const ListValues & ListValues::operator=(const ListValues & copy){
     return *this;
 }
 
-static int clamp(int in, int low=0, int high=255){
+static int clamp(int in, int low = 0, int high = 255){
     if (in < low){
         return low;
     }
@@ -97,7 +97,7 @@ void ListValues::getValues(const Token * token){
                 lowColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("color-high", red, green, blue)){
                 highColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
-            } else if (token->match("max-gradient", gradient)){
+            } else if (token->match("interpolate-distance", gradient)){
                 maxGradient = clamp(gradient, 1, 1000);
             } else if (token->match("selected-color", red, green, blue)){
                 selectedColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
