@@ -78,6 +78,12 @@ public:
     virtual inline void setOtherAlpha(int alpha){
         this->otherAlpha = alpha;
     }
+    virtual inline double getDistanceFadeMultiplier() const{
+        return this->distanceFadeMultiplier;
+    }
+    virtual inline void setDistanceFadeMultiplier(double multiplier){
+        this->distanceFadeMultiplier = multiplier;
+    }
     virtual inline bool getDistanceFade() const {
         return this->fade;
     }
@@ -92,6 +98,7 @@ protected:
     int selectedAlpha;
     Graphics::Color otherColor;
     int otherAlpha;
+    double distanceFadeMultiplier;
     bool fade;
 };
 

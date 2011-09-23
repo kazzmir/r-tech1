@@ -43,6 +43,7 @@ selectedColor(selectedGradientStart()),
 selectedAlpha(255),
 otherColor(Graphics::makeColor(255, 255, 255)),
 otherAlpha(255),
+distanceFadeMultiplier(35),
 fade(true){
 }
 
@@ -55,6 +56,7 @@ selectedColor(copy.selectedColor),
 selectedAlpha(copy.selectedAlpha),
 otherColor(copy.otherColor),
 otherAlpha(copy.otherAlpha),
+distanceFadeMultiplier(copy.distanceFadeMultiplier),
 fade(copy.fade){
 }
 
@@ -70,6 +72,7 @@ const ListValues & ListValues::operator=(const ListValues & copy){
     selectedAlpha = copy.selectedAlpha;
     otherColor = copy.otherColor;
     otherAlpha = copy.otherAlpha;
+    distanceFadeMultiplier = copy.distanceFadeMultiplier;
     fade = copy.fade;
     
     return *this;
@@ -107,6 +110,7 @@ void ListValues::getValues(const Token * token){
                 otherColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("other-color-alpha", alpha)){
                 otherAlpha = clamp(alpha);
+            } else if (token->match("distance-fade-multiplier", distanceFadeMultiplier)){
             } else if (token->match("distance-fade", fade)){
             }
         } catch (const TokenException & ex){
@@ -134,10 +138,8 @@ void ContextItem::draw(int x, int y, const Graphics::Bitmap & where, const Font 
         }
     } else {
         if (parent.getListValues().getDistanceFade()){
-            int alpha = parent.getListValues().getOtherAlpha() - fabs((double) distance) * 35;
-            if (alpha < 0){
-                alpha = 0;
-            }
+            int alpha = parent.getListValues().getOtherAlpha() - fabs((double) distance) * parent.getListValues().getDistanceFadeMultiplier();
+            alpha = clamp(alpha);
             Graphics::Bitmap::transBlender(0, 0, 0, alpha);
             font.printf(x, y, parent.getListValues().getOtherColor(), where.translucent(), getText(), 0);
         } else {
