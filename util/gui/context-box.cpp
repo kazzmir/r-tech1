@@ -24,13 +24,13 @@ using namespace std;
 
 namespace Gui{
 
-Effects::Gradient standardGradient(){
-    Effects::Gradient standard(GradientMax, selectedGradientStart(), selectedGradientEnd());
+Effects::Gradient standardGradient(int max){
+    Effects::Gradient standard(max, selectedGradientStart(), selectedGradientEnd());
     return standard;
 }
 
-Effects::Gradient modifiedGradient(Graphics::Color low, Graphics::Color high){
-    Effects::Gradient modified(GradientMax, low, high);
+Effects::Gradient modifiedGradient(Graphics::Color low, Graphics::Color high, int max){
+    Effects::Gradient modified(max, low, high);
     return modified;
 }
 
@@ -38,6 +38,7 @@ ListValues::ListValues():
 interpolate(true),
 lowColor(selectedGradientStart()),
 highColor(selectedGradientEnd()),
+maxGradient(GradientMax),
 selectedColor(selectedGradientStart()),
 selectedAlpha(255),
 otherColor(Graphics::makeColor(255, 255, 255)),
@@ -49,6 +50,7 @@ ListValues::ListValues(const ListValues & copy):
 interpolate(copy.interpolate),
 lowColor(copy.lowColor),
 highColor(copy.highColor),
+maxGradient(copy.maxGradient),
 selectedColor(copy.selectedColor),
 selectedAlpha(copy.selectedAlpha),
 otherColor(copy.otherColor),
@@ -63,6 +65,7 @@ const ListValues & ListValues::operator=(const ListValues & copy){
     interpolate = copy.interpolate;
     lowColor = copy.lowColor;
     highColor = copy.highColor;
+    maxGradient = copy.maxGradient;
     selectedColor = copy.selectedColor;
     selectedAlpha = copy.selectedAlpha;
     otherColor = copy.otherColor;
@@ -72,12 +75,12 @@ const ListValues & ListValues::operator=(const ListValues & copy){
     return *this;
 }
 
-static int clamp(int in){
-    if (in < 0){
-        return 0;
+static int clamp(int in, int low=0, int high=255){
+    if (in < low){
+        return low;
     }
-    if (in > 255){
-        return 255;
+    if (in > high){
+        return high;
     }
     return in;
 }
@@ -88,12 +91,14 @@ void ListValues::getValues(const Token * token){
         const Token * token;
         view >> token;
         try{
-            int red = 0, green = 0, blue = 0, alpha = 0;
+            int red = 0, green = 0, blue = 0, alpha = 0, gradient=1;
             if (token->match("interpolate-selected", interpolate)){
             } else if (token->match("color-low", red, green, blue)){
                 lowColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("color-high", red, green, blue)){
                 highColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
+            } else if (token->match("max-gradient", gradient)){
+                maxGradient = clamp(gradient, 1, 1000);
             } else if (token->match("selected-color", red, green, blue)){
                 selectedColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("selected-color-alpha", alpha)){
@@ -153,37 +158,25 @@ int ContextItem::size(const Font & font) const {
 ContextBox::ContextBox():
 fadeState(NotActive),
 list(new ScrollList()),
-/*
-fontWidth(0),
-fontHeight(0),
-*/
 fadeSpeed(12),
 fadeAlpha(0),
 cursorCenter(0),
 cursorLocation(0),
 scrollWait(4),
-selectedGradient(standardGradient()),
-useGradient(true),
+selectedGradient(standardGradient(GradientMax)),
 renderOnlyText(false){
 }
 ContextBox::ContextBox( const ContextBox & copy ):
 fadeState(NotActive),
 list(new ScrollList()),
-selectedGradient(standardGradient()),
+selectedGradient(standardGradient(GradientMax)),
 renderOnlyText(false){
     this->list = copy.list;
-    // this->context = copy.context;
-    /*
-    this->font = copy.font;
-    this->fontWidth = copy.fontWidth;
-    this->fontHeight = copy.fontHeight;
-    */
     this->fadeSpeed = copy.fadeSpeed;
     this->fadeAlpha = copy.fadeAlpha;
     this->cursorCenter = copy.cursorCenter;
     this->cursorLocation = copy.cursorLocation;
     this->scrollWait = copy.scrollWait;
-    this->useGradient = copy.useGradient;
     this->renderOnlyText = copy.renderOnlyText;
 }
 ContextBox::~ContextBox(){
@@ -191,18 +184,11 @@ ContextBox::~ContextBox(){
 ContextBox & ContextBox::operator=( const ContextBox & copy){
     this->fadeState = NotActive;
     this->list = copy.list;
-    // this->context = copy.context;
-    /*
-    this->font = copy.font;
-    this->fontWidth = copy.fontWidth;
-    this->fontHeight = copy.fontHeight;
-    */
     this->fadeSpeed = copy.fadeSpeed;
     this->fadeAlpha = copy.fadeAlpha;
     this->cursorCenter = copy.cursorCenter;
     this->cursorLocation = copy.cursorLocation;
     this->scrollWait = copy.scrollWait;
-    this->useGradient = copy.useGradient;
     this->renderOnlyText = copy.renderOnlyText;
     return *this;
 }
@@ -212,7 +198,6 @@ void ContextBox::act(const Font & font){
     board.act(font);
     
     // Calculate text info
-    // calculateText(font);
     list->act();
     
     // do fade
@@ -234,51 +219,31 @@ void ContextBox::render(const Graphics::Bitmap & work, const Font & font){
 
 bool ContextBox::next(const Font & font){
     if (fadeState == FadeOut){
-	return false;
+        return false;
     }
 
     list->next();
 
-    /*
-    cursorLocation += (int)(font.getHeight()/FONT_SPACER);
-
-    if (current < context.size()-1){
-        current++;
-    } else {
-        current = 0;
-    }
-    */
     return true;
 }
 
 bool ContextBox::previous(const Font & font){
     if (fadeState == FadeOut){
-	return false;
+        return false;
     }
 
     list->previous();
 
-    /*
-    cursorLocation -= (int)(font.getHeight()/FONT_SPACER);
-
-    if (current > 0){
-        current--;
-    } else {
-        current = context.size()-1;
-    }
-    */
     return true;
 }
         
 Graphics::Color ContextBox::getSelectedColor() const {
-    return useGradient ? selectedGradient.current() : selectedGradientStart();
+    return values.getInterpolate() ? selectedGradient.current() : values.getSelectedColor();
 }
 
 void ContextBox::setListValues(const Gui::ListValues & values){
     this->values = values;
-    if (useGradient){
-        selectedGradient = modifiedGradient(values.getLowColor(), values.getHighColor());
-    }
+    selectedGradient = modifiedGradient(values.getLowColor(), values.getHighColor(), values.getMaxGradient());
 }
 
 void ContextBox::adjustLeft(){
