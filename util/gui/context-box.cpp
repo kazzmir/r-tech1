@@ -72,6 +72,16 @@ const ListValues & ListValues::operator=(const ListValues & copy){
     return *this;
 }
 
+static int clamp(int in){
+    if (in < 0){
+        return 0;
+    }
+    if (in > 255){
+        return 255;
+    }
+    return in;
+}
+
 void ListValues::getValues(const Token * token){
     TokenView view = token->view();
     while (view.hasMore()){
@@ -81,17 +91,17 @@ void ListValues::getValues(const Token * token){
             int red = 0, green = 0, blue = 0, alpha = 0;
             if (token->match("interpolate-selected", interpolate)){
             } else if (token->match("color-low", red, green, blue)){
-                lowColor = Graphics::makeColor(red, green, blue);
+                lowColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("color-high", red, green, blue)){
-                highColor = Graphics::makeColor(red, green, blue);
+                highColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("selected-color", red, green, blue)){
-                selectedColor = Graphics::makeColor(red, green, blue);
+                selectedColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("selected-color-alpha", alpha)){
-                selectedAlpha = alpha;
+                selectedAlpha = clamp(alpha);
             } else if (token->match("other-color", red, green, blue)){
-                otherColor = Graphics::makeColor(red, green, blue);
+                otherColor = Graphics::makeColor(clamp(red), clamp(green), clamp(blue));
             } else if (token->match("other-color-alpha", alpha)){
-                otherAlpha = alpha;
+                otherAlpha = clamp(alpha);
             } else if (token->match("distance-fade", fade)){
             }
         } catch (const TokenException & ex){
