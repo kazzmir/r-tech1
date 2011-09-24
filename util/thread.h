@@ -214,6 +214,10 @@ public:
     }
 
     virtual X get(){
+        /* make sure the future has been started */
+        if (Thread::isUninitialized(thread)){
+            start();
+        }
         X out;
         Exception::Base * failed = NULL;
         future.acquire();
