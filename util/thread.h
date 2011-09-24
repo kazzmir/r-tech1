@@ -201,7 +201,8 @@ public:
     thing(0),
     thread(Thread::uninitializedValue),
     done(false),
-    exception(NULL){
+    exception(NULL),
+    ran(false){
         /* future will increase the count */
         // Thread::initializeSemaphore(&future, 0);
         // future.acquire();
@@ -237,11 +238,15 @@ public:
     }
 
     virtual void start(){
+        if (ran){
+            return;
+        }
         if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
             Global::debug(0) << "Could not create future thread. Blocking until its done" << std::endl;
             runit(this);
             // throw Exception::Base(__FILE__, __LINE__);
         }
+        ran = true;
     }
 
 protected:
@@ -286,6 +291,10 @@ protected:
     volatile bool done;
     /* if any exceptions occur, throw them from `get' */
     Exception::Base * exception;
+    /* if the future was already started this is true so it can't be
+     * accidentally started twice
+     */
+    bool ran;
 };
 
 }
