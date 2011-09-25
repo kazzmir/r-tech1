@@ -48,7 +48,7 @@ public:
     virtual inline void setHighColor(Graphics::Color color){
         this->highColor = color;
     }
-    virtual inline Graphics::Color getMaxGradient() const {
+    virtual inline int getMaxGradient() const {
         return this->maxGradient;
     }
     virtual inline void setMaxGradient(int max){
@@ -93,7 +93,8 @@ public:
     
 protected:
     bool interpolate;
-    Graphics::Color lowColor, highColor, maxGradient;
+    Graphics::Color lowColor, highColor;
+    int maxGradient;
     Graphics::Color selectedColor;
     int selectedAlpha;
     Graphics::Color otherColor;
