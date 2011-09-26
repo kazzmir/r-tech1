@@ -358,12 +358,14 @@ height(height){
         x = 0;
     if (y < 0)
         y = 0;
+    /*
     if (width + x > al_get_bitmap_width(his)){
         width = al_get_bitmap_width(his) - x;
     }
     if (height + y > al_get_bitmap_height(his)){
         height = al_get_bitmap_height(his) - y;
     }
+    */
     
     ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
     ALLEGRO_TRANSFORM transform;
@@ -383,8 +385,8 @@ height(height){
     al_transform_coordinates(&transform, &width_scaled, &height_scaled);
 
     // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, x, y, width, height);
-    // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, (int) width_scaled, (int) height_scaled);
-    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, width, height);
+    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, (int) width_scaled, (int) height_scaled);
+    // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, width, height);
     setData(new BitmapData(sub));
 
     al_set_target_bitmap(sub);
