@@ -253,6 +253,10 @@ bool AbsolutePath::operator==(const AbsolutePath & path) const {
     return this->path() == path.path();
 }
         
+bool AbsolutePath::operator!=(const AbsolutePath & path) const {
+    return !(*this == path);
+}
+        
 bool AbsolutePath::operator<(const AbsolutePath & path) const {
     return this->path() < path.path();
 }

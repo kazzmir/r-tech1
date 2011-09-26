@@ -71,6 +71,7 @@ namespace Path{
 
         bool operator<(const AbsolutePath & path) const;
         bool operator==(const AbsolutePath & path) const;
+        bool operator!=(const AbsolutePath & path) const;
         
         virtual AbsolutePath getDirectory() const;
         virtual AbsolutePath getFilename() const;
