@@ -383,7 +383,8 @@ height(height){
     al_transform_coordinates(&transform, &width_scaled, &height_scaled);
 
     // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, x, y, width, height);
-    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, (int) width_scaled, (int) height_scaled);
+    // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, (int) width_scaled, (int) height_scaled);
+    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, width, height);
     setData(new BitmapData(sub));
 
     al_set_target_bitmap(sub);
