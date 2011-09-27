@@ -43,7 +43,7 @@ public:
     
     virtual void clearItems() = 0;
     
-    virtual void setCellDimensions(int width) = 0;
+    virtual void setCellDimensions(int width, int height) = 0;
     virtual void setCellSpacing(int x, int y)= 0;
     
     virtual void setCursors(int total) = 0;
@@ -95,7 +95,7 @@ public:
     virtual void addItems(const std::vector<Util::ReferenceCount<SelectItem> > &);
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const;
     virtual void clearItems();
-    virtual void setCellDimensions(int width);
+    virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
@@ -105,8 +105,31 @@ public:
     virtual bool down(int cursor);
     virtual bool left(int cursor);
     virtual bool right(int cursor);
+    
+    virtual void setViewable(unsigned int viewable){
+        this->viewable = viewable;
+    }
+    virtual unsigned int getViewable() const {
+        return this->viewable;
+    }
+    enum Layout {
+        Vertical,
+        Horizontal,
+    };
+    virtual void setLayout(const Layout & layout){
+        this->layout = layout;
+    }
+    virtual const Layout & getLayout() const {
+        return this->layout;
+    }
+    
 protected:
-    std::vector<int> cursors;
+    bool checkCursor(int cursor) const;
+    Layout layout;
+    unsigned int viewable;
+    int cellWidth, cellHeight;
+    int cellSpacingX, cellSpacingY;
+    std::vector<unsigned int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };
 
@@ -122,7 +145,7 @@ public:
     virtual void addItems(const std::vector<Util::ReferenceCount<SelectItem> > &);
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const;
     virtual void clearItems();
-    virtual void setCellDimensions(int width);
+    virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
