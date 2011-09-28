@@ -127,6 +127,7 @@ protected:
     bool checkCursor(int cursor) const;
     Layout layout;
     unsigned int viewable;
+    unsigned int currentTop;
     int cellWidth, cellHeight;
     int cellSpacingX, cellSpacingY;
     std::vector<unsigned int> cursors;

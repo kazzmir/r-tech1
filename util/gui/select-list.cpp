@@ -4,6 +4,8 @@
 #include "util/font.h"
 #include "util/debug.h"
 
+#include <math.h>
+
 using namespace Gui;
 
 SelectItem::SelectItem(){
@@ -22,6 +24,7 @@ SelectListInterface::~SelectListInterface(){
 SimpleSelect::SimpleSelect():
 layout(Horizontal),
 viewable(3),
+currentTop(0),
 cellWidth(100),
 cellHeight(100),
 cellSpacingX(0),
@@ -30,15 +33,21 @@ cellSpacingY(0){
 SimpleSelect::~SimpleSelect(){
 }
 void SimpleSelect::act(){
+    /* Check if viewable is larger than the current items */
+    if (viewable >= items.size()){
+        viewable = items.size()-1;
+    }
 }
 void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) const{
-    int x = cellSpacingX;
-    int y = cellSpacingY;
-    for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin(); i != items.end(); ++i){
+    int x = 0;
+    int y = 0;
+    const int stop = currentTop + viewable;
+    int count = currentTop;
+    for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin() + currentTop; i != items.end() && count != stop; ++i, ++count){
         const Util::ReferenceCount<SelectItem> item = *i;
         item->draw(x, y, cellWidth, cellHeight, work, font);
-        x+=cellSpacingX + layout == Horizontal ? cellWidth : 0;
-        y+=cellSpacingY + layout == Vertical ? cellHeight : 0;
+        x+=cellSpacingX + (layout == Horizontal ? cellWidth : 0);
+        y+=cellSpacingY + (layout == Vertical ? cellHeight : 0);
     }
 }
 void SimpleSelect::addItem(const Util::ReferenceCount<SelectItem> & item){
@@ -79,15 +88,20 @@ unsigned int SimpleSelect::getCurrentIndex(int cursor) const{
     }
     return cursors[cursor];
 }
+/* NOTE This doesn't account for other cursors and viewable areas */
 bool SimpleSelect::up(int cursor){
     if (checkCursor(cursor)){
         return 0;
     }
     if (cursors[cursor] > 0){
         cursors[cursor]--;
+        if (cursors[cursor] < currentTop){
+            currentTop = cursors[cursor];
+        }
         return true;
     } else if (allowWrap){
         cursors[cursor] = items.size()-1;
+        currentTop = cursors[cursor] - viewable+1;
         return true;
     }
     return false;
@@ -98,9 +112,13 @@ bool SimpleSelect::down(int cursor){
     }
     if (cursors[cursor] < items.size()-1){
         cursors[cursor]++;
+        unsigned int view = viewable-1;
+        if (cursors[cursor] >= (currentTop + view)){
+            currentTop = cursors[cursor] - view;
+        }
         return true;
     } else if (allowWrap){
-        cursors[cursor] = 0;
+        cursors[cursor] = currentTop = 0;
         return true;
     }
     return false;
@@ -111,9 +129,13 @@ bool SimpleSelect::left(int cursor){
     }
     if (cursors[cursor] > 0){
         cursors[cursor]--;
+        if (cursors[cursor] < currentTop){
+            currentTop = cursors[cursor];
+        }
         return true;
     } else if (allowWrap){
         cursors[cursor] = items.size()-1;
+        currentTop = cursors[cursor] - viewable + 1;
         return true;
     }
     return false;
@@ -124,9 +146,13 @@ bool SimpleSelect::right(int cursor){
     }
     if (cursors[cursor] < items.size()-1){
         cursors[cursor]++;
+        unsigned int view = viewable-1;
+        if (cursors[cursor] >= (currentTop + view)){
+            currentTop = cursors[cursor] - view;
+        }
         return true;
     } else if (allowWrap){
-        cursors[cursor] = 0;
+        cursors[cursor] = currentTop = 0;
         return true;
     }
     return false;
