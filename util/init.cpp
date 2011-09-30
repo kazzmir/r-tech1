@@ -363,30 +363,6 @@ static Util::Thread::Id start_timer(void (*func)(), int frequency){
     return thread;
 }
 
-#if 0
-static void * handleEvents(void * arg){
-    bool done = false;
-    while (!done){
-        SDL_Event event;
-        int ok = SDL_WaitEvent(&event);
-        if (ok){
-            switch (event.type){
-                case SDL_QUIT : {
-                    done = true;
-                    close_window();
-                    break;
-                }
-                default : {
-                    // Global::debug(0) << "Ignoring SDL event " << event.type << endl;
-                    break;
-                }
-            }
-        }
-    }
-    return NULL;
-}
-#endif
-
 /*
 static void doSDLQuit(){
     SDL_Event quit;
@@ -402,10 +378,6 @@ static void startTimers(ostream & out){
     running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
     running_timers.push_back(start_timer(inc_second_counter, 1));
 }
-
-#ifdef PS3
-#include "rsxutil.cpp"
-#endif
     
 static void initSystem(ostream & out){
 #ifdef ANDROID
