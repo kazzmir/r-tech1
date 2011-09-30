@@ -136,17 +136,13 @@ void TextInput::setText(const std::string & text){
 }
 
 void TextInput::clearInput(){
-    text.str(string());
-    text.rdbuf()->pubseekoff(0, ios_base::end, ios_base::out);
-    text.clear();
+    setText(string());
 }
 
 void TextInput::backspace(){
     string now = text.str();
     now = now.substr(0, now.size()-1);
-    text.str(now);
-    text.rdbuf()->pubseekoff(0, ios_base::end, ios_base::out);
-    text.clear();
+    setText(now);
 }
 
 void TextInput::deleteLastWord(){
@@ -178,9 +174,7 @@ void TextInput::deleteLastWord(){
             }
             now.erase(here);
         }
-        text.str(now);
-        text.rdbuf()->pubseekoff(0, ios_base::end, ios_base::out);
-        text.clear();
+        setText(now);
     }
 
     /*
