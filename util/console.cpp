@@ -29,6 +29,17 @@ static void doToggle(void * self){
     console->toggle();
 }
 
+static void doPreviousHistory(void * self){
+    Console * console = (Console*) self;
+    console->previousHistory();
+}
+
+static void doNextHistory(void * self){
+    Console * console = (Console*) self;
+    console->nextHistory();
+}
+
+
 Console::Console(const int maxHeight, const Filesystem::RelativePath & font):
 state(Closed),
 maxHeight(maxHeight),
@@ -36,9 +47,12 @@ height(0),
 font(font),
 textHeight(15),
 textWidth(15),
-offset(0){
+offset(0),
+historyIndex(0){
     textInput.addBlockingHandle(Keyboard::Key_TILDE, doToggle, this);
     textInput.addBlockingHandle(Keyboard::Key_ENTER, doProcess, this);
+    textInput.addBlockingHandle(Keyboard::Key_UP, doPreviousHistory, this);
+    textInput.addBlockingHandle(Keyboard::Key_DOWN, doNextHistory, this);
 }
 
 Console::~Console(){
@@ -54,6 +68,22 @@ void Console::addCommand(const std::string & name, Command * command){
         delete commands[name];
     }
     commands[name] = command;
+}
+
+void Console::previousHistory(){
+    if (historyIndex < history.size()){
+        textInput.setText(history[historyIndex]);
+        historyIndex += 1;
+    }
+}
+
+void Console::nextHistory(){
+    if (historyIndex > 0){
+        historyIndex -= 1;
+        textInput.setText(history[historyIndex]);
+    } else {
+        textInput.setText(string());
+    }
 }
     
 void Console::act(){
@@ -170,6 +200,12 @@ static vector<string> split(string str, char splitter){
 
 /* do something with a command */
 void Console::process(const string & command){
+    /* reset history index */
+    historyIndex = 0;
+    /* don't duplicate history */
+    if (history.size() == 0 || (history.size() > 0 && !(command == history[1]))){
+        history.push_front(command);
+    }
     if (commands[command] != 0){
         string out = commands[command]->act();
         vector<string> each = split(out, '\n');

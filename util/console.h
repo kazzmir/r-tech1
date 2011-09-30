@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <deque>
 #include <sstream>
 #include <map>
 #include "input/input-map.h"
@@ -76,6 +77,9 @@ public:
 
     void activate();
 
+    void previousHistory();
+    void nextHistory();
+
 protected:
 
     void process(const std::string & command);
@@ -104,6 +108,11 @@ protected:
     // InputMap<char> input;
     TextInput textInput;
     std::map<std::string, Command*> commands;
+
+    /* history of typed commands */
+    std::deque<std::string> history;
+    /* index into history. 0 is latest */
+    unsigned int historyIndex;
     
     void checkStream();
 };
