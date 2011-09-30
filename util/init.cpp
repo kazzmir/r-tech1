@@ -225,6 +225,7 @@ static void * do_timer(void * info){
     al_destroy_timer(timerInfo->timer);
 
     delete timerInfo;
+    return NULL;
 }
 
 static Util::Thread::Id start_timer(void (*func)(), int frequency){
