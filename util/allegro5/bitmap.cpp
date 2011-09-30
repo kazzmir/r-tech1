@@ -476,10 +476,14 @@ int setGraphicsMode(int mode, int width, int height){
     // Global::debug(0) << "Set width " << al_get_display_width(the_display) << " height " << al_get_display_height(the_display) << std::endl;
     // Global::debug(0) << "Backbuffer width " << al_get_bitmap_width(al_get_backbuffer(the_display)) << " height " << al_get_bitmap_height(al_get_backbuffer(the_display)) << std::endl;
 
-    /* TODO: maybe find a more general way to get the icon */
-    ALLEGRO_BITMAP * icon = al_load_bitmap(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
-    if (icon != NULL){
-        al_set_display_icon(the_display, icon);
+    try{
+        /* TODO: maybe find a more general way to get the icon */
+        ALLEGRO_BITMAP * icon = al_load_bitmap(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
+        if (icon != NULL){
+            al_set_display_icon(the_display, icon);
+        }
+    } catch (const Filesystem::NotFound & fail){
+        Global::debug(0) << "Could not set window icon: " << fail.getTrace() << std::endl;
     }
     Screen = new Bitmap(al_get_backbuffer(the_display));
     /* dont destroy the backbuffer */
