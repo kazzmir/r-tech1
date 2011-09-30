@@ -337,7 +337,6 @@ static void * do_timer(void * arg){
      */
     uint32_t ticks = SDL_GetTicks();
 
-    /* TODO: pass in some variable that tells this loop to quit */
     while (run_timer_guard.get()){
         uint32_t now = SDL_GetTicks();
         while (now - ticks >= delay){
