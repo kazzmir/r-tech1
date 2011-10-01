@@ -53,6 +53,8 @@ currentSong(""){
 
     instance = this;
 
+    Global::debug(0) << "Supported music extensions " << supportedExtensions() << std::endl;
+
     Util::Thread::initializeLock(&musicMutex);
     Global::debug(1) << "Creating music thread" << endl;
     if (on){
@@ -365,6 +367,35 @@ static bool isOggFile(string path){
 static bool isMp3File(string path){
     string extension = getExtension(path);
     return extension == "mp3";
+}
+
+/* returns a string that lists all the extensions we can play */
+string Music::supportedExtensions(){
+    ostringstream out;
+    vector<string> all;
+    all.push_back("xm (extended module)");
+    all.push_back("s3m (scream tracker 3)");
+    all.push_back("mod (module)");
+    all.push_back("it (impulse tracker)");
+    all.push_back("nsf (nintendo sound file / famicom)");
+    all.push_back("spc (super nintendo / super famicom)");
+    all.push_back("gym (sega genesis / mega drive)");
+#if defined(HAVE_MP3_MPG123) || defined(HAVE_MP3_MAD)
+    all.push_back("mp3 (Mpg Layer 3)");
+#endif
+#ifdef HAVE_OGG
+    all.push_back("ogg (Ogg Vorbis)");
+#endif
+    bool first = true;
+    for (vector<string>::iterator it = all.begin(); it != all.end(); it++){
+        if (!first){
+            out << ", ";
+        } else {
+            first = false;
+        }
+        out << *it;
+    }
+    return out.str();
 }
 
 bool Music::internal_loadSong(string path){

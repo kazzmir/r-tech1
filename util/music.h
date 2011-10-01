@@ -42,6 +42,8 @@ public:
 protected:
 	static bool doLoadSong(std::string song);
 
+        std::string supportedExtensions();
+
 	void _setVolume( double vol );
 	void _play();
 	void _pause();
