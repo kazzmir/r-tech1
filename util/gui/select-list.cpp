@@ -196,7 +196,7 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
     std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
     switch (layout){
         case Static:{
-            int y = cellMarginY;
+            int y = cellMarginY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
             for (int row = 0; row < gridY; ++row){
                 int x = cellMarginX;
                 int y_spacing_mod = y;
