@@ -207,7 +207,7 @@ protected:
     int cellSpacingX, cellSpacingY;
     int cellMarginX, cellMarginY;
     unsigned int offset;
-    std::vector<int> cursors;
+    std::vector<unsigned int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };
 
