@@ -44,7 +44,8 @@ public:
     virtual void clearItems() = 0;
     
     virtual void setCellDimensions(int width, int height) = 0;
-    virtual void setCellSpacing(int x, int y)= 0;
+    virtual void setCellSpacing(int x, int y) = 0;
+    virtual void setCellMargins(int x, int y) = 0;
     
     virtual void setCursors(int total) = 0;
     virtual int totalCursors() const = 0;
@@ -97,6 +98,7 @@ public:
     virtual void clearItems();
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
+    virtual void setCellMargins(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
     virtual void setCurrentIndex(int cursor, unsigned int location);
@@ -143,6 +145,7 @@ protected:
     int scrollOffset;
     int cellWidth, cellHeight;
     int cellSpacingX, cellSpacingY;
+    int cellMarginX, cellMarginY;
     std::vector<unsigned int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };
@@ -161,6 +164,7 @@ public:
     virtual void clearItems();
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
+    virtual void setCellMargins(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
     virtual void setCurrentIndex(int cursor, unsigned int location);
@@ -169,6 +173,12 @@ public:
     virtual bool down(int cursor);
     virtual bool left(int cursor);
     virtual bool right(int cursor);
+    
+    enum Layout {
+        Static,
+        InfiniteHorizontal,
+        InfiniteVertical,
+    };
 protected:
     std::vector<int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
