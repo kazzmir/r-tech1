@@ -179,7 +179,34 @@ public:
         InfiniteHorizontal,
         InfiniteVertical,
     };
+    
+    virtual void setLayout(const Layout & layout){
+        this->layout = layout;
+    }
+    virtual const Layout & getLayout() const {
+        return this->layout;
+    }
+    
+    virtual void setGridSize(int x, int y){
+        this->gridX = x;
+        this->gridY = y;
+    }
+    virtual const int getGridX() const {
+        return this->gridX;
+    }
+    virtual const int getGridY() const {
+        return this->gridY;
+    }
+    
 protected:
+    bool checkCursor(int cursor) const;
+    
+    Layout layout;
+    int gridX, gridY;
+    int cellWidth, cellHeight;
+    int cellSpacingX, cellSpacingY;
+    int cellMarginX, cellMarginY;
+    unsigned int offset;
     std::vector<int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };

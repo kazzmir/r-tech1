@@ -177,48 +177,143 @@ void SimpleSelect::calculateRight(int cursor){
     }
 }
 
-GridSelect::GridSelect(){
+GridSelect::GridSelect():
+layout(Static),
+gridX(0),
+gridY(0),
+cellWidth(100),
+cellHeight(100),
+cellSpacingX(0),
+cellSpacingY(0),
+cellMarginX(0),
+cellMarginY(0){
 }
 GridSelect::~GridSelect(){
 }
 void GridSelect::act(){
 }
-void GridSelect::render(const Graphics::Bitmap &, const Font &) const{
+void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const{
+    std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
+    switch (layout){
+        case Static:{
+            int y = cellMarginY;
+            for (int row = 0; row < gridY; ++row){
+                int x = cellMarginX;
+                for (int column = 0; column < gridX; ++column){
+                    if (item_iterator != items.end()){
+                        Util::ReferenceCount<SelectItem> item = *item_iterator;
+                        item->draw(x, y, cellWidth, cellHeight, where, font);
+                        item_iterator++;
+                    }
+                    x+=cellSpacingX + cellWidth + cellMarginX;
+                }
+                y+=cellSpacingY + cellHeight + cellMarginY;
+            }
+            break;
+        }
+        case InfiniteHorizontal:
+            break;
+        case InfiniteVertical:
+            break;
+        default:
+            break;
+    }
 }
-void GridSelect::addItem(const Util::ReferenceCount<SelectItem> &){
+void GridSelect::addItem(const Util::ReferenceCount<SelectItem> & item){
+    items.push_back(item);
 }
-void GridSelect::addItems(const std::vector<Util::ReferenceCount<SelectItem> > &){
+void GridSelect::addItems(const std::vector<Util::ReferenceCount<SelectItem> > & itemList){
+    items.insert(items.begin(), itemList.begin(), itemList.end());
 }
 const std::vector<Util::ReferenceCount<SelectItem> > & GridSelect::getItems() const{
     return items;
 }
 void GridSelect::clearItems(){
+    items.clear();
 }
 void GridSelect::setCellDimensions(int width, int height){
+    cellWidth = width;
+    cellHeight = height;
 }
 void GridSelect::setCellSpacing(int x, int y){
+    cellSpacingX = x;
+    cellSpacingY = y;
 }
 void GridSelect::setCellMargins(int x, int y){
+    cellMarginX = x;
+    cellMarginY = y;
 }
 void GridSelect::setCursors(int total){
+    cursors.resize(total);
 }
 int GridSelect::totalCursors() const{
     return cursors.size();
 }
 void GridSelect::setCurrentIndex(int cursor, unsigned int location){
+    if (checkCursor(cursor) && location >= items.size()){
+        return;
+    }
+    cursors[cursor] = location;
 }
 unsigned int GridSelect::getCurrentIndex(int cursor) const{
+    if (checkCursor(cursor)){
+        return 0;
+    }
     return cursors[cursor];
 }
 bool GridSelect::up(int cursor){
+    switch (layout){
+        case Static:
+            break;
+        case InfiniteHorizontal:
+            break;
+        case InfiniteVertical:
+            break;
+        default:
+            break;
+    }
     return false;
 }
 bool GridSelect::down(int cursor){
+    switch (layout){
+        case Static:
+            break;
+        case InfiniteHorizontal:
+            break;
+        case InfiniteVertical:
+            break;
+        default:
+            break;
+    }
     return false;
 }
 bool GridSelect::left(int cursor){
+    switch (layout){
+        case Static:
+            break;
+        case InfiniteHorizontal:
+            break;
+        case InfiniteVertical:
+            break;
+        default:
+            break;
+    }
     return false;
 }
 bool GridSelect::right(int cursor){
+    switch (layout){
+        case Static:
+            break;
+        case InfiniteHorizontal:
+            break;
+        case InfiniteVertical:
+            break;
+        default:
+            break;
+    }
     return false;
+}
+
+bool GridSelect::checkCursor(int cursor) const {
+    return ((unsigned int)cursor >= cursors.size());
 }
