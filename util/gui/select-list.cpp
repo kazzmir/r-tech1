@@ -199,15 +199,17 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
             int y = cellMarginY;
             for (int row = 0; row < gridY; ++row){
                 int x = cellMarginX;
+                int y_spacing_mod = y;
                 for (int column = 0; column < gridX; ++column){
                     if (item_iterator != items.end()){
                         Util::ReferenceCount<SelectItem> item = *item_iterator;
-                        item->draw(x, y, cellWidth, cellHeight, where, font);
+                        item->draw(x, y_spacing_mod, cellWidth, cellHeight, where, font);
                         item_iterator++;
                     }
                     x+=cellSpacingX + cellWidth + cellMarginX;
+                    y_spacing_mod+=cellSpacingY;
                 }
-                y+=cellSpacingY + cellHeight + cellMarginY;
+                y+= cellHeight + cellMarginY;
             }
             break;
         }
