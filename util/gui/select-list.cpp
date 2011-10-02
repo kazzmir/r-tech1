@@ -29,7 +29,9 @@ scrollOffset(0),
 cellWidth(100),
 cellHeight(100),
 cellSpacingX(0),
-cellSpacingY(0){
+cellSpacingY(0),
+cellMarginX(0),
+cellMarginY(0){
 }
 SimpleSelect::~SimpleSelect(){
 }
@@ -40,15 +42,15 @@ void SimpleSelect::act(){
     }
 }
 void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) const{
-    int x = 0;
-    int y = 0;
+    int x = cellMarginX;
+    int y = cellMarginY;
     const int stop = currentTop + viewable;
     int count = currentTop;
     for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin() + currentTop; i != items.end() && count != stop; ++i, ++count){
         const Util::ReferenceCount<SelectItem> item = *i;
         item->draw(x, y, cellWidth, cellHeight, work, font);
-        x+=cellSpacingX + (layout == Horizontal ? cellWidth : 0);
-        y+=cellSpacingY + (layout == Vertical ? cellHeight : 0);
+        x+=cellSpacingX + (layout == Horizontal ? cellWidth + cellMarginX : 0);
+        y+=cellSpacingY + (layout == Vertical ? cellHeight + cellMarginY : 0);
     }
 }
 void SimpleSelect::addItem(const Util::ReferenceCount<SelectItem> & item){
@@ -70,6 +72,10 @@ void SimpleSelect::setCellDimensions(int width, int height){
 void SimpleSelect::setCellSpacing(int x, int y){
     cellSpacingX = x;
     cellSpacingY = y;
+}
+void SimpleSelect::setCellMargins(int x, int y){
+    cellMarginX = x;
+    cellMarginY = y;
 }
 void SimpleSelect::setCursors(int total){
     cursors.resize(total);
@@ -191,6 +197,8 @@ void GridSelect::clearItems(){
 void GridSelect::setCellDimensions(int width, int height){
 }
 void GridSelect::setCellSpacing(int x, int y){
+}
+void GridSelect::setCellMargins(int x, int y){
 }
 void GridSelect::setCursors(int total){
 }
