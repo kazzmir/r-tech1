@@ -9,6 +9,7 @@
 #include "stretch/SDL_stretch.h"
 #include <SDL.h>
 #include "image/SDL_image.h"
+#include "image/IMG_savepng.h"
 #include <math.h>
 #include "exceptions/exception.h"
 #include <string>
@@ -1095,9 +1096,10 @@ void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY
     }
     */
 }
-	
-void Bitmap::save( const std::string & str ) const {
-    /* TODO */
+
+void Bitmap::save(const std::string & str) const {
+    /* always saves as a png for now */
+    IMG_SavePNG(str.c_str(), getData()->getSurface(), IMG_COMPRESS_DEFAULT);
 }
 	
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
