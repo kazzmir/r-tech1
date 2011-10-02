@@ -33,6 +33,7 @@ IMG_tif.c
 IMG_xxx.c 
 IMG_gif.c 
 IMG_png.c 
+IMG_savepng.c
 IMG_xcf.c)
 
 # -------------------------------------------------------
