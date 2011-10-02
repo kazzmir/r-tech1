@@ -98,7 +98,7 @@ unsigned int SimpleSelect::getCurrentIndex(int cursor) const{
 /* NOTE This doesn't account for other cursors and viewable areas */
 bool SimpleSelect::up(int cursor){
     if (checkCursor(cursor)){
-        return 0;
+        return false;
     }
     if (cursors[cursor] > 0){
         cursors[cursor]--;
@@ -113,7 +113,7 @@ bool SimpleSelect::up(int cursor){
 }
 bool SimpleSelect::down(int cursor){
     if (checkCursor(cursor)){
-        return 0;
+        return false;
     }
     if (cursors[cursor] < items.size()-1){
         cursors[cursor]++;
@@ -127,7 +127,7 @@ bool SimpleSelect::down(int cursor){
 }
 bool SimpleSelect::left(int cursor){
     if (checkCursor(cursor)){
-        return 0;
+        return false;
     }
     if (cursors[cursor] > 0){
         cursors[cursor]--;
@@ -143,7 +143,7 @@ bool SimpleSelect::left(int cursor){
 
 bool SimpleSelect::right(int cursor){
     if (checkCursor(cursor)){
-        return 0;
+        return false;
     }
     if (cursors[cursor] < items.size()-1){
         cursors[cursor]++;
@@ -261,10 +261,36 @@ unsigned int GridSelect::getCurrentIndex(int cursor) const{
     }
     return cursors[cursor];
 }
+static bool inRange(int check, int start, int end){
+    return (check >= start && check <= end);
+}
+static bool endPoint(int check, int start, int end, int increment){
+    for (int i = start; i <= end; i+=increment){
+        if (check == i){
+            return true;
+        }
+    }
+    return false;
+}
 bool GridSelect::up(int cursor){
+    if (checkCursor(cursor)){
+        return false;
+    }
     switch (layout){
-        case Static:
+        case Static:{
+            if (inRange(cursors[cursor], 0, gridX-1)){
+                if (allowWrap){
+                    unsigned int location = (gridX * (gridY-1)) + cursors[cursor];
+                    if (location >= items.size()){
+                        location = items.size()-1;
+                    }
+                    cursors[cursor] = location;
+                }
+            } else {
+                cursors[cursor] -= gridX;
+            }
             break;
+        }
         case InfiniteHorizontal:
             break;
         case InfiniteVertical:
@@ -275,9 +301,21 @@ bool GridSelect::up(int cursor){
     return false;
 }
 bool GridSelect::down(int cursor){
+    if (checkCursor(cursor)){
+        return false;
+    }
     switch (layout){
-        case Static:
+        case Static:{
+            if (inRange(cursors[cursor], gridX * (gridY-1), gridX * gridY)){
+                if (allowWrap){
+                    unsigned int location = cursors[cursor] - (gridX * (gridY-1));
+                    cursors[cursor] = location;
+                }
+            } else {
+                cursors[cursor] += gridX;
+            }
             break;
+        }
         case InfiniteHorizontal:
             break;
         case InfiniteVertical:
@@ -288,9 +326,20 @@ bool GridSelect::down(int cursor){
     return false;
 }
 bool GridSelect::left(int cursor){
+    if (checkCursor(cursor)){
+        return false;
+    }
     switch (layout){
-        case Static:
+        case Static:{
+            if (endPoint(cursors[cursor], 0, gridX * gridY, gridX)){
+                if (allowWrap){
+                    cursors[cursor] += gridX-1;
+                }
+            } else {
+                cursors[cursor]--;
+            }
             break;
+        }
         case InfiniteHorizontal:
             break;
         case InfiniteVertical:
@@ -301,9 +350,24 @@ bool GridSelect::left(int cursor){
     return false;
 }
 bool GridSelect::right(int cursor){
+    if (checkCursor(cursor)){
+        return false;
+    }
     switch (layout){
-        case Static:
+        case Static:{
+            if (endPoint(cursors[cursor], gridX-1, gridX * gridY, gridX)){
+                if (allowWrap){
+                    int location = cursors[cursor] - gridX+1;
+                    if (location < 0){
+                        location = 0;
+                    }
+                    cursors[cursor] = location;
+                }
+            } else {
+                cursors[cursor]++;
+            }
             break;
+        }
         case InfiniteHorizontal:
             break;
         case InfiniteVertical:
