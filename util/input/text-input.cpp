@@ -55,6 +55,47 @@ void TextInput::addHandle(int key, int delay, callback function, void * data){
     callbacks[handle] = Callback(function, data);
 }
 
+/* FIXME: move this to a more general place */
+static string encodeUtf8(unsigned long unicode){
+    ostringstream out;
+    if (unicode < 128){
+        out << (unsigned char) unicode;
+    } else if (unicode < 2047){
+        unsigned char byte1 = 192 + unicode / 64;
+        unsigned char byte2 = 128 + unicode % 64;
+        out << byte1 << byte2;
+    } else if (unicode <= 65535){
+        unsigned char byte1 = 224 + unicode / 4096;
+        unsigned char byte2 = 128 + (unicode / 64) % 64;
+        unsigned char byte3 = 128 + unicode % 64;
+
+        out << byte1 << byte2 << byte3;
+    } else if (unicode <= 2097151){
+        unsigned char byte1 = 240 + unicode / 262144;
+        unsigned char byte2 = 128 + (unicode / 4096) % 64;
+        unsigned char byte3 = 128 + (unicode / 64) % 64;
+        unsigned char byte4 = 128 + (unicode % 64);
+
+        out << byte1 << byte2 << byte3 << byte4;
+    } else if (unicode <= 67108863){
+        unsigned char byte1 = 248 + (unicode / 16777216);
+        unsigned char byte2 = 128 + ((unicode / 262144) % 64);
+        unsigned char byte3 = 128 + ((unicode / 4096) % 64);
+        unsigned char byte4 = 128 + ((unicode / 64) % 64);
+        unsigned char byte5 = 128 + (unicode % 64);
+
+        out << byte1 << byte2 << byte3 << byte4 << byte5;
+    } else if (unicode <= 2147483647){
+        unsigned char byte1 = 252 + (unicode / 1073741824);
+        unsigned char byte2 = 128 + ((unicode / 16777216) % 64);
+        unsigned char byte3 = 128 + ((unicode / 262144) % 64);
+        unsigned char byte4 = 128 + ((unicode / 4096) % 64);
+        unsigned char byte5 = 128 + ((unicode / 64) % 64);
+        unsigned char byte6 = 128 + (unicode % 64);
+    }
+    return out.str();
+}
+
 bool TextInput::doInput(){
     bool modified = false;
     /* TODO: ensure these codes are consistent across platforms. So far
@@ -96,7 +137,8 @@ bool TextInput::doInput(){
 
                 /* FIXME: whats the maximum unicode value? */
                 if (event.unicode >= 32 && event.unicode < 0xffffff){
-                    this->text << (unsigned char) event.unicode;
+                    // this->text << (unsigned char) event.unicode;
+                    this->text << encodeUtf8(event.unicode);
                     modified = true;
                 }
             }
@@ -140,6 +182,7 @@ void TextInput::clearInput(){
 }
 
 void TextInput::backspace(){
+    /* todo: handle utf8 */
     string now = text.str();
     now = now.substr(0, now.size()-1);
     setText(now);
