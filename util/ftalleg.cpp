@@ -517,6 +517,9 @@ namespace ftalleg{
 
             if (byte1 >> 5 == 6){
                 *position += 1;
+                if (*position >= input.size()){
+                    return 0;
+                }
                 unsigned char byte2 = (unsigned char) input[*position];
                 int top = byte1 & 31;
                 int bottom = byte2 & 63;
@@ -525,8 +528,14 @@ namespace ftalleg{
 
             if (byte1 >> 4 == 14){
                 *position += 1;
+                if (*position >= input.size()){
+                    return 0;
+                }
                 unsigned char byte2 = (unsigned char) input[*position];
                 *position += 1;
+                if (*position >= input.size()){
+                    return 0;
+                }
                 unsigned char byte3 = (unsigned char) input[*position];
                 int top4 = byte1 & 15;
                 int middle6 = byte2 & 63;
@@ -536,10 +545,19 @@ namespace ftalleg{
 
             if (byte1 >> 3 == 30){
                 *position += 1;
+                if (*position >= input.size()){
+                    return 0;
+                }
                 unsigned char byte2 = (unsigned char) input[*position];
                 *position += 1;
+                if (*position >= input.size()){
+                    return 0;
+                }
                 unsigned char byte3 = (unsigned char) input[*position];
                 *position += 1;
+                if (*position >= input.size()){
+                    return 0;
+                }
                 unsigned char byte4 = (unsigned char) input[*position];
                 int unit1 = byte1 & 7;
                 int unit2 = byte2 & 63;
