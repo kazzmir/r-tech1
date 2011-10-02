@@ -25,6 +25,7 @@ SimpleSelect::SimpleSelect():
 layout(Horizontal),
 viewable(3),
 currentTop(0),
+scrollOffset(0),
 cellWidth(100),
 cellHeight(100),
 cellSpacingX(0),
@@ -95,9 +96,7 @@ bool SimpleSelect::up(int cursor){
     }
     if (cursors[cursor] > 0){
         cursors[cursor]--;
-        if (cursors[cursor] < currentTop){
-            currentTop = cursors[cursor];
-        }
+        calculateLeft(cursor);
         return true;
     } else if (allowWrap){
         cursors[cursor] = items.size()-1;
@@ -112,10 +111,7 @@ bool SimpleSelect::down(int cursor){
     }
     if (cursors[cursor] < items.size()-1){
         cursors[cursor]++;
-        unsigned int view = viewable-1;
-        if (cursors[cursor] >= (currentTop + view)){
-            currentTop = cursors[cursor] - view;
-        }
+        calculateRight(cursor);
         return true;
     } else if (allowWrap){
         cursors[cursor] = currentTop = 0;
@@ -129,9 +125,7 @@ bool SimpleSelect::left(int cursor){
     }
     if (cursors[cursor] > 0){
         cursors[cursor]--;
-        if (cursors[cursor] < currentTop){
-            currentTop = cursors[cursor];
-        }
+        calculateLeft(cursor);
         return true;
     } else if (allowWrap){
         cursors[cursor] = items.size()-1;
@@ -140,16 +134,14 @@ bool SimpleSelect::left(int cursor){
     }
     return false;
 }
+
 bool SimpleSelect::right(int cursor){
     if (checkCursor(cursor)){
         return 0;
     }
     if (cursors[cursor] < items.size()-1){
         cursors[cursor]++;
-        unsigned int view = viewable-1;
-        if (cursors[cursor] >= (currentTop + view)){
-            currentTop = cursors[cursor] - view;
-        }
+        calculateRight(cursor);
         return true;
     } else if (allowWrap){
         cursors[cursor] = currentTop = 0;
@@ -157,8 +149,26 @@ bool SimpleSelect::right(int cursor){
     }
     return false;
 }
+
 bool SimpleSelect::checkCursor(int cursor) const {
     return ((unsigned int)cursor >= cursors.size());
+}
+
+void SimpleSelect::calculateLeft(int cursor){
+    if (currentTop == 0){
+        //currentTop = cursors[cursor];
+    } else if (cursors[cursor] < currentTop + scrollOffset){
+        currentTop = cursors[cursor] - scrollOffset;
+    }
+}
+
+void SimpleSelect::calculateRight(int cursor){
+    const unsigned int view = viewable-1;
+    if ((currentTop + view) == items.size()-1){
+        //currentTop = right;
+    } else if (cursors[cursor] >= (currentTop + view - scrollOffset)){
+        currentTop = cursors[cursor] - view + scrollOffset;
+    }
 }
 
 GridSelect::GridSelect(){

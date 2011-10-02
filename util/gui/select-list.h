@@ -112,10 +112,12 @@ public:
     virtual unsigned int getViewable() const {
         return this->viewable;
     }
+    
     enum Layout {
         Vertical,
         Horizontal,
     };
+    
     virtual void setLayout(const Layout & layout){
         this->layout = layout;
     }
@@ -123,11 +125,22 @@ public:
         return this->layout;
     }
     
+    
+    virtual void setScrollOffset(int offset){
+        this->scrollOffset = offset;
+    }
+    virtual int getScrollOffset() const {
+        return this->scrollOffset;
+    }
+    
 protected:
     bool checkCursor(int cursor) const;
+    void calculateLeft(int cursor);
+    void calculateRight(int cursor);
     Layout layout;
     unsigned int viewable;
     unsigned int currentTop;
+    int scrollOffset;
     int cellWidth, cellHeight;
     int cellSpacingX, cellSpacingY;
     std::vector<unsigned int> cursors;
