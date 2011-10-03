@@ -314,7 +314,11 @@ bool GridSelect::down(int cursor){
                     cursors[cursor] = location;
                 }
             } else {
-                cursors[cursor] += gridX;
+                unsigned int location = cursors[cursor] + gridX;
+                if (location >= items.size()){
+                    location = items.size()-1;
+                }
+                cursors[cursor] = location;
             }
             break;
         }
@@ -335,7 +339,11 @@ bool GridSelect::left(int cursor){
         case Static:{
             if (endPoint(cursors[cursor], 0, gridX * gridY, gridX)){
                 if (allowWrap){
-                    cursors[cursor] += gridX-1;
+                    unsigned int location = cursors[cursor] += gridX-1;
+                    if (location >= items.size()){
+                        location = items.size()-1;
+                    }
+                    cursors[cursor] = location;
                 }
             } else {
                 cursors[cursor]--;
@@ -366,7 +374,15 @@ bool GridSelect::right(int cursor){
                     cursors[cursor] = location;
                 }
             } else {
-                cursors[cursor]++;
+                unsigned int location = cursors[cursor]+1;
+                if (location >= items.size()){
+                    if (allowWrap){
+                        location = (gridX * gridY) - gridX;
+                    } else {
+                        location = items.size()-1;
+                    }
+                }
+                cursors[cursor] = location;
             }
             break;
         }
