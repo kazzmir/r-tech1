@@ -11,13 +11,14 @@ class Font;
 
 namespace Gui{
 
-/*! Select Item */
+/*! Select Item pure virtual interface */
 class SelectItem{
 public:
     SelectItem();
     virtual ~SelectItem();
     
     virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &, const Font &) const = 0;
+    virtual bool isEmpty() const = 0;
 };
 
 /*! Select List Interface */

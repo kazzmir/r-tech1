@@ -347,7 +347,6 @@ bool GridSelect::up(int cursor){
                 }
             } else {
                 if ((unsigned int)location < offset * gridX){
-                    //offset = computeOffset(location, gridX);
                     offset--;
                 }
             }
@@ -386,10 +385,13 @@ bool GridSelect::down(int cursor){
             location++;
             if ((unsigned int)location >= items.size()){
                 if (allowWrap){
-                    location = 0;
+                    location = offset = 0;
+                }
+            } else {
+                if ((unsigned int)location > ((offset+gridX) * gridX)-1){
+                    offset++;
                 }
             }
-            offset = computeOffset(location, gridX);
             cursors[cursor] = location;
             break;
         }
@@ -431,7 +433,6 @@ bool GridSelect::left(int cursor){
                 }
             } else {
                 if ((unsigned int)location < offset * gridX){
-                    //offset = computeOffset(location, gridX);
                     offset--;
                 }
             }
@@ -476,11 +477,17 @@ bool GridSelect::right(int cursor){
             int location = cursors[cursor];
             location+=gridX;
             if ((unsigned int)location >= items.size()){
-                if (allowWrap){
+                if (cursors[cursor] < items.size()-1){
+                    location = items.size()-1;
+                    offset = computeOffset(location, gridX);
+                } else if (allowWrap){
                     location = offset = 0;
                 }
+            } else {
+                if ((unsigned int)location > ((offset+gridX) * gridX)-1){
+                    offset++;
+                }
             }
-            offset = computeOffset(location, gridX);
             cursors[cursor] = location;
             break;
         }
