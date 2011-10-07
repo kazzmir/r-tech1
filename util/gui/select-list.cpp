@@ -309,8 +309,19 @@ static bool endPoint(int check, int start, int end, int increment){
     }
     return false;
 }
-static int computeOffset(int location, int length){
-    int offset = location/length - length + 1;
+static int computeOffset(int location, int width, int height){
+    int large = 0;
+    int small = 0;
+    if (width == height){
+        large = small = width;
+    } else if (width > height){
+        small = width;
+        large = height;
+    } else if (width < height){
+        small = height;
+        large = width;
+    }
+    int offset = (location/large - small) + 1;
     if (offset < 0){
         return 0;
     }
@@ -341,12 +352,12 @@ bool GridSelect::up(int cursor){
             if (location < 0){
                 if (allowWrap){
                     location = items.size()-1;
-                    offset = computeOffset(location, gridX);
+                    offset = computeOffset(location, gridX, gridY);
                 } else {
                     location = 0;
                 }
             } else {
-                if ((unsigned int)location < offset * gridX){
+                if ((unsigned int)location < offset * gridY){
                     offset--;
                 }
             }
@@ -355,16 +366,16 @@ bool GridSelect::up(int cursor){
         }
         case InfiniteVertical:{
             int location = cursors[cursor];
-            location-=gridY;
+            location-=gridX;
             if (location < 0){
                 if (allowWrap){
                     location = items.size()-1;
-                    offset = computeOffset(location, gridY);
+                    offset = computeOffset(location, gridX, gridY);
                 } else {
                     location = cursors[cursor];
                 }
             } else {
-                if ((unsigned int)location < offset * gridY){
+                if ((unsigned int)location < offset * gridX){
                     offset--;
                 }
             }
@@ -404,7 +415,7 @@ bool GridSelect::down(int cursor){
                     location = offset = 0;
                 }
             } else {
-                if ((unsigned int)location > ((offset+gridX) * gridX)-1){
+                if ((unsigned int)location > ((offset+gridX) * gridY)-1){
                     offset++;
                 }
             }
@@ -413,16 +424,16 @@ bool GridSelect::down(int cursor){
         }
         case InfiniteVertical:{
             int location = cursors[cursor];
-            location+=gridY;
+            location+=gridX;
             if ((unsigned int)location >= items.size()){
                 if (cursors[cursor] < items.size()-1){
                     location = items.size()-1;
-                    offset = computeOffset(location, gridY);
+                    offset = computeOffset(location, gridX, gridY);
                 } else if (allowWrap){
                     location = offset = 0;
                 }
             } else {
-                if ((unsigned int)location > ((offset+gridY) * gridY)-1){
+                if ((unsigned int)location > ((offset+gridY) * gridX)-1){
                     offset++;
                 }
             }
@@ -455,16 +466,16 @@ bool GridSelect::left(int cursor){
         }
         case InfiniteHorizontal:{
             int location = cursors[cursor];
-            location-=gridX;
+            location-=gridY;
             if (location < 0){
                 if (allowWrap){
                     location = items.size()-1;
-                    offset = computeOffset(location, gridX);
+                    offset = computeOffset(location, gridX, gridY);
                 } else {
                     location = cursors[cursor];
                 }
             } else {
-                if ((unsigned int)location < offset * gridX){
+                if ((unsigned int)location < offset * gridY){
                     offset--;
                 }
             }
@@ -477,12 +488,12 @@ bool GridSelect::left(int cursor){
             if (location < 0){
                 if (allowWrap){
                     location = items.size()-1;
-                    offset = computeOffset(location, gridY);
+                    offset = computeOffset(location, gridX, gridY);
                 } else {
                     location = 0;
                 }
             } else {
-                if ((unsigned int)location < offset * gridY){
+                if ((unsigned int)location < offset * gridX){
                     offset--;
                 }
             }
@@ -523,16 +534,16 @@ bool GridSelect::right(int cursor){
         }
         case InfiniteHorizontal:{
             int location = cursors[cursor];
-            location+=gridX;
+            location+=gridY;
             if ((unsigned int)location >= items.size()){
                 if (cursors[cursor] < items.size()-1){
                     location = items.size()-1;
-                    offset = computeOffset(location, gridX);
+                    offset = computeOffset(location, gridX, gridY);
                 } else if (allowWrap){
                     location = offset = 0;
                 }
             } else {
-                if ((unsigned int)location > ((offset+gridX) * gridX)-1){
+                if ((unsigned int)location > ((offset+gridX) * gridY)-1){
                     offset++;
                 }
             }
@@ -547,7 +558,7 @@ bool GridSelect::right(int cursor){
                     location = offset = 0;
                 }
             } else {
-                if ((unsigned int)location > ((offset+gridY) * gridY)-1){
+                if ((unsigned int)location > ((offset+gridY) * gridX)-1){
                     offset++;
                 }
             }
