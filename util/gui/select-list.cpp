@@ -353,8 +353,24 @@ bool GridSelect::up(int cursor){
             cursors[cursor] = location;
             break;
         }
-        case InfiniteVertical:
+        case InfiniteVertical:{
+            int location = cursors[cursor];
+            location-=gridY;
+            if (location < 0){
+                if (allowWrap){
+                    location = items.size()-1;
+                    offset = computeOffset(location, gridY);
+                } else {
+                    location = cursors[cursor];
+                }
+            } else {
+                if ((unsigned int)location < offset * gridY){
+                    offset--;
+                }
+            }
+            cursors[cursor] = location;
             break;
+        }
         default:
             break;
     }
@@ -395,8 +411,24 @@ bool GridSelect::down(int cursor){
             cursors[cursor] = location;
             break;
         }
-        case InfiniteVertical:
+        case InfiniteVertical:{
+            int location = cursors[cursor];
+            location+=gridY;
+            if ((unsigned int)location >= items.size()){
+                if (cursors[cursor] < items.size()-1){
+                    location = items.size()-1;
+                    offset = computeOffset(location, gridY);
+                } else if (allowWrap){
+                    location = offset = 0;
+                }
+            } else {
+                if ((unsigned int)location > ((offset+gridY) * gridY)-1){
+                    offset++;
+                }
+            }
+            cursors[cursor] = location;
             break;
+        }
         default:
             break;
     }
@@ -439,8 +471,24 @@ bool GridSelect::left(int cursor){
             cursors[cursor] = location;
             break;
         }
-        case InfiniteVertical:
+        case InfiniteVertical:{
+            int location = cursors[cursor];
+            location--;
+            if (location < 0){
+                if (allowWrap){
+                    location = items.size()-1;
+                    offset = computeOffset(location, gridY);
+                } else {
+                    location = 0;
+                }
+            } else {
+                if ((unsigned int)location < offset * gridY){
+                    offset--;
+                }
+            }
+            cursors[cursor] = location;
             break;
+        }
         default:
             break;
     }
@@ -491,8 +539,21 @@ bool GridSelect::right(int cursor){
             cursors[cursor] = location;
             break;
         }
-        case InfiniteVertical:
+        case InfiniteVertical:{
+            int location = cursors[cursor];
+            location++;
+            if ((unsigned int)location >= items.size()){
+                if (allowWrap){
+                    location = offset = 0;
+                }
+            } else {
+                if ((unsigned int)location > ((offset+gridY) * gridY)-1){
+                    offset++;
+                }
+            }
+            cursors[cursor] = location;
             break;
+        }
         default:
             break;
     }
