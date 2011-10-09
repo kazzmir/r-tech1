@@ -314,7 +314,7 @@ void Music::setVolume( double vol ){
 }
 
 void Music::_setVolume(double vol){
-    if (musicPlayer){
+    if (musicPlayer != NULL){
         musicPlayer->setVolume(vol);
     }
 }
@@ -322,10 +322,7 @@ void Music::_setVolume(double vol){
 Music::~Music(){
 
     LOCK;{
-        if (musicPlayer){
-            delete musicPlayer;
-        }
-
+        musicPlayer = NULL;
         alive = false;
         playing = false;
     }
@@ -333,7 +330,6 @@ Music::~Music(){
 
     Global::debug(1) << "Waiting for music thread to die" << endl;
     Util::Thread::joinThread(musicThread);
-
 }
 
 static string getExtension(string path){
@@ -403,7 +399,7 @@ bool Music::internal_loadSong(string path){
         return false;
     }
 
-    // cout << "Trying to load '" << path << "'" << endl;
+    Global::debug(1) << "Trying to load '" << path << "'" << endl;
 
     // Check current song and/or set it
     if (currentSong.compare(path)==0){
@@ -412,10 +408,14 @@ bool Music::internal_loadSong(string path){
         currentSong = path;
     }
 
+    /*
     if (musicPlayer != NULL){
+        Global::debug(0) << "Destroy music player" << std::endl;
         delete musicPlayer;
         musicPlayer = NULL;
     }
+    */
+
     try {
         if (isDumbFile(path)){
             musicPlayer = new Util::DumbPlayer(path);
