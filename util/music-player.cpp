@@ -237,29 +237,7 @@ void MusicRenderer::fill(MusicPlayer * player){
     // time.endTime();
     // Global::debug(0) << time.printTime("Render time") << std::endl;
 
-    // time.startTime();
     converted = convert.convert(data, BUFFER_SIZE);
-    // time.endTime();
-    // Global::debug(0) << time.printTime("Convert time") << std::endl;
-    /* sort of a hack, but we need exactly a multiple of 4 */
-    /*
-    int totalSample = sampleSize();
-    if (converted % totalSample != 0){
-        converted -= converted % totalSample;
-    }
-    */
-    // Global::debug(0) << "Filled " << converted << " bytes" << std::endl;
-#if 0
-    if (convert.needed){
-        convert.buf = data;
-        convert.len = BUFFER_SIZE;
-        /* then convert to whatever the real output wants */
-        SDL_ConvertAudio(&convert);
-        converted = convert.len_cvt;
-    } else {
-        converted = BUFFER_SIZE;
-    }
-#endif
 }
 
 void MusicRenderer::read(MusicPlayer * player, Uint8 * stream, int bytes){
@@ -295,20 +273,6 @@ void MusicRenderer::mixer(void * arg, Uint8 * stream, int bytes){
     MusicPlayer * player = (MusicPlayer*) arg;
 
     player->getRenderer()->read(player, stream, bytes);
-    
-
-
-    /*
-    int size = (int)((float) bytes / player->getRenderer()->convert.len_ratio / (float) player->getRenderer()->convert.len_mult);
-    Global::debug(2) << "Incoming " << bytes << " render " << size << std::endl;
-    player->getRenderer()->convert.buf = player->getRenderer()->data;
-    player->getRenderer()->convert.len = size;
-    // player->render(stream, bytes / 4);
-    player->render(player->getRenderer()->data, size / 4);
-
-    SDL_ConvertAudio(&player->getRenderer()->convert);
-    memcpy(stream, player->getRenderer()->data, bytes);
-    */
 }
 
 void MusicRenderer::play(MusicPlayer & player){

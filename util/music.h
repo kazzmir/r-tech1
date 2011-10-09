@@ -3,7 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "util/file-system.h"
+#include "file-system.h"
+#include "pointer.h"
 
 struct AL_DUH_PLAYER;
 struct DUH;
@@ -59,7 +60,7 @@ protected:
 
 	bool internal_loadSong(std::string path);
 
-        Util::MusicPlayer * musicPlayer;
+        Util::ReferenceCount<Util::MusicPlayer> musicPlayer;
 	
 	std::string currentSong;
 };
