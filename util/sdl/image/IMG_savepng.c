@@ -26,7 +26,12 @@
  */
 #include <stdlib.h>
 #include <SDL/SDL.h>
+#if SDL_VERSION_ATLEAST(1, 3, 0)
+#include <SDL/SDL_endian.h>
+#include <SDL/SDL_pixels.h>
+#else
 #include <SDL/SDL_byteorder.h>
+#endif
 #include <png.h>
 #include "IMG_savepng.h"
 
@@ -121,6 +126,7 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf,int compression){
 			palette[i].blue=fmt->palette->colors[i].b;
 		}
 		png_set_PLTE(png_ptr,info_ptr,palette,fmt->palette->ncolors);
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
 		if (surf->flags&SDL_SRCCOLORKEY) {
 			palette_alpha=(Uint8 *)malloc((fmt->colorkey+1)*sizeof(Uint8));
 			if (!palette_alpha) {
@@ -134,6 +140,7 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf,int compression){
 			palette_alpha[fmt->colorkey]=0;
 			png_set_tRNS(png_ptr,info_ptr,palette_alpha,fmt->colorkey+1,NULL);
 		}
+#endif
 	}else{ /* Truecolor */
 		if (fmt->Amask) {
 			png_set_IHDR(png_ptr,info_ptr,
@@ -223,13 +230,17 @@ int IMG_SavePNG_RW(SDL_RWops *src, SDL_Surface *surf,int compression){
 				SDL_SetError("Couldn't allocate temp surface");
 				goto savedone;
 			}
-			if(surf->flags&SDL_SRCALPHA){
+#if !SDL_VERSION_ATLEAST(1, 3, 0)
+			if (surf->flags&SDL_SRCALPHA){
 				temp_alpha=fmt->alpha;
 				used_alpha=1;
 				SDL_SetAlpha(surf,0,255); /* Set for an opaque blit */
-			}else{
+			} else {
 				used_alpha=0;
 			}
+#else
+                        used_alpha = 0;
+#endif
 			if(SDL_BlitSurface(surf,NULL,tempsurf,NULL)!=0){
 				SDL_SetError("Couldn't blit surface to temp surface");
 				SDL_FreeSurface(tempsurf);
