@@ -509,12 +509,34 @@ static void ps3JoystickHack(){
 }
 #endif
 
+#if defined(USE_SDL) && defined(MACOSX)
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
+static void maybeSetWorkingDirectory(){
+#if defined(USE_SDL) && defined(MACOSX)
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    if (mainBundle != NULL){
+        CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+        char path[PATH_MAX];
+        if (CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX)){
+            chdir(path);
+        } else {
+            Global::debug(0) << "Could not set working directory to Resources" << std::endl;
+        }
+        CFRelease(resourcesURL);
+    }
+#endif
+}
+
 bool Global::init(int gfx){
-    ostream & out = Global::debug( 0 );
+    ostream & out = Global::debug(0);
     out << "-- BEGIN init --" << endl;
     out << "Data path is " << Util::getDataPath2().path() << endl;
     out << "Paintown version " << Global::getVersionString() << endl;
     out << "Build date " << __DATE__ << " " << __TIME__ << endl;
+
+    maybeSetWorkingDirectory();
 
 #ifdef WII
     /* <WinterMute> fatInitDefault will set working dir to argv[0] passed by launcher,
