@@ -280,8 +280,8 @@ void Util::showError(const Graphics::Bitmap & screen, const Exception::Base & ex
     std::ostringstream out;
     out << info;
     out << " " << exception.getTrace();
-    font.printfWrap(10, 10, Graphics::makeColor(240, 240, 240), error, error.getWidth() - 20, out.str(), 0);
     Global::debug(0) << out.str() << std::endl;
+    font.printfWrap(10, 10, Graphics::makeColor(240, 240, 240), error, error.getWidth() - 20, out.str(), 0);
 
     Graphics::Bitmap::transBlender(0, 0, 0, 220);
     error.translucent().draw(50, 50, screen);
