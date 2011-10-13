@@ -16,21 +16,21 @@ Font::Font(){
 }
 
 /* copy/pasted from network/message.cpp */
-static vector< string > wrapStrings( const string & left, const string & right, const Font & font, int max, vector< string > accum ){
-	if ( left == "" ){
-		return accum;
-	}
+static vector<string> wrapStrings(const string & left, const string & right, const Font & font, int max, vector< string > accum){
+    if (left == ""){
+        return accum;
+    }
 
-	int length = font.textLength(left.c_str());
+    int length = font.textLength(left.c_str());
 
-	if (length >= max){
-		return wrapStrings( left.substr( 0, left.length() / 2 ), left.substr( left.length() / 2 ) + right, font, max, accum );
-	} else if ( length >= max - font.textLength( "E" ) || right == "" ){
-		accum.push_back( left );
-		return wrapStrings( right, "", font, max, accum );
-	} else {
-		return wrapStrings( left + right.substr( 0, 1 ), right.substr( 1 ), font, max, accum );
-	}
+    if (length >= max){
+        return wrapStrings(left.substr(0, left.length() / 2), left.substr(left.length() / 2) + right, font, max, accum);
+    } else if (right == "" || font.textLength((left + right.substr(0, 1)).c_str()) >= max){
+        accum.push_back(left);
+        return wrapStrings(right, "", font, max, accum);
+    } else {
+        return wrapStrings(left + right.substr(0, 1), right.substr(1), font, max, accum);
+    }
 }
 
 void Font::printfWrapLine(int x, int & y, Graphics::Color color, const Graphics::Bitmap & work, int maxWidth, const char * line) const {
