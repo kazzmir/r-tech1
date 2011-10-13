@@ -199,6 +199,10 @@ public:
     virtual inline const Gui::ListValues & getListValues() const {
         return this->values;
     }
+    
+    virtual inline Gui::ListValues & getListValues(){
+        return this->values;
+    }
 
     virtual void setListValues(const Gui::ListValues & values);
 
