@@ -32,6 +32,7 @@
 #else
 #include <SDL/SDL_byteorder.h>
 #endif
+#include <zlib.h>
 #include <png.h>
 #include "IMG_savepng.h"
 
