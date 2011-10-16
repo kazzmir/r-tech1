@@ -113,26 +113,26 @@ void dump(const std::vector<M> & messages, uint8_t * buffer );
 void sendAllMessages(const std::vector<Message> & messages, Socket socket);
 void sendAllMessages(const std::vector<Message*> & messages, Socket socket);
 
-int16_t read16( Socket socket );
-int32_t read32( Socket socket );
-void send16( Socket socket, int16_t length );
-std::string readStr( Socket socket, const uint16_t length );
-void sendStr( Socket socket, const std::string & str );
-void sendBytes( Socket socket, const uint8_t * data, int length );
-void readBytes( Socket socket, uint8_t * data, int length );
+int16_t read16(Socket socket);
+int32_t read32(Socket socket);
+void send16(Socket socket, int16_t length);
+std::string readStr(Socket socket, const uint16_t length);
+void sendStr(Socket socket, const std::string & str );
+void sendBytes(Socket socket, const uint8_t * data, int length);
+void readBytes(Socket socket, uint8_t * data, int length);
 void init();
 void shutdown();
-void blocking( bool b );
+void blocking(bool b);
 
-void listen( Socket s ) throw( NetworkException );
-Socket accept( Socket s ) throw( NetworkException );
+void listen(Socket s) throw (NetworkException);
+Socket accept(Socket s) throw (NetworkException);
 
-Socket open( int port ) throw( InvalidPortException );
-Socket connect( std::string server, int port ) throw ( NetworkException );
-void close( Socket );
+Socket open(int port) throw (InvalidPortException);
+Socket connect( std::string server, int port ) throw (NetworkException);
+void close(Socket);
 void closeAll();
 
-static std::vector< Socket > open_sockets;
+static std::vector<Socket> open_sockets;
 #endif
 
 }
