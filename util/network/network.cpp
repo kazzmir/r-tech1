@@ -355,7 +355,7 @@ void readBytes( Socket socket, uint8_t * data, int length ){
 	}
 }
 
-Socket open( int port ) throw (InvalidPortException){
+Socket open(int port) throw (InvalidPortException){
 	// NLsocket server = nlOpen( port, NL_RELIABLE_PACKETS );
 	Global::debug(1, "network") << "Attemping to open port " << port << endl;
 	Socket server = nlOpen( port, NL_RELIABLE );
