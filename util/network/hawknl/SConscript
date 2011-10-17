@@ -4,18 +4,18 @@ Import( 'env' )
 # env = Environment( ENV = os.environ )
 
 source = Split("""
-src/crc.c
-src/err.c
-src/errorstr.c
-src/group.c
-src/hthread.c
-src/htcondition.c
-src/ipx.c
-src/loopback.c
-src/htmutex.c
-src/nl.c
-src/nltime.c
-src/sock.c
+src/crc.cpp
+src/err.cpp
+src/errorstr.cpp
+src/group.cpp
+src/hthread.cpp
+src/htcondition.cpp
+src/ipx.cpp
+src/loopback.cpp
+src/htmutex.cpp
+src/nl.cpp
+src/nltime.cpp
+src/sock.cpp
 """);
 
 # env.Append(CPPPATH = 'hawknl')
