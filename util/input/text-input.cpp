@@ -49,6 +49,12 @@ void TextInput::addBlockingHandle(int key, callback function, void * data){
     callbacks[handle] = Callback(function, data);
 }
     
+void TextInput::addBlockingJoystickHandle(Joystick::Key key, callback function, void * data){
+    int handle = nextHandle();
+    set(key, 1, true, handle);
+    callbacks[handle] = Callback(function, data);
+}
+    
 void TextInput::addHandle(int key, int delay, callback function, void * data){
     int handle = nextHandle();
     set(key, delay, false, handle);
