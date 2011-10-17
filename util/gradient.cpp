@@ -31,6 +31,7 @@ Gradient & Gradient::operator=(const Gradient & copy){
     for (unsigned int i = 0; i < size; i++){
         colors[i] = copy.colors[i];
     }
+    return *this;
 }
 
 void Gradient::forward(){

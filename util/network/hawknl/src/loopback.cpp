@@ -31,6 +31,7 @@
 #endif
 
 #include "hawknl/nlinternal.h"
+#include "util/funcs.h"
 
 #ifdef HL_WINDOWS_APP
 /* Windows systems */
@@ -49,19 +50,19 @@ static NLaddress loopback_ouraddress;
 static NLint loopgroup;
 static volatile NLboolean reuseaddress = NL_FALSE;
 
-static HTmutex  portlock; /* In memory of my step-father, Don Portlock,
+static Util::Thread::Lock portlock; /* In memory of my step-father, Don Portlock,
                                        who passed away Jan 12, 2001 - Phil */
 
 static volatile NLushort newport = 1024;
 
 static NLushort loopback_getNextPort(void)
 {
-    (void)htMutexLock(&portlock);
+    Util::Thread::acquireLock(&portlock);
     newport += 1;
     if (newport < 1024){
         newport = 1024;
     }
-    (void)htMutexUnlock(&portlock);
+    Util::Thread::releaseLock(&portlock);
     return newport;
 }
 
@@ -381,7 +382,7 @@ NLboolean loopback_Connect(NLsocket socket, const NLaddress *address)
                                 nlSetError(NL_INVALID_SOCKET);
                                 return NL_FALSE;
                             }
-                            htThreadSleep(NL_CONNECT_SLEEP);
+                            Util::rest(NL_CONNECT_SLEEP);
                         }
                         (void)nlLockSocket(socket, NL_BOTH);
                     }
@@ -445,7 +446,7 @@ NLint loopback_Read(NLsocket socket, NLvoid *buffer, NLint nbytes)
         while(len == 0)
         {
             nlUnlockSocket(socket, NL_READ);
-            htThreadSleep(NL_CONNECT_SLEEP);
+            Util::rest(NL_CONNECT_SLEEP);
             (void)nlLockSocket(socket, NL_READ);
             if(sock->inuse == NL_FALSE)
             {
@@ -914,7 +915,7 @@ NLint loopback_PollGroup(NLint group, NLenum name, NLsocket *sockets, NLint numb
         }
         if(timeout != 0)
         {
-            htThreadSleep(1);
+            Util::rest(1);
             (void)nlTime(&now);
             if(timeout > 0 && (now.seconds > end.seconds || (now.seconds == end.seconds && now.mseconds > end.mseconds)))
                 break;
@@ -983,7 +984,7 @@ NLboolean loopback_PollSocket(NLsocket socket, NLenum name, NLint timeout)
         }
         if(timeout != 0)
         {
-            htThreadSleep(1);
+            Util::rest(1);
             (void)nlTime(&now);
         }
         else

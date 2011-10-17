@@ -9,6 +9,7 @@
 #include <string.h>
 #include "util/system.h"
 #include "util/compress.h"
+#include "util/thread.h"
 
 using namespace std;
 
@@ -355,20 +356,24 @@ void readBytes( Socket socket, uint8_t * data, int length ){
 	}
 }
 
+Util::Thread::Lock socketsLock;
+
 Socket open(int port) throw (InvalidPortException){
-	// NLsocket server = nlOpen( port, NL_RELIABLE_PACKETS );
-	Global::debug(1, "network") << "Attemping to open port " << port << endl;
-	Socket server = nlOpen( port, NL_RELIABLE );
-        /* server will either be NL_INVALID (-1) or some low integer. hawknl
-         * sockets are mapped internally to real sockets, so don't be surprised
-         * if you get a socket back like 0.
-         */
-	if ( server == NL_INVALID ){
-		throw InvalidPortException(port, nlGetSystemErrorStr(nlGetSystemError()));
-	}
-        Global::debug(1, "network") << "Successfully opened a socket: " << server << endl;
-	open_sockets.push_back( server );
-	return server;
+    // NLsocket server = nlOpen( port, NL_RELIABLE_PACKETS );
+    Global::debug(1, "network") << "Attemping to open port " << port << endl;
+    Socket server = nlOpen( port, NL_RELIABLE );
+    /* server will either be NL_INVALID (-1) or some low integer. hawknl
+     * sockets are mapped internally to real sockets, so don't be surprised
+     * if you get a socket back like 0.
+     */
+    if ( server == NL_INVALID ){
+        throw InvalidPortException(port, nlGetSystemErrorStr(nlGetSystemError()));
+    }
+    Global::debug(1, "network") << "Successfully opened a socket: " << server << endl;
+    Util::Thread::acquireLock(&socketsLock);
+    open_sockets.push_back(server);
+    Util::Thread::releaseLock(&socketsLock);
+    return server;
 }
 
 Socket connect( string server, int port ) throw ( NetworkException ) {
@@ -383,40 +388,45 @@ Socket connect( string server, int port ) throw ( NetworkException ) {
 	return socket;
 }
 
-void close( Socket s ){
-	for ( vector< Socket >::iterator it = open_sockets.begin(); it != open_sockets.end(); ){
-		if ( *it == s ){
-			Global::debug(1, "network") << "Closing socket " << s << endl;
-			nlClose( *it );
-			Global::debug(1, "network") << "Closed" << endl;
-			it = open_sockets.erase( it );
-		} else {
-			it++;
-		}
-	}
+void close(Socket s){
+    Util::Thread::acquireLock(&socketsLock);
+    for (vector< Socket >::iterator it = open_sockets.begin(); it != open_sockets.end(); ){
+        if ( *it == s ){
+            Global::debug(1, "network") << "Closing socket " << s << endl;
+            nlClose(*it);
+            Global::debug(1, "network") << "Closed" << endl;
+            it = open_sockets.erase(it);
+        } else {
+            it++;
+        }
+    }
+    Util::Thread::releaseLock(&socketsLock);
 }
 
 void closeAll(){
-	Global::debug(1, "network") << "Closing all sockets" << std::endl;
-	for ( vector< Socket >::iterator it = open_sockets.begin(); it != open_sockets.end(); it++ ){
-		nlClose( *it );
-	}
-	open_sockets.clear();
+    Global::debug(1, "network") << "Closing all sockets" << std::endl;
+    Util::Thread::acquireLock(&socketsLock);
+    for (vector<Socket>::iterator it = open_sockets.begin(); it != open_sockets.end(); it++ ){
+        nlClose(*it);
+    }
+    open_sockets.clear();
+    Util::Thread::releaseLock(&socketsLock);
 }
 
 void init(){
-	nlInit();
-	nlSelectNetwork( NL_IP );
-	nlEnable( NL_BLOCKING_IO );
-	// nlDisable( NL_BLOCKING_IO );
+    nlInit();
+    nlSelectNetwork(NL_IP);
+    nlEnable(NL_BLOCKING_IO);
+    Util::Thread::initializeLock(&socketsLock);
+    // nlDisable( NL_BLOCKING_IO );
 }
 
-void blocking( bool b ){
-	if ( b ){
-		nlEnable( NL_BLOCKING_IO );
-	} else {
-		nlDisable( NL_BLOCKING_IO );
-	}
+void blocking(bool b){
+    if (b){
+        nlEnable(NL_BLOCKING_IO);
+    } else {
+        nlDisable(NL_BLOCKING_IO);
+    }
 }
 
 void listen( Socket s ) throw( NetworkException ){
@@ -426,23 +436,25 @@ void listen( Socket s ) throw( NetworkException ){
 }
 
 Socket accept( Socket s ) throw( NetworkException ){
-	Socket connection = nlAcceptConnection( s );
-	if ( connection == NL_INVALID ){
-		/*
-		if ( nlGetError() == NL_NO_PENDING ){
-			error = NO_CONNECTIONS_PENDING;
-		} else {
-			error = NETWORK_ERROR;
-		}
-		return s;
-		*/
-		if ( nlGetError() == NL_NO_PENDING ){
-			throw NoConnectionsPendingException();
-		}
-		throw NetworkException("Could not accept connection");
-	}
-	open_sockets.push_back( connection );
-	return connection;
+    Socket connection = nlAcceptConnection( s );
+    if ( connection == NL_INVALID ){
+        /*
+           if ( nlGetError() == NL_NO_PENDING ){
+           error = NO_CONNECTIONS_PENDING;
+           } else {
+           error = NETWORK_ERROR;
+           }
+           return s;
+           */
+        if ( nlGetError() == NL_NO_PENDING ){
+            throw NoConnectionsPendingException();
+        }
+        throw NetworkException("Could not accept connection");
+    }
+    Util::Thread::acquireLock(&socketsLock);
+    open_sockets.push_back(connection);
+    Util::Thread::releaseLock(&socketsLock);
+    return connection;
 }
 
 void shutdown(){

@@ -49,7 +49,7 @@ namespace Thread{
 
     extern Id uninitializedValue;
     bool isUninitialized(Id thread);
-    void initializeLock(Lock * lock);
+    bool initializeLock(Lock * lock);
 
     void initializeCondition(Condition * condition);
     void destroyCondition(Condition * condition);
