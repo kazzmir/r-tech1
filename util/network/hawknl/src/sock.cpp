@@ -21,9 +21,13 @@
 */
 
 
+#ifndef FD_SETSIZE
 #define FD_SETSIZE      8192
+#endif
 
+#ifndef PS3
 #include <memory.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -73,10 +77,14 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#ifndef PS3
 #include <netinet/tcp.h>
+#include <sys/ioctl.h>
+#else
+#include <net/select.h>
+#endif
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <sys/ioctl.h>
 #define closesocket close
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -101,6 +109,7 @@ typedef int socklen_t;
 
 
 #include "hawknl/nlinternal.h"
+#include "hawknl/group.h"
 #include "hawknl/sock.h"
 #include "util/funcs.h"
 
@@ -123,7 +132,11 @@ typedef int socklen_t;
 #define NLMIN( a, b )             ( ( a ) < ( b ) ? ( a ) : ( b ) )
 
 static volatile NLuint ouraddress, bindaddress;
+#ifdef PS3
+int backlog = 10;
+#else
 int backlog = SOMAXCONN;
+#endif
 static volatile int multicastTTL = 1;
 NLboolean reuseaddress = NL_FALSE;
 static volatile NLboolean nlTCPNoDelay = NL_FALSE;
@@ -433,16 +446,19 @@ NLboolean sock_SetBlocking(SOCKET socket, NLboolean arg)
     int rc;
     unsigned long i = 1;
 
-    if(arg == NL_TRUE)
-    {
+    if(arg == NL_TRUE){
         i = 0;
     }
+#ifdef PS3
+    /* FIXME: set sockets to blocking or not */
+    return NL_TRUE;
+#else
     rc = ioctl(socket, FIONBIO, &i);
-    if(rc == SOCKET_ERROR)
-    {
+    if(rc == SOCKET_ERROR){
         return NL_FALSE;
     }
     return NL_TRUE;
+#endif
 }
 
 NLboolean sock_SetBroadcast(SOCKET socket)
@@ -480,11 +496,15 @@ static NLboolean sock_SetTCPNoDelay(nl_socket_t *sock, NLboolean arg)
     {
         arg = (NLboolean)(arg != (NLboolean)0 ? NL_TRUE : NL_FALSE);
         i = (int)arg;
+#ifdef PS3
+        /* FIXME: maybe use SO_SNDTIMEO? */
+#else
         if(setsockopt(realsocket, IPPROTO_TCP, TCP_NODELAY, (char *)&i, (int)sizeof(i)) == SOCKET_ERROR)
         {
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
+#endif
     }
     sock->TCPNoDelay = arg;
     return NL_TRUE;
@@ -561,13 +581,18 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
     return s;
 }
 
+#ifdef PS3
+static int gethostname(char * name, size_t length){
+    snprintf(name, length, "host");
+}
+#endif
+
 static NLuint sock_GetHostAddress(void)
 {
     struct hostent  *local;
     char            buff[MAXHOSTNAMELEN];
     
-    if(gethostname(buff, MAXHOSTNAMELEN) == SOCKET_ERROR)
-    {
+    if(gethostname(buff, MAXHOSTNAMELEN) == SOCKET_ERROR){
         return INADDR_NONE;
     }
     buff[MAXHOSTNAMELEN - 1] = '\0';

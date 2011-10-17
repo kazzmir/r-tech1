@@ -20,13 +20,17 @@
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
+#ifndef PS3
 #include <memory.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
 
+#ifndef FD_SETSIZE
 #define FD_SETSIZE              8192
+#endif
 
 
 #if defined WIN32 || defined WIN64
@@ -44,7 +48,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <sys/ioctl.h>
+// #include <sys/ioctl.h>
 #define closesocket close
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
