@@ -2,6 +2,7 @@
 #define _paintown_text_input_h
 
 #include "input-map.h"
+#include "joystick.h"
 #include <sstream>
 #include <string>
 #include <map>
@@ -34,6 +35,7 @@ public:
 
     void addHandle(int key, int delay, callback function, void * data);
     void addBlockingHandle(int key, callback function, void * data);
+    void addBlockingJoystickHandle(Joystick::Key key, callback function, void * data);
 
     inline void setBlockingKeys(){
         blockingKeys = true;
