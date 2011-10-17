@@ -27,6 +27,10 @@
 #include "hawknl/parallel.h"
 #include "util/funcs.h"
 
+#ifdef PS3
+#include <net/net.h>
+#endif
+
 #ifdef NL_INCLUDE_LOOPBACK
 #include "hawknl/loopback.h"
 #endif
@@ -543,6 +547,10 @@ static void nlUpdateSocketOutStats(NLsocket socket, NLint nbytes, NLint npackets
 HL_EXP NLboolean HL_APIENTRY nlInit(void)
 {
     int i, numdrivers = 0;
+
+#ifdef PS3
+    netInitialize();
+#endif
 
     nlSetError(NL_NO_ERROR);
     /* init socket memory, mutexes, and global variables */

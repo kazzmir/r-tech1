@@ -103,7 +103,7 @@ Message::Message(Socket socket){
     position = data;
     id = read32(socket);
     readBytes(socket, data, DATA_SIZE);
-    unconvertEndian(data, DATA_SIZE);
+    // unconvertEndian(data, DATA_SIZE);
     int str = read16(socket);
     if (str != -1){
         /* cap strings at 1024 bytes */
@@ -121,9 +121,10 @@ Message::Message(Socket socket){
 
 uint8_t * Message::dump(uint8_t * buffer) const {
     *(uint32_t *) buffer = htonl(id);
+    // Global::debug(1, "network") << "Dumped id " << id << " as " << htonl(id) << std::endl;
     buffer += sizeof(id);
     memcpy(buffer, data, DATA_SIZE);
-    convertEndian(buffer, DATA_SIZE);
+    // convertEndian(buffer, DATA_SIZE);
     buffer += DATA_SIZE;
     if (path != ""){
         *(uint16_t *) buffer = htons(path.length() + 1);
@@ -248,7 +249,7 @@ Message & Message::operator<<(int x){
         throw NetworkException("Tried to set too much data");
     }
 
-    *(int16_t *) position = x;
+    *(int16_t *) position = htons(x);
     position += sizeof(int16_t);
 
     return *this;
@@ -259,7 +260,7 @@ Message & Message::operator<<(unsigned int x){
         throw NetworkException("Tried to set too much data");
     }
 
-    *(int32_t *) position = x;
+    *(int32_t *) position = htonl(x);
     position += sizeof(int32_t);
     return *this;
 }
@@ -269,7 +270,7 @@ Message & Message::operator>>(int & x){
         throw NetworkException("Tried to read too much data");
     }
 
-    x = *(int16_t *) position;
+    x = ntohs(*(int16_t *) position);
     position += sizeof(int16_t);
     return *this;
 }
@@ -279,7 +280,7 @@ Message & Message::operator>>(unsigned int & x){
         throw NetworkException("Tried to read too much data");
     }
 
-    x = *(int32_t *) position;
+    x = htonl(*(int32_t *) position);
     position += sizeof(int32_t);
     return *this;
 }
@@ -351,8 +352,8 @@ void sendBytes(Socket socket, const uint8_t * data, int length){
     while ( written < length ){
         /* put htons here for endianess compatibility */
         int bytes = nlWrite(socket, position, length - written);
-        if ( bytes == NL_INVALID ){
-            throw NetworkException( string("Could not send bytes.") + getHawkError() );
+        if (bytes == NL_INVALID){
+            throw NetworkException(string("Could not send bytes.") + getHawkError());
         }
         written += bytes;
         position += bytes;
