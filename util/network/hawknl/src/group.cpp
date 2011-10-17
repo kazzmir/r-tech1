@@ -22,7 +22,9 @@
 
 #include <string.h>
 
+#ifndef FD_SETSIZE
 #define FD_SETSIZE              8192
+#endif
 
 #if defined WIN32 || defined WIN64 || defined (_WIN32_WCE)
 /* Windows systems */
@@ -40,6 +42,7 @@
 #endif
 
 #include "hawknl/nlinternal.h"
+#include "hawknl/group.h"
 
 static Util::Thread::Lock grouplock;
 

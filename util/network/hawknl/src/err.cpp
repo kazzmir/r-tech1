@@ -48,6 +48,20 @@ static DWORD key = (DWORD)0xFFFFFFFF;
 /* POSIX systems */
 #include <pthread.h>
 
+#ifdef PS3
+int pthread_setspecific(pthread_key_t * key, const void * data){
+    return 0;
+}
+
+int pthread_getspecific(pthread_key_t * key){
+    return 0;
+}
+
+int pthread_key_create(pthread_key_t * key, void (*func)(void *)){
+    return 0;
+}
+#endif
+
 #define KEY_NULL    ((pthread_key_t)-1)
 static pthread_key_t key = KEY_NULL;
 #endif
