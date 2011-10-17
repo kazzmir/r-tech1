@@ -11,6 +11,8 @@
 #include "util/compress.h"
 #include "util/thread.h"
 
+#include <arpa/inet.h>
+
 using namespace std;
 
 /* TODO: Wrap open_sockets with a mutex */
@@ -60,17 +62,54 @@ Message & Message::operator=( const Message & m ){
     return *this;
 }
 
+static bool multipleOf4(int size){
+    return (size & 0x3) == 0;
+}
+
+static bool multipleOf2(int size){
+    return (size & 0x1) == 0;
+}
+
+static void convertEndian(uint8_t * data, int size){
+    if (multipleOf4(size)){
+        for (int i = 0; i < size >> sizeof(uint32_t); i++){
+            *(uint32_t*) data = htonl(*(uint32_t*) data);
+            data += sizeof(uint32_t);
+        }
+    } else if (multipleOf2(size)){
+        for (int i = 0; i < size >> sizeof(uint16_t); i++){
+            *(uint16_t*) data = htons(*(uint16_t*) data);
+            data += sizeof(uint16_t);
+        }
+    }
+}
+
+static void unconvertEndian(uint8_t * data, int size){
+    if (multipleOf4(size)){
+        for (int i = 0; i < size >> sizeof(uint32_t); i++){
+            *(uint32_t*) data = ntohl(*(uint32_t*) data);
+            data += sizeof(uint32_t);
+        }
+    } else if (multipleOf2(size)){
+        for (int i = 0; i < size >> sizeof(uint16_t); i++){
+            *(uint16_t*) data = ntohs(*(uint16_t*) data);
+            data += sizeof(uint16_t);
+        }
+    }
+}
+
 Message::Message(Socket socket){
 #ifdef HAVE_NETWORKING
     position = data;
-    id = read32( socket );
-    readBytes( socket, data, DATA_SIZE );
-    int str = read16( socket );
-    if ( str != -1 ){
+    id = read32(socket);
+    readBytes(socket, data, DATA_SIZE);
+    unconvertEndian(data, DATA_SIZE);
+    int str = read16(socket);
+    if (str != -1){
         /* cap strings at 1024 bytes */
         char buf[1024];
-        str = (signed)(sizeof( buf ) - 1) < str ? (signed)(sizeof(buf) - 1) : str;
-        readBytes( socket, (uint8_t *) buf, str );
+        str = (signed)(sizeof(buf) - 1) < str ? (signed)(sizeof(buf) - 1) : str;
+        readBytes(socket, (uint8_t *) buf, str);
         buf[str] = 0;
         /* this is a string copy, not an assignment to a temporary pointer */
         this->path = buf;
@@ -80,18 +119,19 @@ Message::Message(Socket socket){
 #endif
 }
 
-uint8_t * Message::dump( uint8_t * buffer ) const {
-    *(uint32_t *) buffer = id;
+uint8_t * Message::dump(uint8_t * buffer) const {
+    *(uint32_t *) buffer = htonl(id);
     buffer += sizeof(id);
-    memcpy( buffer, data, DATA_SIZE );
+    memcpy(buffer, data, DATA_SIZE);
+    convertEndian(buffer, DATA_SIZE);
     buffer += DATA_SIZE;
-    if ( path != "" ){
-        *(uint16_t *) buffer = path.length() + 1;
+    if (path != ""){
+        *(uint16_t *) buffer = htons(path.length() + 1);
         buffer += sizeof(uint16_t);
-        memcpy( buffer, path.c_str(), path.length() + 1 );
+        memcpy(buffer, path.c_str(), path.length() + 1);
         buffer += path.length() + 1;
     } else {
-        *(uint16_t *) buffer = (uint16_t) -1;
+        *(uint16_t *) buffer = htons((uint16_t) -1);
         buffer += sizeof(uint16_t);
     }
     return buffer;
@@ -180,7 +220,7 @@ void sendAllMessages(const vector<Message*> & messages, Socket socket){
 }
 #endif
 
-void Message::send( Socket socket ) const {
+void Message::send(Socket socket) const {
 	/*
 	send16( socket, id );
 	sendBytes( socket, data, DATA_SIZE );
@@ -192,10 +232,10 @@ void Message::send( Socket socket ) const {
 	}
 	*/
 #ifdef HAVE_NETWORKING
-	uint8_t * buffer = new uint8_t[ size() ];
-	dump( buffer );
-	sendBytes( socket, buffer, size() );
-	delete[] buffer;
+    uint8_t * buffer = new uint8_t[size()];
+    dump(buffer);
+    sendBytes(socket, buffer, size());
+    delete[] buffer;
 #endif
 }
 	
@@ -263,9 +303,9 @@ int Message::size() const {
 
 static string getHawkError(){
 	return string(" HawkNL error: '") +
-	       string( nlGetErrorStr( nlGetError() ) ) +
-	       string( "' HawkNL system error: '" ) +
-	       string( nlGetSystemErrorStr( nlGetSystemError() ) );
+	       string(nlGetErrorStr(nlGetError())) +
+	       string("' HawkNL system error: '") +
+	       string(nlGetSystemErrorStr(nlGetSystemError()));
 }
 
 template<typename X>
@@ -275,85 +315,64 @@ static X readX(Socket socket){
     return data;
 }
 
-int16_t read16( Socket socket ){
-    return readX<uint16_t>(socket);
-    /*
-	uint8_t data[ sizeof(uint16_t) ];
-	readBytes( socket, data, sizeof(uint16_t) ); 
-	return *(uint16_t *)data;
-    */
-
-	/*
-	uint16_t b;
-	int read = nlRead( socket, &b, sizeof(int16_t) );
-	if ( read != sizeof(int16_t) ){
-		throw NetworkException( string("Could not read 16 bits.") + getHawkError() );
-	}
-	return b;
-	*/
+int16_t read16(Socket socket){
+    return ntohs(readX<uint16_t>(socket));
 }
 
-int32_t read32( Socket socket ){
-    return readX<uint32_t>(socket);
+int32_t read32(Socket socket){
+    return ntohl(readX<uint32_t>(socket));
 }
 
-void send16( Socket socket, int16_t bytes ){
-	/*
-	if ( nlWrite( socket, &length, sizeof(int16_t) ) != sizeof(int16_t) ){
-		throw NetworkException( string("Could not send 16 bits.") + getHawkError() );
-	}
-	*/
-	sendBytes( socket, (uint8_t *) &bytes, sizeof(bytes) );
+void send16(Socket socket, int16_t bytes){
+    bytes = htons(bytes);
+    sendBytes(socket, (uint8_t *) &bytes, sizeof(bytes));
 }
 
-string readStr( Socket socket, const uint16_t length ){
-
-	char buffer[ length + 1 ];
-	NLint bytes = nlRead( socket, buffer, length );
-	if ( bytes == NL_INVALID ){
-		throw NetworkException( string("Could not read string.") + getHawkError() );
-	}
-	buffer[ length ] = 0;
-	bytes += 1;
-	return string( buffer );
-
+string readStr(Socket socket, const uint16_t length){
+    char buffer[length + 1];
+    NLint bytes = nlRead(socket, buffer, length);
+    if (bytes == NL_INVALID){
+        throw NetworkException(string("Could not read string.") + getHawkError());
+    }
+    buffer[length] = 0;
+    bytes += 1;
+    return string(buffer);
 }
 
-void sendStr( Socket socket, const string & str ){
-	if ( nlWrite( socket, str.c_str(), str.length() + 1 ) != (signed)(str.length() + 1) ){
-		throw NetworkException( string("Could not write string.") + getHawkError() );
-	}
+void sendStr(Socket socket, const string & str){
+    if (nlWrite(socket, str.c_str(), str.length() + 1) != (signed)(str.length() + 1)){
+        throw NetworkException( string("Could not write string.") + getHawkError() );
+    }
 }
 
-void sendBytes( Socket socket, const uint8_t * data, int length ){
-	const uint8_t * position = data;
-	int written = 0;
-	while ( written < length ){
-		/* put htons here for endianess compatibility */
-		int bytes = nlWrite( socket, position, length - written );
-		if ( bytes == NL_INVALID ){
-			throw NetworkException( string("Could not send bytes.") + getHawkError() );
-		}
-		written += bytes;
-		position += bytes;
-	}
+void sendBytes(Socket socket, const uint8_t * data, int length){
+    const uint8_t * position = data;
+    int written = 0;
+    while ( written < length ){
+        /* put htons here for endianess compatibility */
+        int bytes = nlWrite(socket, position, length - written);
+        if ( bytes == NL_INVALID ){
+            throw NetworkException( string("Could not send bytes.") + getHawkError() );
+        }
+        written += bytes;
+        position += bytes;
+    }
 }
 
-void readBytes( Socket socket, uint8_t * data, int length ){
-	uint8_t * position = data;
-	int read = 0;
-	while ( read < length ){
-		/* put htons here for endianess compatibility */
-		int bytes = nlRead( socket, position, length - read );
-		if ( bytes == NL_INVALID ){
-                    switch (nlGetError()){
-                        case NL_MESSAGE_END : throw MessageEnd();
-                        default : throw NetworkException(string("Could not read bytes.") + getHawkError());
-                    }
-		}
-		read += bytes;
-		position += bytes;
-	}
+void readBytes(Socket socket, uint8_t * data, int length){
+    uint8_t * position = data;
+    int read = 0;
+    while (read < length){
+        int bytes = nlRead( socket, position, length - read );
+        if (bytes == NL_INVALID){
+            switch (nlGetError()){
+                case NL_MESSAGE_END : throw MessageEnd();
+                default : throw NetworkException(string("Could not read bytes.") + getHawkError());
+            }
+        }
+        read += bytes;
+        position += bytes;
+    }
 }
 
 Util::Thread::Lock socketsLock;
@@ -376,16 +395,16 @@ Socket open(int port) throw (InvalidPortException){
     return server;
 }
 
-Socket connect( string server, int port ) throw ( NetworkException ) {
-	NLaddress address;
-	nlGetAddrFromName( server.c_str(), &address );
-	nlSetAddrPort( &address, port );
-	Socket socket = open( 0 );
-	if ( nlConnect( socket, &address ) == NL_FALSE ){
-		close( socket );
-		throw NetworkException( "Could not connect" );
-	}
-	return socket;
+Socket connect( string server, int port ) throw (NetworkException){
+    NLaddress address;
+    nlGetAddrFromName( server.c_str(), &address);
+    nlSetAddrPort(&address, port);
+    Socket socket = open( 0 );
+    if (nlConnect(socket, &address) == NL_FALSE){
+        close(socket);
+        throw NetworkException( "Could not connect" );
+    }
+    return socket;
 }
 
 void close(Socket s){
@@ -458,7 +477,7 @@ Socket accept( Socket s ) throw( NetworkException ){
 }
 
 void shutdown(){
-	nlShutdown();
+    nlShutdown();
 }
 
 #endif
