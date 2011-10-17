@@ -674,7 +674,7 @@ NLboolean loopback_StringToAddr(const NLchar *string, NLaddress *address)
     memset(address, 0, sizeof(NLaddress));
     address->valid = NL_TRUE;
     /* check for a port number */
-    st = _tcschr(string, TEXT(':'));
+    st = _tcschr((NLchar*) string, TEXT(':'));
     if(st != NULL)
     {
         st++;

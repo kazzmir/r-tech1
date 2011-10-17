@@ -19,18 +19,18 @@ add_definitions(${CFLAGS})
 # Source directories containing all the necessary .cpp files
 # -------------------------------------------------------
 set(SRC
-src/crc.c
-src/err.c
-src/errorstr.c
-src/group.c
-src/htcondition.c
-src/hthread.c
-src/htmutex.c
-src/ipx.c
-src/loopback.c
-src/nl.c
-src/nltime.c
-src/sock.c)
+src/crc.cpp
+src/err.cpp
+src/errorstr.cpp
+src/group.cpp
+src/htcondition.cpp
+src/hthread.cpp
+src/htmutex.cpp
+src/ipx.cpp
+src/loopback.cpp
+src/nl.cpp
+src/nltime.cpp
+src/sock.cpp)
 
 # -------------------------------------------------------
 # Include directory
