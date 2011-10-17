@@ -8,15 +8,16 @@ src/crc.cpp
 src/err.cpp
 src/errorstr.cpp
 src/group.cpp
-src/hthread.cpp
-src/htcondition.cpp
 src/ipx.cpp
 src/loopback.cpp
-src/htmutex.cpp
 src/nl.cpp
 src/nltime.cpp
 src/sock.cpp
 """);
+
+# src/hthread.cpp
+# src/htcondition.cpp
+# src/htmutex.cpp
 
 # env.Append(CPPPATH = 'hawknl')
 

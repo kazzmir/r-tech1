@@ -41,7 +41,7 @@
 
 #include "hawknl/nlinternal.h"
 
-static HTmutex  grouplock;
+static Util::Thread::Lock grouplock;
 
 typedef struct
 {
@@ -60,14 +60,12 @@ static NLint nlnumgroups = 0;
 
 /* Internal functions */
 
-void nlGroupLock(void)
-{
-    (void)htMutexLock(&grouplock);
+void nlGroupLock(void){
+    Util::Thread::acquireLock(&grouplock);
 }
 
-void nlGroupUnlock(void)
-{
-    (void)htMutexUnlock(&grouplock);
+void nlGroupUnlock(void){
+    Util::Thread::releaseLock(&grouplock);
 }
 
 NLboolean nlGroupInit(void)
@@ -82,8 +80,7 @@ NLboolean nlGroupInit(void)
         return NL_FALSE;
     }
     memset(groups, 0, NL_MAX_GROUPS * sizeof(nl_group_t *));
-    if(htMutexInit(&grouplock) != 0)
-    {
+    if (!Util::Thread::initializeLock(&grouplock)){
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
     }
@@ -106,7 +103,7 @@ void nlGroupShutdown(void)
         free(groups);
         groups = NULL;
     }
-    (void)htMutexDestroy(&grouplock);
+    Util::Thread::destroyLock(&grouplock);
 }
 
 SOCKET nlGroupGetFdset(NLint group, fd_set *fd)
@@ -139,7 +136,7 @@ SOCKET nlGroupGetFdset(NLint group, fd_set *fd)
         pgroup->fdset = (fd_set *)malloc(sizeof(fd_set));
         if(pgroup->fdset == NULL)
         {
-            (void)htMutexUnlock(&grouplock);
+            Util::Thread::releaseLock(&grouplock);
             nlSetError(NL_OUT_OF_MEMORY);
             return INVALID_SOCKET;
         }
@@ -172,14 +169,14 @@ HL_EXP NLint HL_APIENTRY nlGroupCreate(void)
         nlSetError(NL_NO_NETWORK);
         return NL_INVALID;
     }
-    if(htMutexLock(&grouplock) != 0)
+    if(Util::Thread::acquireLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_INVALID;
     }
     if(nlnumgroups == NL_MAX_GROUPS)
     {
-        (void)htMutexUnlock(&grouplock);
+        Util::Thread::releaseLock(&grouplock);
         nlSetError(NL_OUT_OF_GROUPS);
         return NL_INVALID;
     }
@@ -205,7 +202,7 @@ HL_EXP NLint HL_APIENTRY nlGroupCreate(void)
         /* let's check just to make sure we did find a group */
         if(newgroup == NL_INVALID)
         {
-            (void)htMutexUnlock(&grouplock);
+            Util::Thread::releaseLock(&grouplock);
             nlSetError(NL_OUT_OF_MEMORY);
             return NL_INVALID;
         }
@@ -214,7 +211,7 @@ HL_EXP NLint HL_APIENTRY nlGroupCreate(void)
     pgroup = (nl_group_t *)malloc((size_t)(sizeof(nl_group_t)));
     if(pgroup == NULL)
     {
-        (void)htMutexUnlock(&grouplock);
+        Util::Thread::releaseLock(&grouplock);
         nlSetError(NL_OUT_OF_MEMORY);
         return NL_INVALID;
     }
@@ -226,7 +223,7 @@ HL_EXP NLint HL_APIENTRY nlGroupCreate(void)
         if(pgroup->sockets == NULL)
         {
             free(pgroup);
-            (void)htMutexUnlock(&grouplock);
+            Util::Thread::releaseLock(&grouplock);
             nlSetError(NL_OUT_OF_MEMORY);
             return NL_INVALID;
         }
@@ -247,7 +244,7 @@ HL_EXP NLint HL_APIENTRY nlGroupCreate(void)
     {
         nlnextgroup = nlnumgroups;
     }
-    if(htMutexUnlock(&grouplock) != 0)
+    if(Util::Thread::releaseLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_INVALID;
@@ -270,7 +267,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupDestroy(NLint group)
         nlSetError(NL_INVALID_GROUP);
         return NL_FALSE;
     }
-    if(htMutexLock(&grouplock) != 0)
+    if(Util::Thread::acquireLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -289,7 +286,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupDestroy(NLint group)
         groups[realgroup] = NULL;
         nlnumgroups--;
     }
-    if(htMutexUnlock(&grouplock) != 0)
+    if(Util::Thread::releaseLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -315,7 +312,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupAddSocket(NLint group, NLsocket socket)
     }
 
     /* add the socket to the group */
-    if(htMutexLock(&grouplock) != 0)
+    if(Util::Thread::acquireLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -330,7 +327,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupAddSocket(NLint group, NLsocket socket)
 
         if(oldmax == NL_MAX_GROUP_SOCKETS)
         {
-            (void)htMutexUnlock(&grouplock);
+            Util::Thread::releaseLock(&grouplock);
             nlSetError(NL_OUT_OF_GROUP_SOCKETS);
             return NL_FALSE;
         }
@@ -342,7 +339,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupAddSocket(NLint group, NLsocket socket)
         if((newsockets = (NLsocket *)realloc(pgroup->sockets, pgroup->maxsockets * sizeof(NLsocket *))) == NULL)
         {
             pgroup->maxsockets = oldmax;
-            (void)htMutexUnlock(&grouplock);
+            Util::Thread::releaseLock(&grouplock);
             nlSetError(NL_OUT_OF_MEMORY);
             return NL_FALSE;
         }
@@ -366,7 +363,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupAddSocket(NLint group, NLsocket socket)
                 /* make sure the socket is valid */
                 if(nlIsValidSocket(socket) == NL_FALSE)
                 {
-                    (void)htMutexUnlock(&grouplock);
+                    Util::Thread::releaseLock(&grouplock);
                     nlSetError(NL_INVALID_SOCKET);
                     return NL_FALSE;
                 }
@@ -382,12 +379,12 @@ HL_EXP NLboolean HL_APIENTRY nlGroupAddSocket(NLint group, NLsocket socket)
     }
     if(i == pgroup->maxsockets)
     {
-        (void)htMutexUnlock(&grouplock);
+        Util::Thread::releaseLock(&grouplock);
         nlSetError(NL_OUT_OF_GROUP_SOCKETS);
         return NL_FALSE;
     }
     pgroup->numsockets++;
-    if(htMutexUnlock(&grouplock) != 0)
+    if(Util::Thread::releaseLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -435,13 +432,13 @@ HL_EXP NLboolean HL_APIENTRY nlGroupGetSockets(NLint group, NLsocket *socket, NL
 {
     NLboolean result;
 
-    if(htMutexLock(&grouplock) != 0)
+    if(Util::Thread::acquireLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
     }
     result = nlGroupGetSocketsINT(group, socket, number);
-    if(htMutexUnlock(&grouplock) != 0)
+    if(Util::Thread::releaseLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -467,7 +464,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupDeleteSocket(NLint group, NLsocket socket)
     }
 
     /* delete the socket from the group */
-    if(htMutexLock(&grouplock) != 0)
+    if(Util::Thread::acquireLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -482,7 +479,7 @@ HL_EXP NLboolean HL_APIENTRY nlGroupDeleteSocket(NLint group, NLsocket socket)
     if(i == pgroup->numsockets)
     {
         /* did not find the socket */
-        (void)htMutexUnlock(&grouplock);
+        Util::Thread::releaseLock(&grouplock);
         nlSetError(NL_SOCKET_NOT_FOUND);
         return NL_FALSE;
     }
@@ -513,12 +510,12 @@ HL_EXP NLboolean HL_APIENTRY nlGroupDeleteSocket(NLint group, NLsocket socket)
             /* free the fdset so that it can be rebuilt */
             free(pgroup->fdset);
             pgroup->fdset = NULL;
-            (void)htMutexUnlock(&grouplock);
+            Util::Thread::releaseLock(&grouplock);
             nlSetError(NL_INVALID_SOCKET);
             return NL_FALSE;
         }
     }
-    if(htMutexUnlock(&grouplock) != 0)
+    if(Util::Thread::releaseLock(&grouplock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;

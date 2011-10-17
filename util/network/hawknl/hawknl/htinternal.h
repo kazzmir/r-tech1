@@ -23,7 +23,7 @@
 #ifndef HTINTERNAL_H
 #define HTINTERNAL_H
 
-#include "hawkthreads.h"
+// #include "hawkthreads.h"
 
 /* for malloc and free */
 #include <stdlib.h>

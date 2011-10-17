@@ -25,6 +25,7 @@
 #include "hawknl/sock.h"
 #include "hawknl/serial.h"
 #include "hawknl/parallel.h"
+#include "util/funcs.h"
 
 #ifdef NL_INCLUDE_LOOPBACK
 #include "hawknl/loopback.h"
@@ -39,7 +40,7 @@
 volatile nl_state_t nlState = {NL_FALSE, NL_TRUE};
 
 /* mutexes for global variables */
-static HTmutex  socklock, instatlock, outstatlock;
+static Util::Thread::Lock socklock, instatlock, outstatlock;
 
 static volatile NLboolean nlBlocking = NL_FALSE;
 
@@ -223,7 +224,7 @@ NLsocket nlGetNewSocket(void)
     NLsocket    newsocket = NL_INVALID;
     nl_socket_t *sock = NULL;
 
-    if(htMutexLock(&socklock) != 0)
+    if(Util::Thread::acquireLock(&socklock) != 0)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_INVALID;
@@ -238,7 +239,7 @@ NLsocket nlGetNewSocket(void)
         temp = (nl_socket_t **)realloc((void *)nlSockets, tempmaxnumsockets * sizeof(nl_socket_t *));
         if(temp == NULL)
         {
-            (void)htMutexUnlock(&socklock);
+            Util::Thread::releaseLock(&socklock);
             nlSetError(NL_OUT_OF_MEMORY);
             return NL_INVALID;
         }
@@ -253,7 +254,7 @@ NLsocket nlGetNewSocket(void)
         sock = (nl_socket_t *)malloc(sizeof(nl_socket_t));
         if(sock == NULL)
         {
-            (void)htMutexUnlock(&socklock);
+            Util::Thread::releaseLock(&socklock);
             nlSetError(NL_OUT_OF_MEMORY);
             return NL_INVALID;
         }
@@ -264,10 +265,10 @@ NLsocket nlGetNewSocket(void)
         /* clear the structure */
         memset(sock, 0, sizeof(nl_socket_t));
 
-        if(htMutexInit(&sock->readlock) != 0 || htMutexInit(&sock->writelock) != 0)
+        if(Util::Thread::initializeLock(&sock->readlock) != true || Util::Thread::initializeLock(&sock->writelock) != true)
         {
             nlSetError(NL_SYSTEM_ERROR);
-            (void)htMutexUnlock(&socklock);
+            Util::Thread::releaseLock(&socklock);
             return NL_INVALID;
         }
     }
@@ -275,7 +276,7 @@ NLsocket nlGetNewSocket(void)
     /* there is an open socket slot somewhere below nlNextsocket */
     {
         NLsocket    i;
-        HTmutex     readlock, writelock;
+        Util::Thread::Lock readlock, writelock;
 
         for(i=0;i<nlNextsocket;i++)
         {
@@ -290,7 +291,7 @@ NLsocket nlGetNewSocket(void)
         /* let's check just to make sure we did find a socket */
         if(sock == NULL)
         {
-            (void)htMutexUnlock(&socklock);
+            Util::Thread::releaseLock(&socklock);
             nlSetError(NL_OUT_OF_MEMORY);
             return NL_INVALID;
         }
@@ -306,7 +307,7 @@ NLsocket nlGetNewSocket(void)
     sock->blocking = nlBlocking;
     sock->inuse = NL_TRUE;
     nlNumsockets++;
-    (void)htMutexUnlock(&socklock);
+    Util::Thread::releaseLock(&socklock);
     return newsocket;
 }
 
@@ -345,8 +346,8 @@ void nlFreeSocket(NLsocket socket)
         {
             free(sock->outbuf);
         }
-        (void)htMutexDestroy(&sock->readlock);
-        (void)htMutexDestroy(&sock->writelock);
+        Util::Thread::destroyLock(&sock->readlock);
+        Util::Thread::destroyLock(&sock->writelock);
         free(sock);
     }
 }
@@ -380,7 +381,7 @@ NLboolean nlLockSocket(NLsocket socket, NLint which)
 
     if((which&NL_READ) > 0)
     {
-        if(htMutexLock(&sock->readlock) != 0)
+        if(Util::Thread::acquireLock(&sock->readlock) != 0)
         {
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
@@ -388,11 +389,11 @@ NLboolean nlLockSocket(NLsocket socket, NLint which)
     }
     if((which&NL_WRITE) > 0)
     {
-        if(htMutexLock(&sock->writelock) != 0)
+        if(Util::Thread::acquireLock(&sock->writelock) != 0)
         {
             if((which&NL_READ) > 0)
             {
-                (void)htMutexUnlock(&sock->readlock);
+                Util::Thread::releaseLock(&sock->readlock);
             }
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
@@ -405,13 +406,12 @@ void nlUnlockSocket(NLsocket socket, NLint which)
 {
     nl_socket_t     *sock = nlSockets[socket];
 
-    if((which&NL_WRITE) > 0)
-    {
-        (void)htMutexUnlock(&sock->writelock);
+    if((which&NL_WRITE) > 0){
+        Util::Thread::releaseLock(&sock->writelock);
     }
     if((which&NL_READ) > 0)
     {
-        (void)htMutexUnlock(&sock->readlock);
+        Util::Thread::releaseLock(&sock->readlock);
     }
 }
 
@@ -492,9 +492,9 @@ static void nlUpdateInStats(NLint nbytes, NLint npackets)
     {
         return;
     }
-    (void)htMutexLock(&instatlock);
+    Util::Thread::acquireLock(&instatlock);
     nlUpdateStats(&nlInstats, nbytes, npackets);
-    (void)htMutexUnlock(&instatlock);
+    Util::Thread::releaseLock(&instatlock);
 }
 
 static void nlUpdateOutStats(NLint nbytes, NLint npackets)
@@ -503,9 +503,9 @@ static void nlUpdateOutStats(NLint nbytes, NLint npackets)
     {
         return;
     }
-    (void)htMutexLock(&outstatlock);
+    Util::Thread::acquireLock(&outstatlock);
     nlUpdateStats(&nlOutstats, nbytes, npackets);
-    (void)htMutexUnlock(&outstatlock);
+    Util::Thread::releaseLock(&outstatlock);
 }
 
 static void nlUpdateSocketInStats(NLsocket socket, NLint nbytes, NLint npackets)
@@ -564,8 +564,8 @@ HL_EXP NLboolean HL_APIENTRY nlInit(void)
             nlShutdown();
             return NL_FALSE;
         }
-        if(htMutexInit(&socklock) != 0 || htMutexInit(&instatlock) != 0 ||
-            htMutexInit(&outstatlock) != 0)
+        if(Util::Thread::initializeLock(&socklock) != true || Util::Thread::initializeLock(&instatlock) != true ||
+            Util::Thread::initializeLock(&outstatlock) != true)
         {
             nlSetError(NL_SYSTEM_ERROR);
             nlShutdown();
@@ -619,7 +619,7 @@ HL_EXP void HL_APIENTRY nlShutdown(void)
     if(driver != NULL)
     {
         /* close any open sockets */
-        (void)htMutexLock(&socklock);
+        Util::Thread::acquireLock(&socklock);
         if(nlSockets != NULL)
         {
             NLsocket s;
@@ -631,7 +631,7 @@ HL_EXP void HL_APIENTRY nlShutdown(void)
                     if(nlIsValidSocket(s) == NL_TRUE)
                     {
                         driver->Close(s);
-                        htThreadYield();
+                        Util::rest(0);
                     }
                 }
             }
@@ -646,7 +646,7 @@ HL_EXP void HL_APIENTRY nlShutdown(void)
         nlSetError(NL_NO_NETWORK);
     }
     
-    htThreadSleep(1);
+    Util::rest(1);
     
     /* now free all the socket structures */
     if(nlSockets != NULL)
@@ -662,7 +662,7 @@ HL_EXP void HL_APIENTRY nlShutdown(void)
                     (void)nlLockSocket(s, NL_BOTH);
                     nlReturnSocket(s);
                     nlUnlockSocket(s, NL_BOTH);
-                    htThreadYield();
+                    Util::rest(0);
                 }
                 nlFreeSocket(s);
             }
@@ -670,12 +670,12 @@ HL_EXP void HL_APIENTRY nlShutdown(void)
         free(nlSockets);
         nlSockets = NULL;
     }
-    (void)htMutexUnlock(&socklock);
+    Util::Thread::releaseLock(&socklock);
     nlGroupShutdown();
     /* destroy the mutexes */
-    (void)htMutexDestroy(&socklock);
-    (void)htMutexDestroy(&instatlock);
-    (void)htMutexDestroy(&outstatlock);
+    Util::Thread::destroyLock(&socklock);
+    Util::Thread::destroyLock(&instatlock);
+    Util::Thread::destroyLock(&outstatlock);
 }
 
 /*
@@ -802,7 +802,7 @@ HL_EXP NLboolean HL_APIENTRY nlClose(NLsocket socket)
     {
         if(nlIsValidSocket(socket) == NL_TRUE)
         {
-            if(htMutexLock(&socklock) != 0)
+            if(Util::Thread::acquireLock(&socklock) != 0)
             {
                 nlSetError(NL_SYSTEM_ERROR);
                 return NL_FALSE;
@@ -817,7 +817,7 @@ HL_EXP NLboolean HL_APIENTRY nlClose(NLsocket socket)
             /* return the socket for reuse */
             nlReturnSocket(socket);
             // nlUnlockSocket(socket, NL_BOTH);
-            if(htMutexUnlock(&socklock) != 0)
+            if(Util::Thread::releaseLock(&socklock) != 0)
             {
                 nlSetError(NL_SYSTEM_ERROR);
                 return NL_FALSE;
@@ -1529,85 +1529,85 @@ HL_EXP NLboolean HL_APIENTRY nlClear(NLenum name)
     switch (name) {
 
     case NL_PACKETS_SENT:
-        if(htMutexLock(&outstatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&outstatlock) != 0){
+            Util::Thread::releaseLock(&outstatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlOutstats.packets = 0;
-        (void)htMutexUnlock(&outstatlock);
+        Util::Thread::releaseLock(&outstatlock);
         break;
 
     case NL_BYTES_SENT:
-        if(htMutexLock(&outstatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&outstatlock) != 0){
+            Util::Thread::releaseLock(&outstatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlOutstats.bytes = 0;
-        (void)htMutexUnlock(&outstatlock);
+        Util::Thread::releaseLock(&outstatlock);
         break;
 
     case NL_AVE_BYTES_SENT:
-        if(htMutexLock(&outstatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&outstatlock) != 0){
+            Util::Thread::releaseLock(&outstatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlOutstats.average = 0;
         memset((NLbyte *)nlOutstats.bucket, 0, sizeof(NLlong) * NL_NUM_BUCKETS);
-        (void)htMutexUnlock(&outstatlock);
+        Util::Thread::releaseLock(&outstatlock);
         break;
 
     case NL_HIGH_BYTES_SENT:
-        if(htMutexLock(&outstatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&outstatlock) != 0){
+            Util::Thread::releaseLock(&outstatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlOutstats.highest = 0;
-        (void)htMutexUnlock(&outstatlock);
+        Util::Thread::releaseLock(&outstatlock);
         break;
 
     case NL_PACKETS_RECEIVED:
-        if(htMutexLock(&instatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&instatlock) != 0){
+            Util::Thread::releaseLock(&instatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlInstats.packets = 0;
-        (void)htMutexUnlock(&instatlock);
+        Util::Thread::releaseLock(&instatlock);
         break;
 
     case NL_BYTES_RECEIVED:
-        if(htMutexLock(&instatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&instatlock) != 0){
+            Util::Thread::releaseLock(&instatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlInstats.bytes = 0;
-        (void)htMutexUnlock(&instatlock);
+        Util::Thread::releaseLock(&instatlock);
         break;
 
     case NL_AVE_BYTES_RECEIVED:
-        if(htMutexLock(&instatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&instatlock) != 0){
+            Util::Thread::releaseLock(&instatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlInstats.average = 0;
         memset((NLbyte *)nlInstats.bucket, 0, sizeof(NLlong) * NL_NUM_BUCKETS);
-        (void)htMutexUnlock(&instatlock);
+        Util::Thread::releaseLock(&instatlock);
         break;
 
     case NL_HIGH_BYTES_RECEIVED:
-        if(htMutexLock(&instatlock) != 0)
-        {
+        if(Util::Thread::acquireLock(&instatlock) != 0){
+            Util::Thread::releaseLock(&instatlock);
             nlSetError(NL_SYSTEM_ERROR);
             return NL_FALSE;
         }
         nlInstats.highest = 0;
-        (void)htMutexUnlock(&instatlock);
+        Util::Thread::releaseLock(&instatlock);
         break;
 
     case NL_ALL_STATS:

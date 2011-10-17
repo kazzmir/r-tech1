@@ -23,14 +23,15 @@ src/crc.cpp
 src/err.cpp
 src/errorstr.cpp
 src/group.cpp
-src/htcondition.cpp
-src/hthread.cpp
-src/htmutex.cpp
 src/ipx.cpp
 src/loopback.cpp
 src/nl.cpp
 src/nltime.cpp
 src/sock.cpp)
+
+#src/htcondition.cpp
+#src/hthread.cpp
+#src/htmutex.cpp
 
 # -------------------------------------------------------
 # Include directory

@@ -94,8 +94,9 @@ ThreadObject::~ThreadObject(){
 #if defined(USE_SDL) && !defined(USE_NACL)
 Id uninitializedValue = NULL;
     
-void initializeLock(Lock * lock){
+bool initializeLock(Lock * lock){
     *lock = SDL_CreateMutex();
+    return *lock != NULL;
 }
 
 int acquireLock(Lock * lock){
@@ -167,8 +168,9 @@ void cancelThread(Id thread){
 #elif USE_ALLEGRO5
 Id uninitializedValue = 0;
 
-void initializeLock(Lock * lock){
+bool initializeLock(Lock * lock){
     *lock = al_create_mutex();
+    return *lock != NULL;
 }
 
 int acquireLock(Lock * lock){
@@ -246,8 +248,8 @@ void destroyLock(Lock * lock){
 #else
 Id uninitializedValue = 0;
 
-void initializeLock(Lock * lock){
-    pthread_mutex_init(lock, NULL);
+bool initializeLock(Lock * lock){
+    return pthread_mutex_init(lock, NULL) == 0;
 }
 
 int acquireLock(Lock * lock){

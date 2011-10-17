@@ -102,6 +102,7 @@ typedef int socklen_t;
 
 #include "hawknl/nlinternal.h"
 #include "hawknl/sock.h"
+#include "util/funcs.h"
 
 #ifndef IN_MULTICAST
 #define IN_MULTICAST(i) (((unsigned long)(i) & 0xF0000000) == (unsigned long)0xE0000000)
@@ -146,8 +147,10 @@ This is a Winsock work around to be able to bind() to more than 3976 ports
 
 #ifdef HL_WINDOWS_APP
 
-static HTmutex  portlock; /* In memory of my step-father, Don Portlock,
-who passed away Jan 12, 2001 - Phil */
+/* In memory of my step-father, Don Portlock,
+ * who passed away Jan 12, 2001 - Phil
+ */
+static Util::Thread::Lock portlock;
 
 static volatile NLushort nextport = 1024;
 
@@ -155,7 +158,7 @@ static NLushort sock_getNextPort(void)
 {
     NLlong temp;
 
-    (void)htMutexLock(&portlock);
+    Util::Thread::acquireLock(&portlock);
     temp = (NLlong)nextport;
     if(++temp > 65535)
     {
@@ -163,7 +166,7 @@ static NLushort sock_getNextPort(void)
         temp = 1024;
     }
     nextport = (NLushort)temp;
-    (void)htMutexUnlock(&portlock);
+    Util::Thread::releaseLock(&portlock);
     return nextport;
 }
 
@@ -267,7 +270,7 @@ helper functions for NL_RELIABLE_PACKETS
 */
 
 static NLint    rpGroup;                /* the group to hold all the NL_RELIABLE_PACKETS sockets */
-static HTmutex  rpMutex;                /* mutex to lock the functions */
+static Util::Thread::Lock rpMutex;                /* mutex to lock the functions */
 static NLboolean needThread = NL_TRUE;  /* do we need to spawn a thread? */
 static NLint    rpSocketCount = 0;      /* total count of NL_RELIABLE_PACKETS sockets */
 static volatile NLint rpBufferedCount = 0;/* count of sockets that are buffering data */
@@ -357,7 +360,7 @@ static void *sock_rpThread(void *p)
             nlUnlockSocket(socket, NL_WRITE);
         }
 loopend:
-        htThreadSleep(50);
+        Util::rest(50);
     }
 cleanup:
     free(sockets);
@@ -369,23 +372,27 @@ cleanup:
 
 static void sock_AddSocket(NLsocket socket)
 {
-    (void)htMutexLock(&rpMutex);
+    Util::Thread::acquireLock(&rpMutex);
     (void)nlGroupAddSocket(rpGroup, socket);
     rpSocketCount++;
-    if(needThread == NL_TRUE)
-    {
-        (void)htThreadCreate(sock_rpThread, NULL, NL_FALSE);
+    if(needThread == NL_TRUE){
+        Util::Thread::Id thread;
+        /* the thread was initially made in a detached state which 
+         * is why the thread is it not stored -- because it wasn't
+         * ever joined later on.
+         */
+        Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) sock_rpThread, NULL);
         needThread = NL_FALSE;
     }
-    (void)htMutexUnlock(&rpMutex);
+    Util::Thread::releaseLock(&rpMutex);
 }
 
 static void sock_DeleteSocket(NLsocket socket)
 {
-    (void)htMutexLock(&rpMutex);
+    Util::Thread::acquireLock(&rpMutex);
     (void)nlGroupDeleteSocket(rpGroup, socket);
     rpSocketCount--;
-    (void)htMutexUnlock(&rpMutex);
+    Util::Thread::releaseLock(&rpMutex);
 }
 
 /*
@@ -594,13 +601,13 @@ NLboolean sock_Init(void)
     {
         return NL_FALSE;
     }
-    if(htMutexInit(&portlock) != 0)
+    if(Util::Thread::initializeLock(&portlock) != true)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
     }
 #endif
-    if(htMutexInit(&rpMutex) != 0)
+    if(Util::Thread::initializeLock(&rpMutex) != true)
     {
         nlSetError(NL_SYSTEM_ERROR);
         return NL_FALSE;
@@ -623,8 +630,8 @@ void sock_Shutdown(void)
 {
 #ifdef HL_WINDOWS_APP
     (void)WSACleanup();
-    (void)htMutexDestroy(&portlock);
-    (void)htMutexDestroy(&rpMutex);
+    Util::Thread::destroyLock(&portlock);
+    Util::Thread::destroyLock(&rpMutex);
     (void)nlGroupDestroy(rpGroup);
     rpGroup = NL_INVALID;
 #endif
@@ -1134,7 +1141,7 @@ static NLboolean sock_ConnectUDP(NLsocket socket, const NLaddress *address)
                 return NL_TRUE;
             }
         }
-        htThreadSleep(NL_CONNECT_SLEEP);
+        Util::rest(NL_CONNECT_SLEEP);
     }
     
     if(sock->blocking == NL_TRUE)
@@ -1173,8 +1180,8 @@ static NLboolean sock_ConnectUDPAsynch(NLsocket socket, const NLaddress *address
     addr->socket = socket;
     sock->connecting = NL_TRUE;
     sock->conerror = NL_FALSE;
-    if(htThreadCreate(sock_ConnectUDPAsynchInt, (void *)addr, NL_FALSE) == (HThreadID)HT_INVALID)
-    {
+    Util::Thread::Id thread;
+    if (!Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) sock_ConnectUDPAsynchInt, (void *)addr)){
         return NL_FALSE;
     }
     return NL_TRUE;
@@ -1328,7 +1335,7 @@ void sock_Close(NLsocket socket)
             /* 200 * 50 ms = up to a 10 second delay to allow data to be sent */
             while(tries-- > 0 && sock->sendlen > 0)
             {
-                htThreadSleep(50);
+                Util::rest(50);
             }
         }
         sock_DeleteSocket(socket);
@@ -2208,8 +2215,8 @@ NLboolean sock_GetNameFromAddrAsync(const NLaddress *address, NLchar *name)
     }
     memcpy(addr->address, address, sizeof(NLaddress));
     addr->name = name;
-    if(htThreadCreate(sock_GetNameFromAddrAsyncInt, (void *)addr, NL_FALSE) == (HThreadID)HT_INVALID)
-    {
+    Util::Thread::Id thread;
+    if (!Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) sock_GetNameFromAddrAsyncInt, (void *)addr)){
         return NL_FALSE;
     }
     return NL_TRUE;
@@ -2304,8 +2311,8 @@ NLboolean sock_GetAddrFromNameAsync(const NLchar *name, NLaddress *address)
     _tcsncpy(addr->name, name, (size_t)NL_MAX_STRING_LENGTH);
     addr->name[NL_MAX_STRING_LENGTH - 1] = '\0';
     addr->address = address;
-    if(htThreadCreate(sock_GetAddrFromNameAsyncInt, (void *)addr, NL_FALSE) == (HThreadID)HT_INVALID)
-    {
+    Util::Thread::Id thread;
+    if (!Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) sock_GetAddrFromNameAsyncInt, (void *)addr)){
         return NL_FALSE;
     }
     return NL_TRUE;

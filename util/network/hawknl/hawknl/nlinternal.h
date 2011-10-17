@@ -24,7 +24,8 @@
 #define INTERNAL_H
 
 #include "nl.h"
-#include "hawkthreads.h"
+// #include "hawkthreads.h"
+#include "util/thread.h"
 
 /* for malloc and free */
 #include <stdlib.h>
@@ -214,8 +215,8 @@ typedef struct
     NLushort    remoteport;     /* remote port number */
     NLaddress   addressin;      /* address of remote system, same as the socket sockaddr_in structure */
     NLaddress   addressout;     /* the multicast address set by nlConnect or the remote address for unconnected UDP */
-    HTmutex     readlock;       /* socket is locked to update data */
-    HTmutex     writelock;      /* socket is locked to update data */
+    Util::Thread::Lock readlock;       /* socket is locked to update data */
+    Util::Thread::Lock writelock;      /* socket is locked to update data */
 
     /* the current read/write statistics for the socket */
     nl_stats_t  instats;        /* stats for received */
