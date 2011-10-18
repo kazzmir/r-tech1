@@ -40,7 +40,11 @@
 
 #else
 /* Unix-style systems or macs with posix support */
+#ifndef WII
 #include <netinet/in.h> /* for ntohs and htons */
+#else
+#include <network.h>
+#endif
 #endif
 
 #ifdef NL_INCLUDE_LOOPBACK

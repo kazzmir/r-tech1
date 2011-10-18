@@ -46,15 +46,19 @@
 static DWORD key = (DWORD)0xFFFFFFFF;
 #else
 /* POSIX systems */
+#ifndef WII
 #include <pthread.h>
+#else
+typedef int pthread_key_t;
+#endif
 
-#ifdef PS3
-int pthread_setspecific(pthread_key_t * key, const void * data){
+#if defined(PS3) || defined(WII)
+int pthread_setspecific(pthread_key_t key, const void * data){
     return 0;
 }
 
-int pthread_getspecific(pthread_key_t * key){
-    return 0;
+void * pthread_getspecific(pthread_key_t key){
+    return NULL;
 }
 
 int pthread_key_create(pthread_key_t * key, void (*func)(void *)){
