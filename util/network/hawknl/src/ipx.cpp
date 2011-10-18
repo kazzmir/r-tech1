@@ -20,7 +20,7 @@
   Or go to http://www.gnu.org/copyleft/lgpl.html
 */
 
-#ifndef PS3
+#if !defined(PS3) && !defined(WII)
 #include <memory.h>
 #endif
 #include <stdio.h>
@@ -44,10 +44,12 @@
 #else
 /* Unix-style systems */
 #include <sys/types.h>
+#ifndef WII
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#endif
 // #include <sys/ioctl.h>
 #define closesocket close
 #define INVALID_SOCKET -1

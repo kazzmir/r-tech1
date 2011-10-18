@@ -25,7 +25,7 @@
 #define FD_SETSIZE      8192
 #endif
 
-#ifndef PS3
+#if !defined(PS3) && !defined(WII)
 #include <memory.h>
 #endif
 #include <stdio.h>
@@ -75,6 +75,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
+
+#ifndef WII
 #include <sys/socket.h>
 #include <netinet/in.h>
 #ifndef PS3
@@ -85,6 +87,37 @@
 #endif
 #include <arpa/inet.h>
 #include <netdb.h>
+#else
+#include <network.h>
+
+/* FIXME: BAAARFFFF at least move these things to a different header */
+#define send net_send
+#define sendto net_sendto
+#define gethostbyname net_gethostbyname
+#define recv net_recv
+#define recvfrom net_recvfrom
+#define bind net_bind
+#define listen net_listen
+#define socket net_socket
+#define connect net_connect
+#define accept net_accept
+#define shutdown net_shutdown
+#define select net_select
+#define setsockopt net_setsockopt
+
+int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen){
+    return -1;
+}
+
+struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type){
+    return NULL;
+}
+
+int getsockopt(int sockfd, int level, int optname, void *optval, socklen_t *optlen){
+    return -1;
+}
+#endif
+
 #define closesocket close
 #define INVALID_SOCKET -1
 #define SOCKET_ERROR -1
@@ -132,7 +165,7 @@ typedef int socklen_t;
 #define NLMIN( a, b )             ( ( a ) < ( b ) ? ( a ) : ( b ) )
 
 static volatile NLuint ouraddress, bindaddress;
-#ifdef PS3
+#if defined(PS3) || defined(WII)
 int backlog = 10;
 #else
 int backlog = SOMAXCONN;
@@ -449,7 +482,7 @@ NLboolean sock_SetBlocking(SOCKET socket, NLboolean arg)
     if(arg == NL_TRUE){
         i = 0;
     }
-#ifdef PS3
+#if defined(PS3) || defined(WII)
     /* FIXME: set sockets to blocking or not */
     return NL_TRUE;
 #else
@@ -520,6 +553,7 @@ static NLboolean sock_SetMulticastTTL(nl_socket_t *sock, NLint ttl)
     if(ttl < 1) ttl = 1;
     cttl = (unsigned char)ttl;
     
+#ifndef WII
     /* first try setsockopt by passing a 'char', the Unix standard */
     if(setsockopt(realsocket, IPPROTO_IP, IP_MULTICAST_TTL,
         (char *)&cttl, (int)sizeof(cttl)) == SOCKET_ERROR)
@@ -535,6 +569,9 @@ static NLboolean sock_SetMulticastTTL(nl_socket_t *sock, NLint ttl)
     }
     sock->TTL = ttl;
     return NL_TRUE;
+#else
+    return NL_FALSE;
+#endif
 }
 
 static NLsocket sock_SetSocketOptions(NLsocket s)
@@ -581,7 +618,7 @@ static NLsocket sock_SetSocketOptions(NLsocket s)
     return s;
 }
 
-#ifdef PS3
+#if defined(PS3) || defined(WII)
 static int gethostname(char * name, size_t length){
     snprintf(name, length, "host");
 }
@@ -1214,6 +1251,7 @@ static NLboolean sock_ConnectUDPAsynch(NLsocket socket, const NLaddress *address
 
 static NLboolean sock_ConnectMulticast(NLsocket socket, const NLaddress *address)
 {
+#ifndef WII
     struct ip_mreq  mreq;
     nl_socket_t     *sock = nlSockets[socket];
     
@@ -1245,6 +1283,9 @@ static NLboolean sock_ConnectMulticast(NLsocket socket, const NLaddress *address
     sock->remoteport = sock_GetPortFromAddr((NLaddress *)&sock->addressout);
     
     return sock_SetMulticastTTL(sock, multicastTTL);
+#else
+    return NL_FALSE;
+#endif
 }
 
 NLboolean sock_Connect(NLsocket socket, const NLaddress *address)
@@ -1339,16 +1380,18 @@ NLboolean sock_Connect(NLsocket socket, const NLaddress *address)
 void sock_Close(NLsocket socket)
 {
     nl_socket_t     *sock = nlSockets[socket];
-    struct ip_mreq  mreq;
     
     if(sock->type == NL_UDP_MULTICAST)
     {
+#ifndef WII
+        struct ip_mreq  mreq;
         /* leave the multicast group */
         mreq.imr_multiaddr.s_addr = ((struct sockaddr_in *)&sock->addressout)->sin_addr.s_addr;
         mreq.imr_interface.s_addr = bindaddress;
         
         (void)setsockopt((SOCKET)sock->realsocket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
             (char *)&mreq, (int)sizeof(mreq));
+#endif
     }
     if(sock->type == NL_RELIABLE_PACKETS)
     {

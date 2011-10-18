@@ -45,21 +45,27 @@
 #else
 /* POSIX systems */
 #include <sys/types.h>
+#ifndef WII
 #include <sys/socket.h>
-#ifdef PS3
+#endif
+#if defined(PS3) || defined(WII)
+/* this gets things like EUSERS and ESHUTDOWN */
 #define __LINUX_ERRNO_EXTENSIONS__
 #endif
 #include <sys/errno.h>
+
 #ifdef PS3
 #include <net/netdb.h>
 #else
+#ifndef WII
 #include <netdb.h>
 #endif
+#endif
 #include <string.h>
+
 #endif
 
 #include "hawknl/nlinternal.h"
-
 
 HL_EXP const /*@observer@*/  NLchar* HL_APIENTRY nlGetSystemErrorStr(NLint err)
 {

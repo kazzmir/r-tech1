@@ -11,7 +11,11 @@
 #include "util/compress.h"
 #include "util/thread.h"
 
+#ifdef WII
+#include <network.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 using namespace std;
 
@@ -312,7 +316,6 @@ void sendBytes(Socket socket, const uint8_t * data, int length){
     const uint8_t * position = data;
     int written = 0;
     while ( written < length ){
-        /* put htons here for endianess compatibility */
         int bytes = nlWrite(socket, position, length - written);
         if (bytes == NL_INVALID){
             throw NetworkException(string("Could not send bytes.") + getHawkError());
@@ -326,7 +329,7 @@ void readBytes(Socket socket, uint8_t * data, int length){
     uint8_t * position = data;
     int read = 0;
     while (read < length){
-        int bytes = nlRead( socket, position, length - read );
+        int bytes = nlRead(socket, position, length - read);
         if (bytes == NL_INVALID){
             switch (nlGetError()){
                 case NL_MESSAGE_END : throw MessageEnd();
@@ -348,7 +351,7 @@ Socket open(int port) throw (InvalidPortException){
      * sockets are mapped internally to real sockets, so don't be surprised
      * if you get a socket back like 0.
      */
-    if ( server == NL_INVALID ){
+    if (server == NL_INVALID){
         throw InvalidPortException(port, nlGetSystemErrorStr(nlGetSystemError()));
     }
     Global::debug(1, "network") << "Successfully opened a socket: " << server << endl;
@@ -358,7 +361,7 @@ Socket open(int port) throw (InvalidPortException){
     return server;
 }
 
-Socket connect( string server, int port ) throw (NetworkException){
+Socket connect(string server, int port) throw (NetworkException){
     NLaddress address;
     nlGetAddrFromName( server.c_str(), &address);
     nlSetAddrPort(&address, port);

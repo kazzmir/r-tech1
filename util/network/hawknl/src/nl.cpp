@@ -31,6 +31,10 @@
 #include <net/net.h>
 #endif
 
+#ifdef WII
+#include <network.h>
+#endif
+
 #ifdef NL_INCLUDE_LOOPBACK
 #include "hawknl/loopback.h"
 #endif
@@ -552,6 +556,10 @@ HL_EXP NLboolean HL_APIENTRY nlInit(void)
     netInitialize();
 #endif
 
+#ifdef WII
+    net_init();
+#endif
+
     nlSetError(NL_NO_ERROR);
     /* init socket memory, mutexes, and global variables */
     if(nlInitCount == 0)
@@ -838,6 +846,15 @@ HL_EXP NLboolean HL_APIENTRY nlClose(NLsocket socket)
             return NL_TRUE;
         }
     }
+
+#ifdef WII
+    net_deinit();
+#endif
+
+#ifdef PS3
+    netDeinitialize();
+#endif
+
     nlSetError(NL_NO_NETWORK);
     return NL_FALSE;
 }
