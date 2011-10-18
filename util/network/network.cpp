@@ -62,48 +62,11 @@ Message & Message::operator=( const Message & m ){
     return *this;
 }
 
-static bool multipleOf4(int size){
-    return (size & 0x3) == 0;
-}
-
-static bool multipleOf2(int size){
-    return (size & 0x1) == 0;
-}
-
-static void convertEndian(uint8_t * data, int size){
-    if (multipleOf4(size)){
-        for (int i = 0; i < size >> sizeof(uint32_t); i++){
-            *(uint32_t*) data = htonl(*(uint32_t*) data);
-            data += sizeof(uint32_t);
-        }
-    } else if (multipleOf2(size)){
-        for (int i = 0; i < size >> sizeof(uint16_t); i++){
-            *(uint16_t*) data = htons(*(uint16_t*) data);
-            data += sizeof(uint16_t);
-        }
-    }
-}
-
-static void unconvertEndian(uint8_t * data, int size){
-    if (multipleOf4(size)){
-        for (int i = 0; i < size >> sizeof(uint32_t); i++){
-            *(uint32_t*) data = ntohl(*(uint32_t*) data);
-            data += sizeof(uint32_t);
-        }
-    } else if (multipleOf2(size)){
-        for (int i = 0; i < size >> sizeof(uint16_t); i++){
-            *(uint16_t*) data = ntohs(*(uint16_t*) data);
-            data += sizeof(uint16_t);
-        }
-    }
-}
-
 Message::Message(Socket socket){
 #ifdef HAVE_NETWORKING
     position = data;
     id = read32(socket);
     readBytes(socket, data, DATA_SIZE);
-    // unconvertEndian(data, DATA_SIZE);
     int str = read16(socket);
     if (str != -1){
         /* cap strings at 1024 bytes */
@@ -124,7 +87,6 @@ uint8_t * Message::dump(uint8_t * buffer) const {
     // Global::debug(1, "network") << "Dumped id " << id << " as " << htonl(id) << std::endl;
     buffer += sizeof(id);
     memcpy(buffer, data, DATA_SIZE);
-    // convertEndian(buffer, DATA_SIZE);
     buffer += DATA_SIZE;
     if (path != ""){
         *(uint16_t *) buffer = htons(path.length() + 1);
