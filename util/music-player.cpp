@@ -754,7 +754,7 @@ raw(NULL){
 
     int rate = 44100, channels = 2;
     discoverInfo(raw, rawLength, &rate, &channels);
-    setRenderer(new MusicRenderer(rate, channels));
+    setRenderer(Util::ReferenceCount<MusicRenderer>(new MusicRenderer(rate, channels)));
 
     Global::debug(0) << "Opened mp3 file " << path << " rate " << rate << " channels " << channels << std::endl;
 
