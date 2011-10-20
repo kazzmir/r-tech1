@@ -283,6 +283,11 @@ public:
         /* returned a scaled version of this bitmap of the given dimensions */
         virtual Bitmap scaleTo(const int width, const int height) const;
 
+        /* scale the image by the given ratios, i.e: a ratio of 1 means do nothing.
+         * less than 1 will make it smaller and larger than 1 will make it larger.
+         */
+        virtual Bitmap scaleBy(const double widthRatio, const double heightRatio) const;
+
         /* try to call Global::getScreenWidth/Height() instead of these directly */
         static int getScreenWidth();
         static int getScreenHeight();

@@ -192,6 +192,10 @@ void Bitmap::load( const std::string & str ){
     // releaseInternalBitmap();
     internalLoadFile( str.c_str() );
 }
+        
+Bitmap Bitmap::scaleBy(const double widthRatio, const double heightRatio) const {
+    return scaleTo(getWidth() * widthRatio, getHeight() * heightRatio);
+}
 
 void Bitmap::border( int min, int max, Color color ) const {
     int w = getWidth();
