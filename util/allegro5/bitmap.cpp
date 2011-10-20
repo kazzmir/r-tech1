@@ -143,9 +143,9 @@ mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(who);
-        setData(new BitmapData(clone));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(clone)));
     } else {
-        setData(new BitmapData(who));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(who)));
     }
     this->width = al_get_bitmap_width(getData()->getBitmap());
     this->height = al_get_bitmap_height(getData()->getBitmap());
@@ -160,7 +160,7 @@ bit8MaskColor(makeColor(0, 0, 0)){
         out << "Could not create bitmap with dimensions " << width << ", " << height;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    setData(new BitmapData(bitmap));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(bitmap)));
     this->width = al_get_bitmap_width(getData()->getBitmap());
     this->height = al_get_bitmap_height(getData()->getBitmap());
 }
@@ -172,7 +172,7 @@ width(copy.width),
 height(copy.height){
     if (deep_copy){
         ALLEGRO_BITMAP * clone = al_clone_bitmap(copy.getData()->getBitmap());
-        setData(new BitmapData(clone));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(clone)));
     } else {
         setData(copy.getData());
     }
@@ -317,7 +317,7 @@ void Bitmap::internalLoadFile(const char * path){
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
     al_convert_mask_to_alpha(loaded, al_map_rgb(255, 0, 255));
-    setData(new BitmapData(loaded));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(loaded)));
 }
 
 static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, Format type){
@@ -337,7 +337,7 @@ Bitmap::Bitmap(const char * data, int length):
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     Format type = GIF;
-    setData(new BitmapData(load_bitmap_from_memory(data, length, type)));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
     if (getData()->getBitmap() == NULL){
         std::ostringstream out;
         out << "Could not create bitmap from memory";
@@ -387,7 +387,7 @@ height(height){
     // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, x, y, width, height);
     ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, (int) width_scaled, (int) height_scaled);
     // ALLEGRO_BITMAP * sub = al_create_sub_bitmap(his, (int) x_scaled, (int) y_scaled, width, height);
-    setData(new BitmapData(sub));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(sub)));
 
     al_set_target_bitmap(sub);
     al_use_transform(&transform);

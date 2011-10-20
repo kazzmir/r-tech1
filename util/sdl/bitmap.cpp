@@ -253,7 +253,7 @@ bit8MaskColor(0){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * loaded = IMG_Load_RW(ops, 1);
     if (loaded){
-        setData(new BitmapData(optimizedSurface(loaded)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(optimizedSurface(loaded))));
         SDL_FreeSurface(loaded);
     } else {
         std::ostringstream out;
@@ -280,9 +280,9 @@ bit8MaskColor(0){
         destination.y = 0;
 
         SDL_BlitSurface(who, &source, surface, &destination);
-        setData(new BitmapData(surface));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(surface)));
     } else {
-        setData(new BitmapData(who));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(who)));
     }
 }
 
@@ -301,7 +301,7 @@ bit8MaskColor(0){
         out << "Could not create surface with dimensions " << w << ", " << h;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
-    setData(new BitmapData(surface));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(surface)));
 }
 
 Bitmap::Bitmap( const char * load_file ):
@@ -320,7 +320,7 @@ mustResize(false),
 bit8MaskColor(0){
     Bitmap temp(load_file);
     SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, sx, sy, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
-    setData(new BitmapData(surface));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(surface)));
 
     temp.Stretch(*this);
 }
@@ -351,7 +351,7 @@ bit8MaskColor(copy.bit8MaskColor){
         destination.y = 0;
 
         SDL_BlitSurface(who, &source, surface, &destination);
-        setData(new BitmapData(surface));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(surface)));
     } else {
         setData(copy.getData());
     }
@@ -389,14 +389,14 @@ bit8MaskColor(copy.bit8MaskColor){
         height = his->h - y;
 
     SDL_Surface * sub = SDL_CreateRGBSurfaceFrom(computeOffset(his, x, y), width, height, SCREEN_DEPTH, his->pitch, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
-    setData(new BitmapData(sub));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(sub)));
 }
 
 void Bitmap::internalLoadFile(const char * path){
     this->path = path;
     SDL_Surface * loaded = IMG_Load(path);
     if (loaded){
-        setData(new BitmapData(optimizedSurface(loaded)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(optimizedSurface(loaded))));
         SDL_FreeSurface(loaded);
     } else {
         std::ostringstream out;

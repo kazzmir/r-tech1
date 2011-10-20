@@ -130,8 +130,8 @@ void Widget::render(const Graphics::Bitmap & bitmap, const Font & font){
 
 Util::ReferenceCount<Graphics::Bitmap> Widget::checkWorkArea(const Graphics::Bitmap & parent){
     if (location.getWidth() <= 0 || location.getHeight() <= 0){
-        return NULL;
+        return Util::ReferenceCount<Graphics::Bitmap>(NULL);
     }
 
-    return new Graphics::Bitmap(parent, location.getX(), location.getY(), location.getWidth(), location.getHeight());
+    return Util::ReferenceCount<Graphics::Bitmap>(new Graphics::Bitmap(parent, location.getX(), location.getY(), location.getWidth(), location.getHeight()));
 }

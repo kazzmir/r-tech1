@@ -171,7 +171,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 if (currentToken != NULL){
                     sub->setParent(currentToken);
                     if (do_ignore){
-                        ignore_list.push_back(sub);
+                        ignore_list.push_back(Util::ReferenceCount<Token>(sub));
                         do_ignore = false;
                     } else {
                         currentToken->addToken(sub);
@@ -197,7 +197,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                     sub->setParent(currentToken);
                     if (do_ignore){
                         do_ignore = false;
-                        ignore_list.push_back(sub);
+                        ignore_list.push_back(Util::ReferenceCount<Token>(sub));
                     } else {
                         currentToken->addToken(sub);
                     }
@@ -228,7 +228,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
                 }
 
                 if (do_ignore){
-                    ignore_list.push_back(another);
+                    ignore_list.push_back(Util::ReferenceCount<Token>(another));
                     do_ignore = false;
                 } else {
                     if (currentToken != NULL){

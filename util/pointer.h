@@ -11,7 +11,7 @@ namespace Util{
 template <class Data>
 class ReferenceCount{
 public:
-    ReferenceCount(Data * what = NULL):
+    explicit ReferenceCount(Data * what = NULL):
     count(NULL),
     data(what){
         count = new int;

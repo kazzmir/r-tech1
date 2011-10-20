@@ -61,7 +61,7 @@ Bitmap::Bitmap():
 mustResize(false),
 error( false ),
 bit8MaskColor(0){
-    setData(new BitmapData(create_bitmap( 10, 10 )));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap( 10, 10 ))));
 	if (! getData()->getBitmap()){
 		error = true;
 		cerr << "Could not create bitmap!" << endl;
@@ -80,7 +80,7 @@ bit8MaskColor(0){
 	if ( y < 1 ){
 		y = 1;
 	}
-        setData(new BitmapData(create_bitmap(x, y)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(x, y))));
 	if ( ! getData()->getBitmap() ){
 		error = true;
 		cerr << "Could not create bitmap!" << endl;
@@ -163,7 +163,7 @@ error(false),
 bit8MaskColor(0){
     /* FIXME: pass the type in */
     Format type = GIF;
-    setData(new BitmapData(load_bitmap_from_memory(data, length, type)));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
 }
 
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
@@ -174,14 +174,14 @@ bit8MaskColor(0){
 	
 	if ( deep_copy ){
 		BITMAP * his = who;
-                setData(new BitmapData(create_bitmap(his->w, his->h)));
+                setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(his->w, his->h))));
 		if ( ! getData()->getBitmap() ){
 			cout << "Could not create bitmap" << endl;
 			error = true;
 		}
 		::blit( his, getData()->getBitmap(), 0, 0, 0, 0, his->w, his->h );
 	} else {
-            setData(new BitmapData(who));
+            setData(Util::ReferenceCount<BitmapData>(new BitmapData(who)));
 	}
 }
 	
@@ -216,7 +216,7 @@ bit8MaskColor(0){
 	path = load_file;
 	BITMAP * temp = load_bitmap( load_file, NULL );
 	// my_bitmap = load_bitmap( load_file, NULL );
-        setData(new BitmapData(create_bitmap(sx, sy)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(sx, sy))));
 	// clear( my_bitmap );
 	if ( !temp || ! getData()->getBitmap() ){
 		cout<<"Could not load "<<load_file<<endl;
@@ -236,7 +236,7 @@ bit8MaskColor(0){
 	BITMAP * temp = load_bitmap( load_file, NULL );
 	if ( !temp ){
 		cout<<"Could not load "<<load_file<<endl;
-                setData(new BitmapData(create_bitmap( sx, sy )));
+                setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap( sx, sy ))));
 		// clear( my_bitmap );
 		clear();
 		error = true;
@@ -248,13 +248,13 @@ bit8MaskColor(0){
 			use = bx > by ? bx : by;
 			int fx = (int)(sx / use);
 			int fy = (int)(sy / use);
-                        setData(new BitmapData(create_bitmap( fx, fy )));
+                        setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap( fx, fy ))));
 			
 			stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 			
 			destroy_bitmap( temp );
 		} else {
-                    setData(new BitmapData(temp));
+                    setData(Util::ReferenceCount<BitmapData>(new BitmapData(temp)));
                 }
 	}
 	// own = true;
@@ -266,7 +266,7 @@ error( false ),
 bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
 	BITMAP * temp = copy.getData()->getBitmap();
-        setData(new BitmapData(create_bitmap(sx, sy)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(sx, sy))));
 	if ( ! getData()->getBitmap() ){
 		error = true;
 		cout << "Could not copy bitmap" << endl;
@@ -289,7 +289,7 @@ bit8MaskColor(copy.bit8MaskColor){
 		use = bx > by ? bx : by;
 		int fx = (int)(temp->w / use);
 		int fy = (int)(temp->h / use);
-                setData(new BitmapData(create_bitmap(fx, fy)));
+                setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(fx, fy))));
 		if ( ! getData()->getBitmap() ){
 			allegro_message("Could not create bitmap\n");
 			// own = false;
@@ -302,7 +302,7 @@ bit8MaskColor(copy.bit8MaskColor){
 		stretch_blit( temp, getData()->getBitmap(), 0, 0, temp->w, temp->h, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
 		// destroy_bitmap( temp );
 	} else {
-            setData(new BitmapData(create_bitmap(temp->w, temp->h)));
+            setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(temp->w, temp->h))));
 		blit( temp, getData()->getBitmap(), 0, 0, 0, 0, temp->w, temp->h );
 		// own = new int
 		// own = true;
@@ -317,7 +317,7 @@ bit8MaskColor(copy.bit8MaskColor){
 	path = copy.getPath();
 	if ( deep_copy ){
 		BITMAP * his = copy.getData()->getBitmap();
-                setData(new BitmapData(create_bitmap(his->w, his->h)));
+                setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(his->w, his->h))));
 		if ( ! getData()->getBitmap() ){
 			cout << "Could not create bitmap" << endl;
 			error = true;
@@ -348,11 +348,11 @@ bit8MaskColor(copy.bit8MaskColor){
 		width = his->w - x;
 	if ( height + y > his->h )
 		height = his->h - y;
-        setData(new BitmapData(create_sub_bitmap(his, x, y, width, height)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_sub_bitmap(his, x, y, width, height))));
 
 	if ( ! getData()->getBitmap() ){
 		cout<<"Could not create sub-bitmap"<<endl;
-                setData(new BitmapData(create_bitmap(10, 10)));
+                setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(10, 10))));
 		// clear( my_bitmap );
 		clear();
 	}
@@ -360,10 +360,10 @@ bit8MaskColor(copy.bit8MaskColor){
 	
 void Bitmap::internalLoadFile( const char * load_file ){
 	path = load_file;
-        setData(new BitmapData(load_bitmap(load_file, NULL)));
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap(load_file, NULL))));
 	if ( ! getData()->getBitmap() ){
 		cout<<"Could not load "<<load_file<<". Using default"<<endl;
-                setData(new BitmapData(create_bitmap(10, 10)));
+                setData(Util::ReferenceCount<BitmapData>(new BitmapData(create_bitmap(10, 10))));
 		if ( ! getData()->getBitmap() ){
 			cout<<"Out of memory or Allegro not initialized"<<endl;
 			error = true;
