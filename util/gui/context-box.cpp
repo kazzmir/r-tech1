@@ -324,13 +324,13 @@ void ContextBox::addItem(const Util::ReferenceCount<ContextItem> & item){
 void ContextBox::setListType(const ListType & type){
     switch (type){
         case Normal:{
-            Util::ReferenceCount<ScrollListInterface> newList = new NormalList();
+            Util::ReferenceCount<ScrollListInterface> newList(new NormalList());
             newList->addItems(list->getItems());
             list = newList;
             break;
         }
         case Scroll:{
-            Util::ReferenceCount<ScrollListInterface> newList = new ScrollList();
+            Util::ReferenceCount<ScrollListInterface> newList(new ScrollList());
             newList->addItems(list->getItems());
             list = newList;
             break;

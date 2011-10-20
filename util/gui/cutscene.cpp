@@ -25,7 +25,7 @@ endTicks(0){
             if ( *tok == "time" ){
                 tok->view() >> endTicks;
             } else if ( *tok == "animation" || *tok == "anim" ){
-                setAnimation(new Gui::Animation(tok));
+                setAnimation(Util::ReferenceCount<Gui::Animation>(new Gui::Animation(tok)));
             } else if ( *tok == "fade" ){
                 fader.parseDefaults(tok);
             } else {
@@ -139,7 +139,7 @@ current(0){
             if ( *tok == "name"){
                 tok->view() >> name;
             } else if ( *tok == "scene" ){
-                scenes.push_back(new Scene(tok));
+                scenes.push_back(Util::ReferenceCount<Scene>(new Scene(tok)));
             } else {
                 Global::debug(3) << "Unhandled Cutscene attribute: " << std::endl;
                 if (Global::getDebug() >= 3){

@@ -651,7 +651,7 @@ path(path){
     bits = 16;
     length = ov_pcm_total(&ogg, -1);
 
-    setRenderer(new MusicRenderer(info->rate, info->channels));
+    setRenderer(Util::ReferenceCount<MusicRenderer>(new MusicRenderer(info->rate, info->channels)));
 
     buffer = new OggPage();
     buffer->buffer1.buffer = new char[OGG_BUFFER_SIZE];
