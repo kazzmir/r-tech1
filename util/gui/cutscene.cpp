@@ -1,7 +1,6 @@
 #include "cutscene.h"
 
 #include "util/bitmap.h"
-#include "animation.h"
 #include "util/init.h"
 #include "util/input/input-map.h"
 #include "util/input/input-manager.h"
@@ -44,24 +43,7 @@ endTicks(0){
 Scene::~Scene(){
 }
 void Scene::act(){
-    if (backgroundBottom != NULL){
-        backgroundBottom->act();
-    }
-    if (backgroundMiddle != NULL){
-        backgroundMiddle->act();
-    }
-    if (backgroundTop != NULL){
-        backgroundTop->act();
-    }
-    if (foregroundBottom != NULL){
-        backgroundBottom->act();
-    }
-    if (foregroundMiddle != NULL){
-        foregroundMiddle->act();
-    }
-    if (foregroundTop != NULL){
-        foregroundTop->act();
-    }
+    backgrounds.act();
     fader.act();
     // Increment ticks
     ticks++;
@@ -71,51 +53,21 @@ void Scene::act(){
     }
 }
 void Scene::render(const Graphics::Bitmap & work){
+    // Backgrounds
+    backgrounds.render(Gui::Animation::BackgroundBottom, work);
+    backgrounds.render(Gui::Animation::BackgroundMiddle, work);
+    backgrounds.render(Gui::Animation::BackgroundTop, work);
     
-    if (backgroundBottom != NULL){
-        backgroundBottom->draw(work);
-    }
-    if (backgroundMiddle != NULL){
-        backgroundMiddle->draw(work);
-    }
-    if (backgroundTop != NULL){
-        backgroundTop->draw(work);
-    }
-    if (foregroundBottom != NULL){
-        backgroundBottom->draw(work);
-    }
-    if (foregroundMiddle != NULL){
-        foregroundMiddle->draw(work);
-    }
-    if (foregroundTop != NULL){
-        foregroundTop->draw(work);
-    }
+    // Foregrounds
+    backgrounds.render(Gui::Animation::ForegroundBottom, work);
+    backgrounds.render(Gui::Animation::ForegroundMiddle, work);
+    backgrounds.render(Gui::Animation::ForegroundTop, work);
+    
     fader.draw(work);
 }
 
 void Scene::setAnimation(Util::ReferenceCount<Gui::Animation> animation){
-    switch (animation->getDepth()){
-        case Gui::Animation::BackgroundBottom:
-            backgroundBottom = animation;
-            break;
-        case Gui::Animation::BackgroundMiddle:
-            backgroundMiddle = animation;
-            break;
-        case Gui::Animation::BackgroundTop:
-            backgroundTop = animation;
-            break;
-        case Gui::Animation::ForegroundBottom:
-            foregroundBottom = animation;
-            break;
-        case Gui::Animation::ForegroundMiddle:
-            foregroundMiddle = animation;
-            break;
-        case Gui::Animation::ForegroundTop:
-            foregroundTop = animation;
-            break;
-        default:
-            break;
-    }
+    backgrounds.add(animation);
 }
 
 CutScene::CutScene():

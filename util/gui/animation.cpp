@@ -99,7 +99,7 @@ alpha(255){
     }
 }
 
-Frame::Frame(Graphics::Bitmap * bmp):
+Frame::Frame(Util::ReferenceCount<Graphics::Bitmap> bmp):
 bmp(bmp),
 time(0),
 horizontalFlip(false),
@@ -269,10 +269,8 @@ allowReset(true){
                 int number;
                 std::string temp;
                 token->view() >> number >> temp;
-                Graphics::Bitmap *bmp = new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(basedir + temp)).path());
-                if (bmp->getError()){
-                    delete bmp;
-                } else {
+                Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(basedir + temp)).path()));
+                if (!bmp->getError()){
                     images[number] = bmp;
                 }
             } else if (*token == "axis"){
@@ -301,7 +299,7 @@ allowReset(true){
                 velocity.set(x,y);
             } else if (*token == "frame"){
                 // new frame
-                Frame *frame = new Frame(token, images);
+                Util::ReferenceCount<Frame> frame(new Frame(token, images));
                 frames.push_back(frame);
             } else if (*token == "loop"){
                 // start loop here
@@ -338,14 +336,13 @@ currentFrame(0),
 loop(0),
 allowReset(true){
     // add bitmap
-    Graphics::Bitmap *bmp = new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(background)).path());
+    Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(background)).path()));
     if (bmp->getError()){
-        delete bmp;
         throw LoadException(__FILE__,__LINE__, "Problem loading file: " + background);
     } else {
         images[0] = bmp;
     }
-    Frame *frame = new Frame(bmp);
+    Util::ReferenceCount<Frame> frame(new Frame(bmp));
     frames.push_back(frame);
 }
 
@@ -357,18 +354,17 @@ currentFrame(0),
 loop(0),
 allowReset(true){
     // add bitmap
-    Graphics::Bitmap *bmp = new Graphics::Bitmap(path.path());
+    Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(path.path()));
     if (bmp->getError()){
-        delete bmp;
         throw LoadException(__FILE__,__LINE__, "Problem loading file: " + path.path());
     } else {
         images[0] = bmp;
     }
-    Frame *frame = new Frame(bmp);
+    Util::ReferenceCount<Frame> frame(new Frame(bmp));
     frames.push_back(frame);
 }
 
-Animation::Animation(Graphics::Bitmap * image):
+Animation::Animation(Util::ReferenceCount<Graphics::Bitmap> image):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
@@ -376,27 +372,17 @@ currentFrame(0),
 loop(0),
 allowReset(true){
     images[0] = image;
-    Frame *frame = new Frame(image);
+    Util::ReferenceCount<Frame> frame(new Frame(image));
     frames.push_back(frame);
 }
 
 Animation::~Animation(){
-    for (std::vector<Frame *>::iterator i = frames.begin(); i != frames.end(); ++i){
-        if (*i){
-            delete *i;
-        }
-    }
-
-    for (imageMap::iterator i = images.begin(); i != images.end(); ++i){
-        if (i->second){
-            delete i->second;
-        }
-    }
 }
 void Animation::act(){
     // Used for scrolling
-    for (std::vector<Frame *>::iterator i = frames.begin(); i != frames.end(); ++i){
-	    (*i)->act(velocity.getRelativeX(), velocity.getRelativeY());
+    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
+        Util::ReferenceCount<Frame> frame = *i;
+	    frame->act(velocity.getRelativeX(), velocity.getRelativeY());
     }
     if( frames[currentFrame]->time != -1 ){
 	    ticks++;
@@ -429,4 +415,41 @@ void Animation::backFrame(){
     }
 }
 
+AnimationManager::AnimationManager(){
+}
+AnimationManager::AnimationManager(const AnimationManager & copy):
+animations(copy.animations){
+}
 
+AnimationManager::~AnimationManager(){
+}
+
+const AnimationManager & AnimationManager::operator=(const AnimationManager & copy){
+    animations = copy.animations;
+    return *this;
+}
+
+void AnimationManager::act(){
+    for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
+        std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
+            Util::ReferenceCount<Gui::Animation> animation = *j;
+            if (animation != NULL){
+                animation->act();
+            }
+        }
+    }
+}
+
+void AnimationManager::render(const Gui::Animation::Depth & depth, const Graphics::Bitmap & work){
+    for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator i = animations[depth].begin(); i != animations[depth].end(); ++i){
+        Util::ReferenceCount<Gui::Animation> animation = *i;
+        if (animation != NULL){
+            animation->draw(work);
+        }   
+    }
+}
+
+void AnimationManager::add(Util::ReferenceCount<Gui::Animation > animation){
+    animations[animation->getDepth()].push_back(animation);
+}

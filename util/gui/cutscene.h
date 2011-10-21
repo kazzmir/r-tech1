@@ -3,6 +3,7 @@
 
 #include "fadetool.h"
 #include "util/pointer.h"
+#include "animation.h"
 
 #include <string>
 #include <vector>
@@ -13,8 +14,6 @@ class Bitmap;
 }
 
 namespace Gui{
-
-class Animation;
 
 /*! Cut scenes or story boards */
 class Scene{
@@ -38,12 +37,7 @@ class Scene{
         int ticks;
         int endTicks;
         
-        Util::ReferenceCount<Gui::Animation> backgroundBottom;
-        Util::ReferenceCount<Gui::Animation> backgroundMiddle;
-        Util::ReferenceCount<Gui::Animation> backgroundTop;
-        Util::ReferenceCount<Gui::Animation> foregroundBottom;
-        Util::ReferenceCount<Gui::Animation> foregroundMiddle;
-        Util::ReferenceCount<Gui::Animation> foregroundTop;
+        Gui::AnimationManager backgrounds;
         
         Gui::FadeTool fader;
 };
