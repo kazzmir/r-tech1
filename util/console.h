@@ -80,6 +80,8 @@ public:
     void previousHistory();
     void nextHistory();
 
+    void tabComplete();
+
 protected:
 
     void process(const std::string & command);
