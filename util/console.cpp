@@ -39,6 +39,10 @@ static void doNextHistory(void * self){
     console->nextHistory();
 }
 
+static void doTabComplete(void * self){
+    Console * console = (Console*) self;
+    console->tabComplete();
+}
 
 Console::Console(const int maxHeight, const Filesystem::RelativePath & font):
 state(Closed),
@@ -53,6 +57,7 @@ historyIndex(0){
     textInput.addBlockingHandle(Keyboard::Key_ENTER, doProcess, this);
     textInput.addBlockingHandle(Keyboard::Key_UP, doPreviousHistory, this);
     textInput.addBlockingHandle(Keyboard::Key_DOWN, doNextHistory, this);
+    textInput.addBlockingHandle(Keyboard::Key_TAB, doTabComplete, this);
 }
 
 Console::~Console(){
@@ -60,6 +65,18 @@ Console::~Console(){
     // InputManager::releaseInput(input);
     for (map<string, Command*>::iterator it = commands.begin(); it != commands.end(); it++){
         delete (*it).second;
+    }
+}
+
+/* attempt to complete the current text to a command */
+void Console::tabComplete(){
+    string text = textInput.getText();
+    for (map<string, Command*>::iterator it = commands.begin(); it != commands.end(); it++){
+        string what = it->first;
+        if (what.find(text) == 0){
+            textInput.setText(what);
+            return;
+        }
     }
 }
     
