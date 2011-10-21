@@ -565,6 +565,21 @@ TokenView & TokenView::operator>>(double & item){
     return *this;
 }
 
+static bool isTrue(const string & name){
+    return name == "true" ||
+           name == "1" ||
+           name == "on" ||
+           name == "enable";
+}
+
+static bool isFalse(const string & name){
+    return name == "false" ||
+           name == "0" ||
+           name == "off" ||
+           name == "disable";
+}
+
+
 TokenView & TokenView::operator>>(bool & item){
     if (current == tokens.end()){
         throw TokenException(__FILE__, __LINE__, "No more elements");
@@ -573,8 +588,17 @@ TokenView & TokenView::operator>>(bool & item){
     if (!child->isData()){
         throw TokenException(__FILE__, __LINE__, "Token is not a datum");
     }
-    istringstream out(child->getName());
-    out >> item;
+    string what = child->getName();
+    if (isTrue(what)){
+        item = true;
+    } else if (isFalse(what)){
+        item = false;
+    } else {
+        ostringstream fail;
+        fail << "Not a true/false value: " << what << ". True values are 'true', '1', 'on', 'enable'. False values are 'false', 0', 'off', 'disable'";
+        throw TokenException(__FILE__, __LINE__, fail.str());
+    }
+
     current++;
     return *this;
 }
