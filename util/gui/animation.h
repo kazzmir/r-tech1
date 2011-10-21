@@ -6,6 +6,7 @@
 
 #include "../load_exception.h"
 #include "coordinate.h"
+#include "util/pointer.h"
 
 class Filesystem;
 namespace Path{
@@ -22,16 +23,16 @@ class Token;
 namespace Gui{
 
 // To hold images by number easier to access and reuse
-typedef std::map< int, Graphics::Bitmap *> imageMap;
+typedef std::map< int, Util::ReferenceCount<Graphics::Bitmap> > imageMap;
 
 class Frame{
 public:
     Frame(const Token *token, imageMap &images) throw (LoadException);
-    Frame(Graphics::Bitmap *);
+    Frame(Util::ReferenceCount<Graphics::Bitmap> bmp);
     virtual ~Frame();
     virtual void act(double xvel, double yvel);
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
-    Graphics::Bitmap *bmp;
+    Util::ReferenceCount<Graphics::Bitmap> bmp;
     RelativePoint offset;
     RelativePoint scrollOffset;
     int time;
@@ -47,7 +48,7 @@ public:
     Animation(const std::string &) throw (LoadException);
     Animation(const AbsolutePath &) throw (LoadException);
     /* use an existing bitmap */
-    Animation(Graphics::Bitmap * image);
+    Animation(Util::ReferenceCount<Graphics::Bitmap> image);
     virtual ~Animation();
     // Logic
     virtual void act();
@@ -79,8 +80,30 @@ private:
     // This allows the frames to scroll in place
     RelativePoint velocity;
     Coordinate window;
-    std::vector<Frame *> frames;
+    std::vector<Util::ReferenceCount<Frame> > frames;
     imageMap images;
 };
+
+/*! Generalized to for re-use in other contexts (menu, cutscene, characterselect, etc) */
+class AnimationManager{
+public:
+    AnimationManager();
+    AnimationManager(const AnimationManager &);
+    ~AnimationManager();
+    
+    const AnimationManager & operator=(const AnimationManager &);
+    
+    void act();
+    void render(const Gui::Animation::Depth &, const Graphics::Bitmap &);
+    
+    void add(Util::ReferenceCount<Gui::Animation > animation);
+    
+    virtual inline const bool empty() const{
+        return this->animations.empty();
+    }
+private:
+    std::map< Gui::Animation::Depth, std::vector< Util::ReferenceCount<Gui::Animation> > > animations;
+};
+
 }
 #endif
