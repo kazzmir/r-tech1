@@ -20,6 +20,8 @@
 #include "message-queue.h"
 #include "init.h"
 #include "events.h"
+#include "input/input-map.h"
+#include "input/input-manager.h"
 
 using namespace std;
 
@@ -60,7 +62,7 @@ void * loadingScreenSimple1(void * arg);
 static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & screen){
     Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * -1, Graphics::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
     Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * 0, Graphics::makeColor( 192, 192, 192 ), background, "Made by Jon Rafkind", 0 );
-    Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * 1, Graphics::makeColor( 192, 192, 192 ), background, "http://paintown.org", 0 );
+    Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * 1, Graphics::makeColor(192, 192, 192), background, "http://paintown.org", 0);
     /* we have to blit to the screen object passed in because that is the bitmap
      * that will be operated on in the draw() method of loadingScreen1.
      * we also have to blit to the real screen because the screen object 
@@ -126,6 +128,10 @@ public:
     unsigned int last;
 };
 
+enum LoadingKeys{
+    Activate
+};
+
 static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & levelInfo){
     int load_x = 80;
     int load_y = 220;
@@ -166,7 +172,11 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
         context(context),
         state(state),
         gradient(gradient),
-        infobox(infoBox){
+        infobox(infoBox),
+        active(false){
+            input.set(Keyboard::Key_SPACE, 0, true, Activate);
+            input.set(Keyboard::Key_ENTER, 0, true, Activate);
+            input.set(Joystick::Button1, 0, true, Activate);
         }
 
         LoadingContext & context;
@@ -174,10 +184,43 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
         Effects::Gradient & gradient;
         Info info;
         Messages & infobox;
+        bool active;
+        InputMap<LoadingKeys> input;
+
+        void doInput(){
+            class Handler: public InputHandler<LoadingKeys> {
+            public:
+                Handler(bool & active):
+                    active(active){
+                    }
+
+                bool & active;
+
+                void press(const LoadingKeys & out, Keyboard::unicode_t unicode){
+                    if (out == Activate){
+                        /* the info box can't really be turned off because once
+                         * its drawn it will remain there. the background would
+                         * have to be drawn on top of it to remove the old
+                         * info box. maybe do this in the future, if so use
+                         *   active = ! active
+                         * to toggle it.
+                         */
+                        active = true;
+                    }
+                }
+
+                void release(const LoadingKeys & out, Keyboard::unicode_t unicode){
+                }
+            };
+
+            Handler handler(active);
+            InputManager::handleEvents(input, InputSource(), handler);
+        }
 
         void run(){
             gradient.backward();
-            state.drawInfo = info.transferMessages(infobox) || state.drawInfo;
+            doInput();
+            state.drawInfo = active && (info.transferMessages(infobox) || state.drawInfo);
         }
 
         double ticks(double system){
@@ -262,7 +305,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     };
 
     State state;
-    state.drawInfo = true;
+    // state.drawInfo = true;
     Logic logic(context, state, gradient, infobox);
     Draw draw(levelInfo, state, infobox, gradient, load_width, load_height, infobox_width, infobox_height, load_x, load_y);
 
@@ -354,43 +397,6 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelIn
     Logic logic(context, angle, speed);
     Draw draw(angle, speed);
     Util::standardLoop(logic, draw);
-
-#if 0
-    while (! context.done()){
-        bool draw = false;
-
-        if (Global::speed_counter > 0){
-            double think = Global::speed_counter;	
-            Global::speed_counter = 0;
-            draw = true;
-
-            while (think > 0){
-                angle += speed;
-                think -= 1;
-            }
-        } else {
-            Util::rest(1);
-        }
-
-        if (draw){
-            int max = sizeof(colors) / sizeof(int);
-            double middleX = work.getWidth() / 2;
-            double middleY = work.getHeight() / 2;
-            original.Blit(work);
-            for (int i = 0; i < max; i++){
-                double x = cos(Util::radians(angle + 360 / max * i)) * 15;
-                double y = sin(Util::radians(angle + 360 / max * i)) * 15;
-                /* ghost circle */
-                work.translucent().circleFill(middleX + x, middleY + y, 2, colors[i]);
-                x = cos(Util::radians(angle + speed + 360 / max * i)) * 15;
-                y = sin(Util::radians(angle + speed + 360 / max * i)) * 15;
-                /* real circle */
-                work.circleFill(middleX + x, middleY + y, 2, colors[i]);
-            }
-            work.BlitAreaToScreen(0, 0);
-        }
-    }
-#endif
 }
 
 LoadingContext::LoadingContext():
