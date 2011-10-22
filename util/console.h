@@ -51,6 +51,9 @@ public:
     virtual void clear();
     
     virtual bool doInput();
+
+    /* add a line of text */
+    virtual void addLine(const std::string & line);
     
     inline int getTextHeight(){ return textHeight; };
     inline int getTextWidth(){ return textWidth; };

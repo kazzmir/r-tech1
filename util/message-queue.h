@@ -24,7 +24,7 @@ public:
     /* get the first message */
     std::string get();
 
-    ~MessageQueue();
+    virtual ~MessageQueue();
 private:
     std::queue<std::string> messages;
     Util::Thread::Lock lock;
