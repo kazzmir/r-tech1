@@ -224,16 +224,19 @@ void Console::process(const string & command){
         history.push_front(command);
     }
     if (commands[command] != 0){
-        string out = commands[command]->act();
-        vector<string> each = split(out, '\n');
-        for (vector<string>::iterator it = each.begin(); it != each.end(); it++){
-            lines.push_back(*it);
-        }
+        addLine(commands[command]->act());
     } else {
-        lines.push_back("Unknown command '" + command + "'");
+        addLine("Unknown command '" + command + "'");
     }
 }
     
+void Console::addLine(const std::string & line){
+    vector<string> each = split(line, '\n');
+    for (vector<string>::iterator it = each.begin(); it != each.end(); it++){
+        lines.push_back(*it);
+    }
+}
+
 Console & Console::operator<<(const ConsoleEnd & e){
     // checkStream();
     return *this;
