@@ -25,7 +25,7 @@ public:
     /* adds with the default language */
     void add(const std::string & stuff);
 
-    const std::string & get() const;
+    std::string get() const;
 
     inline const std::map<std::string, std::string> & getLanguages() const {
         return languages;

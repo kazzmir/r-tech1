@@ -59,7 +59,7 @@ extern "C" void convertAudio(SDL_AudioSpec * wav, SDL_AudioSpec * mixer, Mix_Chu
     /* format is now what the mixer wants */
     Util::AudioConverter convert(encoding(mixer->format), wav->channels, wav->freq,
                                  encoding(mixer->format), mixer->channels, mixer->freq);
-    int size = convert.convertedLength(chunk->alen);
+    unsigned int size = convert.convertedLength(chunk->alen);
     unsigned char * data = (unsigned char *) malloc(size > chunk->alen ? size : chunk->alen);
     memcpy(data, chunk->abuf, chunk->alen);
     convert.convert(data, chunk->alen); 

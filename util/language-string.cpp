@@ -40,7 +40,7 @@ const string LanguageString::currentLanguage() const {
     return Configuration::getLanguage();
 }
     
-const std::string & LanguageString::get() const {
+std::string LanguageString::get() const {
     map<std::string, std::string>::const_iterator find = languages.find(currentLanguage());
     if (find != languages.end()){
         return find->second;

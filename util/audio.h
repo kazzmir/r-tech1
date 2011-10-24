@@ -24,7 +24,7 @@ public:
                    Encoding outputEncoding, int outputChannels, int outputFrequency);
     
     /* given some input length, return how long the converted output will be */
-    int convertedLength(int length);
+    unsigned int convertedLength(int length);
 
     /* convert the audio, put the output in the same buffer passed in -- 'input'
      * and returns the number of converted samples.
