@@ -197,8 +197,8 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
     std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
     switch (layout){
         case Static:{
-            int x = cellMarginX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
-            int y = cellMarginY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
+            int x = cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0;
+            int y = cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0;
             for (int row = 0; row < gridY; ++row){
                 int x_spacing_mod = x;
                 int y_spacing_mod = y;
@@ -217,8 +217,8 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
             break;
         }
         case InfiniteHorizontal:{
-            int x = cellMarginX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
-            int y = cellMarginY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
+            int x = cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0;
+            int y = cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0;
             // Start off on offset
             item_iterator += offset * gridY;
             for (int column = 0; column < gridX; ++column){
@@ -239,8 +239,8 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
             break;
         }
         case InfiniteVertical:{
-            int x = cellMarginX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
-            int y = cellMarginY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
+            int x = cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0;
+            int y = cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0;
             // Start off on offset
             item_iterator += offset * gridX;
             for (int row = 0; row < gridY; ++row){
