@@ -42,6 +42,9 @@ public:
     //! Get vector of items
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const = 0;
     
+    //! Get specific item
+    virtual const Util::ReferenceCount<SelectItem> getItem(unsigned int index) const = 0;
+    
     virtual void clearItems() = 0;
     
     virtual void setCellDimensions(int width, int height) = 0;
@@ -96,6 +99,7 @@ public:
     virtual void addItem(const Util::ReferenceCount<SelectItem> &);
     virtual void addItems(const std::vector<Util::ReferenceCount<SelectItem> > &);
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const;
+    virtual const Util::ReferenceCount<SelectItem> getItem(unsigned int index) const;
     virtual void clearItems();
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
@@ -162,6 +166,7 @@ public:
     virtual void addItem(const Util::ReferenceCount<SelectItem> &);
     virtual void addItems(const std::vector<Util::ReferenceCount<SelectItem> > &);
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const;
+    virtual const Util::ReferenceCount<SelectItem> getItem(unsigned int index) const;
     virtual void clearItems();
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);

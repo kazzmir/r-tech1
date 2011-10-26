@@ -10,6 +10,7 @@ using namespace Gui;
 
 SelectItem::SelectItem(){
 }
+
 SelectItem::~SelectItem(){
 }
 
@@ -33,14 +34,17 @@ cellSpacingY(0),
 cellMarginX(0),
 cellMarginY(0){
 }
+
 SimpleSelect::~SimpleSelect(){
 }
+
 void SimpleSelect::act(){
     /* Check if viewable is larger than the current items */
     if (viewable >= items.size()){
         viewable = items.size()-1;
     }
 }
+
 void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) const{
     int x = cellMarginX;
     int y = cellMarginY;
@@ -53,48 +57,67 @@ void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) cons
         y+=cellSpacingY + (layout == Vertical ? cellHeight + cellMarginY : 0);
     }
 }
+
 void SimpleSelect::addItem(const Util::ReferenceCount<SelectItem> & item){
     items.push_back(item);
 }
+
 void SimpleSelect::addItems(const std::vector<Util::ReferenceCount<SelectItem> > & itemList){
     items.insert(items.begin(), itemList.begin(), itemList.end());
 }
+
 const std::vector<Util::ReferenceCount<SelectItem> > & SimpleSelect::getItems() const{
     return items;
 }
+
+const Util::ReferenceCount<SelectItem> SimpleSelect::getItem(unsigned int index) const{
+    if (index >= items.size()){
+        return Util::ReferenceCount<SelectItem>();
+    }
+    return items[index];
+}
+
 void SimpleSelect::clearItems(){
     items.clear();
 }
+
 void SimpleSelect::setCellDimensions(int width, int height){
     cellWidth = width;
     cellHeight = height;
 }
+
 void SimpleSelect::setCellSpacing(int x, int y){
     cellSpacingX = x;
     cellSpacingY = y;
 }
+
 void SimpleSelect::setCellMargins(int x, int y){
     cellMarginX = x;
     cellMarginY = y;
 }
+
 void SimpleSelect::setCursors(int total){
     cursors.resize(total);
 }
+
 int SimpleSelect::totalCursors() const{
     return cursors.size();
 }
+
 void SimpleSelect::setCurrentIndex(int cursor, unsigned int location){
     if (checkCursor(cursor) && location >= items.size()){
         return;
     }
     cursors[cursor] = location;
 }
+
 unsigned int SimpleSelect::getCurrentIndex(int cursor) const{
     if (checkCursor(cursor)){
         return 0;
     }
     return cursors[cursor];
 }
+
 /* NOTE This doesn't account for other cursors and viewable areas */
 bool SimpleSelect::up(int cursor){
     if (checkCursor(cursor)){
@@ -111,6 +134,7 @@ bool SimpleSelect::up(int cursor){
     }
     return false;
 }
+
 bool SimpleSelect::down(int cursor){
     if (checkCursor(cursor)){
         return false;
@@ -125,6 +149,7 @@ bool SimpleSelect::down(int cursor){
     }
     return false;
 }
+
 bool SimpleSelect::left(int cursor){
     if (checkCursor(cursor)){
         return false;
@@ -189,10 +214,13 @@ cellMarginX(0),
 cellMarginY(0),
 offset(0){
 }
+
 GridSelect::~GridSelect(){
 }
+
 void GridSelect::act(){
 }
+
 void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const{
     std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
     switch (layout){
@@ -264,51 +292,71 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
             break;
     }
 }
+
 void GridSelect::addItem(const Util::ReferenceCount<SelectItem> & item){
     items.push_back(item);
 }
+
 void GridSelect::addItems(const std::vector<Util::ReferenceCount<SelectItem> > & itemList){
     items.insert(items.begin(), itemList.begin(), itemList.end());
 }
+
 const std::vector<Util::ReferenceCount<SelectItem> > & GridSelect::getItems() const{
     return items;
 }
+
+const Util::ReferenceCount<SelectItem> GridSelect::getItem(unsigned int index) const{
+    if (index >= items.size()){
+        return Util::ReferenceCount<SelectItem>();
+    }
+    return items[index];
+}
+
 void GridSelect::clearItems(){
     items.clear();
 }
+
 void GridSelect::setCellDimensions(int width, int height){
     cellWidth = width;
     cellHeight = height;
 }
+
 void GridSelect::setCellSpacing(int x, int y){
     cellSpacingX = x;
     cellSpacingY = y;
 }
+
 void GridSelect::setCellMargins(int x, int y){
     cellMarginX = x;
     cellMarginY = y;
 }
+
 void GridSelect::setCursors(int total){
     cursors.resize(total);
 }
+
 int GridSelect::totalCursors() const{
     return cursors.size();
 }
+
 void GridSelect::setCurrentIndex(int cursor, unsigned int location){
     if (checkCursor(cursor) && location >= items.size()){
         return;
     }
     cursors[cursor] = location;
 }
+
 unsigned int GridSelect::getCurrentIndex(int cursor) const{
     if (checkCursor(cursor)){
         return 0;
     }
     return cursors[cursor];
 }
+
 static bool inRange(int check, int start, int end){
     return (check >= start && check <= end);
 }
+
 static bool endPoint(int check, int start, int end, int increment){
     for (int i = start; i <= end; i+=increment){
         if (check == i){
@@ -317,6 +365,7 @@ static bool endPoint(int check, int start, int end, int increment){
     }
     return false;
 }
+
 static int computeOffset(int location, int width, int height){
     int large = 0;
     int small = 0;
@@ -335,6 +384,7 @@ static int computeOffset(int location, int width, int height){
     }
     return offset;
 }
+
 bool GridSelect::up(int cursor){
     if (checkCursor(cursor)){
         return false;
@@ -395,6 +445,7 @@ bool GridSelect::up(int cursor){
     }
     return false;
 }
+
 bool GridSelect::down(int cursor){
     if (checkCursor(cursor)){
         return false;
@@ -453,6 +504,7 @@ bool GridSelect::down(int cursor){
     }
     return false;
 }
+
 bool GridSelect::left(int cursor){
     if (checkCursor(cursor)){
         return false;
@@ -513,6 +565,7 @@ bool GridSelect::left(int cursor){
     }
     return false;
 }
+
 bool GridSelect::right(int cursor){
     if (checkCursor(cursor)){
         return false;
