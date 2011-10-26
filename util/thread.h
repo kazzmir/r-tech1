@@ -176,26 +176,14 @@ protected:
  * then `get' will block until the future completes. If the future has already
  * completed then `get' will return immediately with the computed value.
  * The use case is computing something that has to be used later:
- *  Future future; // might take a while to compute
+ *  Future future;
+ *  future.start(); // might take a while to compute 
  *  do_stuff_that_takes_a_while(); // future might finish sometime in here
  *  Object o = future.get(); // future is already done
  *
- * TODO: handle exceptions
  */
 template<class X>
 class Future{
-protected:
-    /* WARNING: hack to find out the type of the exception */
-    /*
-    enum ExceptionType{
-        None,
-        Load,
-        Token,
-        Base,
-        Mugen
-    };
-    */
-
 public:
     Future():
     thing(0),
@@ -203,14 +191,10 @@ public:
     done(false),
     exception(NULL),
     ran(false){
-        /* future will increase the count */
-        // Thread::initializeSemaphore(&future, 0);
-        // future.acquire();
     }
 
     virtual ~Future(){
         Thread::joinThread(thread);
-        // Thread::destroySemaphore(&future);
         delete exception;
     }
 
@@ -219,17 +203,13 @@ public:
         if (Thread::isUninitialized(thread)){
             start();
         }
-        X out;
         Exception::Base * failed = NULL;
         future.acquire();
         future.wait(done);
-        // Thread::semaphoreDecrease(&future);
         if (exception != NULL){
             failed = exception;
-            // exception->throwSelf();
         }
-        out = thing;
-        // Thread::semaphoreIncrease(&future);
+        X out = thing;
         future.release();
         if (failed){
             failed->throwSelf();
@@ -244,7 +224,6 @@ public:
         if (!Thread::createThread(&thread, NULL, (Thread::ThreadFunction) runit, this)){
             Global::debug(0) << "Could not create future thread. Blocking until its done" << std::endl;
             runit(this);
-            // throw Exception::Base(__FILE__, __LINE__);
         }
         ran = true;
     }
@@ -267,15 +246,10 @@ protected:
             me->exception = new MugenException(m);
         } catch (const Exception::Base & base){
             me->exception = new Exception::Base(base);
+        } catch (...){
+            me->exception = new Exception::Base(__FILE__, __LINE__);
         }
         me->future.lockAndSignal(me->done, true);
-        /*
-        me->future.acquire();
-        me->done = true;
-        me->future.signal();
-        me->future.release();
-        */
-        // Thread::semaphoreIncrease(&me->future);
         return NULL;
     }
 
