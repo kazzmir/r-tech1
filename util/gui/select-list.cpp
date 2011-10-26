@@ -77,6 +77,13 @@ const Util::ReferenceCount<SelectItem> SimpleSelect::getItem(unsigned int index)
     return items[index];
 }
 
+const Util::ReferenceCount<SelectItem> SimpleSelect::getItemByCursor(int cursor) const{
+    if (getCurrentIndex(cursor) >= items.size()){
+        return Util::ReferenceCount<SelectItem>();
+    }
+    return items[getCurrentIndex(cursor)];
+}
+
 void SimpleSelect::clearItems(){
     items.clear();
 }
@@ -310,6 +317,13 @@ const Util::ReferenceCount<SelectItem> GridSelect::getItem(unsigned int index) c
         return Util::ReferenceCount<SelectItem>();
     }
     return items[index];
+}
+
+const Util::ReferenceCount<SelectItem> GridSelect::getItemByCursor(int cursor) const{
+    if (getCurrentIndex(cursor) >= items.size()){
+        return Util::ReferenceCount<SelectItem>();
+    }
+    return items[getCurrentIndex(cursor)];
 }
 
 void GridSelect::clearItems(){
