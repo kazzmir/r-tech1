@@ -57,39 +57,37 @@ private:
 };
 
 class Widget{
-    public:
-        Widget();
-        Widget( const Widget &);
-        virtual ~Widget();
-        
-        // copy
-        Widget &operator=( const Widget &);
-        
-        void setCoordinates(const Token * token);
-        void setColors(const Token * token);
-        
-        //! New position data
-        Coordinate location;
-        
-        //! Colors
-        ColorInfo colors;
-	
-	//! Transformations
-	Transformations transforms;
-        
-        // Logic
-        virtual void act(const Font &)=0;
-        
-        // Render
-        virtual void render(const Graphics::Bitmap &) = 0;
-        /* default behavior is just to call render() */
-        virtual void render(const Graphics::Bitmap &, const Font &);
+public:
+    Widget();
+    Widget( const Widget &);
+    virtual ~Widget();
     
-    protected:
-        Util::ReferenceCount<Graphics::Bitmap> checkWorkArea(const Graphics::Bitmap & parent);
-        
+    // copy
+    Widget &operator=( const Widget &);
+    
+    void setCoordinates(const Token * token);
+    void setColors(const Token * token);
+    void setTransforms(const Token * token);
+    
+    //! New position data
+    Coordinate location;
+    
+    //! Colors
+    ColorInfo colors;
+    
+    //! Transformations
+    Transformations transforms;
+    
+    // Logic
+    virtual void act(const Font &)=0;
+    
+    // Render
+    virtual void render(const Graphics::Bitmap &) = 0;
+    /* default behavior is just to call render() */
+    virtual void render(const Graphics::Bitmap &, const Font &);
+
+protected:
+    Util::ReferenceCount<Graphics::Bitmap> checkWorkArea(const Graphics::Bitmap & parent);
 };
-
 }
-
 #endif

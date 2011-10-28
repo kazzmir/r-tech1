@@ -90,10 +90,6 @@ void Widget::setCoordinates(const Token * token){
                 RelativePoint pos(x1,y1);
                 RelativePoint dimensions(x2,y2);
                 location = Coordinate(pos, dimensions);
-            } else if (*coordToken == "radius"){
-		double radius = 0;
-                coordToken->view() >> radius;
-		transforms.setRadius(radius);
             } else if (*coordToken == "z"){
                 double z;
                 coordToken->view() >> z;
@@ -122,6 +118,33 @@ void Widget::setColors(const Token * token){
         token->view() >> r >> g >> b >> colors.borderAlpha;
         colors.border = Graphics::makeColor(r,g,b);
     } 
+}
+
+void Widget::setTransforms(const Token * token){
+    try{
+        if ( *token != "transforms" ){
+            throw LoadException(__FILE__, __LINE__, "Not a Widget Transforms.");
+        }
+        TokenView view = token->view();
+        while (view.hasMore()){
+            const Token * tok;
+            view >> tok;
+            double radius = 0;
+            try{
+                if (tok->match("radius", radius)){
+                    transforms.setRadius(radius);
+                } else {
+                    Global::debug(0) << "Unknown Transforms property: " << tok->getName() << std::endl;
+                }
+            } catch (const TokenException & ex){
+                throw LoadException(__FILE__, __LINE__, ex, "Transforms parse error");
+            } catch ( const LoadException & ex ) {
+                throw ex;
+            }
+        }
+    } catch (const TokenException & e){
+        throw LoadException(__FILE__, __LINE__, e, "Error reading transforms.");
+    }
 }
         
 void Widget::render(const Graphics::Bitmap & bitmap, const Font & font){

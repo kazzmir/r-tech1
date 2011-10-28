@@ -167,11 +167,18 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
     Graphics::Bitmap area(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
     // Check if we are using a rounded box
     if (transforms.getRadius() > 0){
-        //roundRectFill( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        //roundRect( *workArea, (int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border );
+        const int offset = transforms.getRadius() * 4;
+        const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(location.getWidth(), offset/2);
+        temp.clearToMask();
+        temp.roundRectFill((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.body);
+        temp.roundRect((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.border);
+        temp.translucent().draw(0,location.getHeight() - offset/2, area);
+        
+        area.translucent().rectangleFill(0, tabHeight+1, location.getWidth()-1, location.getHeight()-1 - offset/2, colors.body );
+        area.translucent().vLine(tabHeight,0,location.getHeight()-1 - offset/2,colors.border);
+        area.translucent().vLine(tabHeight,location.getWidth()-1,location.getHeight()-1 - offset/2,colors.border);
     } else {
         area.translucent().rectangleFill(0, tabHeight+1, location.getWidth()-1, location.getHeight()-1, colors.body );
-        //area.translucent().rectangle(0, tabHeight, location.getWidth()-1, location.getHeight()-1, colors.border );
         area.translucent().vLine(tabHeight,0,location.getHeight()-1,colors.border);
         area.translucent().hLine(0,location.getHeight()-1,location.getWidth()-1,colors.border);
         area.translucent().vLine(tabHeight,location.getWidth()-1,location.getHeight()-1,colors.border);
@@ -322,7 +329,30 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
             }
         }
         
-        if (tab->getContext().transforms.getRadius() > 0){
+        if (transforms.getRadius() > 0){
+            const int offset = transforms.getRadius() * 4;
+            if (tab->active){
+                Graphics::Bitmap area(bmp, x, 0, x+textWidth+modifier-1, tabHeight+1);
+                if (!inTab){
+                    area.translucent().roundRectFill((int)transforms.getRadius(), 0, 0, textWidth+modifier-1, tabHeight*2, colors.body);
+                    area.translucent().roundRect((int)transforms.getRadius(), 0, 0, textWidth+modifier-1, tabHeight*2, colors.border);
+                    vFont.printf((((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, currentTabFontColor, area, tab->name, 0 );
+                } else {
+                    area.translucent().roundRectFill((int)transforms.getRadius(), 0, 0, textWidth+modifier-1, tabHeight*2, colors.body);
+                    area.translucent().roundRect((int)transforms.getRadius(), 0, 0, textWidth+modifier-1, tabHeight*2, colors.border);
+                    vFont.printf((((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), area, tab->name, 0 );
+                }
+                x+=textWidth + modifier;
+            } else {
+                /* FIXME The widths are broken */
+                const int heightMod = tabHeight * .15;
+                Graphics::Bitmap area(bmp, x, 1 + heightMod, x+textWidth+modifier-1, tabHeight-heightMod);
+                area.translucent().roundRectFill((int)transforms.getRadius(),0,0,textWidth+modifier-1,tabHeight,Graphics::makeColor(105, 105, 105));
+                area.translucent().roundRect((int)transforms.getRadius(),0,0,textWidth+modifier-1,tabHeight,Graphics::makeColor(58, 58, 58));
+                area.translucent().hLine(0,tabHeight,tabWidthMax+modifier-1,colors.border);
+                vFont.printf((((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, area, tab->name, 0 );
+                x += tabWidthMax + modifier;
+            }
         } else {
             if (tab->active){
                 if (!inTab){
