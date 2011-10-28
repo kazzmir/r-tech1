@@ -32,7 +32,9 @@ cellHeight(100),
 cellSpacingX(0),
 cellSpacingY(0),
 cellMarginX(0),
-cellMarginY(0){
+cellMarginY(0),
+startOffsetX(0),
+startOffsetY(0){
 }
 
 SimpleSelect::~SimpleSelect(){
@@ -46,8 +48,8 @@ void SimpleSelect::act(){
 }
 
 void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) const{
-    int x = cellMarginX;
-    int y = cellMarginY;
+    int x = startOffsetX + cellMarginX;
+    int y = startOffsetY + cellMarginY;
     const int stop = currentTop + viewable;
     int count = currentTop;
     for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin() + currentTop; i != items.end() && count != stop; ++i, ++count){
@@ -101,6 +103,11 @@ void SimpleSelect::setCellSpacing(int x, int y){
 void SimpleSelect::setCellMargins(int x, int y){
     cellMarginX = x;
     cellMarginY = y;
+}
+
+void SimpleSelect::setStartingOffset(int x, int y){
+    startOffsetX = x;
+    startOffsetY = y;
 }
 
 void SimpleSelect::setCursors(int total){
@@ -219,6 +226,8 @@ cellSpacingX(0),
 cellSpacingY(0),
 cellMarginX(0),
 cellMarginY(0),
+startOffsetX(0),
+startOffsetY(0),
 offset(0){
 }
 
@@ -232,8 +241,8 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
     std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
     switch (layout){
         case Static:{
-            int x = cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0;
-            int y = cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0;
+            int x = startOffsetX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
+            int y = startOffsetY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
             for (int row = 0; row < gridY; ++row){
                 int x_spacing_mod = x;
                 int y_spacing_mod = y;
@@ -252,8 +261,8 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
             break;
         }
         case InfiniteHorizontal:{
-            int x = cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0;
-            int y = cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0;
+            int x = startOffsetX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
+            int y = startOffsetY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
             // Start off on offset
             item_iterator += offset * gridY;
             for (int column = 0; column < gridX; ++column){
@@ -274,8 +283,8 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
             break;
         }
         case InfiniteVertical:{
-            int x = cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0;
-            int y = cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0;
+            int x = startOffsetX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
+            int y = startOffsetY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
             // Start off on offset
             item_iterator += offset * gridX;
             for (int row = 0; row < gridY; ++row){
@@ -343,6 +352,11 @@ void GridSelect::setCellSpacing(int x, int y){
 void GridSelect::setCellMargins(int x, int y){
     cellMarginX = x;
     cellMarginY = y;
+}
+
+void GridSelect::setStartingOffset(int x, int y){
+    startOffsetX = x;
+    startOffsetY = y;
 }
 
 void GridSelect::setCursors(int total){
