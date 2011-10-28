@@ -53,6 +53,7 @@ public:
     virtual void setCellDimensions(int width, int height) = 0;
     virtual void setCellSpacing(int x, int y) = 0;
     virtual void setCellMargins(int x, int y) = 0;
+    virtual void setStartingOffset(int x, int y) = 0;
     
     virtual void setCursors(int total) = 0;
     virtual int totalCursors() const = 0;
@@ -108,6 +109,7 @@ public:
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
     virtual void setCellMargins(int x, int y);
+    virtual void setStartingOffset(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
     virtual void setCurrentIndex(int cursor, unsigned int location);
@@ -155,6 +157,7 @@ protected:
     int cellWidth, cellHeight;
     int cellSpacingX, cellSpacingY;
     int cellMarginX, cellMarginY;
+    int startOffsetX, startOffsetY;
     std::vector<unsigned int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };
@@ -176,6 +179,7 @@ public:
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
     virtual void setCellMargins(int x, int y);
+    virtual void setStartingOffset(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
     virtual void setCurrentIndex(int cursor, unsigned int location);
@@ -217,6 +221,7 @@ protected:
     int cellWidth, cellHeight;
     int cellSpacingX, cellSpacingY;
     int cellMarginX, cellMarginY;
+    int startOffsetX, startOffsetY;
     unsigned int offset;
     std::vector<unsigned int> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
