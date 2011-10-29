@@ -10,42 +10,13 @@
 
 using namespace Gui;
 
-#if 0
-/* FIXME add rounded tabs */
-static void roundTab( const Bitmap & work, int radius, int x1, int y1, int x2, int y2, int color, bool bottom = true ){
-    const int width = x2 - x1;
-    const int height = y2 - y1;
-    radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
-    
-    work.circleFill(x1+radius, y1+radius, radius, color);
-    work.circleFill((x1+width)-radius, y1+radius, radius, color);
-    work.circleFill(x1+radius, (y1+height)-radius, radius, color);
-    work.circleFill((x1+width)-radius, (y1+height)-radius, radius, color);
-    work.rectangleFill( x1+radius, y1, x2-radius, y1+radius, color);
-    work.rectangleFill( x1, y1+radius, x2, y2-radius, color);
-    work.rectangleFill( x1+radius, y2-radius, x2-radius, y2, color);
-    
-    work.line(x1+radius, y1, x1+width-radius, y1, color);
-    work.line(x1+radius, y1+height, x1+width-radius,y1+height, color);
-    work.line(x1, y1+radius,x1, y1+height-radius, color);
-    work.line(x1+width, y1+radius,x1+width, y1+height-radius, color);
-
-    arc(work, x1+radius, y1+radius, S_PI-1.115, radius, color);
-    arc(work, x1+radius + (width - radius *2), y1+radius, -S_PI/2 +0.116, radius, color);
-    arc(work, x1+width-radius, y1+height-radius, -0.110, radius ,color);
-    arc(work, x1+radius, y1+height-radius, S_PI/2-0.119, radius, color);
-}
-#endif
-
 Tab::Tab():
-// context(new ContextBox()),
 active(false){
     // Set alpha to 0 as we are not interested in the box
     context.setRenderOnlyText(true);
 }
 
 Tab::~Tab(){
-    // delete context;
 }
     
 void Tab::addOption(const Util::ReferenceCount<ContextItem> & item){
@@ -134,8 +105,6 @@ TabbedBox &TabbedBox::operator=( const TabbedBox &copy){
 // Logic
 void TabbedBox::act(const Font & font){
     if (!tabs.empty()){
-        // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
-        //tabWidthMax = location.getWidth()/tabs.size();
         const int width = font.textLength(tabs[current]->name.c_str()) + 5;
         if (tabs.size() > 1){
             tabWidthMax = (location.getWidth() - width) / (tabs.size() - 1);
@@ -205,15 +174,8 @@ void TabbedBox::addTab(const std::string & name, const std::vector<Util::Referen
     Tab * tab = new Tab();
     tab->name = name;
     tab->setList(list);
-    // tab->context->setFont(font, fontWidth, fontHeight);
+    
     addTab(tab);
-    /*
-    const int modifier = fontHeight * .35;
-    tab->context.location.setPosition(Gui::AbsolutePoint(0, fontHeight + modifier));
-    tab->context.location.setPosition2(Gui::AbsolutePoint(location.getWidth(), location.getHeight()- modifier));
-    tab->context.open();
-    tabs.push_back(tab);
-    */
 }
 
 void TabbedBox::addTab(Tab * tab){
@@ -228,13 +190,6 @@ void TabbedBox::moveTab(int direction){
     tabs[current]->close();
     tabs[current]->active = false;
     current = (unsigned int) ((int)current + direction + (int) tabs.size()) % tabs.size();
-    /*
-    if (current == 0){
-        current = tabs.size()-1;
-    } else {
-        current--;
-    }
-    */
     tabs[current]->open();
     tabs[current]->active = true;
 }
@@ -312,7 +267,6 @@ void TabbedBox::setSelectedTabFontColor(Graphics::Color color){
 
 void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
     const int tabHeight = fontHeight + 5;
-    // const Font & vFont = Font::getFont(font, fontWidth, fontHeight);
     
     int x = 0;
     Graphics::Bitmap::transBlender(0, 0, 0, colors.bodyAlpha);
@@ -344,7 +298,6 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
                 }
                 x+=textWidth + modifier;
             } else {
-                /* FIXME The widths are broken */
                 const int heightMod = tabHeight * .15;
                 Graphics::Bitmap area(bmp, x, 1 + heightMod, x+tabWidthMax+modifier-1, tabHeight-heightMod);
                 area.translucent().roundRectFill((int)transforms.getRadius(),0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(105, 105, 105));
@@ -355,50 +308,26 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
             }
         } else {
             if (tab->active){
+                Graphics::Bitmap area(bmp, x, 0, x+textWidth+modifier-1, tabHeight+1);
                 if (!inTab){
-                    //bmp.translucent().rectangle(x, 0, x+textWidth + modifier - 1, tabHeight, colors.border);
-                    bmp.translucent().vLine(0,x,tabHeight,colors.border);
-                    bmp.translucent().hLine(x,0,x+textWidth+modifier-1,colors.border);
-                    bmp.translucent().vLine(0,x+textWidth+modifier-1,tabHeight,colors.border);
-                    bmp.translucent().rectangleFill( x+1, 1, x+textWidth + modifier - 2, tabHeight, colors.body);
-
-                    bmp.setClipRect(x, 0, x+textWidth + modifier, tabHeight-1);
-                    vFont.printf(x + (((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, currentTabFontColor, bmp, tab->name, 0 );
+                    area.translucent().rectangleFill(0, 0, textWidth+modifier-1, tabHeight*2, colors.body);
+                    area.translucent().rectangle(0, 0, textWidth+modifier-1, tabHeight*2, colors.border);
+                    vFont.printf((((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, currentTabFontColor, area, tab->name, 0 );
                 } else {
-                    //bmp.translucent().rectangle(x, 0, x+textWidth + modifier -1, tabHeight, colors.border);
-                    bmp.translucent().vLine(0,x,tabHeight,colors.border);
-                    bmp.translucent().hLine(x,0,x+textWidth+modifier-1,colors.border);
-                    bmp.translucent().vLine(0,x+textWidth+modifier-1,tabHeight,colors.border);
-                    bmp.translucent().rectangleFill( x+1, 1, x+textWidth-2 + modifier, tabHeight, colors.body );
-                    
-                    bmp.setClipRect(x, 0, x+textWidth + modifier, tabHeight-1);
-                    vFont.printf(x + (((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), bmp, tab->name, 0 );
+                    area.translucent().rectangleFill(0, 0, textWidth+modifier-1, tabHeight*2, colors.body);
+                    area.translucent().rectangle(0, 0, textWidth+modifier-1, tabHeight*2, colors.border);
+                    vFont.printf((((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), area, tab->name, 0 );
                 }
-
                 x+=textWidth + modifier;
             } else {
                 const int heightMod = tabHeight * .15;
-                // FIXME make background tabs customizable for now just make it gray
-                bmp.translucent().rectangle(x, 1 + heightMod, x+tabWidthMax + modifier -1, tabHeight, Graphics::makeColor(58, 58, 58));
-                bmp.translucent().hLine(x,tabHeight,x+tabWidthMax+modifier-1,colors.border);
-                // FIXME make background tabs customizable for now just make it gray
-                bmp.translucent().rectangleFill( x+1, 2 + heightMod, x+tabWidthMax + modifier -2, tabHeight-2, Graphics::makeColor(105, 105, 105));
-                
-                bmp.setClipRect(x+2, 6 + heightMod, x+tabWidthMax + modifier -3, tabHeight-1);
-                
-#if 0
-                // FIXME find a way to make the font smaller
-                const int oldsizex = vFont.getSizeX();
-                const int oldsizey = vFont.getSizeY();
-                vFont.setSize(oldsizex/2, oldsizey/2);
-                const int disabledTextWidth = vFont.textLength(tab->name.c_str()) + 5;
-                vFont.printf(x + (((tabWidthMax + modifier)/2)-((disabledTextWidth + modifier)/2)), 0, tabFontColor, bmp, tab->name, 0 );
-                vFont.setSize(oldsizex, oldsizey);
-#endif
-                vFont.printf(x + (((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, bmp, tab->name, 0 );
+                Graphics::Bitmap area(bmp, x, 1 + heightMod, x+tabWidthMax+modifier-1, tabHeight-heightMod);
+                area.translucent().rectangleFill(0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(105, 105, 105));
+                area.translucent().rectangle(0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(58, 58, 58));
+                area.translucent().hLine(0,tabHeight,tabWidthMax+modifier-1,colors.border);
+                vFont.printf((((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, area, tab->name, 0 );
                 x += tabWidthMax + modifier;
             }
-            bmp.setClipRect(0, 0, bmp.getWidth(), bmp.getHeight());
         }
     }
 }
