@@ -2,7 +2,6 @@
 #include "util/trans-bitmap.h"
 #include "util/font.h"
 #include "lineedit.h"
-#include "keys.h"
 #include "globals.h"
 #include "util/debug.h"
 #include <iostream>
@@ -156,87 +155,6 @@ void LineEdit::render(const Graphics::Bitmap & work){
         }
     }
 }
-
-#if 0
-// Keypresses
-sigslot::slot LineEdit::keyPress(const keys &k)
-{
-	debug( 5 ) << "Received key press " << k.getValue() << std::endl;
-	if(focused)
-	{
-		if(k.isCharacter())
-		{
-			char keyValue = k.getValue();
-			bool addValue = false;
-			
-			switch(inputTypeValue){
-			  case inputNumerical:
-				if ( k.isNumber() ) addValue = !addValue;
-				break;
-			  case inputNoCaps:
-				keyValue = tolower(keyValue);
-				addValue = !addValue;
-				break;
-			  case inputAllCaps:
-				keyValue = toupper(keyValue);
-				addValue = !addValue;
-				break;
-			  case inputGeneral:
-			  default:
-				addValue = !addValue;
-				break;
-			}
-			if(addValue){
-			  if(limit!=0)
-			  {
-				  if(currentSetText.length()<limit)
-				  {
-					  //currentSetText += k.getValue();
-					  currentSetText.insert(cursorIndex, std::string(1,keyValue));
-					  ++cursorIndex;
-					  changed();
-				  }
-			  }
-			  else
-			  {
-				  //currentSetText += k.getValue();
-				  currentSetText.insert(cursorIndex, std::string(1,keyValue));
-				  ++cursorIndex;
-				  changed();
-			  }
-			}
-		}
-		else
-		{
-			switch(k.getValue())
-			{
-				case keys::DEL:
-					if(cursorIndex<currentSetText.length())
-					{
-						currentSetText.erase(cursorIndex,1);
-					}
-					break;
-				case keys::BACKSPACE:
-					if(cursorIndex>0)
-					{
-						currentSetText.erase(cursorIndex - 1, 1);
-						--cursorIndex;
-					}
-					break;
-				case keys::RIGHT:
-					if(cursorIndex<currentSetText.length())++cursorIndex;
-					break;
-				case keys::LEFT:
-					if(cursorIndex>0)--cursorIndex;
-					break;
-				case keys::INSERT:
-					break;
-			}
-			changed();
-		}
-	}
-}
-#endif
 
 // Set text
 void LineEdit::setText(const std::string & text){

@@ -6,7 +6,6 @@
 
 #include "widget.h"
 #include "timer.h"
-#include "sigslot.h"
 #include "util/input/text-input.h"
 
 class Font;
@@ -15,7 +14,7 @@ class keys;
 
 namespace Gui{
 
-class LineEdit: public Widget, public sigslot::has_slots<> {
+class LineEdit: public Widget{
 public:
     //! enumerator housing alignment positions
     enum textAlign {
@@ -90,9 +89,6 @@ public:
 
     //! check Focus
     bool isFocused();
-
-    //! Keypresses
-    // sigslot::slot keyPress(const keys &k);
 
     bool didChanged( unsigned long long & counter );
 
