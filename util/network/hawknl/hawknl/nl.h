@@ -40,7 +40,7 @@ extern "C" {
 
 #ifdef HL_WINDOWS_APP
 /* undefine this to remove IPX code, Windows only  */
-#define NL_INCLUDE_IPX
+// #define NL_INCLUDE_IPX
 #endif
 
 /* undefine this to remove loopback code */

@@ -144,6 +144,9 @@ typedef struct sockaddr_ipx
 #undef FD_ISSET
 #define FD_ISSET(fd, set)      nlWSAFDIsSet((SOCKET)(fd), set)
 
+void nlFD_SET(SOCKET fd, /*@out@*/ fd_set *set);
+void nlFD_CLR(SOCKET fd, fd_set *set);
+
 #if 0
 HL_INLINE void nlFD_CLR(SOCKET fd, fd_set *set)
 {

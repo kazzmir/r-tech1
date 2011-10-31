@@ -37,6 +37,7 @@ NLboolean ipx_GetLocalAddr(NLsocket socket, /*@out@*/ NLaddress *address);
 NLaddress *ipx_GetAllLocalAddr(NLint *count);
 NLboolean ipx_SetLocalAddr(const NLaddress *address);
 NLchar *ipx_GetNameFromAddr(const NLaddress *address, /*@returned@*/ /*@out@*/ NLchar *name);
+NLushort ipx_GetPortFromAddr(const NLaddress *address);
 NLboolean ipx_GetNameFromAddrAsync(const NLaddress *address, /*@out@*/ NLchar *name);
 NLboolean ipx_GetAddrFromName(const NLchar *name, /*@out@*/ NLaddress *address);
 NLboolean ipx_GetAddrFromNameAsync(const NLchar *name, /*@out@*/ NLaddress *address);
