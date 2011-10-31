@@ -13,6 +13,8 @@
 
 #ifdef WII
 #include <network.h>
+#elif defined(WINDOWS)
+#include <winsock.h>
 #else
 #include <arpa/inet.h>
 #endif
