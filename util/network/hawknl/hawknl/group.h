@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-HL_EXP int HL_APIENTRY nlGroupGetFdset(NLint group, fd_set *fd);
+HL_EXP SOCKET HL_APIENTRY nlGroupGetFdset(NLint group, fd_set *fd);
 
 #ifdef __cplusplus
 }
