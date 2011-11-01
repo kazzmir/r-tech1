@@ -17,7 +17,7 @@ Gradient::Gradient(int size, Graphics::Color startColor, Graphics::Color endColo
 colors(0),
 size(size),
 index(0){
-    size = Util::clamp(size, 1, 10000);
+    size = Util::clamp(size, 2, 10000);
     colors = new Graphics::Color[size];
     Graphics::blend_palette(colors, size / 2, startColor, endColor);
     Graphics::blend_palette(colors + size / 2, size / 2, endColor, startColor);
@@ -34,7 +34,7 @@ index(0){
     token->match("_/distance", size);
     token->match("_/size", size);
 
-    size = Util::clamp(size, 1, 10000);
+    size = Util::clamp(size, 2, 10000);
 
     Graphics::Color startColor = Graphics::makeColor(lowRed, lowGreen, lowBlue);
     Graphics::Color endColor = Graphics::makeColor(highRed, highGreen, highBlue);
