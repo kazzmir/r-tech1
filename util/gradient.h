@@ -9,6 +9,7 @@ namespace Effects{
 
 class Gradient{
 public:
+    Gradient();
     Gradient(int size, Graphics::Color startColor, Graphics::Color endColor);
     Gradient(const Gradient & copy);
     Gradient(const Token * token);
