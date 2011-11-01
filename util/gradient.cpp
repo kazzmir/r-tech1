@@ -3,6 +3,14 @@
 #include "token.h"
 
 namespace Effects{
+    
+Gradient::Gradient():
+colors(NULL),
+size(1),
+index(0){
+    colors = new Graphics::Color[size];
+    colors[0] = Graphics::makeColor(255, 255, 255);
+}
 
 /* this class does virtually no error checking. great job */
 Gradient::Gradient(int size, Graphics::Color startColor, Graphics::Color endColor):
