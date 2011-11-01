@@ -3,12 +3,15 @@
 
 #include "util/bitmap.h"
 
+class Token;
+
 namespace Effects{
 
 class Gradient{
 public:
     Gradient(int size, Graphics::Color startColor, Graphics::Color endColor);
     Gradient(const Gradient & copy);
+    Gradient(const Token * token);
 
     Gradient & operator=(const Gradient & copy);
 
