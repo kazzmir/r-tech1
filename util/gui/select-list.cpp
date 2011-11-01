@@ -195,6 +195,14 @@ bool SimpleSelect::right(int cursor){
     return false;
 }
 
+bool SimpleSelect::hasMoreLow() const{
+    return (currentTop > 0);
+}
+
+bool SimpleSelect::hasMoreHigh() const{
+    return ((currentTop + viewable) < items.size());
+}
+
 bool SimpleSelect::checkCursor(int cursor) const {
     return ((unsigned int)cursor >= cursors.size());
 }
@@ -656,6 +664,36 @@ bool GridSelect::right(int cursor){
         }
         default:
             break;
+    }
+    return false;
+}
+
+
+bool GridSelect::hasMoreLow() const{
+    return (offset > 0);
+}
+
+bool GridSelect::hasMoreHigh() const{
+    if (!cursors.empty()){
+        switch (layout){
+            case InfiniteHorizontal:{
+                const unsigned int location = (offset * gridY) + (gridX * gridY);
+                if (location < items.size() && location > ((offset+gridX) * gridY)-1){
+                    return true;
+                }
+                break;
+            }
+            case InfiniteVertical:{
+                const unsigned int location = (offset * gridX) + (gridX * gridY);
+                if (location < items.size() && location > ((offset+gridY) * gridX)-1){
+                    return true;
+                }
+                break;
+            }
+            case Static:
+            default:
+                break;
+        }
     }
     return false;
 }

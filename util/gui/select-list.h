@@ -65,6 +65,10 @@ public:
     virtual bool left(int cursor) = 0;
     virtual bool right(int cursor) = 0;
     
+    //! Has more low/high
+    virtual bool hasMoreLow() const = 0;
+    virtual bool hasMoreHigh() const = 0;
+    
     //! Access Empty
     virtual inline void setAccessEmpty(bool access){
         this->accessEmpty = access;
@@ -118,6 +122,9 @@ public:
     virtual bool down(int cursor);
     virtual bool left(int cursor);
     virtual bool right(int cursor);
+    
+    virtual bool hasMoreLow() const;
+    virtual bool hasMoreHigh() const;
     
     virtual void setViewable(unsigned int viewable){
         this->viewable = viewable;
@@ -188,6 +195,9 @@ public:
     virtual bool down(int cursor);
     virtual bool left(int cursor);
     virtual bool right(int cursor);
+    
+    virtual bool hasMoreLow() const;
+    virtual bool hasMoreHigh() const;
     
     enum Layout {
         Static,
