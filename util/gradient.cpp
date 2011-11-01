@@ -29,10 +29,10 @@ size(10),
 index(0){
     int lowRed = 0, lowGreen = 0, lowBlue = 0;
     int highRed = 255, highGreen = 255, highBlue = 255;
-    token->match("low", lowRed, lowGreen, lowBlue);
-    token->match("high", highRed, highGreen, highBlue);
-    token->match("distance", size);
-    token->match("size", size);
+    token->match("_/low", lowRed, lowGreen, lowBlue);
+    token->match("_/high", highRed, highGreen, highBlue);
+    token->match("_/distance", size);
+    token->match("_/size", size);
 
     size = Util::clamp(size, 1, 10000);
 
