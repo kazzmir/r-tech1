@@ -1,5 +1,6 @@
 #include "gradient.h"
 #include "funcs.h"
+#include "token.h"
 
 namespace Effects{
 
@@ -8,11 +9,33 @@ Gradient::Gradient(int size, Graphics::Color startColor, Graphics::Color endColo
 colors(0),
 size(size),
 index(0){
+    size = Util::clamp(size, 1, 10000);
     colors = new Graphics::Color[size];
     Graphics::blend_palette(colors, size / 2, startColor, endColor);
     Graphics::blend_palette(colors + size / 2, size / 2, endColor, startColor);
 }
-    
+
+Gradient::Gradient(const Token * token):
+colors(NULL),
+size(10),
+index(0){
+    int lowRed = 0, lowGreen = 0, lowBlue = 0;
+    int highRed = 255, highGreen = 255, highBlue = 255;
+    token->match("low", lowRed, lowGreen, lowBlue);
+    token->match("high", highRed, highGreen, highBlue);
+    token->match("distance", size);
+    token->match("size", size);
+
+    size = Util::clamp(size, 1, 10000);
+
+    Graphics::Color startColor = Graphics::makeColor(lowRed, lowGreen, lowBlue);
+    Graphics::Color endColor = Graphics::makeColor(highRed, highGreen, highBlue);
+
+    colors = new Graphics::Color[size];
+    Graphics::blend_palette(colors, size / 2, startColor, endColor);
+    Graphics::blend_palette(colors + size / 2, size / 2, endColor, startColor);
+}
+
 Gradient::Gradient(const Gradient & copy):
 colors(NULL),
 size(copy.size),

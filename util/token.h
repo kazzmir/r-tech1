@@ -22,6 +22,7 @@ public:
     TokenView & operator>>(const Token* & item);
     TokenView & operator>>(std::string & item);
     TokenView & operator>>(int & item);
+    TokenView & operator>>(unsigned int & item);
     TokenView & operator>>(double & item);
     TokenView & operator>>(bool & item);
         
