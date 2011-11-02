@@ -32,6 +32,7 @@ public:
     virtual ~Frame();
     virtual void act(double xvel, double yvel);
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(const Graphics::Bitmap &);
     Util::ReferenceCount<Graphics::Bitmap> bmp;
     RelativePoint offset;
     RelativePoint scrollOffset;
@@ -53,6 +54,7 @@ public:
     // Logic
     virtual void act();
     virtual void draw(const Graphics::Bitmap &);
+    virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &);
     virtual void forwardFrame();
     virtual void backFrame();
 
