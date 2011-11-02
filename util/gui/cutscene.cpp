@@ -7,6 +7,7 @@
 #include "util/input/input-source.h"
 #include "util/stretch-bitmap.h"
 #include "util/token.h"
+#include "util/tokenreader.h"
 
 using namespace Gui;
 
@@ -75,12 +76,27 @@ width(0),
 height(0),
 current(0){
 }
+    
+CutScene::CutScene(const Filesystem::AbsolutePath & path):
+width(0),
+height(0),
+current(0){
+    TokenReader reader;
+    load(reader.readTokenFromFile(path.path().c_str()));
+}
 
 CutScene::CutScene(const Token * token):
 width(0),
 height(0),
 current(0){
-    if ( *token != "cutscene" ){
+    load(token);
+}
+
+CutScene::~CutScene(){
+}
+
+void CutScene::load(const Token * token){
+    if (*token != "cutscene"){
         throw LoadException(__FILE__, __LINE__, "Not a CutScene");
     }
     TokenView view = token->view();
@@ -104,9 +120,7 @@ current(0){
             throw ex;
         }
     }
-}
 
-CutScene::~CutScene(){
 }
 
 void CutScene::setName(const std::string & n){
@@ -117,6 +131,7 @@ void CutScene::setResolution(int w, int h){
     width = w;
     height = h;
 }
+
 void CutScene::setScene(unsigned int scene){
     if (scene >= scenes.size()){
         current = scenes.size()-1;
@@ -128,8 +143,14 @@ void CutScene::setScene(unsigned int scene){
 enum Keys{
     Esc,
 };
-void CutScene::next(){
-    
+
+void CutScene::playAll(){
+    for (int i = 0; i < scenes.size(); i++){
+        playScene(i);
+    }
+}
+
+void CutScene::playScene(int scene){
     class Logic: public Util::Logic {
         public:
             Logic(InputMap<Keys> & input, Util::ReferenceCount<Scene> scene):
@@ -191,17 +212,29 @@ void CutScene::next(){
                 buffer.BlitToScreen();
             }
     };
-    
-    InputMap<Keys> input;
-    input.set(Keyboard::Key_ESC, 0, true, Esc);
-    
-    Logic logic(input, scenes[current]);
-    Draw draw(logic, scenes[current], width, height);
 
-    Util::standardLoop(logic, draw);
-    
-    current++;
+    if (scene >= 0 && scene < scenes.size()){
+        InputMap<Keys> input;
+        input.set(Keyboard::Key_ESC, 0, true, Esc);
+        input.set(Joystick::Quit, 0, true, Esc);
+
+        Logic logic(input, scenes[scene]);
+        Draw draw(logic, scenes[scene], width, height);
+
+        Util::standardLoop(logic, draw);
+    }
 }
+
+void CutScene::playScene(){
+    playScene(current);
+}
+    
+void CutScene::next(){
+    if (current < scenes.size()){
+        current += 1;
+    }
+}
+
 bool CutScene::hasMore(){
     return (current < scenes.size());
 }
