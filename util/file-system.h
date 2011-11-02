@@ -59,6 +59,7 @@ namespace Path{
         RelativePath & operator=(const RelativePath & copy);
 
         bool operator==(const RelativePath & path) const;
+        bool operator!=(const RelativePath & path) const;
     };
 
     /* absolute paths should have the entire filesystem path on it */

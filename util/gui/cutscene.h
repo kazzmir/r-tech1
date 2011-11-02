@@ -4,6 +4,7 @@
 #include "fadetool.h"
 #include "util/pointer.h"
 #include "animation.h"
+#include "util/file-system.h"
 
 #include <string>
 #include <vector>
@@ -17,55 +18,70 @@ namespace Gui{
 
 /*! Cut scenes or story boards */
 class Scene{
-    public:
-        Scene(const Token *);
-        virtual ~Scene();
-        
-        virtual void act();
-        virtual void render(const Graphics::Bitmap &);
-        
-        virtual void setAnimation(Util::ReferenceCount<Gui::Animation>);
-        
-        virtual inline void setEnd(int ticks){
-            this->endTicks = ticks;
-        }
-        virtual inline bool done() const {
-            return (this->ticks >= this->endTicks);
-        }
-        
-    protected:
-        int ticks;
-        int endTicks;
-        
-        Gui::AnimationManager backgrounds;
-        
-        Gui::FadeTool fader;
+public:
+    Scene(const Token *);
+    virtual ~Scene();
+
+    virtual void act();
+    virtual void render(const Graphics::Bitmap &);
+
+    virtual void setAnimation(Util::ReferenceCount<Gui::Animation>);
+
+    virtual inline void setEnd(int ticks){
+        this->endTicks = ticks;
+    }
+    virtual inline bool done() const {
+        return (this->ticks >= this->endTicks);
+    }
+
+protected:
+    int ticks;
+    int endTicks;
+
+    Gui::AnimationManager backgrounds;
+
+    Gui::FadeTool fader;
 };
     
 class CutScene{
-    public:
-        CutScene();
-        CutScene(const Token *);
-        virtual ~CutScene();
-        
-        virtual void setName(const std::string &);
-        virtual inline const std::string & getName() const {
-            return this->name;
-        }
-        virtual void setResolution(int w, int h);
-        virtual void setScene(unsigned int scene);
-        virtual inline int getScene() const{
-            return this->current;
-        }
-        virtual void next();
-        virtual bool hasMore();
-        
-    protected:
-        std::string name;
-        int width;
-        int height;
-        std::vector< Util::ReferenceCount<Scene> > scenes;
-        unsigned int current;
+public:
+    CutScene();
+    CutScene(const Filesystem::AbsolutePath & path);
+    CutScene(const Token *);
+    virtual ~CutScene();
+
+    virtual void setName(const std::string &);
+    virtual inline const std::string & getName() const {
+        return this->name;
+    }
+    virtual void setResolution(int w, int h);
+    virtual void setScene(unsigned int scene);
+    virtual inline int getScene() const{
+        return this->current;
+    }
+
+    /* play all scenes in order */
+    virtual void playAll();
+
+    /* plays the current scene which may consists of several animations */
+    virtual void playScene();
+
+    /* play a specific scene */
+    virtual void playScene(int scene);
+
+    /* advance to the next scene */
+    virtual void next();
+    virtual bool hasMore();
+
+protected:
+    virtual void load(const Token * token);
+
+protected:
+    std::string name;
+    int width;
+    int height;
+    std::vector< Util::ReferenceCount<Scene> > scenes;
+    unsigned int current;
 };
 }
 #endif

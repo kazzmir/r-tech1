@@ -223,6 +223,10 @@ bool RelativePath::operator<(const RelativePath & path) const {
 bool RelativePath::operator==(const RelativePath & path) const {
     return this->path() == path.path();
 }
+        
+bool RelativePath::operator!=(const RelativePath & path) const {
+    return !(*this == path);
+}
 
 RelativePath RelativePath::join(const RelativePath & him) const {
     return RelativePath(path() + "/" + him.path());
