@@ -189,6 +189,12 @@ void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work
     }
 }
 
+void Frame::draw(const Graphics::Bitmap & work){
+    const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
+    renderSprite(*bmp, 0, 0, alpha, horizontalFlip, verticalFlip, temp);
+    temp.translucent().drawStretched(0, 0, work.getWidth(), work.getHeight(), work);
+}
+
 Animation::Animation(const Token *the_token) throw (LoadException):
 id(0),
 depth(BackgroundBottom),
@@ -395,10 +401,22 @@ void Animation::act(){
 }
 void Animation::draw(const Graphics::Bitmap & work){
     /* FIXME: should use sub-bitmaps here */
+    /*const int x = window.getX();
+    const int y = window.getY();
+    const int width = window.getWidth();
+    const int height = window.getHeight();
+    Global::debug(0) << "Distance x2: " << width << " Distance y2: " << height << std::endl;
+    Graphics::Bitmap clipped(work, x, y, height, width);
+    frames[currentFrame]->draw(0, 0,clipped);*/
      // Set clip from the axis default is 0,0,bitmap width, bitmap height
     work.setClipRect(-(window.getPosition().getDistanceFromCenterX()),-(window.getPosition().getDistanceFromCenterY()),work.getWidth() - window.getPosition2().getDistanceFromCenterX(),work.getHeight() - window.getPosition2().getDistanceFromCenterY());
     frames[currentFrame]->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(),work);
     work.setClipRect(0,0,work.getWidth(),work.getHeight());
+}
+
+void Animation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work){
+    Graphics::Bitmap clipped(work, x, y, width, height);
+    frames[currentFrame]->draw(clipped);
 }
 
 void Animation::forwardFrame(){
