@@ -233,13 +233,14 @@ allowReset(true){
                 token->view() >> id;
             } else if (*token == "location"){
                 // translate location to depth
-                int location = 0;
+                /*int location = 0;
                 token->view() >> location;
                 if (location == 0){
                     depth = BackgroundBottom;
                 } else if (location == 1){
                     depth = ForegroundBottom;
-                }
+                }*/
+                Global::debug(0) << "The option 'location' is no longer valid and will be ignored. Consider using 'depth'" << std::endl;
             } else if (*token == "depth"){
                 // get the depth
                 std::string name, level;
