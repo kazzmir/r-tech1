@@ -11,12 +11,19 @@
 #include "util/compress.h"
 #include "util/thread.h"
 
+#ifdef HAVE_NETWORKING
 #ifdef WII
 #include <network.h>
 #elif defined(WINDOWS)
 #include <winsock.h>
 #else
 #include <arpa/inet.h>
+#endif
+#else
+#define htonl(x) x
+#define htons(x) x
+#define ntohl(x) x
+#define ntohs(x) x
 #endif
 
 using namespace std;

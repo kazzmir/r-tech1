@@ -405,7 +405,7 @@ public:
                 Global::debug(0) << "Downloaded " << received << " total " << total << std::endl;
             }
             */
-            Util::ReferenceCount<FileHandle> handle = new FileHandle();
+            Util::ReferenceCount<FileHandle> handle(new FileHandle());
             pp::CompletionCallback callback(&Manager::completeRead, this);
             openFileData.file = handle;
             handle->readAll(callback, core, open.loader);
