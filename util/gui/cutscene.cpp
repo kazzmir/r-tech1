@@ -41,8 +41,10 @@ endTicks(0){
         }
     }
 }
+
 Scene::~Scene(){
 }
+
 void Scene::act(){
     backgrounds.act();
     fader.act();
@@ -53,6 +55,7 @@ void Scene::act(){
         fader.setState(Gui::FadeTool::FadeOut);
     }
 }
+
 void Scene::render(const Graphics::Bitmap & work){
     // Backgrounds
     backgrounds.render(Gui::Animation::BackgroundBottom, work);
@@ -141,7 +144,7 @@ void CutScene::setScene(unsigned int scene){
 }
 
 enum Keys{
-    Esc,
+    Esc
 };
 
 void CutScene::playAll(){
@@ -204,7 +207,6 @@ void CutScene::playScene(int scene){
             int width, height;
 
             void draw(const Graphics::Bitmap & buffer){
-                
                 Graphics::StretchedBitmap work(width, height, buffer);
                 work.start();
                 scene->render(work);
