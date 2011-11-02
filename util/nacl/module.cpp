@@ -48,7 +48,7 @@ namespace nacl{
 
         /* set up the viewport and run the game as usual */
         void run(){
-            Nacl::NetworkSystem * system = new Nacl::NetworkSystem(the_instance, core);
+            Util::ReferenceCount<Storage::System> system(new Nacl::NetworkSystem(the_instance, core));
             Storage::setInstance(system);
             SDL_NACL_SetInstance(pp_instance(), 640, 480);
             int ok = SDL_Init(SDL_INIT_VIDEO |
