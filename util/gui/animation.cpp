@@ -247,7 +247,7 @@ allowReset(true){
                 } else if (location == 1){
                     depth = ForegroundBottom;
                 }*/
-                Global::debug(0) << "The option 'location' is no longer valid and will be ignored. Consider using 'depth'" << std::endl;
+                Global::debug(0) << "The option (" << token->getLineage() << ") in the file '" << token->getFileName() << "' is no longer valid and will be ignored. Consider using 'depth' instead." << std::endl;
             } else if (*token == "depth"){
                 // get the depth
                 std::string name, level;
