@@ -85,6 +85,11 @@ public:
     void setFile( const std::string & s );
     const std::string getFileName() const;
 
+    /* gets the parents of the token.
+     *
+     *
+     * The lineage of (baz) is 'foo -> bar -> baz'
+     */
     const std::string getLineage() const;
 
     void print( const std::string space ) const;

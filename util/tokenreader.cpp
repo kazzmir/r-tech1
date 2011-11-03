@@ -42,6 +42,7 @@ Token * TokenReader::readTokenFromFile(const std::string & path){
     readTokens(file);
     file.close();
     if (my_tokens.size() > 0){
+        my_tokens[0]->setFile(path);
         return my_tokens[0];
     }
     ostringstream out;
