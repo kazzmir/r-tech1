@@ -28,11 +28,11 @@ TokenReader::TokenReader(const char * file){
 }
 
 TokenReader::TokenReader(const string & file){
-    readTokenFromFile(file.c_str());
+    readTokenFromFile(file);
 }
 
-Token * TokenReader::readTokenFromFile(const char * path){
-    ifstream file(path);
+Token * TokenReader::readTokenFromFile(const std::string & path){
+    ifstream file(path.c_str());
     if (!file){
         ostringstream out;
         out << "Could not open '" << path << "'";
@@ -57,7 +57,7 @@ Token * TokenReader::readToken(){
 }
     
 Token * TokenReader::readToken(const string & path) throw (TokenException){
-    return readTokenFromFile(path.c_str());
+    return readTokenFromFile(path);
 }
 
 Token * TokenReader::readToken(const char * path) throw (TokenException){
