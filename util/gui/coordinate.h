@@ -21,10 +21,11 @@ public:
     Point & operator+=(const Point &);
     Point & operator=(const Point &);
     bool operator==(const Point &) const;
+    bool operator!=(const Point &) const;
 
     /* convert to physical space */
-    int physicalX() const;
-    int physicalY() const;
+    double physicalX() const;
+    double physicalY() const;
 
     double x;
     double y;
@@ -39,6 +40,7 @@ class Space{
 public:
     Space(double minX, double minY, double maxX, double maxY);
     Point fromPhysical(int x, int y);
+    Point fromLocal(double x, double y);
 
     bool operator==(const Space & space) const;
 
@@ -46,12 +48,15 @@ public:
     double boundX(double x) const;
     double boundY(double y) const;
 
+    double getMinimumX() const;
+    double getMinimumY() const;
+
     double sizeX() const;
     double sizeY() const;
     double centerX() const;
     double centerY() const;
-    double getLocalX(int physicalX) const;
-    double getLocalY(int physicalY) const;
+    double getLocalX(double physicalX) const;
+    double getLocalY(double physicalY) const;
 private:
     double minX, minY, maxX, maxY;
 };
