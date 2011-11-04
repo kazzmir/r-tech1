@@ -4,11 +4,37 @@
 #include "util/funcs.h"
 #include "util/load_exception.h"
 #include <sstream>
+#include <math.h>
 
 using namespace Gui;
 
 namespace Gui{
 namespace Space{
+
+static double translate(double x, double amount){
+    return x + amount;
+}
+
+static double scale(double x, double amount){
+    return x * amount;
+}
+
+/* convert a point in a space with the given width to a new space with the given width
+ * 1. translate relative original origin
+ * 2. scale it to the range -1, 1
+ * 3. scale it to the new width
+ * 4. translate relative to the new origin
+ */
+static double convertSpace(double original, double originalMinimum, double originalWidth, double newMinimum, double newWidth){
+    return translate(scale(scale(translate(original, -originalMinimum),
+                                 1.0 / originalWidth),
+                           newWidth),
+                     newMinimum);
+}
+
+/* hard coded for now */
+static double physicalWidth = 640;
+static double physicalHeight = 480;
 
 Point::Point(double x, double y, const Space & space):
 x(x),
@@ -27,9 +53,22 @@ x(point.x),
 y(point.y),
 space(point.space){
 }
-    
+
+static bool close(double a, double b){
+    return fabs(a - b) < 0.0001;
+}
+
 bool Point::operator==(const Point & him) const {
-    return sameSpace(him);
+    if (this == &him){
+        return true;
+    }
+
+    return close(physicalX(), him.physicalX()) &&
+           close(physicalY(), him.physicalY());
+}
+
+bool Point::operator!=(const Point & him) const {
+    return !(*this == him);
 }
     
 Point & Point::operator=(const Point & point){
@@ -62,12 +101,12 @@ bool Point::sameSpace(const Point & point) const {
     return space == point.space;
 }
 
-int Point::physicalX() const {
-    return (x * space.sizeX() / 2) + space.centerX();
+double Point::physicalX() const {
+    return convertSpace(x, space.getMinimumX(), space.sizeX(), 0, physicalWidth);
 }
 
-int Point::physicalY() const {
-    return (y * space.sizeY() / 2) + space.centerY();
+double Point::physicalY() const {
+    return convertSpace(y, space.getMinimumY(), space.sizeY(), 0, physicalHeight);
 }
 
 Space::Space(double minX, double minY, double maxX, double maxY):
@@ -90,6 +129,10 @@ bool Space::operator==(const Space & space) const {
 
 Point Space::fromPhysical(int x, int y){
     return Point(getLocalX(x), getLocalY(y), *this);
+}
+    
+Point Space::fromLocal(double x, double y){
+    return Point(boundX(x), boundY(y), *this);
 }
 
 double Space::sizeX() const {
@@ -116,12 +159,20 @@ double Space::centerY() const {
     return (maxY - minY) / 2;
 }
 
-double Space::getLocalX(int physicalX) const {
-    return (physicalX - centerX()) / sizeX();
+double Space::getLocalX(double physicalX) const {
+    return convertSpace(physicalX, 0, physicalWidth, minX, sizeX());
 }
 
-double Space::getLocalY(int physicalY) const {
-    return (physicalY - centerY()) / sizeY();
+double Space::getLocalY(double physicalY) const {
+    return convertSpace(physicalY, 0, physicalHeight, minY, sizeY());
+}
+
+double Space::getMinimumX() const {
+    return minX;
+}
+
+double Space::getMinimumY() const {
+    return minY;
 }
 
 }
