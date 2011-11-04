@@ -70,6 +70,20 @@ int Util::max(int a, int b){
     return b;
 }
 
+double Util::min(double a, double b){
+    if (a < b){
+        return a;
+    }
+    return b;
+}
+
+double Util::max(double a, double b){
+    if (a > b){
+        return a;
+    }
+    return b;
+}
+
 /*
 int Util::min(int a, int b){
     if (a<b){
@@ -80,6 +94,10 @@ int Util::min(int a, int b){
 */
 
 int Util::clamp(int value, int min, int max){
+    return Util::min(Util::max(value, min), max);
+}
+
+double Util::clamp(double value, double min, double max){
     return Util::min(Util::max(value, min), max);
 }
 

@@ -60,7 +60,11 @@ inline int min(int a, int b){
     return b;
 }
 
+double min(double a, double b);
+double max(double a, double b);
+
 int clamp(int value, int min, int max);
+double clamp(double value, double min, double max);
 
 /* return a number between min/max */
 int rnd( int min, int max );

@@ -1,6 +1,7 @@
 #include "util/bitmap.h"
 #include "coordinate.h"
 #include "globals.h"
+#include "util/funcs.h"
 #include "util/load_exception.h"
 #include <sstream>
 
@@ -27,13 +28,18 @@ y(point.y),
 space(point.space){
 }
     
+bool Point::operator==(const Point & him) const {
+    return sameSpace(him);
+}
+    
 Point & Point::operator=(const Point & point){
-    if (!sameSpace(point)){
-        /* FIXME: throw an error */
+    if (*this == point){
+        this->x = point.x;
+        this->y = point.y;
+    } else {
+        this->x = space.getLocalX(point.physicalX());
+        this->y = space.getLocalY(point.physicalY());
     }
-
-    this->x = point.x;
-    this->y = point.y;
     return *this;
 }
 
@@ -44,15 +50,15 @@ Point & Point::operator+=(const Point & point){
     
 Point Point::operator+(const Point & point){
     if (sameSpace(point)){
-        x += point.x;
-        y += point.y;
+        x = space.boundX(x + point.x);
+        y = space.boundY(y + point.y);
         return *this;
     } else {
         return *this + Point(point, space);
     }
 }
 
-bool Point::sameSpace(const Point & point){
+bool Point::sameSpace(const Point & point) const {
     return space == point.space;
 }
 
@@ -92,6 +98,14 @@ double Space::sizeX() const {
 
 double Space::sizeY() const {
     return maxY - minY;
+}
+    
+double Space::boundX(double x) const {
+    return Util::clamp(x, minX, maxX);
+}
+
+double Space::boundY(double y) const {
+    return Util::clamp(y, minY, maxY);
 }
 
 double Space::centerX() const {

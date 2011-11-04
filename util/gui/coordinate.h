@@ -20,6 +20,7 @@ public:
     Point operator+(const Point &);
     Point & operator+=(const Point &);
     Point & operator=(const Point &);
+    bool operator==(const Point &) const;
 
     /* convert to physical space */
     int physicalX() const;
@@ -30,7 +31,7 @@ public:
     const Space & space;
 private:
     /* true if points use the same space system */
-    bool sameSpace(const Point & point);
+    bool sameSpace(const Point & point) const;
 };
 
 /* mapping from coordinate space to physical space */
@@ -40,6 +41,10 @@ public:
     Point fromPhysical(int x, int y);
 
     bool operator==(const Space & space) const;
+
+    /* clamp the values to the size of the space */
+    double boundX(double x) const;
+    double boundY(double y) const;
 
     double sizeX() const;
     double sizeY() const;
