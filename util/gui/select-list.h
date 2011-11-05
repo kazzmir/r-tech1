@@ -97,7 +97,7 @@ protected:
 };
 
 /*! Simple list */
-class SimpleSelect : public SelectListInterface{
+class SimpleSelect: public SelectListInterface {
 public:
     SimpleSelect();
     virtual ~SimpleSelect();
@@ -170,7 +170,7 @@ protected:
 };
 
 /*! Select Grid */
-class GridSelect : public SelectListInterface{
+class GridSelect: public SelectListInterface {
 public:
     GridSelect();
     virtual ~GridSelect();
