@@ -126,6 +126,10 @@ public:
         key_states[key] = new KeyState<X>(delay, block, out, last_read);
     }
 
+    void set(Keyboard::KeyType key, X out){
+        set(key, 0, false, out);
+    }
+
     /* change an existing key */
     void update(Keyboard::KeyType key, int delay, bool block, X out){
         if (key_states[key] != 0){
@@ -139,6 +143,10 @@ public:
      */
     void set(typename Joystick::Key key, int delay, bool block, X out){
         joy_states[key] = new JoystickState<X>(delay, block, out, last_read);
+    }
+
+    void set(typename Joystick::Key key, X out){
+        set(key, 0, false, out);
     }
 
     static std::vector<X> getAllPressed(const Output & output){
