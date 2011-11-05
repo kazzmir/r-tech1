@@ -91,7 +91,7 @@ class AnimationManager{
 public:
     AnimationManager();
     AnimationManager(const AnimationManager &);
-    ~AnimationManager();
+    virtual ~AnimationManager();
     
     const AnimationManager & operator=(const AnimationManager &);
     
