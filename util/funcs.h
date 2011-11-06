@@ -100,6 +100,8 @@ void showError(const Graphics::Bitmap & screen, const Exception::Base & exceptio
 /* will create a screen of size GFX_X, GFX_Y */
 void showError(const Exception::Base & exception, const std::string & info);
 
+std::string join(const std::vector<std::string> & list, const std::string & middle);
+
 }
 
 #endif
