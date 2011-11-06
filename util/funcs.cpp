@@ -327,3 +327,21 @@ string Util::niceSize(unsigned long size){
     in << real << "t";
     return in.str();
 }
+
+std::string Util::join(const std::vector<std::string> & list, const std::string & middle){
+    ostringstream out;
+
+    bool first = true;
+    for (std::vector<std::string>::const_iterator it = list.begin(); it != list.end(); it++){
+        if (!first){
+            out << middle;
+        }
+
+        out << *it;
+        first = false;
+    }
+
+    return out.str();
+}
+
+
