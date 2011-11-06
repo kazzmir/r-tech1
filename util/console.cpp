@@ -62,16 +62,12 @@ historyIndex(0){
 
 Console::~Console(){
     textInput.disable();
-    // InputManager::releaseInput(input);
-    for (map<string, Command*>::iterator it = commands.begin(); it != commands.end(); it++){
-        delete (*it).second;
-    }
 }
 
 /* attempt to complete the current text to a command */
 void Console::tabComplete(){
     string text = textInput.getText();
-    for (map<string, Command*>::iterator it = commands.begin(); it != commands.end(); it++){
+    for (map<string, Util::ReferenceCount<Command> >::iterator it = commands.begin(); it != commands.end(); it++){
         string what = it->first;
         if (what.find(text) == 0){
             textInput.setText(what);
@@ -80,11 +76,19 @@ void Console::tabComplete(){
     }
 }
     
-void Console::addCommand(const std::string & name, Command * command){
-    if (commands[name] != 0){ Global::debug(0) << "Warning: duplicate console command for '" << name << "'" << std::endl;
-        delete commands[name];
+void Console::addCommand(const std::string & name, const Util::ReferenceCount<Command> & command){
+    if (command == NULL){
+        return;
+    }
+
+    if (commands[name] != 0){
+        Global::debug(0) << "Warning: duplicate console command for '" << name << "'" << std::endl;
     }
     commands[name] = command;
+}
+    
+void Console::addAlias(const std::string & alias, const std::string & name){
+    addCommand(alias, commands[name]);
 }
 
 void Console::previousHistory(){
