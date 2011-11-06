@@ -9,6 +9,7 @@
 #include "input/input-map.h"
 #include "input/text-input.h"
 #include "file-system.h"
+#include "pointer.h"
 
 namespace Graphics{
 class Bitmap;
@@ -71,7 +72,10 @@ public:
         return *this;
     }
 
-    void addCommand(const std::string & name, Command * command);
+    void addCommand(const std::string & name, const Util::ReferenceCount<Command> & command);
+
+    /* make 'alias' do the same thing as command 'name' */
+    void addAlias(const std::string & alias, const std::string & name);
 
     /* for end of line, always pass Console::endl */
     Console & operator<<(const ConsoleEnd & e);
@@ -112,7 +116,7 @@ protected:
     unsigned int offset;
     // InputMap<char> input;
     TextInput textInput;
-    std::map<std::string, Command*> commands;
+    std::map<std::string, Util::ReferenceCount<Command> > commands;
 
     /* history of typed commands */
     std::deque<std::string> history;
