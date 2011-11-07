@@ -101,10 +101,12 @@ public:
     /* no extra whitespace */
     void toStringCompact(std::ostream & stream) const;
 
+    /*
     bool match(const std::string & subject) const {
         TokenMatcher matcher = getMatcher(subject);
         return false;
     }
+    */
 
     template <typename X>
     bool match(const std::string & subject, X & obj) const {
