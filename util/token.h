@@ -41,6 +41,9 @@ public:
     
     template <typename X1, typename X2, typename X3>
     bool match(X1 & obj1, X2 & obj2, X3 & obj3);
+    
+    template <typename X1, typename X2, typename X3, typename X4>
+    bool match(X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4);
 
     TokenMatcher & operator=(const TokenMatcher & matcher);
 
@@ -278,5 +281,22 @@ bool TokenMatcher::match(X1 & obj1, X2 & obj2, X3 & obj3){
 
 }
 
+template <typename X1, typename X2, typename X3, typename X4>
+bool TokenMatcher::match(X1 & obj1, X2 & obj2, X3 & obj3, X4 & obj4){
+    if (current == tokens.end()){
+        return false;
+    }
+
+    const Token * token = *current;
+    current++;
+
+    try{
+        token->view() >> obj1 >> obj2 >> obj3 >> obj4;
+        return true;
+    } catch (const TokenException & t){
+    }
+
+    return false;
+}
 
 #endif
