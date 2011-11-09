@@ -794,6 +794,14 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
     // circleRGBA(getData().getSurface(), x, y, radius, red, green, blue, alpha);
 }
 
+extern "C" unsigned short spg_thickness;
+void Bitmap::circle(int x, int y, int radius, int thickness, int color) const {
+    int old = spg_thickness;
+    spg_thickness = thickness;
+    SPG_Circle(getData()->getSurface(), x, y, radius, color);
+    spg_thickness = old;
+}
+
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
     SPG_Line(getData()->getSurface(), x1, y1, x2, y2, color);
     /*

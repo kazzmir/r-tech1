@@ -827,6 +827,11 @@ void Bitmap::circle(int x, int y, int radius, Color color) const {
     al_draw_circle(x, y, radius, color, 0);
 }
 
+void Bitmap::circle(int x, int y, int radius, int thickness, Color color) const {
+    changeTarget(this, this);
+    al_draw_circle(x, y, radius, color, thickness);
+}
+
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
     changeTarget(this, this);
     al_draw_rectangle(x1, y1, x2, y2, color, 0);

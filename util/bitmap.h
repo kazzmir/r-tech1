@@ -220,6 +220,7 @@ public:
 	virtual void rectangleFill( int x1, int y1, int x2, int y2, Color color ) const;
 	virtual void circleFill( int x, int y, int radius, Color color ) const;
 	virtual void circle( int x, int y, int radius, Color color ) const;
+	virtual void circle(int x, int y, int radius, int thickness, Color color) const;
 	virtual void line( const int x1, const int y1, const int x2, const int y2, const Color color ) const;
 		
 	virtual void floodfill( const int x, const int y, const Color color ) const;

@@ -539,7 +539,12 @@ void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
 }
 	
 void Bitmap::circle( int x, int y, int radius, int color ) const{
-	::circle( getData()->getBitmap(), x, y, radius, color );
+    ::circle( getData()->getBitmap(), x, y, radius, color );
+}
+
+/* FIXME */
+void Bitmap::circle( int x, int y, int radius, int thickness, int color ) const{
+    ::circle( getData()->getBitmap(), x, y, radius, color );
 }
 	
 void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const{
