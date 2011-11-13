@@ -70,6 +70,15 @@ std::string invertSlashes(string str){
 const string & Path::path() const {
     return mypath;
 }
+        
+const string Path::getExtension() const {
+    size_t dot = mypath.find('.');
+    if (dot == string::npos){
+        return "";
+    } else {
+        return mypath.substr(dot + 1);
+    }
+}
 
 bool Path::isEmpty() const {
     return mypath.empty();
