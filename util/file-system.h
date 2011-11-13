@@ -13,6 +13,7 @@ namespace Path{
     class Path{
     public:
         const std::string & path() const;
+        const std::string getExtension() const;
         bool isEmpty() const;
         
         virtual ~Path();
@@ -52,6 +53,10 @@ namespace Path{
         RelativePath removeFirstDirectory() const;
         RelativePath firstDirectory() const;
 
+        /* true if there are no directory parts to this path
+         * foo is a file
+         * bar/foo is not a file
+         */
         bool isFile() const;
 
         /* a/ + b/ = a/b/ */
