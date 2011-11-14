@@ -30,7 +30,7 @@ public:
     Command(){
     }
 
-    virtual std::string act() = 0;
+    virtual std::string act(const std::string & line) = 0;
 
     virtual ~Command(){
     }
