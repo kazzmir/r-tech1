@@ -227,10 +227,14 @@ void Console::process(const string & command){
     if (history.size() == 0 || (history.size() > 0 && !(command == history[1]))){
         history.push_front(command);
     }
-    if (commands[command] != 0){
-        addLine(commands[command]->act());
+    string start = command;
+    if (command.find(' ') != string::npos){
+        start = command.substr(0, command.find(' '));
+    }
+    if (commands[start] != 0){
+        addLine(commands[start]->act(command));
     } else {
-        addLine("Unknown command '" + command + "'");
+        addLine("Unknown command '" + start + "'");
     }
 }
     
