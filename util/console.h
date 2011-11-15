@@ -122,8 +122,6 @@ protected:
     std::deque<std::string> history;
     /* index into history. 0 is latest */
     unsigned int historyIndex;
-    
-    void checkStream();
 };
 
 }
