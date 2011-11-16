@@ -70,6 +70,7 @@ void Console::tabComplete(){
     for (map<string, Util::ReferenceCount<Command> >::iterator it = commands.begin(); it != commands.end(); it++){
         string what = it->first;
         if (what.find(text) == 0){
+            Global::debug(0) << "Auto complete '" << what << "'" << std::endl;
             textInput.setText(what);
             return;
         }
@@ -163,6 +164,7 @@ bool Console::doInput() {
 }
 
 void Console::draw(const Graphics::Bitmap & work){
+    int x = 3;
     /* if we can show something */
     if (height > 0){
         Graphics::Bitmap::transBlender(0, 0, 0, 160);
@@ -172,10 +174,10 @@ void Console::draw(const Graphics::Bitmap & work){
         int start = height - font.getHeight() * 2;
         for (std::vector<std::string>::reverse_iterator i = lines.rbegin(); i != lines.rend() && start > 0; ++i){
             std::string str = *i;
-            font.printf(0, start, Graphics::makeColor(255,255,255), work, str, 0);
+            font.printf(x, start, Graphics::makeColor(255,255,255), work, str, 0);
             start -= font.getHeight();
         }
-        font.printf(0, height - font.getHeight(), Graphics::makeColor(255,255,255), work, "> " + textInput.getText() + "|", 0);
+        font.printf(x, height - font.getHeight(), Graphics::makeColor(255,255,255), work, "> " + textInput.getText() + "|", 0);
     }
 }
     
@@ -223,8 +225,11 @@ void Console::process(const string & command){
     if (command.find(' ') != string::npos){
         start = command.substr(0, command.find(' '));
     }
-    if (commands[start] != 0){
-        addLine(commands[start]->act(command));
+
+    const map<string, Util::ReferenceCount<Command> > & commandSet = commands;
+    if (commandSet.find(start) != commandSet.end()){
+        map<string, Util::ReferenceCount<Command> >::const_iterator found = commandSet.find(start);
+        addLine(found->second->act(command));
     } else {
         addLine("Unknown command '" + start + "'");
     }
