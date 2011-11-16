@@ -130,19 +130,15 @@ bool TextInput::doInput(){
                 if (callbacks.find(event.out) != callbacks.end()){
                     Callback & callback = callbacks[event.out];
                     callback.function(callback.data);
-                }
-
-                if (event.unicode == control_u){
+                } else if (event.unicode == control_u){
                     clearInput();
                     modified = true;
-                }
-                if (event.unicode == control_w){
+                } else if (event.unicode == control_w){
                     deleteLastWord();
                     modified = true;
-                }
+                } else if (event.unicode >= 32 && event.unicode < 0xffffff){
+                    /* FIXME: whats the maximum unicode value? */
 
-                /* FIXME: whats the maximum unicode value? */
-                if (event.unicode >= 32 && event.unicode < 0xffffff){
                     // this->text << (unsigned char) event.unicode;
                     this->text << encodeUtf8(event.unicode);
                     modified = true;
