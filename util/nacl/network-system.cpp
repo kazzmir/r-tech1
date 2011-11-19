@@ -19,6 +19,8 @@
 #include "../funcs.h"
 #include "../debug.h"
 #include "../sfl/sfl.h"
+#include <ppapi/cpp/instance.h>
+#include <ppapi/cpp/var.h>
 #include <ppapi/c/pp_errors.h>
 #include <ppapi/cpp/url_loader.h>
 #include <ppapi/cpp/url_request_info.h>
@@ -68,6 +70,9 @@ struct NaclRequestOpen: public NaclRequest {
         manager(manager){
             request.SetURL(url);
             request.SetMethod("GET");
+            pp::Var loading(url);
+            /* Let the html page know about this file request */
+            instance->PostMessage(loading);
             // request.SetProperty(PP_URLREQUESTPROPERTY_RECORDDOWNLOADPROGRESS, pp::Var((bool) PP_TRUE));
         }
 
