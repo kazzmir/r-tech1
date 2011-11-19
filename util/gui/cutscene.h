@@ -67,7 +67,7 @@ public:
     virtual void playScene();
 
     /* play a specific scene */
-    virtual void playScene(int scene);
+    virtual void playScene(unsigned scene);
 
     /* advance to the next scene */
     virtual void next();

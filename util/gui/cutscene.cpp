@@ -148,12 +148,12 @@ enum Keys{
 };
 
 void CutScene::playAll(){
-    for (int i = 0; i < scenes.size(); i++){
+    for (unsigned int i = 0; i < scenes.size(); i++){
         playScene(i);
     }
 }
 
-void CutScene::playScene(int scene){
+void CutScene::playScene(unsigned int scene){
     class Logic: public Util::Logic {
         public:
             Logic(InputMap<Keys> & input, Util::ReferenceCount<Scene> scene):
@@ -215,7 +215,7 @@ void CutScene::playScene(int scene){
             }
     };
 
-    if (scene >= 0 && scene < scenes.size()){
+    if (scene < scenes.size()){
         InputMap<Keys> input;
         input.set(Keyboard::Key_ESC, 0, true, Esc);
         input.set(Joystick::Quit, 0, true, Esc);
