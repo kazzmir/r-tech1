@@ -22,6 +22,7 @@ typedef Path::RelativePath RelativePath;
 typedef Path::InsensitivePath InsensitivePath;
     
 class Manager;
+class OpenHandle;
 class FileHandle;
 class File;
 
@@ -50,19 +51,24 @@ public:
     off_t libcLseek(int fd, off_t offset, int whence);
 
 protected:
-    std::string readFileAsString(const AbsolutePath & path);
-    std::vector<AbsolutePath> readDirectory(const AbsolutePath & dataPath);
+    /*
+    string readFileAsString(const AbsolutePath & path);
+    Directory parseDirectory(const AbsolutePath & path);
+    */
+    unsigned int fileSize(Manager & manager, const Filesystem::AbsolutePath & path);
+    Util::ReferenceCount<FileHandle> open(const Util::ReferenceCount<OpenHandle> & handle);
 
 protected:
     pp::Instance * instance;
     pp::Core * core;
     /* only one thread at a time to access the network system */
-    Util::Thread::LockObject lock;
+    Util::Thread::LockObject fileLock;
+    Util::Thread::LockObject existsLock;
     // Util::ReferenceCount<Manager> manager;
     std::map<AbsolutePath, bool> existsCache;
 
     /* map a filesystem path to an object that holds the data for the file */
-    std::map<std::string, Util::ReferenceCount<FileHandle> > files;
+    std::map<std::string, Util::ReferenceCount<OpenHandle> > files;
 
     /* map a file descriptor number to an object that stores information for
      * reading from the file

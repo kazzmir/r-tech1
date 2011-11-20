@@ -174,20 +174,26 @@ void AllegroFont::printf( int x, int y, int color, const Graphics::Bitmap & work
 #endif
 
 const Font & Font::getDefaultFont(){
-    // return getFont( "tmp/comic.ttf" );
-    // return *FontFactory::getFont(Filesystem::RelativePath("bios"), 16, 16);
-    return *FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), 16, 16);
+    return getDefaultFont(16, 16);
 }
-	
+
 const Font & Font::getDefaultFont(int width, int height){
-    return *FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), width, height);
+    Font * font = FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), width, height);
+    if (font == NULL){
+        throw Exception::Base(__FILE__, __LINE__);
+    }
+    return *font;
 }
 	
 /* name should be the path of a .ttf file in the fonts/ directory.
  * something like 'arial.ttf'
  */
 const Font & Font::getFont(const Filesystem::RelativePath & name, const int x, const int y){
-    Font & font = *FontFactory::getFont(name, x, y);
+    Font * check = FontFactory::getFont(name, x, y);
+    if (check == NULL){
+        throw Exception::Base(__FILE__, __LINE__);
+    }
+    Font & font = *check;
     /* sanity check */
     if (font.getHeight("A") == 0){
         return getDefaultFont();

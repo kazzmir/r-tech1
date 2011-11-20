@@ -4,13 +4,6 @@
  * http://code.google.com/chrome/nativeclient/docs/reference/peppercpp/inherits.html
  */
 
-/* issues with getting data
- * 1. the function that starts the game is called from the main chrome thread
- * which starts from a javascript call to module.PostMessage('run').
- * ...
- * 
- */
-
 #include <unistd.h>
 #include <errno.h>
 #include "network-system.h"
@@ -19,6 +12,7 @@
 #include "../funcs.h"
 #include "../debug.h"
 #include "../sfl/sfl.h"
+#include "util/regex.h"
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/var.h>
 #include <ppapi/c/pp_errors.h>
@@ -147,7 +141,7 @@ public:
 
     class Reader{
     public:
-        static const int PAGE_SIZE = 1024 * 32;
+        static const unsigned int PAGE_SIZE = 1024 * 32;
         struct Page{
             Page():
             buffer(NULL),
@@ -157,7 +151,7 @@ public:
             }
 
             char * buffer;
-            int size;
+            unsigned int size;
             Page * next;
 
             ~Page(){
@@ -166,18 +160,19 @@ public:
             }
         };
 
-        Reader(pp::CompletionCallback finish, pp::URLLoader & loader, FileHandle * handle, pp::Core * core):
+        Reader(pp::CompletionCallback finish, pp::URLLoader & loader, FileHandle * handle, unsigned int totalSize, pp::Core * core):
         finish(finish),
         loader(loader),
         handle(handle),
         core(core),
-        tries(0){
+        tries(0),
+        totalSize(totalSize){
             current = &page;
         }
 
-        int getSize(){
+        unsigned int getSize(){
             Page * use = &page;
-            int total = 0;
+            unsigned int total = 0;
             while (use != NULL){
                 total += use->size;
                 use = use->next;
@@ -215,16 +210,29 @@ public:
         void didRead(int32_t result){
             Global::debug(2) << "Read " << result << " bytes" << std::endl;
             current->size += result;
-            if (result > 0){
-                tries = 0;
-                read();
-            } else {
-                if (tries >= 3){
-                    handle->readDone(this);
+            /* if we know the size of the file (because totalSize is not 0) then
+             * keep reading bytes until we have the totalSize. if we don't know
+             * the size of the file then sleep in between times that no data
+             * was read to give the web server time to send us more data.
+             */
+            if (totalSize != 0){
+                if (getSize() < totalSize){
+                    read();
                 } else {
-                    tries += 1;
-                    pp::CompletionCallback callback(&Reader::doRead, this);
-                    core->CallOnMainThread((tries - 1) * 25, callback, 0);
+                    handle->readDone(this);
+                }
+            } else {
+                if (result > 0){
+                    tries = 0;
+                    read();
+                } else {
+                    if (tries >= 3){
+                        handle->readDone(this);
+                    } else {
+                        tries += 1;
+                        pp::CompletionCallback callback(&Reader::doRead, this);
+                        core->CallOnMainThread((tries - 1) * 25, callback, 0);
+                    }
                 }
             }
         }
@@ -241,10 +249,11 @@ public:
         FileHandle * handle;
         pp::Core * core;
         int tries;
+        const unsigned int totalSize;
     };
 
-    void readAll(pp::CompletionCallback finish, pp::Core * core, pp::URLLoader & loader){
-        reader = new Reader(finish, loader, this, core);
+    void readAll(pp::CompletionCallback finish, pp::Core * core, const unsigned int size, pp::URLLoader & loader){
+        reader = new Reader(finish, loader, this, size, core);
         reader->read();
     }
 
@@ -326,6 +335,7 @@ public:
 
     struct OpenFileData{
         const char * path;
+        unsigned int size;
         Util::ReferenceCount<FileHandle> file;
     };
 
@@ -340,11 +350,12 @@ public:
     Util::Thread::LockObject lock;
     volatile bool done;
 
-    Util::ReferenceCount<FileHandle> openFile(const char * path){
+    Util::ReferenceCount<FileHandle> openFile(const char * path, unsigned int size){
         Global::debug(1, CONTEXT) << "open " << path << std::endl;
         Util::Thread::ScopedLock scoped(lock);
         done = false;
         openFileData.path = path;
+        openFileData.size = size;
         pp::CompletionCallback callback(&Manager::doOpenFile, this);
         core->CallOnMainThread(0, callback, 0);
         lock.wait(done);
@@ -413,7 +424,7 @@ public:
             Util::ReferenceCount<FileHandle> handle(new FileHandle());
             pp::CompletionCallback callback(&Manager::completeRead, this);
             openFileData.file = handle;
-            handle->readAll(callback, core, open.loader);
+            handle->readAll(callback, core, openFileData.size, open.loader);
             /*
             openFileData.file = nextFileDescriptor();
             fileTable[openFileData.file] = new FileHandle(request.convert<NaclRequestOpen>());
@@ -495,7 +506,7 @@ bool NetworkSystem::exists(const RelativePath & path){
 }
 
 bool NetworkSystem::exists(const AbsolutePath & path){
-    Util::Thread::ScopedLock scoped(lock);
+    Util::Thread::ScopedLock scoped(existsLock);
     if (existsCache.find(path) != existsCache.end()){
         return existsCache[path];
     }
@@ -505,8 +516,8 @@ bool NetworkSystem::exists(const AbsolutePath & path){
     return what;
 }
 
-string NetworkSystem::readFileAsString(const AbsolutePath & path){
-    if (!exists(path)){
+string readFileAsString(NetworkSystem & manager, const AbsolutePath & path){
+    if (!manager.exists(path)){
         ostringstream fail;
         fail << "Could not read " << path.path();
         throw Filesystem::NotFound(__FILE__, __LINE__, fail.str());
@@ -537,17 +548,96 @@ static vector<string> split(string input, char splitter){
     return all;
 }
 
-vector<AbsolutePath> NetworkSystem::readDirectory(const AbsolutePath & dataPath){
-    /* assume existence of 'directory.txt' in the given directory */
-    AbsolutePath fullPath = dataPath.join(RelativePath("directory.txt"));
-    string all = readFileAsString(fullPath);
-    vector<string> files = split(all, '\n');
-    vector<AbsolutePath> paths;
-    for (vector<string>::iterator it = files.begin(); it != files.end(); it++){
+class Directory{
+public:
+    Directory(){
+    }
+
+    Directory(const Directory & copy):
+    entries(copy.entries){
+    }
+
+    struct Entry{
+        Entry(const Entry & entry):
+        path(entry.path),
+        size(entry.size){
+        }
+
+        Entry(const Filesystem::RelativePath & path, unsigned int size):
+        path(path),
+        size(size){
+        }
+
+        const Filesystem::RelativePath & getPath() const {
+            return path;
+        }
+
+        unsigned int getSize() const {
+            return size;
+        }
+
+        Filesystem::RelativePath path;
+        unsigned int size;
+    };
+
+    unsigned int getFileSize(const Filesystem::RelativePath & path){
+        for (vector<Entry>::iterator it = entries.begin(); it != entries.end(); it++){
+            const Entry & entry = *it;
+            if (entry.getPath() == path){
+                return entry.getSize();
+            }
+        }
+
+        return 0;
+    }
+
+    void addEntry(const Entry & entry){
+        entries.push_back(entry);
+    }
+    
+    vector<Entry>::iterator begin(){
+        return entries.begin();
+    }
+
+    vector<Entry>::iterator end(){
+        return entries.end();
+    }
+
+    vector<Entry> entries;
+};
+
+Directory parseDirectory(NetworkSystem & system, const AbsolutePath & path){
+    string data = readFileAsString(system, path);
+
+    Directory directory;
+    vector<string> lines = split(data, '\n');
+    for (vector<string>::iterator it = lines.begin(); it != lines.end(); it++){
         string what = *it;
         if (what != ""){
-            paths.push_back(dataPath.join(RelativePath(what)));
+            size_t space = what.find(' ');
+            if (space != string::npos){
+                string filename = what.substr(0, space);
+                space = what.find_last_of(' ');
+                string sizeString = what.substr(space + 1);
+                std::istringstream buffer(sizeString);
+                unsigned int size = 0;
+                buffer >> size;
+                directory.addEntry(Directory::Entry(Filesystem::RelativePath(filename), size));
+            }
         }
+    }
+
+    return directory;
+}
+
+vector<AbsolutePath> readDirectory(NetworkSystem & system, const AbsolutePath & dataPath){
+    /* assume existence of 'directory.txt' in the given directory */
+    AbsolutePath fullPath = dataPath.join(Filesystem::RelativePath("directory.txt"));
+    Directory directory = parseDirectory(system, fullPath);
+    vector<Filesystem::AbsolutePath> paths;
+    for (vector<Directory::Entry>::iterator it = directory.begin(); it != directory.end(); it++){
+        const Directory::Entry & entry = *it;
+        paths.push_back(dataPath.join(entry.getPath()));
     }
     return paths;
 }
@@ -623,7 +713,7 @@ static void testMatchFile(){
 }
 
 std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
-    vector<AbsolutePath> files = readDirectory(dataPath);
+    vector<AbsolutePath> files = readDirectory(*this, dataPath);
     vector<AbsolutePath> paths;
     for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
         AbsolutePath check = *it;
@@ -635,7 +725,7 @@ std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath,
 }
 
 std::vector<AbsolutePath> NetworkSystem::getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
-    vector<AbsolutePath> files = readDirectory(dataPath);
+    vector<AbsolutePath> files = readDirectory(*this, dataPath);
     vector<AbsolutePath> paths;
     for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
         AbsolutePath check = *it;
@@ -658,13 +748,13 @@ AbsolutePath NetworkSystem::userDirectory(){
 }
 
 std::vector<AbsolutePath> NetworkSystem::findDirectories(const RelativePath & path){
-    vector<AbsolutePath> files = readDirectory(find(path));
+    vector<AbsolutePath> files = readDirectory(*this, find(path));
     vector<AbsolutePath> paths;
     for (vector<AbsolutePath>::iterator it = files.begin(); it != files.end(); it++){
         AbsolutePath check = *it;
         try{
             /* if we can read directory contents then its a directory */
-            vector<AbsolutePath> more = readDirectory(check);
+            vector<AbsolutePath> more = readDirectory(*this, check);
             paths.push_back(check);
         } catch (const Filesystem::NotFound & fail){
         }
@@ -735,24 +825,76 @@ int nextFileDescriptor(){
     return n;
 }
 
-int NetworkSystem::libcOpen(const char * path, int mode, int params){
-    Util::Thread::ScopedLock scoped(lock);
-    if (files[path] == NULL){
-        Manager manager(instance, core);
-        Util::ReferenceCount<FileHandle> handle = manager.openFile(path);
-        if (handle == NULL){
-            return -1;
-        }
-        files[path] = handle;
+unsigned int NetworkSystem::fileSize(Manager & manager, const Filesystem::AbsolutePath & path){
+    AbsolutePath directory = path.getDirectory();
+    Directory listing = parseDirectory(*this, directory.join(Filesystem::RelativePath("directory.txt")));
+    return listing.getFileSize(RelativePath(path.getFilename().path()));
+}
+
+/* Contains a lock per file path */
+struct OpenHandle{
+    OpenHandle(string path):
+    path(path){
     }
 
-    int file = nextFileDescriptor();
-    fileTable[file] = new File(files[path]);
-    return file;
+    string path;
+    Util::Thread::LockObject lock;
+    Util::ReferenceCount<FileHandle> handle;
+};
+
+Util::ReferenceCount<FileHandle> NetworkSystem::open(const Util::ReferenceCount<OpenHandle> & openHandle){
+    Util::Thread::ScopedLock scoped(openHandle->lock);
+
+    if (openHandle->handle == NULL){
+        Manager manager(instance, core);
+        unsigned int size = 0;
+
+        /* We don't know the size of the directory.txt so just leave it as size
+         * 0 and let the manager guess how large it is.
+         */
+        if (!Util::matchRegex(openHandle->path, "directory.txt")){
+            Global::debug(2, "nacl") << "Get file size of " << openHandle->path << std::endl;
+            size = fileSize(manager, Filesystem::AbsolutePath(openHandle->path));
+            Global::debug(2, "nacl") << "Size of " << openHandle->path << " is " << size << std::endl;
+        }
+        Util::ReferenceCount<FileHandle> handle = manager.openFile(openHandle->path.c_str(), size);
+        if (handle == NULL){
+            return Util::ReferenceCount<FileHandle>(NULL);
+        }
+        Global::debug(1, "nacl") << "Opened new file " << openHandle->path << std::endl;
+        openHandle->handle = handle;
+    }
+
+    return openHandle->handle;
+}
+
+int NetworkSystem::libcOpen(const char * path, int mode, int params){
+    Util::ReferenceCount<OpenHandle> handle;
+    
+    {
+        Util::Thread::ScopedLock scoped(fileLock);
+        if (files[path] == NULL){
+            files[path] = Util::ReferenceCount<OpenHandle>(new OpenHandle(path));
+        }
+
+        handle = files[path];
+    }
+
+    Util::ReferenceCount<FileHandle> realFile = open(handle);
+    if (realFile == NULL){
+        return -1;
+    }
+
+    {
+        Util::Thread::ScopedLock scoped(fileLock);
+        int file = nextFileDescriptor();
+        fileTable[file] = new File(realFile);
+        return file;
+    }
 }
     
 ssize_t NetworkSystem::libcRead(int fd, void * buffer, size_t count){
-    Util::Thread::ScopedLock scoped(lock);
+    Util::Thread::ScopedLock scoped(fileLock);
     if (fileTable.find(fd) == fileTable.end()){
         return EBADF;
     }
@@ -764,7 +906,7 @@ ssize_t NetworkSystem::libcRead(int fd, void * buffer, size_t count){
 }
 
 int NetworkSystem::libcClose(int fd){
-    Util::Thread::ScopedLock scoped(lock);
+    Util::Thread::ScopedLock scoped(fileLock);
     if (fileTable.find(fd) == fileTable.end()){
         return -1;
         /* set errno to EBADF */
@@ -776,7 +918,7 @@ int NetworkSystem::libcClose(int fd){
     
 off_t NetworkSystem::libcLseek(int fd, off_t offset, int whence){
     Global::debug(2, CONTEXT) << "seek fd " << fd << " offset " << offset << " whence " << whence << std::endl;
-    Util::Thread::ScopedLock scoped(lock);
+    Util::Thread::ScopedLock scoped(fileLock);
     if (fileTable.find(fd) == fileTable.end()){
         return -1;
     }
