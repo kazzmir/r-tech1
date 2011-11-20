@@ -46,7 +46,7 @@
 static DWORD key = (DWORD)0xFFFFFFFF;
 #else
 /* POSIX systems */
-#ifndef WII
+#if !defined(WII) && !defined(PS3)
 #include <pthread.h>
 #else
 typedef int pthread_key_t;
