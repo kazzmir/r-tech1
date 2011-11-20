@@ -86,7 +86,11 @@
 #include <net/select.h>
 #endif
 #include <arpa/inet.h>
+#ifdef PS3
+#include <net/netdb.h>
+#else
 #include <netdb.h>
+#endif
 #else
 #include <network.h>
 

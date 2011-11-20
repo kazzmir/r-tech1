@@ -48,7 +48,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#ifdef PS3
+#include <net/netdb.h>
+#else
 #include <netdb.h>
+#endif
 #endif
 // #include <sys/ioctl.h>
 #define closesocket close
