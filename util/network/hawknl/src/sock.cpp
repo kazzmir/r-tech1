@@ -144,6 +144,8 @@ typedef int socklen_t;
 
 #endif /* HL_WINDOWS_APP*/
 
+/* Uncomment if multicast should be used */
+// #define WANT_MULTICAST
 
 #include "hawknl/nlinternal.h"
 #include "hawknl/group.h"
@@ -557,7 +559,7 @@ static NLboolean sock_SetMulticastTTL(nl_socket_t *sock, NLint ttl)
     if(ttl < 1) ttl = 1;
     cttl = (unsigned char)ttl;
     
-#if !defined(WII) && !defined(PS3)
+#ifdef WANT_MULTICAST
     /* first try setsockopt by passing a 'char', the Unix standard */
     if(setsockopt(realsocket, IPPROTO_IP, IP_MULTICAST_TTL,
         (char *)&cttl, (int)sizeof(cttl)) == SOCKET_ERROR)
@@ -1255,7 +1257,7 @@ static NLboolean sock_ConnectUDPAsynch(NLsocket socket, const NLaddress *address
 
 static NLboolean sock_ConnectMulticast(NLsocket socket, const NLaddress *address)
 {
-#if !defined(WII) && !defined(PS3)
+#ifdef WANT_MULTICAST
     struct ip_mreq  mreq;
     nl_socket_t     *sock = nlSockets[socket];
     
@@ -1387,7 +1389,7 @@ void sock_Close(NLsocket socket)
     
     if(sock->type == NL_UDP_MULTICAST)
     {
-#if !defined(WII) && !defined(PS3)
+#ifdef WANT_MULTICAST
         struct ip_mreq  mreq;
         /* leave the multicast group */
         mreq.imr_multiaddr.s_addr = ((struct sockaddr_in *)&sock->addressout)->sin_addr.s_addr;
