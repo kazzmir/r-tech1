@@ -57,14 +57,16 @@ struct NaclRequest{
 };
 
 struct NaclRequestOpen: public NaclRequest {
-    NaclRequestOpen(pp::Instance * instance, const string & url, Manager * manager):
+    NaclRequestOpen(pp::Instance * instance, const string & url, unsigned int size, Manager * manager):
         request(instance),
         loader(instance),
         url(url),
         manager(manager){
             request.SetURL(url);
             request.SetMethod("GET");
-            pp::Var loading(url);
+            std::ostringstream out;
+            out << url << " (" << Util::niceSize(size) << ")";
+            pp::Var loading(out.str());
             /* Let the html page know about this file request */
             instance->PostMessage(loading);
             // request.SetProperty(PP_URLREQUESTPROPERTY_RECORDDOWNLOADPROGRESS, pp::Var((bool) PP_TRUE));
@@ -401,7 +403,7 @@ public:
     }
 
     void continueOpenFile(){
-        request = new NaclRequestOpen(instance, openFileData.path, this);
+        request = new NaclRequestOpen(instance, openFileData.path, openFileData.size, this);
         request->start();
     }
 
@@ -607,27 +609,31 @@ public:
 };
 
 Directory parseDirectory(NetworkSystem & system, const AbsolutePath & path){
-    string data = readFileAsString(system, path);
+    try{
+        string data = readFileAsString(system, path);
 
-    Directory directory;
-    vector<string> lines = split(data, '\n');
-    for (vector<string>::iterator it = lines.begin(); it != lines.end(); it++){
-        string what = *it;
-        if (what != ""){
-            size_t space = what.find(' ');
-            if (space != string::npos){
-                string filename = what.substr(0, space);
-                space = what.find_last_of(' ');
-                string sizeString = what.substr(space + 1);
-                std::istringstream buffer(sizeString);
-                unsigned int size = 0;
-                buffer >> size;
-                directory.addEntry(Directory::Entry(Filesystem::RelativePath(filename), size));
+        Directory directory;
+        vector<string> lines = split(data, '\n');
+        for (vector<string>::iterator it = lines.begin(); it != lines.end(); it++){
+            string what = *it;
+            if (what != ""){
+                size_t space = what.find(' ');
+                if (space != string::npos){
+                    string filename = what.substr(0, space);
+                    space = what.find_last_of(' ');
+                    string sizeString = what.substr(space + 1);
+                    std::istringstream buffer(sizeString);
+                    unsigned int size = 0;
+                    buffer >> size;
+                    directory.addEntry(Directory::Entry(Filesystem::RelativePath(filename), size));
+                }
             }
         }
-    }
 
-    return directory;
+        return directory;
+    } catch (const Filesystem::NotFound & fail){
+        return Directory();
+    }
 }
 
 vector<AbsolutePath> readDirectory(NetworkSystem & system, const AbsolutePath & dataPath){

@@ -311,6 +311,10 @@ void Util::showError(const Exception::Base & exception, const std::string & info
     showError(screen, exception, info);
 }
 
+static double twoDigits(double x){
+    return (int) (x * 100) / 100.0;
+}
+
 string Util::niceSize(unsigned long size){
     const char sizes[] = {'b', 'k', 'm', 'g', 't'};
     double real = size;
@@ -319,12 +323,12 @@ string Util::niceSize(unsigned long size){
             real /= 1024.0;
         } else {
             ostringstream in;
-            in << real << sizes[i];
+            in << twoDigits(real) << sizes[i];
             return in.str();
         }
     }
     ostringstream in;
-    in << real << "t";
+    in << twoDigits(real) << "t";
     return in.str();
 }
 
