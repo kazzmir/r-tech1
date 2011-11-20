@@ -1,13 +1,40 @@
 #ifndef _paintown_loading_h
 #define _paintown_loading_h
 
+#include <string>
 #include "thread.h"
+#include "file-system.h"
 
-namespace Level{
-    class LevelInfo;
+namespace Graphics{
+    class Bitmap;
 }
 
 namespace Loader{
+
+class Info{
+public:
+
+    Info();
+    Info(const Info & info);
+    
+    virtual void setBackground(const Graphics::Bitmap * background);
+    virtual void setLoadingMessage(const std::string & str);
+    virtual void setPosition(int x, int y);
+
+    virtual const Graphics::Bitmap * getBackground() const;
+
+    virtual const std::string & loadingMessage() const;
+    virtual const Filesystem::AbsolutePath & loadingBackground() const;
+
+    virtual int getPositionX() const;
+    virtual int getPositionY() const;
+
+protected:
+    int x, y;
+    std::string _loadingMessage;
+    const Graphics::Bitmap * background;
+    Filesystem::AbsolutePath _loadingBackground;
+};
 
 /* Kind of loader to show */
 enum Kind{
@@ -35,7 +62,7 @@ extern volatile bool done_loading;
 void startLoadingX(Util::Thread::Id * thread, void * arg = 0, Kind kind = Default);
 void stopLoadingX(Util::Thread::Id thread);
 
-void loadScreen(LoadingContext & context, const Level::LevelInfo & info, Kind kind = Default);
+void loadScreen(LoadingContext & context, const Info & info, Kind kind = Default);
 
 void * loadingScreen(void *);
 

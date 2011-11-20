@@ -33,9 +33,9 @@ typedef struct pair{
 	int x, y;
 } ppair;
 
-class Info{
+class MessageInfo{
 public:
-    Info(){
+    MessageInfo(){
         Global::registerInfo(&messages);
     }
 
@@ -49,13 +49,62 @@ public:
         return did;
     }
 
-    ~Info(){
+    ~MessageInfo(){
         Global::unregisterInfo(&messages);
     }
 
 private:
     MessageQueue messages;
 };
+
+Info::Info():
+x(-1),
+y(-1),
+_loadingMessage("Loading Paintown"),
+background(NULL),
+_loadingBackground(Global::titleScreen()){
+}
+
+Info::Info(const Info & info){
+    this->x = info.x;
+    this->y = info.y;
+    this->_loadingMessage = info._loadingMessage;
+    this->background = info.background;
+    this->_loadingBackground = info._loadingBackground;
+}
+    
+void Info::setBackground(const Graphics::Bitmap * background){
+    this->background = background;
+}
+
+void Info::setLoadingMessage(const std::string & str){
+    this->_loadingMessage = str;
+}
+
+void Info::setPosition(int x, int y){
+    this->x = x;
+    this->y = y;
+}
+
+const Graphics::Bitmap * Info::getBackground() const {
+    return background;
+}
+
+const string & Info::loadingMessage() const {
+    return _loadingMessage;
+}
+
+const Filesystem::AbsolutePath & Info::loadingBackground() const {
+    return _loadingBackground;
+}
+
+int Info::getPositionX() const {
+    return x;
+}
+
+int Info::getPositionY() const {
+    return y;
+}
 
 void * loadingScreenSimple1(void * arg);
 
@@ -132,7 +181,7 @@ enum LoadingKeys{
     Activate
 };
 
-static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & levelInfo){
+static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
     int load_x = 80;
     int load_y = 220;
     const int infobox_width = 300;
@@ -182,7 +231,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
         LoadingContext & context;
         State & state;
         Effects::Gradient & gradient;
-        Info info;
+        MessageInfo info;
         Messages & infobox;
         bool active;
         InputMap<LoadingKeys> input;
@@ -234,7 +283,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
 
     class Draw: public Util::Draw {
     public:
-        Draw(const Level::LevelInfo & levelInfo, State & state, Messages & infobox, Effects::Gradient & gradient, int load_width, int load_height, int infobox_width, int infobox_height, int load_x, int load_y):
+        Draw(const Info & levelInfo, State & state, Messages & infobox, Effects::Gradient & gradient, int load_width, int load_height, int infobox_width, int infobox_height, int load_x, int load_y):
             levelInfo(levelInfo),
             gradient(gradient),
             state(state),
@@ -252,7 +301,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
             pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
         }
 
-        const Level::LevelInfo & levelInfo;
+        const Info & levelInfo;
         Effects::Gradient & gradient;
         State & state;
         Messages & infobox;
@@ -312,7 +361,7 @@ static void loadingScreen1(LoadingContext & context, const Level::LevelInfo & le
     Util::standardLoop(logic, draw);
 }
 
-static void loadingScreenSimpleX1(LoadingContext & context, const Level::LevelInfo & levelInfo){
+static void loadingScreenSimpleX1(LoadingContext & context, const Info & levelInfo){
     class Logic: public Util::Logic {
     public:
         Logic(LoadingContext & context, int & angle, int speed):
@@ -441,7 +490,7 @@ static void showLoadMessage(){
     work.BlitAreaToScreen(screenX, screenY);
 }
 
-void loadScreen(LoadingContext & context, const Level::LevelInfo & info, Kind kind){
+void loadScreen(LoadingContext & context, const Info & info, Kind kind){
     Util::Thread::Id loadingThread;
     bool created = Util::Thread::createThread(&loadingThread, NULL, (Util::Thread::ThreadFunction) LoadingContext::load_it, &context);
     if (!created){
