@@ -26,7 +26,7 @@ public:
     };
 
     /* TODO: remove this method.. useless now. */
-    static std::vector<PaintownInput> convertKeyboard(const Configuration & configuration,int facing, const std::vector<int> & keys);
+    // static std::vector<PaintownInput> convertKeyboard(const Configuration & configuration,int facing, const std::vector<int> & keys);
 };
 
 #endif

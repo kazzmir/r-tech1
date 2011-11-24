@@ -1,3 +1,4 @@
+/*
 #include "input.h"
 #include "configuration.h"
 #include "paintown-engine/object/object.h"
@@ -46,3 +47,4 @@ vector<Input::PaintownInput> Input::convertKeyboard(const Configuration & config
 
     return all;
 }
+*/
