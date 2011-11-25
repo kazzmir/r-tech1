@@ -44,6 +44,16 @@ static void doTabComplete(void * self){
     console->tabComplete();
 }
 
+static void doPageUp(void * self){
+    Console * console = (Console*) self;
+    console->pageUp();
+}
+
+static void doPageDown(void * self){
+    Console * console = (Console*) self;
+    console->pageDown();
+}
+
 Console::Console(const int maxHeight, const Filesystem::RelativePath & font):
 state(Closed),
 maxHeight(maxHeight),
@@ -52,12 +62,15 @@ font(font),
 textHeight(15),
 textWidth(15),
 offset(0),
-historyIndex(0){
+historyIndex(0),
+pagePosition(-1){
     textInput.addBlockingHandle(Keyboard::Key_TILDE, doToggle, this);
     textInput.addBlockingHandle(Keyboard::Key_ENTER, doProcess, this);
     textInput.addBlockingHandle(Keyboard::Key_UP, doPreviousHistory, this);
     textInput.addBlockingHandle(Keyboard::Key_DOWN, doNextHistory, this);
     textInput.addBlockingHandle(Keyboard::Key_TAB, doTabComplete, this);
+    textInput.addBlockingHandle(Keyboard::Key_PGUP, doPageUp, this);
+    textInput.addBlockingHandle(Keyboard::Key_PGDN, doPageDown, this);
 }
 
 Console::~Console(){
@@ -105,6 +118,26 @@ void Console::nextHistory(){
         textInput.setText(history[historyIndex]);
     } else {
         textInput.setText(string());
+    }
+}
+
+static const int PAGE_MOVEMENT = 3;
+void Console::pageUp(){
+    if (pagePosition == -1){
+        pagePosition = lines.size();
+    }
+    pagePosition -= PAGE_MOVEMENT;
+    if (pagePosition < PAGE_MOVEMENT){
+        pagePosition = PAGE_MOVEMENT;
+    }
+}
+
+void Console::pageDown(){
+    if (pagePosition != -1){
+        pagePosition += PAGE_MOVEMENT;
+    }
+    if (pagePosition >= lines.size()){
+        pagePosition = -1;
     }
 }
     
@@ -172,10 +205,22 @@ void Console::draw(const Graphics::Bitmap & work){
         work.translucent().horizontalLine(0, height, work.getWidth(), Graphics::makeColor(200, 200, 200));
         const Font & font = Font::getFont(getFont(), textWidth, textHeight);
         int start = height - font.getHeight() * 2;
-        for (std::vector<std::string>::reverse_iterator i = lines.rbegin(); i != lines.rend() && start > 0; ++i){
+
+        int position = 0;
+        if (pagePosition != -1){
+            position = lines.size() - pagePosition;
+        }
+        for (std::vector<std::string>::reverse_iterator i = lines.rbegin() + position; i != lines.rend() && start > 0; ++i){
             std::string str = *i;
             font.printf(x, start, Graphics::makeColor(255,255,255), work, str, 0);
             start -= font.getHeight();
+        }
+        if (position != 0){
+            work.circleFill(x, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
+            work.circleFill(x + 5, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
+            work.circleFill(x + 10, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
+            work.circleFill(x + 15, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
+            work.circleFill(x + 20, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
         }
         font.printf(x, height - font.getHeight(), Graphics::makeColor(255,255,255), work, "> " + textInput.getText() + "|", 0);
     }
