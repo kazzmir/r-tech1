@@ -53,6 +53,10 @@ public:
     
     virtual bool doInput();
 
+    /* scroll up and down */
+    virtual void pageUp();
+    virtual void pageDown();
+
     /* add a line of text */
     virtual void addLine(const std::string & line);
     
@@ -122,6 +126,7 @@ protected:
     std::deque<std::string> history;
     /* index into history. 0 is latest */
     unsigned int historyIndex;
+    int pagePosition;
 };
 
 }
