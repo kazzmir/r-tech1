@@ -20,10 +20,18 @@
 #include <arpa/inet.h>
 #endif
 #else
+#ifndef htonl
 #define htonl(x) x
+#endif
+#ifndef htons
 #define htons(x) x
+#endif
+#ifndef ntohl
 #define ntohl(x) x
+#endif
+#ifndef ntohs
 #define ntohs(x) x
+#endif
 #endif
 
 using namespace std;
