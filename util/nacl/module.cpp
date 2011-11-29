@@ -9,7 +9,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_nacl.h>
 #include <string>
-#include "../../main.h"
+#include "../main.h"
 #include "network-system.h"
 #include "../funcs.h"
 
