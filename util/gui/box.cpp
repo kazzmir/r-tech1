@@ -2,8 +2,6 @@
 #include "util/trans-bitmap.h"
 #include "box.h"
 
-#include "menu/menu.h"
-
 #include "util/font.h"
 
 using namespace Gui;
