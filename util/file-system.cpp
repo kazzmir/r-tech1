@@ -680,6 +680,7 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
     // bool ok = open_dir(&sflEntry, removeTrailingSlash(dataPath.path()).c_str());
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
     if (!ok){
+        close_dir(&sflEntry);
         return files;
     }
     while (ok){
