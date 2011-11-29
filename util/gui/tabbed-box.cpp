@@ -2,8 +2,6 @@
 #include "../trans-bitmap.h"
 #include "tabbed-box.h"
 
-#include "menu/menu.h"
-
 #include "util/font.h"
 
 #include "context-box.h"
