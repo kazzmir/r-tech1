@@ -120,6 +120,11 @@ wii_ostream & operator<<(wii_ostream & stream, const int input){
     return stream;
 }
 
+wii_ostream & operator<<(wii_ostream & stream, uint64_t input){
+    stream.buffer << input;
+    return stream;
+}
+
 wii_ostream & operator<<(wii_ostream & stream, const short int input){
     stream.buffer << input;
     return stream;

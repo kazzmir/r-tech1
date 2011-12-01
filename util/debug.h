@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <sstream>
+#include <stdint.h>
 
 namespace Global{
 
@@ -55,6 +56,7 @@ wii_ostream & operator<<(wii_ostream & stream, const bool);
 wii_ostream & operator<<(wii_ostream & stream, const long int);
 wii_ostream & operator<<(wii_ostream & stream, const unsigned long int);
 wii_ostream & operator<<(wii_ostream & stream, const void *);
+wii_ostream & operator<<(wii_ostream & stream, uint64_t); 
 wii_ostream & operator<<(wii_ostream & stream, std::ostream & (*f)(std::ostream &));
 #else
 typedef std::ostream stream_type;
