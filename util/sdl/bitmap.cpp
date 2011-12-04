@@ -11,7 +11,7 @@
 #include "image/SDL_image.h"
 #include "image/IMG_savepng.h"
 #include <math.h>
-#include "exceptions/exception.h"
+#include "util/exceptions/exception.h"
 #include <string>
 #include <sstream>
 
