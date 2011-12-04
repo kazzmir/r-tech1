@@ -2,7 +2,7 @@
 #include "util/file-system.h"
 #include "util/font.h"
 #include "configuration.h"
-#include "exceptions/exception.h"
+#include "util/exceptions/exception.h"
 
 namespace Menu{
 

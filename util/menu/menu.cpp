@@ -16,8 +16,8 @@
 #include "configuration.h"
 #include "util/music.h"
 #include "util/gradient.h"
-#include "exceptions/shutdown_exception.h"
-#include "exceptions/exception.h"
+#include "util/exceptions/shutdown_exception.h"
+#include "util/exceptions/exception.h"
 
 #include "optionfactory.h"
 #include "actionfactory.h"

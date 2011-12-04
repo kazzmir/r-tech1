@@ -11,7 +11,7 @@
 #include "util/events.h"
 #include "keyboard.h"
 #include "joystick.h"
-#include "exceptions/exception.h"
+#include "util/exceptions/exception.h"
 
 class Configuration;
 class InputSource;
