@@ -170,28 +170,19 @@ protected:
 };
 
 /* Computes stuff in a separate thread and gives it back when you ask for it.
- * As soon as the future is created a thread will start executing and compute
- * whatever it is that the class is supposed to do. You can then call `get'
- * on the future object to get the result. If the thread is still executing
- * then `get' will block until the future completes. If the future has already
- * completed then `get' will return immediately with the computed value.
- * The use case is computing something that has to be used later:
- *  Future future;
- *  future.start(); // might take a while to compute 
- *  do_stuff_that_takes_a_while(); // future might finish sometime in here
- *  Object o = future.get(); // future is already done
+ * Call start() on the future to begin executing it. You can then call `get' on
+ * the future object to get the result. If the thread is still executing then
+ * `get' will block until the future completes. If the future has already
+ * completed then `get' will return immediately with the computed value.  The
+ * use case is computing something that has to be used later: Future future;
+ * future.start(); // might take a while to compute
+ * do_stuff_that_takes_a_while(); // future might finish sometime in here
+ * Object o = future.get(); // future is already done
  *
  */
-template<class X>
-class Future{
-public:
-    Future():
-    thing(0),
-    thread(Thread::uninitializedValue),
-    done(false),
-    exception(NULL),
-    ran(false){
-    }
+template<class X> class Future{ public: Future(): thing(0),
+    thread(Thread::uninitializedValue), done(false), exception(NULL),
+    ran(false){ }
 
     virtual ~Future(){
         Thread::joinThread(thread);
