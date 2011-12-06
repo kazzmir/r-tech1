@@ -39,7 +39,7 @@
 #ifdef USE_ALLEGRO
 #include "dumb/include/aldumb.h"
 #include "allegro/loadpng/loadpng.h"
-#include "gif/algif.h"
+#include "allegro/gif/algif.h"
 #endif
 #include "bitmap.h"
 #include "funcs.h"
