@@ -5,7 +5,7 @@
 #include <winalleg.h>
 #endif
 
-#include "../gif/algif.h"
+#include "gif/algif.h"
 #include "../bitmap.h"
 #include "../lit_bitmap.h"
 #include "../trans-bitmap.h"
