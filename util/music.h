@@ -6,9 +6,6 @@
 #include "file-system.h"
 #include "pointer.h"
 
-struct AL_DUH_PLAYER;
-struct DUH;
-
 namespace Util{
     class MusicPlayer;
 }
