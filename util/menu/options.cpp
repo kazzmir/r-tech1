@@ -2131,29 +2131,6 @@ void OptionLanguage::run(const Menu::Context & context){
 void OptionLanguage::logic(){
 }
 
-OptionPlatformer::OptionPlatformer(const Gui::ContextBox & parent, const Token * token):
-MenuOption(parent, token){
-    readName(token);
-    
-    if (!token->match("_/game", gameLocation)){
-	throw LoadException(__FILE__, __LINE__, "Missing game location for Platformer");
-    }
-}
-
-OptionPlatformer::~OptionPlatformer(){
-}
-
-void OptionPlatformer::logic(){
-}
-
-void OptionPlatformer::run(const Menu::Context & context){
-    
-    Platformer::Game game(gameLocation);
-    game.run();
-    
-    throw Menu::Reload(__FILE__, __LINE__);
-}
-
 OptionMugenMotif::OptionMugenMotif(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token){
     readName(token);

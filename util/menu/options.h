@@ -540,16 +540,6 @@ public:
     virtual void run(const Menu::Context &);
 };
 
-class OptionPlatformer: public MenuOption {
-public:
-    OptionPlatformer(const Gui::ContextBox & parent, const Token *);
-    virtual ~OptionPlatformer();
-    virtual void logic();
-    virtual void run(const Menu::Context &);
-protected:
-    std::string gameLocation;
-};
-
 class OptionMugenMotif: public MenuOption {
 public:
     OptionMugenMotif(const Gui::ContextBox & parent, const Token *);
