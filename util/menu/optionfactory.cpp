@@ -43,8 +43,6 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
         return new OptionLanguage(parent, tok);
     } else if (*tok == "return"){
         return new OptionReturn(parent, tok);
-    } else if (*tok == "mugen-motif"){
-        return new OptionMugenMotif(parent, tok);
     } else if (*tok == "continue"){
         return new OptionContinue(parent, tok);
     } else if (*tok == "sound"){
@@ -77,9 +75,6 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
     } else if ( *tok == "font-select" ){
         // Font Selector
         return new OptionSelectFont(parent, tok);
-    } else if ( *tok == "mugen" ){
-        // Mugen Option
-        return new OptionMugenMenu(parent, tok);
     } else if ( *tok == "dummy" ){
         // Dummy Option
         return new OptionDummy(parent, tok);
