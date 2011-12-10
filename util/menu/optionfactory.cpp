@@ -83,14 +83,11 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
     } else if ( *tok == "dummy" ){
         // Dummy Option
         return new OptionDummy(parent, tok);
-    } else if ( *tok == "platformer" ){
-        // Platformer
-        return new OptionPlatformer(parent, tok);
     } else {
         Global::debug(0) <<"Unhandled menu attribute: "<<endl;
         tok->print(" ");
     }
-    return 0;
+    return NULL;
 }
 
 }
