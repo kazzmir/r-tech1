@@ -231,6 +231,9 @@ public:
 	virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
 	virtual void arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
 
+        /* x/y is in the center of the bitmap */
+	virtual void drawCenter(const int x, const int y, const Bitmap & where) const;
+
 	virtual void draw(const int x, const int y, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;

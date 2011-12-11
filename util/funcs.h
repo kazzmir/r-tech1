@@ -63,6 +63,8 @@ inline int min(int a, int b){
 double min(double a, double b);
 double max(double a, double b);
 
+double distance(double x1, double y1, double x2, double y2);
+
 int clamp(int value, int min, int max);
 double clamp(double value, double min, double max);
 

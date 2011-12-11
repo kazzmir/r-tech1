@@ -165,7 +165,8 @@ enum Actions{
     Back,
     Cancel,
     Modify,
-    Pause
+    Pause,
+    Asteroids /* Hack for now, remove later */
 };
 
 class Context;
