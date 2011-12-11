@@ -213,6 +213,10 @@ void Bitmap::drawHFlip(const int x, const int y, const int startWidth, const int
     Bitmap sub(*this, getWidth() - width, getHeight() - height, getWidth() - startWidth, getHeight() - startHeight);
     sub.drawHFlip(x + startWidth, y + startHeight, filter, where);
 }
+	
+void Bitmap::drawCenter(const int x, const int y, const Bitmap & where) const {
+    draw(x - getWidth() / 2, y - getHeight() / 2, where);
+}
 
 void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
     draw(x, y, startWidth, startHeight, width, height, NULL, where);

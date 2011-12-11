@@ -348,4 +348,8 @@ std::string Util::join(const std::vector<std::string> & list, const std::string 
     return out.str();
 }
 
-
+double Util::distance(double x1, double y1, double x2, double y2){
+    double xs = x1 - x2;
+    double ys = y1 - y2;
+    return sqrt(xs * xs + ys * ys);
+}
