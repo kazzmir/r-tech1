@@ -21,6 +21,7 @@
 #include "init.h"
 #include <sstream>
 #include "file-system.h"
+#include <math.h>
 
 #ifndef USE_ALLEGRO
 /* FIXME: move this to the filesystem module */
