@@ -61,11 +61,11 @@ public:
 	int getFullY1( bool yflipped = false );
 
 	inline int getMinX() const{
-		return min_x;
+            return min_x;
 	}
 
 	inline int getMinY() const{
-		return min_y;
+            return min_y;
 	}
 
 	int totalQuads();

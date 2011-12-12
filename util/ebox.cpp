@@ -191,43 +191,43 @@ bool EQuad::addQuad( EQuad * who ){
 }
 	
 void EQuad::checkQuad( EQuad *& q ){
-	if ( q != NULL ){
-		while ( q->numQuads() == 1 ){
-			EQuad * const newquad = q->getQuad();
-			q->detach( newquad );
-			int x = q->getMinX();
-			int y = q->getMinY();
-			delete q;
-			q = newquad;
-			newquad->setMinX( newquad->getMinX() + x ); 
-			newquad->setMinY( newquad->getMinY() + y );
-			q->parent = this;
-		}
-	}
+    if ( q != NULL ){
+        while ( q->numQuads() == 1 ){
+            EQuad * const newquad = q->getQuad();
+            q->detach( newquad );
+            int x = q->getMinX();
+            int y = q->getMinY();
+            delete q;
+            q = newquad;
+            newquad->setMinX( newquad->getMinX() + x ); 
+            newquad->setMinY( newquad->getMinY() + y );
+            q->parent = this;
+        }
+    }
 }
 
 int EQuad::totalQuads(){
-	if ( full ) return 1;
-	int total = 0;
-	for ( int i = 0; i < numQuads(); i++ )
-		if ( quads[i] )
-			total += quads[i]->totalQuads();
-			/*
-	if ( quad1 ) total += quad1->totalQuads();
-	if ( quad2 ) total += quad2->totalQuads();
-	if ( quad3 ) total += quad3->totalQuads();
-	if ( quad4 ) total += quad4->totalQuads();
-	*/
+    if ( full ) return 1;
+    int total = 0;
+    for ( int i = 0; i < numQuads(); i++ )
+        if ( quads[i] )
+            total += quads[i]->totalQuads();
+    /*
+       if ( quad1 ) total += quad1->totalQuads();
+       if ( quad2 ) total += quad2->totalQuads();
+       if ( quad3 ) total += quad3->totalQuads();
+       if ( quad4 ) total += quad4->totalQuads();
+       */
 
-	return total;
+    return total;
 }
 	
 void EQuad::setMinX( int x ){
-	min_x = x;
+    min_x = x;
 }
 
 void EQuad::setMinY( int y ){
-	min_y = y;
+    min_y = y;
 }
 
 /*
@@ -295,133 +295,109 @@ int EQuad::calcSize(){
 }
 
 bool EQuad::empty(){
-
-	if ( numQuads() == 0 ) return !full;
-	// if ( !quad1 && !quad2 && !quad3 && !quad4 ) return !full;
-	return false;
+    if (numQuads() == 0) return !full;
+    return false;
 
 }
 
-void EQuad::draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped ){
-	
-	int mx = x + getMinX();
-	int my = y + getMinY();
-	// std::cout<<"getMinX: "<<getMinX()<<std::endl;
-	if ( flipped ){
-		if ( parent ){
-			mx = x + parent->getWidth() - (getMinX()+getWidth());
-			// mx = getMinX() - parent->getWidth()/2 + x;
-			// my = y + parent->getHeight()/2 - getMinY();
-			// my = y + getMinY();
+void EQuad::draw(const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped){
+    int mx = x + getMinX();
+    int my = y + getMinY();
+    if (flipped){
+        if (parent){
+            mx = x + parent->getWidth() - (getMinX() + getWidth());
+        }
+    }
 
-			// mx2 = mx - getWidth();
-			// mx2 = mx + getWidth();
+    int mx2 = mx + getWidth();
+    int my2 = my + getHeight();
 
-			/*
-			int i;
-			i = mx;
-			mx = mx2;
-			mx2 = i;
-			*/
-		}
-	}
-	
-	int mx2 = mx + getWidth();
-	int my2 = my + getHeight();
+    for (int i = 0; i < numQuads(); i++){
+        quads[i]->draw(work, mx, my, color, flipped);
+    }
 
-	for ( int i = 0; i < numQuads(); i++ )
-		quads[i]->draw( work, mx, my, color, flipped );
-
-	if ( full )
-		work.rectangle( mx, my, mx2, my2, color );
-	/*
-	if ( full )
-		work->rectangle( x+getMinX(), y+getMinY(), x+getMinX()+getWidth(), y+getMinY()+getHeight(), Bitmap::makeColor(255,64,32) );
-	else
-		work->rectangle( x+getMinX(), y+getMinY(), x+getMinX()+getWidth(), y+getMinY()+getHeight(), color );
-		*/
+    if (full){
+        work.rectangle(mx, my, mx2, my2, color);
+    }
 }
 
 void EQuad::draw( const Graphics::Bitmap & work, int x, int y, Graphics::Color color, EQuad * who ){
+    bool cy = false;
+    for ( int i = 0; i < numQuads(); i++ )
+        if ( who == quads[i] )
+            cy = true;
 
-	bool cy = false;
-	for ( int i = 0; i < numQuads(); i++ )
-		if ( who == quads[i] )
-			cy = true;
-
-	int mx = x + getMinX();
-	int my = y + getMinY();
-	if ( cy )
-		who->draw( work, mx, my, color );
-	else {
-		for ( int i = 0; i < numQuads(); i++ )
-			quads[i]->draw( work, mx, my, color, who );
-	}
-
+    int mx = x + getMinX();
+    int my = y + getMinY();
+    if (cy){
+        who->draw(work, mx, my, color);
+    } else {
+        for ( int i = 0; i < numQuads(); i++ )
+            quads[i]->draw( work, mx, my, color, who );
+    }
 }
 
 static bool boxCollide( int zx1, int zy1, int zx2, int zy2, int zx3, int zy3, int zx4, int zy4 ){
+    if ( zx1 < zx3 && zx1 < zx4 &&
+         zx2 < zx3 && zx2 < zx4 ) return false;
+    if ( zx1 > zx3 && zx1 > zx4 &&
+         zx2 > zx3 && zx2 > zx4 ) return false;
+    if ( zy1 < zy3 && zy1 < zy4 &&
+         zy2 < zy3 && zy2 < zy4 ) return false;
+    if ( zy1 > zy3 && zy1 > zy4 &&
+         zy2 > zy3 && zy2 > zy4 ) return false;
 
-	if ( zx1 < zx3 && zx1 < zx4 &&
-		zx2 < zx3 && zx2 < zx4 ) return false;
-	if ( zx1 > zx3 && zx1 > zx4 &&
-		zx2 > zx3 && zx2 > zx4 ) return false;
-	if ( zy1 < zy3 && zy1 < zy4 &&
-		zy2 < zy3 && zy2 < zy4 ) return false;
-	if ( zy1 > zy3 && zy1 > zy4 &&
-		zy2 > zy3 && zy2 > zy4 ) return false;
-
-	return true;
+    return true;
 
 }
 
 /* sure this could be simplified, but thats no fun :p */
 int EQuad::getX1( bool xflipped ){
-	if ( parent ){
-		if ( xflipped ){
-			return parent->getWidth() - (getMinX() + getWidth());
-		} else {
-			return getMinX();
-		}
-	} else {
-		return getMinX();
-	}
+    if (parent){
+        if (xflipped){
+            return parent->getWidth() - (getMinX() + getWidth());
+        } else {
+            return getMinX();
+        }
+    } else {
+        return getMinX();
+    }
 }
 
-int EQuad::getFullX1( bool xflipped ){
-	if ( parent ){
-		if ( xflipped ){
-			return parent->getFullX1( xflipped ) + parent->getWidth() - (getMinX() + getWidth());
-		} else {
-			return parent->getFullX1( xflipped ) + getMinX();
-		}
-	} else {
-		return getMinX();
-	}
+int EQuad::getFullX1(bool xflipped){
+    if (parent){
+        if ( xflipped ){
+            return parent->getFullX1( xflipped ) + parent->getWidth() - (getMinX() + getWidth());
+        } else {
+            return parent->getFullX1( xflipped ) + getMinX();
+        }
+    } else {
+        return getMinX();
+    }
 }
 
 int EQuad::getY1( bool yflipped ){
-	if ( parent ){
-		if ( yflipped ){
-			return parent->getHeight() - (getMinY() + getHeight());
-		} else {
-			return getMinY();
-		}
-	} else {
-		return getMinY();
-	}
+    if ( parent ){
+        if ( yflipped ){
+            return parent->getHeight() - (getMinY() + getHeight());
+        } else {
+            return getMinY();
+        }
+    } else {
+        return getMinY();
+    }
 }
 
 int EQuad::getFullY1( bool yflipped ){
-	if ( parent ){
-		if ( yflipped ){
-			return parent->getFullY1( yflipped ) - (parent->getHeight() + getMinY() + getHeight());
-		} else {
-			return parent->getFullY1( yflipped ) + getMinY();
-		}
-	} else {
-		return getMinY();
-	}
+    if (parent){
+        if (yflipped){
+            return parent->getFullY1( yflipped ) - (parent->getHeight() + getMinY() + getHeight());
+        } else {
+            return parent->getFullY1( yflipped ) + getMinY();
+        }
+    } else {
+        return getMinY();
+    }
 }
 
 void EQuad::gather( int mx, int my, int x1, int y1, int x2, int y2, vector< EQuad * > & collides, bool xflipped, bool yflipped ){
