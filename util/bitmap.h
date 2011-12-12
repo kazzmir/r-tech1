@@ -262,7 +262,11 @@ public:
 	// virtual void drawTransHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 	virtual void drawMask( const int x, const int y, const Bitmap & where );
 	virtual void drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const;
-	virtual void drawRotate( const int x, const int y, const int angle, const Bitmap & where );
+
+        /* middle of the bitmap is at x, y */
+	virtual void drawRotateCenter(const int x, const int y, const int angle, const Bitmap & where);
+        /* upper left hand corner is at x, y*/
+	virtual void drawRotate(const int x, const int y, const int angle, const Bitmap & where);
 	virtual void drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where );
 	virtual void drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where );
 
