@@ -1371,7 +1371,7 @@ void Menu::Menu::run(const Context & parentContext){
         /* do any lazy loading options want to do */
         openOptions();
 
-        input.set(Keyboard::Key_F6, Asteroids);
+        input.set(Keyboard::Key_F6, PlayAsteroids);
 
         /* vi keys -- make these optional? */
         input.set(Keyboard::Key_J, 0, true, Down);
@@ -1480,7 +1480,7 @@ void Menu::Menu::act(Context & ourContext){
             continue;
         }
         
-        if (event.out == Asteroids){
+        if (event.out == PlayAsteroids){
             Asteroids::run();
         }
 
