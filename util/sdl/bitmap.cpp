@@ -1235,11 +1235,16 @@ void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap
     SPG_TransformX(src, dst, angle, 1, 1, 0, 0, x, y, SPG_TCOLORKEY);
 }
 
+/* I'm not really sure whats going on here but we need to negate the angle */
+static int fixAngle(int angle){
+    return -angle;
+}
+
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
     SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
     SDL_Surface * src = getData()->getSurface();
     SDL_Surface * dst = where.getData()->getSurface();
-    SPG_TransformX(src, dst, angle, 1, 1, centerX, centerY, x, y, SPG_TCOLORKEY);
+    SPG_TransformX(src, dst, fixAngle(angle), 1, 1, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){

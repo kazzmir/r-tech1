@@ -300,20 +300,15 @@ bool EQuad::empty(){
 
 }
 
-void EQuad::draw(const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flipped){
-    int mx = x + getMinX();
-    int my = y + getMinY();
-    if (flipped){
-        if (parent){
-            mx = x + parent->getWidth() - (getMinX() + getWidth());
-        }
-    }
+void EQuad::draw(const Graphics::Bitmap & work, int x, int y, Graphics::Color color, bool flippedX){
+    int mx = x + getX1(flippedX);
+    int my = y + getY1(false);
 
     int mx2 = mx + getWidth();
     int my2 = my + getHeight();
 
     for (int i = 0; i < numQuads(); i++){
-        quads[i]->draw(work, mx, my, color, flipped);
+        quads[i]->draw(work, mx, my, color, flippedX);
     }
 
     if (full){
@@ -352,9 +347,26 @@ static bool boxCollide( int zx1, int zy1, int zx2, int zy2, int zx3, int zy3, in
 }
 
 /* sure this could be simplified, but thats no fun :p */
-int EQuad::getX1( bool xflipped ){
+int EQuad::getX1(bool xflipped){
     if (parent){
         if (xflipped){
+            /* x1 = getMinX()
+             * x2 = getMinX() + getWidth()
+             * When flipping x2 always becomes the new x1
+             *  x is the starting location, x'' is final
+             *
+             *  1. translate so that axis is the origin
+             *  x' = x - axis
+             *  2. reflect over axis
+             *  fx = -x
+             *  3. translate back
+             *  x'' = fx + axis
+             *  4. simplify
+             *  x'' = -(x - axis) + axis
+             *  x'' = 2*axis - x
+             *
+             *  axis = parent->getWidth() / 2
+             */
             return parent->getWidth() - (getMinX() + getWidth());
         } else {
             return getMinX();
@@ -366,10 +378,10 @@ int EQuad::getX1( bool xflipped ){
 
 int EQuad::getFullX1(bool xflipped){
     if (parent){
-        if ( xflipped ){
-            return parent->getFullX1( xflipped ) + parent->getWidth() - (getMinX() + getWidth());
+        if (xflipped){
+            return parent->getFullX1(xflipped) + parent->getWidth() - (getMinX() + getWidth());
         } else {
-            return parent->getFullX1( xflipped ) + getMinX();
+            return parent->getFullX1(xflipped) + getMinX();
         }
     } else {
         return getMinX();
@@ -377,8 +389,8 @@ int EQuad::getFullX1(bool xflipped){
 }
 
 int EQuad::getY1( bool yflipped ){
-    if ( parent ){
-        if ( yflipped ){
+    if (parent){
+        if (yflipped){
             return parent->getHeight() - (getMinY() + getHeight());
         } else {
             return getMinY();
@@ -440,8 +452,8 @@ bool EQuad::collide( int mx, int my, int x1, int y1, int x2, int y2, EQuad ** la
 	}
 	*/
 
-	int rx = mx + getX1( xflipped );
-	int ry = my + getY1( yflipped );
+	int rx = mx + getX1(xflipped);
+	int ry = my + getY1(yflipped);
 
 	int rx2 = rx + getWidth();
 	int ry2 = ry + getHeight();
