@@ -580,7 +580,9 @@ void Bitmap::drawRotate(const int x, const int y, const int angle, const Bitmap 
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
-    /* TODO */
+    changeTarget(this, where);
+    MaskedBlender blender;
+    al_draw_rotated_bitmap(getData()->getBitmap(), getWidth() / 2, getHeight() / 2, x, y, Util::radians(-angle), 0);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
