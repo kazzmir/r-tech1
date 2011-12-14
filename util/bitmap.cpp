@@ -221,6 +221,10 @@ void Bitmap::drawRotateCenter(const int x, const int y, const int angle, const B
 void Bitmap::drawCenter(const int x, const int y, const Bitmap & where) const {
     draw(x - getWidth() / 2, y - getHeight() / 2, where);
 }
+	
+void Bitmap::drawStretched(const Bitmap & who) const {
+    drawStretched(0, 0, who.getWidth(), who.getHeight(), who);
+}
 
 void Bitmap::draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const {
     draw(x, y, startWidth, startHeight, width, height, NULL, where);
