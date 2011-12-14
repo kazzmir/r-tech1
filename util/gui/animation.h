@@ -27,7 +27,7 @@ typedef std::map< int, Util::ReferenceCount<Graphics::Bitmap> > imageMap;
 
 class Frame{
 public:
-    Frame(const Token *token, imageMap &images) throw (LoadException);
+    Frame(const Token *token, imageMap &images);
     Frame(Util::ReferenceCount<Graphics::Bitmap> bmp);
     virtual ~Frame();
     virtual void act(double xvel, double yvel);
