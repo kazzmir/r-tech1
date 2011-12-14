@@ -40,7 +40,7 @@ static void renderSprite(const Graphics::Bitmap & bmp, const int x, const int y,
     }
 }
 
-Frame::Frame(const Token *the_token, imageMap &images) throw (LoadException):
+Frame::Frame(const Token *the_token, imageMap &images):
 bmp(0),
 time(0),
 horizontalFlip(false),
@@ -113,14 +113,14 @@ Frame::~Frame(){
 void Frame::act(double xvel, double yvel){
     scrollOffset.moveBy(xvel,yvel);
     if (scrollOffset.getDistanceFromCenterX() >=bmp->getWidth()){
-	    scrollOffset.setX(0);
+        scrollOffset.setX(0);
     } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
-	    scrollOffset.setX(0);
+        scrollOffset.setX(0);
     }
     if (scrollOffset.getDistanceFromCenterY() >=bmp->getHeight()){
-	    scrollOffset.setY(0);
+        scrollOffset.setY(0);
     } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
-	    scrollOffset.setY(0);
+        scrollOffset.setY(0);
     }
 }
 
@@ -229,6 +229,8 @@ allowReset(true){
 	      (reset NUM)
 	      (window x1 y1 x2 y2))
     */
+    double scale = 1.0;
+    bool scaleSet = false;
     const Token & tok = *the_token;
     TokenView view = tok.view();
     while (view.hasMore()){
@@ -248,6 +250,9 @@ allowReset(true){
                     depth = ForegroundBottom;
                 }*/
                 Global::debug(0) << "The option (" << token->getLineage() << ") in the file '" << token->getFileName() << "' is no longer valid and will be ignored. Consider using 'depth' instead." << std::endl;
+            } else if (*token == "scale"){
+                token->view() >> scale;
+                scaleSet = true;
             } else if (*token == "depth"){
                 // get the depth
                 std::string name, level;
@@ -276,9 +281,24 @@ allowReset(true){
                 // add bitmaps by number to the map
                 int number;
                 std::string temp;
-                token->view() >> number >> temp;
+                double localScale = 1;
+                bool localScaleSet = false;
+                TokenView view = token->view();
+                view >> number >> temp;
+                try{
+                    view >> localScale;
+                    localScaleSet = true;
+                } catch (const TokenException & fail){
+                }
                 Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(basedir + temp)).path()));
                 if (!bmp->getError()){
+                    if (scaleSet || localScaleSet){
+                        if (localScaleSet){
+                            *bmp = bmp->scaleBy(localScale, localScale);
+                        } else {
+                            *bmp = bmp->scaleBy(scale, scale);
+                        }
+                    }
                     images[number] = bmp;
                 }
             } else if (*token == "axis"){
