@@ -6,10 +6,12 @@
 #include "util/token.h"
 #include "util/trans-bitmap.h"
 #include "util/bitmap.h"
+#include "util/stretch-bitmap.h"
 #include "globals.h"
 #include "../debug.h"
 #include "../funcs.h"
 #include "../file-system.h"
+#include "../load_exception.h"
 
 using namespace std;
 using namespace Gui;
@@ -189,14 +191,27 @@ void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work
     }
 }
 
+/* This is mainly called from select-list to draw the cells. I'm not sure
+ * of the utility of stretching the bitmap to fit the cell dimensions. Most
+ * likely the cell will contain an image and the image will be the same
+ * size as the cell.
+ */
 void Frame::draw(const Graphics::Bitmap & work){
     const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
     temp.clearToMask();
     renderSprite(*bmp, 0, 0, alpha, horizontalFlip, verticalFlip, temp);
-    temp.translucent().drawStretched(0, 0, work.getWidth(), work.getHeight(), work);
+    temp.drawStretched(work);
+    
+    /* FIXME: This should work, but it doesn't.. */
+    /*
+    Graphics::StretchedBitmap show(bmp->getWidth(), bmp->getHeight(), work);
+    show.start();
+    renderSprite(*bmp, 0, 0, alpha, horizontalFlip, verticalFlip, show);
+    show.finish();
+    */
 }
 
-Animation::Animation(const Token *the_token) throw (LoadException):
+Animation::Animation(const Token *the_token):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
@@ -219,9 +234,10 @@ allowReset(true){
     window - area in which the item will be contained
 	(anim (id NUM) 
 	      (location NUM)
-          (depth background|foreground NUM)
+              (scale NUM) ;; optional
+              (depth background|foreground NUM)
 	      (basedir LOCATION)
-	      (image NUM FILE) 
+	      (image NUM FILE [SCALE]) 
 	      (velocity x y)
 	      (axis x y) 
 	      (frame "Read comments above in constructor") 
@@ -356,7 +372,7 @@ allowReset(true){
     }
 }
 
-Animation::Animation(const std::string & background) throw (LoadException):
+Animation::Animation(const std::string & background):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
@@ -374,7 +390,7 @@ allowReset(true){
     frames.push_back(frame);
 }
 
-Animation::Animation(const Filesystem::AbsolutePath & path) throw (LoadException):
+Animation::Animation(const Filesystem::AbsolutePath & path):
 id(0),
 depth(BackgroundBottom),
 ticks(0),

@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <map>
+#include <string>
 
-#include "../load_exception.h"
 #include "coordinate.h"
 #include "util/pointer.h"
 
@@ -44,10 +44,10 @@ public:
 
 class Animation{
 public:
-    Animation(const Token *token) throw (LoadException);
+    Animation(const Token *token);
     /*! Load only a single bitmap (for bacwards compatibility of backgrounds in menu) */
-    Animation(const std::string &) throw (LoadException);
-    Animation(const AbsolutePath &) throw (LoadException);
+    Animation(const std::string &);
+    Animation(const AbsolutePath &);
     /* use an existing bitmap */
     Animation(Util::ReferenceCount<Graphics::Bitmap> image);
     virtual ~Animation();
