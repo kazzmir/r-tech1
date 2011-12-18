@@ -34,9 +34,6 @@
 
 #include "util/gui/context-box.h"
 
-/* FIXME: hack for now, remove eventually */
-#include "asteroids/game.h"
-
 using namespace std;
 using namespace Gui;
 
@@ -1371,8 +1368,6 @@ void Menu::Menu::run(const Context & parentContext){
         /* do any lazy loading options want to do */
         openOptions();
 
-        input.set(Keyboard::Key_F6, PlayAsteroids);
-
         /* vi keys -- make these optional? */
         input.set(Keyboard::Key_J, 0, true, Down);
         input.set(Keyboard::Key_K, 0, true, Up);
@@ -1480,10 +1475,6 @@ void Menu::Menu::act(Context & ourContext){
             continue;
         }
         
-        if (event.out == PlayAsteroids){
-            Asteroids::run();
-        }
-
         if (event.out == Cancel){
             if (renderer){
                 InputManager::waitForRelease(input, InputSource(), Cancel);
