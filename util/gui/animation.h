@@ -33,6 +33,7 @@ public:
     virtual void act(double xvel, double yvel);
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
     virtual void draw(const Graphics::Bitmap &);
+    virtual void reset();
     Util::ReferenceCount<Graphics::Bitmap> bmp;
     RelativePoint offset;
     RelativePoint scrollOffset;
@@ -57,6 +58,7 @@ public:
     virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &);
     virtual void forwardFrame();
     virtual void backFrame();
+    virtual void resetAll();
 
     inline void reset(){ if (allowReset){ currentFrame = 0; } }
     inline int getID() const { return id; }
@@ -99,6 +101,8 @@ public:
     void render(const Gui::Animation::Depth &, const Graphics::Bitmap &);
     
     void add(Util::ReferenceCount<Gui::Animation > animation);
+    
+    void reset();
     
     virtual inline const bool empty() const{
         return this->animations.empty();

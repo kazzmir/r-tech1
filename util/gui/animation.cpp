@@ -211,6 +211,10 @@ void Frame::draw(const Graphics::Bitmap & work){
     */
 }
 
+void Frame::reset(){
+    scrollOffset = RelativePoint();
+}
+
 Animation::Animation(const Token *the_token):
 id(0),
 depth(BackgroundBottom),
@@ -471,6 +475,14 @@ void Animation::backFrame(){
     }
 }
 
+void Animation::resetAll(){
+    currentFrame = ticks = 0;
+    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
+        Util::ReferenceCount<Frame> frame = *i;
+        frame->reset();
+    }
+}
+
 AnimationManager::AnimationManager(){
 }
 AnimationManager::AnimationManager(const AnimationManager & copy):
@@ -509,3 +521,16 @@ void AnimationManager::render(const Gui::Animation::Depth & depth, const Graphic
 void AnimationManager::add(Util::ReferenceCount<Gui::Animation > animation){
     animations[animation->getDepth()].push_back(animation);
 }
+
+void AnimationManager::reset(){
+    for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
+        std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
+            Util::ReferenceCount<Gui::Animation> animation = *j;
+            if (animation != NULL){
+                animation->resetAll();
+            }
+        }
+    }
+}
+
