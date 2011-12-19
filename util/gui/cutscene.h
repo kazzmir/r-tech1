@@ -26,12 +26,18 @@ public:
     virtual void render(const Graphics::Bitmap &);
 
     virtual void setAnimation(Util::ReferenceCount<Gui::Animation>);
+    
+    virtual void reset();
 
     virtual inline void setEnd(int ticks){
         this->endTicks = ticks;
     }
     virtual inline bool done() const {
         return (this->ticks >= this->endTicks);
+    }
+    
+    virtual inline Gui::AnimationManager & getManager(){
+        return this->backgrounds;
     }
 
 protected:
@@ -59,6 +65,9 @@ public:
     virtual inline int getScene() const{
         return this->current;
     }
+    
+    /*! Return current scene */
+    virtual Util::ReferenceCount<Scene> getCurrent();
 
     /* play all scenes in order */
     virtual void playAll();

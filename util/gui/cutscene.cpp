@@ -74,6 +74,11 @@ void Scene::setAnimation(Util::ReferenceCount<Gui::Animation> animation){
     backgrounds.add(animation);
 }
 
+void Scene::reset(){
+    ticks = 0;
+    backgrounds.reset();
+}
+
 CutScene::CutScene():
 width(0),
 height(0),
@@ -146,6 +151,14 @@ void CutScene::setScene(unsigned int scene){
 enum Keys{
     Esc
 };
+
+Util::ReferenceCount<Scene> CutScene::getCurrent(){
+    if (scenes.empty()){
+        return Util::ReferenceCount<Scene>(NULL);
+    }
+    
+    return scenes[current];
+}
 
 void CutScene::playAll(){
     for (unsigned int i = 0; i < scenes.size(); i++){
@@ -228,11 +241,13 @@ void CutScene::playScene(unsigned int scene){
 }
 
 void CutScene::playScene(){
-    playScene(current);
+    if (current < scenes.size()){
+        playScene(current);
+    }
 }
     
 void CutScene::next(){
-    if (current < scenes.size()){
+    if (current <= scenes.size()){
         current += 1;
     }
 }
