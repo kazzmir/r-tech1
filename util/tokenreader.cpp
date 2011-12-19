@@ -246,8 +246,7 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
             } else if (n == ')'){
                 parens -= 1;
                 if (token_stack.empty()){
-                    // cout << "Stack is empty"<<endl;
-                    throw TokenException(__FILE__, __LINE__, "Stack is empty");
+                    throw TokenException(__FILE__, __LINE__, "Saw a ) but there is no corresponding (");
                 }
                 token_stack.pop_back();
 
