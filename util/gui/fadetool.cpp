@@ -58,55 +58,55 @@ void FadeTool::setState( const State & f){
     currentState = f;
     
     switch (currentState){
-	case FadeIn:
-	    fadeTime = 255;
-	    break;
-	case FadeOut:
-	    fadeTime = 0;
-	    break;
-	case NoFade:
-	case EndFade:
-	default:
-	    fadeTime = 0;
-	    break;
+        case FadeIn:
+            fadeTime = 255;
+            break;
+        case FadeOut:
+            fadeTime = 0;
+            break;
+        case NoFade:
+        case EndFade:
+        default:
+            fadeTime = 0;
+            break;
     }
 }
 
 void FadeTool::act(){
     switch (currentState){
-	case FadeIn:
-	    fadeTime-=(255/(fadeInTime <= 0 ? 1 : fadeInTime));
-	    if (fadeTime<=0){
-		setState(NoFade);
-	    }
-	    break;
-	case FadeOut:
-	    fadeTime+=(255/(fadeOutTime <= 0 ? 1 : fadeOutTime));
-	    if (fadeTime>=255){
-		setState(EndFade);
-	    }
-	    break;
-	case NoFade:
-	case EndFade:
-	default:
-	    break;
+        case FadeIn:
+            fadeTime-=(255/(fadeInTime <= 0 ? 1 : fadeInTime));
+            if (fadeTime<=0){
+            setState(NoFade);
+            }
+            break;
+        case FadeOut:
+            fadeTime+=(255/(fadeOutTime <= 0 ? 1 : fadeOutTime));
+            if (fadeTime>=255){
+            setState(EndFade);
+            }
+            break;
+        case NoFade:
+        case EndFade:
+        default:
+            break;
     }
 }
 
 void FadeTool::draw(const Graphics::Bitmap &bmp){
     switch (currentState){
-	case FadeIn:
-            Graphics::Bitmap::transBlender(0,0,0,fadeTime);
-	    bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeInColor);
-	    break;
-	case FadeOut:
-            Graphics::Bitmap::transBlender(0,0,0,fadeTime);
-	    bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeOutColor);
-	    break;
-	case NoFade:
-	case EndFade:
-	default:
-	    break;
+        case FadeIn:
+                Graphics::Bitmap::transBlender(0,0,0,fadeTime);
+            bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeInColor);
+            break;
+        case FadeOut:
+                Graphics::Bitmap::transBlender(0,0,0,fadeTime);
+            bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeOutColor);
+            break;
+        case NoFade:
+        case EndFade:
+        default:
+            break;
     }
 }
 
