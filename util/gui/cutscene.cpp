@@ -45,15 +45,31 @@ endTicks(0){
 Scene::~Scene(){
 }
 
-void Scene::act(){
-    backgrounds.act();
+void Scene::forward(int tickCount){
+    backgrounds.forward(tickCount);
     fader.act();
     // Increment ticks
-    ticks++;
-    // Set fadeout when near the end
-    if ((endTicks - ticks) == fader.getFadeOutTime()){
+    ticks+=tickCount;
+    // Fade out
+    const int check = endTicks - ticks;
+    if (check <= fader.getFadeOutTime() && fader.getState() != Gui::FadeTool::FadeOut){
         fader.setState(Gui::FadeTool::FadeOut);
     }
+}
+
+void Scene::reverse(int tickCount){
+    backgrounds.reverse(tickCount);
+    fader.act();
+    // Increment ticks
+    ticks-=tickCount;
+    // Fade out
+    if (ticks <= fader.getFadeInTime() && fader.getState() != Gui::FadeTool::FadeOut){
+        fader.setState(Gui::FadeTool::FadeOut);
+    }
+}
+
+void Scene::act(){
+    forward();
 }
 
 void Scene::render(const Graphics::Bitmap & work){
@@ -77,6 +93,17 @@ void Scene::setAnimation(Util::ReferenceCount<Gui::Animation> animation){
 void Scene::reset(){
     ticks = 0;
     backgrounds.reset();
+    fader.setState(Gui::FadeTool::FadeIn);
+}
+
+void Scene::setToEnd(){
+    ticks = endTicks;
+    backgrounds.setToEnd();
+    fader.setState(Gui::FadeTool::FadeIn);
+}
+
+bool Scene::done() const {
+    return (ticks <= 0) || (this->ticks >= this->endTicks);
 }
 
 CutScene::CutScene():

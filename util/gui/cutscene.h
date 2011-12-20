@@ -22,18 +22,20 @@ public:
     Scene(const Token *);
     virtual ~Scene();
 
+    virtual void forward(int tickCount=1);
+    virtual void reverse(int tickCount=1);
     virtual void act();
     virtual void render(const Graphics::Bitmap &);
 
     virtual void setAnimation(Util::ReferenceCount<Gui::Animation>);
     
     virtual void reset();
+    virtual void setToEnd();
+    
+    virtual bool done() const;
 
     virtual inline void setEnd(int ticks){
         this->endTicks = ticks;
-    }
-    virtual inline bool done() const {
-        return (this->ticks >= this->endTicks);
     }
     
     virtual inline Gui::AnimationManager & getManager(){

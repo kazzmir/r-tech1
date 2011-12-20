@@ -214,11 +214,15 @@ void Frame::draw(const Graphics::Bitmap & work){
 void Frame::reset(){
     scrollOffset = RelativePoint();
 }
+void Frame::setToEnd(const RelativePoint & end){
+    scrollOffset = end;
+}
 
 Animation::Animation(const Token *the_token):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
+endTicks(0),
 currentFrame(0),
 loop(0),
 allowReset(true){
@@ -374,12 +378,15 @@ allowReset(true){
             throw ex;
         }
     }
+    // Set end ticks
+    calculateEndTicks();
 }
 
 Animation::Animation(const std::string & background):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
+endTicks(0),
 currentFrame(0),
 loop(0),
 allowReset(true){
@@ -392,12 +399,15 @@ allowReset(true){
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
     frames.push_back(frame);
+    // Set end ticks
+    calculateEndTicks();
 }
 
 Animation::Animation(const Filesystem::AbsolutePath & path):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
+endTicks(0),
 currentFrame(0),
 loop(0),
 allowReset(true){
@@ -410,36 +420,62 @@ allowReset(true){
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
     frames.push_back(frame);
+    // Set end ticks
+    calculateEndTicks();
 }
 
 Animation::Animation(Util::ReferenceCount<Graphics::Bitmap> image):
 id(0),
 depth(BackgroundBottom),
 ticks(0),
+endTicks(0),
 currentFrame(0),
 loop(0),
 allowReset(true){
     images[0] = image;
     Util::ReferenceCount<Frame> frame(new Frame(image));
     frames.push_back(frame);
+    // Set end ticks
+    calculateEndTicks();
 }
 
 Animation::~Animation(){
 }
-void Animation::act(){
+
+void Animation::forward(int tickCount){
     // Used for scrolling
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
-	    frame->act(velocity.getRelativeX(), velocity.getRelativeY());
+        frame->act(tickCount * velocity.getRelativeX(), tickCount * velocity.getRelativeY());
     }
-    if( frames[currentFrame]->time != -1 ){
-	    ticks++;
-	    if(ticks >= frames[currentFrame]->time){
-		    ticks = 0;
-		    forwardFrame();
-	    }
+    if (frames[currentFrame]->getTime() != -1){
+        ticks+=tickCount;
+        if (ticks >= frames[currentFrame]->getTime()){
+            ticks = 0;
+            forwardFrame();
+        }
     }
 }
+
+void Animation::reverse(int tickCount){
+    // Used for scrolling
+    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
+        Util::ReferenceCount<Frame> frame = *i;
+        frame->act(-tickCount * velocity.getRelativeX(), -tickCount * velocity.getRelativeY());
+    }
+    if (frames[currentFrame]->getTime() != -1){
+        ticks-=tickCount;
+        if (ticks < 0){
+            backFrame();
+            ticks = frames[currentFrame]->getTime();
+        }
+    }
+}
+
+void Animation::act(){
+    forward();
+}
+
 void Animation::draw(const Graphics::Bitmap & work){
     /* FIXME: should use sub-bitmaps here */
     /*const int x = window.getX();
@@ -483,6 +519,24 @@ void Animation::resetAll(){
     }
 }
 
+void Animation::setToEnd(){
+    currentFrame = frames.size()-1;
+    ticks = endTicks;
+    // Set offsets 
+    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
+        Util::ReferenceCount<Frame> frame = *i;
+        frame->setToEnd(RelativePoint(ticks * velocity.getRelativeX(), ticks * velocity.getRelativeY()));
+    }
+}
+
+void Animation::calculateEndTicks(){
+    // Set end ticks
+    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
+        Util::ReferenceCount<Frame> frame = *i;
+        endTicks+=frame->getTime();
+    }
+}
+
 AnimationManager::AnimationManager(){
 }
 AnimationManager::AnimationManager(const AnimationManager & copy):
@@ -497,16 +551,33 @@ const AnimationManager & AnimationManager::operator=(const AnimationManager & co
     return *this;
 }
 
-void AnimationManager::act(){
+
+void AnimationManager::forward(int tickCount){
     for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
         std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
         for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
             Util::ReferenceCount<Gui::Animation> animation = *j;
             if (animation != NULL){
-                animation->act();
+                animation->forward(tickCount);
             }
         }
     }
+}
+
+void AnimationManager::reverse(int tickCount){
+    for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
+        std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
+            Util::ReferenceCount<Gui::Animation> animation = *j;
+            if (animation != NULL){
+                animation->reverse(tickCount);
+            }
+        }
+    }
+}
+
+void AnimationManager::act(){
+    forward();
 }
 
 void AnimationManager::render(const Gui::Animation::Depth & depth, const Graphics::Bitmap & work){
@@ -534,3 +605,14 @@ void AnimationManager::reset(){
     }
 }
 
+void AnimationManager::setToEnd(){
+    for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
+        std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
+            Util::ReferenceCount<Gui::Animation> animation = *j;
+            if (animation != NULL){
+                animation->setToEnd();
+            }
+        }
+    }
+}

@@ -34,6 +34,23 @@ public:
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
     virtual void draw(const Graphics::Bitmap &);
     virtual void reset();
+    virtual void setToEnd(const RelativePoint &);
+    virtual inline const Util::ReferenceCount<Graphics::Bitmap> & getBitmap() const {
+        return this->bmp;
+    }
+    virtual inline const RelativePoint getOffset() const {
+        return this->offset;
+    }
+    virtual inline const RelativePoint getScrollOffset() const {
+        return this->offset;
+    }
+    virtual inline int getTime() const {
+        return this->time;
+    }
+    virtual inline int getAlpha() const {
+        return this->alpha;
+    }
+protected:
     Util::ReferenceCount<Graphics::Bitmap> bmp;
     RelativePoint offset;
     RelativePoint scrollOffset;
@@ -49,20 +66,39 @@ public:
     /*! Load only a single bitmap (for bacwards compatibility of backgrounds in menu) */
     Animation(const std::string &);
     Animation(const AbsolutePath &);
-    /* use an existing bitmap */
+    /*! use an existing bitmap */
     Animation(Util::ReferenceCount<Graphics::Bitmap> image);
     virtual ~Animation();
-    // Logic
+    /*! Reverse with ticks */
+    virtual void reverse(int tickCount = 1);
+    /*! Forward with ticks */
+    virtual void forward(int tickCount = 1);
+    /*! Logic ticking per iteration and moving to subsequent frames */
     virtual void act();
+    /*! Draw */
     virtual void draw(const Graphics::Bitmap &);
     virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &);
+    /*! Forward to next frame with no regard to ticks */
     virtual void forwardFrame();
+    /*! Back a frame with no regard to ticks */
     virtual void backFrame();
+    /*! Reset everything to the beginning of the start of the animation */
     virtual void resetAll();
-
-    inline void reset(){ if (allowReset){ currentFrame = 0; } }
-    inline int getID() const { return id; }
-
+    /*! Set everything to the end of the animation */
+    virtual void setToEnd();
+    /*! Reset only frame ticks and other things are ignored */
+    virtual inline void reset(){ 
+        if (allowReset){ 
+            currentFrame = 0; 
+        } 
+    }
+    /*! Return ID */
+    virtual inline int getID() const { 
+        return id;
+    }
+    /*! Depth of animation
+        TODO make depth unlimited and just use integers for weight of depth
+    */
     enum Depth {
         BackgroundBottom,
         BackgroundMiddle,
@@ -71,12 +107,19 @@ public:
         ForegroundMiddle,
         ForegroundTop,
     };
-    inline const Depth & getDepth() const { return this->depth; }
+    /*! Get depth */
+    inline const Depth & getDepth() const { 
+        return this->depth;
+    }
 
 private:
+    //! Set end ticks
+    void calculateEndTicks();
+    
     int id;
     Depth depth;
     int ticks;
+    int endTicks;
     unsigned int currentFrame;
     unsigned int loop;
     bool allowReset;
@@ -97,12 +140,15 @@ public:
     
     const AnimationManager & operator=(const AnimationManager &);
     
+    void forward(int tickCount=1);
+    void reverse(int tickCount=1);
     void act();
     void render(const Gui::Animation::Depth &, const Graphics::Bitmap &);
     
     void add(Util::ReferenceCount<Gui::Animation > animation);
     
     void reset();
+    void setToEnd();
     
     virtual inline const bool empty() const{
         return this->animations.empty();
