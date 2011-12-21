@@ -1,5 +1,6 @@
 #include "animation.h"
 
+#include <stdio.h>
 #include <vector>
 #include <math.h>
 #include <sstream>
