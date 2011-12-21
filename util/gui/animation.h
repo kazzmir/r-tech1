@@ -35,6 +35,7 @@ public:
     virtual void draw(const Graphics::Bitmap &);
     virtual void reset();
     virtual void setToEnd(const RelativePoint &);
+    virtual const std::string getInfo();
     virtual inline const Util::ReferenceCount<Graphics::Bitmap> & getBitmap() const {
         return this->bmp;
     }
@@ -86,6 +87,8 @@ public:
     virtual void resetAll();
     /*! Set everything to the end of the animation */
     virtual void setToEnd();
+    /*! Get printable information regarding current frame */
+    virtual const std::string getInfo();
     /*! Reset only frame ticks and other things are ignored */
     virtual inline void reset(){ 
         if (allowReset){ 
@@ -149,6 +152,10 @@ public:
     
     void reset();
     void setToEnd();
+    
+    const std::string getInfo(int id, bool all = false);
+    
+    const std::vector<int> getIdList();
     
     virtual inline const bool empty() const{
         return this->animations.empty();
