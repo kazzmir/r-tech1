@@ -214,12 +214,27 @@ void Frame::draw(const Graphics::Bitmap & work){
 void Frame::reset(){
     scrollOffset = RelativePoint();
 }
+
 void Frame::setToEnd(const RelativePoint & end){
     scrollOffset = end;
 }
 
+static const char * FRAME_TEXT = "Offset: ( %f, %f)\nScroll Offset: ( %f, %f)\nTime: %d\nHorizontal Flip: %d\nVertical Flip: %d\nAlpha: %d\n\n";
+
+const std::string Frame::getInfo(){
+    char info[255];
+    sprintf(info, FRAME_TEXT, offset.getRelativeX(), offset.getRelativeY(), scrollOffset.getRelativeX(), scrollOffset.getRelativeY(), time, horizontalFlip, verticalFlip, alpha);
+    return std::string(info);
+}
+
+static int CURRENT_ID = 0;
+
+static int getNextId(){
+    return CURRENT_ID++;
+}
+
 Animation::Animation(const Token *the_token):
-id(0),
+id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
@@ -383,7 +398,7 @@ allowReset(true){
 }
 
 Animation::Animation(const std::string & background):
-id(0),
+id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
@@ -404,7 +419,7 @@ allowReset(true){
 }
 
 Animation::Animation(const Filesystem::AbsolutePath & path):
-id(0),
+id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
@@ -425,7 +440,7 @@ allowReset(true){
 }
 
 Animation::Animation(Util::ReferenceCount<Graphics::Bitmap> image):
-id(0),
+id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
@@ -529,6 +544,14 @@ void Animation::setToEnd(){
     }
 }
 
+static const char * ANIMATION_TEXT = "Animation ID: %d\nTicks: %d\nFrame Index: %d\nLoop From: %d\nAxis: ( %f, %f)\nVelocity: ( %f, %f)\n";
+
+const std::string Animation::getInfo(){
+    char info[255];
+    sprintf(info, ANIMATION_TEXT, id, ticks, currentFrame, loop, axis.getRelativeX(), axis.getRelativeY(), velocity.getRelativeX(), velocity.getRelativeY());
+    return std::string(info) + frames[currentFrame]->getInfo();
+}
+
 void Animation::calculateEndTicks(){
     // Set end ticks
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
@@ -538,9 +561,13 @@ void Animation::calculateEndTicks(){
 }
 
 AnimationManager::AnimationManager(){
+    // Set the current id to 0 for each context
+    CURRENT_ID = 0;
 }
 AnimationManager::AnimationManager(const AnimationManager & copy):
 animations(copy.animations){
+    // Set the current id to 0 for each context
+    CURRENT_ID = 0;
 }
 
 AnimationManager::~AnimationManager(){
@@ -615,4 +642,34 @@ void AnimationManager::setToEnd(){
             }
         }
     }
+}
+
+const std::string AnimationManager::getInfo(int id, bool all){
+    std::string info("");
+    for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
+        std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
+            Util::ReferenceCount<Gui::Animation> animation = *j;
+            if (animation != NULL){
+                if (id == animation->getID() || all){
+                    info += animation->getInfo();
+                }
+            }
+        }
+    }
+    return info;
+}
+
+const std::vector<int> AnimationManager::getIdList(){
+    std::vector<int> list;
+    for (std::map<Gui::Animation::Depth, std::vector<Util::ReferenceCount<Gui::Animation> > >::iterator i = animations.begin(); i != animations.end(); ++i){
+        std::vector<Util::ReferenceCount<Gui::Animation> > & animations = i->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator j = animations.begin(); j != animations.end(); ++j){
+            Util::ReferenceCount<Gui::Animation> animation = *j;
+            if (animation != NULL){
+                list.push_back(animation->getID());
+            }
+        }
+    }
+    return list;
 }
