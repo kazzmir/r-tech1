@@ -8,6 +8,7 @@
 #include <jni.h>
 
 #include "util/funcs.h"
+#include "configuration.h"
 
 // Called before SDL_main() to initialize JNI bindings in SDL library
 extern "C" void SDL_Android_Init(JNIEnv* env, jclass cls);
@@ -19,8 +20,7 @@ extern "C" jint JNI_OnLoad(JavaVM* vm, void* reserved)
 }
 
 // Start up the SDL app
-extern "C" void Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass cls, jobject obj)
-{
+extern "C" void Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv* env, jclass cls){
     /* This interface could expand with ABI negotiation, calbacks, etc. */
     SDL_Android_Init(env, cls);
 
@@ -46,5 +46,9 @@ extern "C" void Java_org_libsdl_app_SDLActivity_setExternalLocation(JNIEnv* env,
     env->ReleaseStringUTFChars(jpath, path);
 }
 
+extern "C" void Java_org_libsdl_app_SDLActivity_setScreenSize(JNIEnv * env, jclass cls, jint width, jint height){
+    Configuration::setScreenWidth(width);
+    Configuration::setScreenHeight(height);
+}
 
 /* vi: set ts=4 sw=4 expandtab: */

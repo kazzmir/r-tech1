@@ -150,7 +150,11 @@ Keyboard::KeyType Keyboard::Key_F9 = SDLK_F9;
 Keyboard::KeyType Keyboard::Key_F10 = SDLK_F10;
 Keyboard::KeyType Keyboard::Key_F11 = SDLK_F11;
 Keyboard::KeyType Keyboard::Key_F12 = SDLK_F12;
+#ifdef ANDROID
+Keyboard::KeyType Keyboard::Key_ESC = SDLK_AC_BACK;
+#else
 Keyboard::KeyType Keyboard::Key_ESC = SDLK_ESCAPE;
+#endif
 Keyboard::KeyType Keyboard::Key_TILDE = SDLK_BACKQUOTE;
 Keyboard::KeyType Keyboard::Key_MINUS = SDLK_MINUS;
 Keyboard::KeyType Keyboard::Key_EQUALS = SDLK_EQUALS;
