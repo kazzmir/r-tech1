@@ -435,8 +435,10 @@ public class SDLActivity extends Activity {
         RelativeLayout group = new RelativeLayout(context);
 
         /* main game always runs at 640, 480 */
+        // RelativeLayout.LayoutParams params0 = new RelativeLayout.LayoutParams(640, 480);
         RelativeLayout.LayoutParams params0 = new RelativeLayout.LayoutParams(
-                640, 480);
+                RelativeLayout.LayoutParams.FILL_PARENT,
+                RelativeLayout.LayoutParams.FILL_PARENT);
         params0.addRule(RelativeLayout.CENTER_IN_PARENT);
         group.addView(main, params0);
 
