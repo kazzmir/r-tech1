@@ -434,11 +434,17 @@ public class SDLActivity extends Activity {
         Log.v("SDL", "Surface id " + main.getId());
         RelativeLayout group = new RelativeLayout(context);
 
+        /*
+        Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay(); 
+        Log.v("SDL", "Window dimensions " + display.getWidth() + ", " + display.getHeight());
+        int width = display.getWidth(); 
+        */
+
         /* main game always runs at 640, 480 */
         // RelativeLayout.LayoutParams params0 = new RelativeLayout.LayoutParams(640, 480);
         RelativeLayout.LayoutParams params0 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.FILL_PARENT,
-                RelativeLayout.LayoutParams.FILL_PARENT);
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
         params0.addRule(RelativeLayout.CENTER_IN_PARENT);
         group.addView(main, params0);
 
@@ -513,6 +519,8 @@ public class SDLActivity extends Activity {
 
     // Set the SD card path
     public static native void setExternalLocation(String path);
+    
+    public static native void setScreenSize(int width, int height);
     
     // Java functions called from C
 
@@ -726,6 +734,17 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
             height = 480;
         }
 
+        /* make sure the screen is in the right perspective */
+        if (width * 480.0 / 640 > height){
+            width = (int)(height * 640.0 / 480);
+        } else {
+            height = (int)(width * 480.0 / 640);
+        }
+
+        SDLActivity.setScreenSize(width, height);
+
+        Log.v("SDL", "Set screen size to " + width + ", " + height);
+
         int sdlFormat = 0x85151002; // SDL_PIXELFORMAT_RGB565 by default
         switch (format) {
         case PixelFormat.A_8:
@@ -871,7 +890,6 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
 
     // Key events
     public boolean onKey(View v, int keyCode, KeyEvent event) {
-
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             //Log.v("SDL", "key down: " + keyCode);
             SDLActivity.onNativeKeyDown(keyCode);
@@ -884,6 +902,11 @@ class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
         }
         
         return false;
+    }
+
+    public void onBackPressed(){
+        SDLActivity.onNativeKeyDown(KeyEvent.KEYCODE_BACK);
+        SDLActivity.onNativeKeyUp(KeyEvent.KEYCODE_BACK);
     }
 
     public boolean inScope(float x, float y){
