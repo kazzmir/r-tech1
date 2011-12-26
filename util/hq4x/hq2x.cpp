@@ -86,9 +86,9 @@ static void initialize() {
         rgb565Table[i] = i;
     }
 
-    yuvTable = new uint32_t[32768];
+    yuvTable = new uint32_t[65536];
 
-    for(unsigned i = 0; i < 32768; i++) {
+    for(unsigned i = 0; i < 65536; i++) {
         uint8_t R = (i >>  0) & 31;
         uint8_t G = (i >>  6) & 63;
         uint8_t B = (i >> 11) & 31;
@@ -246,6 +246,7 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
 
 void filter_render_565(uint16_t *output, unsigned outpitch,
                    const uint16_t *input, unsigned pitch, unsigned width, unsigned height){
+    initialize();
     filter_render(rgb565Table, output, outpitch, input, pitch, width, height);
 }
 
