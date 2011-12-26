@@ -1161,7 +1161,11 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 	*/
 }
 #endif
-	
+
+void Bitmap::SmoothStretch(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const {
+    /* TODO */
+}
+
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
 	BITMAP * bmp = where.getData()->getBitmap();
 	::stretch_blit( getData()->getBitmap(), bmp, sourceX, sourceY, sourceWidth, sourceHeight, destX, destY, destWidth, destHeight );
