@@ -409,6 +409,14 @@ void Bitmap::Stretch( const Bitmap & where ) const {
         Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
     }
 }
+        
+void Bitmap::SmoothStretch(const Bitmap & where) const {
+    if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
+        Blit(where);
+    } else {
+        SmoothStretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
+    }
+}
 
 Color darken(Color color, double factor ){
     int r = (int)((double)getRed(color) / factor);

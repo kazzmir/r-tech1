@@ -271,10 +271,16 @@ public:
 	virtual void drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where );
 	virtual void drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where );
 
-	virtual void Stretch( const Bitmap & where ) const;
-	virtual void Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const;
+        /* Supposed to use some nice smoother, like hq2x/hq4x */
+        virtual void SmoothStretch(const Bitmap & where) const;
+	virtual void SmoothStretch(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const;
+
+        /* Just copies pixels (fast) */
+	virtual void Stretch(const Bitmap & where) const;
+	virtual void Stretch(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const;
 	virtual void StretchBy2( const Bitmap & where );
 	virtual void StretchBy4( const Bitmap & where );
+
 	virtual void Blit( const std::string & xpath ) const;
 	virtual void Blit( const Bitmap & where ) const;
 	virtual void Blit( const int x, const int y, const Bitmap & where ) const;
