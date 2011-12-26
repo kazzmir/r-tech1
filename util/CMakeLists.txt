@@ -46,6 +46,7 @@ input/allegro/allegro-joystick.cpp
 input/sdl/joystick.cpp
 input/psp/joystick.cpp
 input/wii/joystick.cpp
+hq4x/hq2x.cpp
 system.cpp
 compress.cpp
 audio.cpp
