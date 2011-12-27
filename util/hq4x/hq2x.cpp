@@ -56,7 +56,6 @@ static void rgb565_to_rgb888(uint8_t red, uint8_t green, uint8_t blue,
                              uint8_t & red_output, uint8_t & green_output, uint8_t & blue_output){
     red_output = (red << 3) | (red >> 2);
     green_output = (green << 2) | (green >> 4);
-    green_output = 0;
     blue_output = (blue << 3) | (blue >> 2);
 }
 
@@ -89,16 +88,6 @@ static void initialize() {
     initialized = true;
 
     rgb565Table = new uint16_t[65536];
-    /*
-    for (unsigned int i = 0; i < 65536; i++){
-        uint8_t red = (i >> 0) & 31;
-        uint8_t green = (i >> 5) & 63;
-        uint8_t blue = (i >> 11) & 31;
-
-        rgb565Table[i] = i;
-    }
-    */
-
     yuvTable = new uint32_t[65536];
 
     for (unsigned int i = 0; i < 65536; i++) {
@@ -141,16 +130,20 @@ static bool diff(uint32_t x, uint16_t y) {
 
 /* 0x03e07c1f: 11111000000111110000011111 */
 /* I'm pretty sure grow/pack are used to do psuedo-simd operations on pixels,
- * that is it takes two pixels combines them in such a way that they can be
- * operated on in parallel.
+ * operations on all the components can be done in parallel because they are separated
+ * by enough bits.
  * Grow duplicates values, pack unduplicates them.
+ *
  */
 
-/* 0x03e07c1f: 11111000000111110000011111 */
-/* 0x03e0fc1f: 11111000001111110000011111 */
+/* 0x03e07e1f: 011111000000111111000011111 */
+/* 0x03e07c1f: 011111000000111110000011111 */
+/* 0x03e0fc1f: 011111000001111110000011111 */
+/* 0x07E0F81F: 111111000001111100000011111 */
 
 #define RGB32_555 0x3e07c1f
-#define RGB32_565 0x3e0fc1f 
+// #define RGB32_565 0x3e0fc1f 
+#define RGB32_565 0x7E0F81F
 static void grow(uint32_t &n) { n |= n << 16; n &= RGB32_565; }
 static uint16_t pack(uint32_t n) { n &= RGB32_565; return n | (n >> 16); }
 
@@ -236,8 +229,8 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
         int nextline = (y == height - 1 ? 0 : pitch);
 
         // *out0 = Graphics::makeColor(255, 255, 255);
-        *out0++ = 0; *out0++ = 0;
-        *out1++ = 0; *out1++ = 0;
+        *out0++ = *in; *out0++ = *in;
+        *out1++ = *in; *out1++ = *in;
         in++;
 
         for (unsigned int x = 1; x < width - 1; x++){
@@ -276,9 +269,9 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
             out1 += 2;
         }
 
+        *out0++ = *in; *out0++ = *in;
+        *out1++ = *in; *out1++ = *in;
         in++;
-        *out0++ = 0; *out0++ = 0;
-        *out1++ = 0; *out1++ = 0;
     }
 }
 
