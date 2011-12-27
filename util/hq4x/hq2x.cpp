@@ -4,18 +4,28 @@
  */
 
 #include <stdint.h>
+#include "util/bitmap.h"
 
 namespace hq2x{
 
 enum {
-  diff_offset = (0x440 << 21) + (0x207 << 11) + 0x407,
-  diff_mask   = (0x380 << 21) + (0x1f0 << 11) + 0x3f0,
+    /* 440: 10001000000
+     * 207: 01000000111
+     * 407: 10000000111
+     */
+    diff_offset = (0x440 << 21) + (0x207 << 11) + 0x407,
+    /* 380: 0b1110000000
+     * 1f0: 0b0111110000
+     * 3f0: 0b1111110000
+     */
+    diff_mask   = (0x380 << 21) + (0x1f0 << 11) + 0x3f0,
 };
 
 uint32_t *yuvTable;
 uint16_t *rgb565Table;
 uint8_t rotate[256];
 
+/* FIXME: replace these with readable constant names */
 const uint8_t hqTable[256] = {
   4, 4, 6,  2, 4, 4, 6,  2, 5,  3, 15, 12, 5,  3, 17, 13,
   4, 4, 6, 18, 4, 4, 6, 18, 5,  3, 12, 12, 5,  3,  1, 12,
@@ -46,6 +56,7 @@ static void rgb565_to_rgb888(uint8_t red, uint8_t green, uint8_t blue,
                              uint8_t & red_output, uint8_t & green_output, uint8_t & blue_output){
     red_output = (red << 3) | (red >> 2);
     green_output = (green << 2) | (green >> 4);
+    green_output = 0;
     blue_output = (blue << 3) | (blue >> 2);
 }
 
@@ -78,6 +89,7 @@ static void initialize() {
     initialized = true;
 
     rgb565Table = new uint16_t[65536];
+    /*
     for (unsigned int i = 0; i < 65536; i++){
         uint8_t red = (i >> 0) & 31;
         uint8_t green = (i >> 5) & 63;
@@ -85,13 +97,14 @@ static void initialize() {
 
         rgb565Table[i] = i;
     }
+    */
 
     yuvTable = new uint32_t[65536];
 
-    for(unsigned i = 0; i < 65536; i++) {
-        uint8_t R = (i >>  0) & 31;
-        uint8_t G = (i >>  6) & 63;
-        uint8_t B = (i >> 11) & 31;
+    for (unsigned int i = 0; i < 65536; i++) {
+        uint8_t B = (i >>  0) & 31;
+        uint8_t G = (i >>  5) & 63;
+        uint8_t R = (i >> 11) & 31;
 
         uint8_t r, g, b;
         rgb565_to_rgb888(R, G, B, r, g, b);
@@ -99,13 +112,17 @@ static void initialize() {
         double y, u, v;
         rgb888_to_yuv888(r, g, b, y, u, v);
 
+        rgb565Table[i] = Graphics::makeColor(r, g, b);
+
+        /* Pack the YUV parameters into a single int */
         yuvTable[i] = ((unsigned)y << 21) + ((unsigned)u << 11) + ((unsigned)v);
     }
 
-    for(unsigned n = 0; n < 256; n++) {
-        rotate[n] = ((n >> 2) & 0x11) | ((n << 2) & 0x88)
-            | ((n & 0x01) << 5) | ((n & 0x08) << 3)
-            | ((n & 0x10) >> 3) | ((n & 0x80) >> 5);
+    for (unsigned int n = 0; n < 256; n++){
+        /* What does this do? */
+        rotate[n] = ((n >> 2) & 0x11) | ((n << 2) & 0x88) |
+                    ((n & 0x01) << 5) | ((n & 0x08) << 3) |
+                    ((n & 0x10) >> 3) | ((n & 0x80) >> 5);
     }
 }
 
@@ -122,8 +139,20 @@ static bool diff(uint32_t x, uint16_t y) {
   return ((x - yuvTable[y]) & diff_mask);
 }
 
-static void grow(uint32_t &n) { n |= n << 16; n &= 0x03e07c1f; }
-static uint16_t pack(uint32_t n) { n &= 0x03e07c1f; return n | (n >> 16); }
+/* 0x03e07c1f: 11111000000111110000011111 */
+/* I'm pretty sure grow/pack are used to do psuedo-simd operations on pixels,
+ * that is it takes two pixels combines them in such a way that they can be
+ * operated on in parallel.
+ * Grow duplicates values, pack unduplicates them.
+ */
+
+/* 0x03e07c1f: 11111000000111110000011111 */
+/* 0x03e0fc1f: 11111000001111110000011111 */
+
+#define RGB32_555 0x3e07c1f
+#define RGB32_565 0x3e0fc1f 
+static void grow(uint32_t &n) { n |= n << 16; n &= RGB32_565; }
+static uint16_t pack(uint32_t n) { n &= RGB32_565; return n | (n >> 16); }
 
 static uint16_t blend1(uint32_t A, uint32_t B) {
   grow(A); grow(B);
@@ -181,6 +210,7 @@ static uint16_t blend(unsigned rule, uint16_t E, uint16_t A, uint16_t B, uint16_
     }
 }
 
+/* why is this here */
 void filter_size(unsigned &width, unsigned &height) {
     initialize();
     width  *= 2;
@@ -190,11 +220,14 @@ void filter_size(unsigned &width, unsigned &height) {
 void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
                    const uint16_t *input, unsigned pitch, unsigned width, unsigned height){
     initialize();
+    /* pitch is adjusted by the bit depth (2 bytes per pixel) so we
+     * divide by two since we are using int16_t
+     */
     pitch >>= 1;
-    outpitch >>= 2;
+    outpitch >>= 1;
 
     //#pragma omp parallel for
-    for(unsigned y = 0; y < height; y++) {
+    for (unsigned int y = 0; y < height; y++){
         const uint16_t *in = input + y * pitch;
         uint16_t *out0 = output + y * outpitch * 2;
         uint16_t *out1 = output + y * outpitch * 2 + outpitch;
@@ -202,11 +235,12 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
         int prevline = (y == 0 ? 0 : pitch);
         int nextline = (y == height - 1 ? 0 : pitch);
 
-        in++;
+        // *out0 = Graphics::makeColor(255, 255, 255);
         *out0++ = 0; *out0++ = 0;
         *out1++ = 0; *out1++ = 0;
+        in++;
 
-        for(unsigned x = 1; x < width - 1; x++) {
+        for (unsigned int x = 1; x < width - 1; x++){
             uint16_t A = *(in - prevline - 1);
             uint16_t B = *(in - prevline + 0);
             uint16_t C = *(in - prevline + 1);
@@ -228,9 +262,13 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
             pattern |= diff(e, H) << 6;
             pattern |= diff(e, I) << 7;
 
+            /* upper left */
             *(out0 + 0) = colortable[blend(hqTable[pattern], E, A, B, D, F, H)]; pattern = rotate[pattern];
+            /* upper right */
             *(out0 + 1) = colortable[blend(hqTable[pattern], E, C, F, B, H, D)]; pattern = rotate[pattern];
+            /* lower right */
             *(out1 + 1) = colortable[blend(hqTable[pattern], E, I, H, F, D, B)]; pattern = rotate[pattern];
+            /* lower left */
             *(out1 + 0) = colortable[blend(hqTable[pattern], E, G, D, H, B, F)];
 
             in++;
@@ -245,7 +283,7 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
 }
 
 void filter_render_565(uint16_t *output, unsigned outpitch,
-                   const uint16_t *input, unsigned pitch, unsigned width, unsigned height){
+                       const uint16_t *input, unsigned pitch, unsigned width, unsigned height){
     initialize();
     filter_render(rgb565Table, output, outpitch, input, pitch, width, height);
 }
