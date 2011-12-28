@@ -245,7 +245,9 @@ depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
 currentFrame(0),
+currentLoop(0),
 loop(0),
+loopPosition(0),
 allowReset(true){
     images[-1] = 0;
     std::string basedir = "";
@@ -270,7 +272,7 @@ allowReset(true){
 	      (velocity x y)
 	      (axis x y) 
 	      (frame "Read comments above in constructor") 
-	      (loop)
+	      (loop 2)
 	      (reset NUM)
 	      (window x1 y1 x2 y2))
     */
@@ -376,14 +378,15 @@ allowReset(true){
                 frames.push_back(frame);
             } else if (*token == "loop"){
                 // start loop here
-                int l;
-                token->view() >> l;
+                token->view() >> loop;
+                loopPosition = frames.size();
+                /*
 		if (l >= (int)frames.size()){
 		    ostringstream out;
 		    out << "Loop location is larger than the number of frames. Loop: " << loop << " Frames: " << frames.size();
 		    throw LoadException(__FILE__, __LINE__, out.str());
 		}
-		loop = l;
+                */
             } else if (*token == "reset"){
                 // Allow reset of animation
                 token->view() >> allowReset;
@@ -473,6 +476,14 @@ int Animation::totalTicks() const {
         total += frame->getTime();
     }
 
+    /* Recount the frames that are looped over */
+    for (unsigned int loops = 0; loops < loop; loops++){
+        for (vector<Util::ReferenceCount<Frame> >::const_iterator it = frames.begin() + loopPosition; it != frames.end(); it++){
+            const Util::ReferenceCount<Frame> & frame = *it;
+            total += frame->getTime();
+        }
+    }
+
     return total;
 }
 
@@ -482,7 +493,7 @@ void Animation::forward(int tickCount){
         Util::ReferenceCount<Frame> frame = *i;
         frame->act(tickCount * velocity.getRelativeX(), tickCount * velocity.getRelativeY());
     }
-    if (frames[currentFrame]->getTime() != -1){
+    if (currentFrame < frames.size() && frames[currentFrame]->getTime() != -1){
         ticks += tickCount;
         if (ticks >= frames[currentFrame]->getTime()){
             ticks = 0;
@@ -497,7 +508,7 @@ void Animation::reverse(int tickCount){
         Util::ReferenceCount<Frame> frame = *i;
         frame->act(-tickCount * velocity.getRelativeX(), -tickCount * velocity.getRelativeY());
     }
-    if (frames[currentFrame]->getTime() != -1){
+    if (currentFrame < frames.size() && frames[currentFrame]->getTime() != -1){
         ticks -= tickCount;
         if (ticks < 0){
             backFrame();
@@ -520,33 +531,47 @@ void Animation::draw(const Graphics::Bitmap & work){
     Graphics::Bitmap clipped(work, x, y, height, width);
     frames[currentFrame]->draw(0, 0,clipped);*/
      // Set clip from the axis default is 0,0,bitmap width, bitmap height
-    work.setClipRect(-(window.getPosition().getDistanceFromCenterX()),-(window.getPosition().getDistanceFromCenterY()),work.getWidth() - window.getPosition2().getDistanceFromCenterX(),work.getHeight() - window.getPosition2().getDistanceFromCenterY());
-    frames[currentFrame]->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(),work);
-    work.setClipRect(0,0,work.getWidth(),work.getHeight());
+    if (currentFrame < frames.size()){
+        work.setClipRect(-(window.getPosition().getDistanceFromCenterX()),-(window.getPosition().getDistanceFromCenterY()),work.getWidth() - window.getPosition2().getDistanceFromCenterX(),work.getHeight() - window.getPosition2().getDistanceFromCenterY());
+        frames[currentFrame]->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(),work);
+        work.setClipRect(0,0,work.getWidth(),work.getHeight());
+    }
 }
 
 void Animation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work){
-    Graphics::Bitmap clipped(work, x, y, width, height);
-    frames[currentFrame]->draw(clipped);
+    if (currentFrame < frames.size()){
+        Graphics::Bitmap clipped(work, x, y, width, height);
+        frames[currentFrame]->draw(clipped);
+    }
 }
 
 void Animation::forwardFrame(){
     if (currentFrame < frames.size() -1){
         currentFrame++;
     } else {
-        currentFrame = loop;
+        if (currentLoop > 0){
+            currentLoop -= 1;
+            currentFrame = loopPosition;
+        }
     }
 }
+
 void Animation::backFrame(){
+    if (currentFrame > 0){
+        currentFrame = 0;
+    }
+    /*
     if (currentFrame > loop){
         currentFrame--;
     } else {
         currentFrame = frames.size() - 1;
     }
+    */
 }
 
 void Animation::resetAll(){
     currentFrame = ticks = 0;
+    currentLoop = loop;
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
         frame->reset();
@@ -556,6 +581,7 @@ void Animation::resetAll(){
 void Animation::setToEnd(){
     currentFrame = frames.size()-1;
     ticks = endTicks;
+    currentLoop = 0;
     // Set offsets 
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;

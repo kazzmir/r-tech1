@@ -130,7 +130,9 @@ private:
     int ticks;
     int endTicks;
     unsigned int currentFrame;
+    unsigned int currentLoop;
     unsigned int loop;
+    unsigned int loopPosition;
     bool allowReset;
     RelativePoint axis;
     // This allows the frames to scroll in place
