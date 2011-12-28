@@ -66,6 +66,11 @@ alpha(255){
                 // get the number
                 int num;
                 token->view() >> num;
+                if (images.find(num) == images.end()){
+                    ostringstream out;
+                    out << "No image for index " << num;
+                    throw LoadException(__FILE__, __LINE__, out.str());
+                }
                 // now assign the bitmap
                 bmp = images[num];
             } else if (*token == "alpha"){
