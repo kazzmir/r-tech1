@@ -126,7 +126,7 @@ void Frame::act(double xvel, double yvel){
         scrollOffset.setY(0);
     }
 }
-
+    
 static bool closeFloat(double a, double b){
     const double epsilon = 0.001;
     return fabs(a-b) < epsilon;
@@ -458,6 +458,19 @@ allowReset(true){
 Animation::~Animation(){
 }
 
+int Animation::totalTicks() const {
+    int total = 0;
+    for (vector<Util::ReferenceCount<Frame> >::const_iterator it = frames.begin(); it != frames.end(); it++){
+        const Util::ReferenceCount<Frame> & frame = *it;
+        if (frame->getTime() == -1){
+            return -1;
+        }
+        total += frame->getTime();
+    }
+
+    return total;
+}
+
 void Animation::forward(int tickCount){
     // Used for scrolling
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
@@ -465,7 +478,7 @@ void Animation::forward(int tickCount){
         frame->act(tickCount * velocity.getRelativeX(), tickCount * velocity.getRelativeY());
     }
     if (frames[currentFrame]->getTime() != -1){
-        ticks+=tickCount;
+        ticks += tickCount;
         if (ticks >= frames[currentFrame]->getTime()){
             ticks = 0;
             forwardFrame();
@@ -480,7 +493,7 @@ void Animation::reverse(int tickCount){
         frame->act(-tickCount * velocity.getRelativeX(), -tickCount * velocity.getRelativeY());
     }
     if (frames[currentFrame]->getTime() != -1){
-        ticks-=tickCount;
+        ticks -= tickCount;
         if (ticks < 0){
             backFrame();
             ticks = frames[currentFrame]->getTime();
@@ -521,9 +534,9 @@ void Animation::forwardFrame(){
 }
 void Animation::backFrame(){
     if (currentFrame > loop){
-	    currentFrame--;
+        currentFrame--;
     } else {
-	    currentFrame = frames.size() - 1;
+        currentFrame = frames.size() - 1;
     }
 }
 
@@ -545,9 +558,8 @@ void Animation::setToEnd(){
     }
 }
 
-static const char * ANIMATION_TEXT = "Animation ID: %d\nTicks: %d\nFrame Index: %d\nLoop From: %d\nAxis: ( %f, %f)\nVelocity: ( %f, %f)\n";
-
 const std::string Animation::getInfo(){
+    static const char * ANIMATION_TEXT = "Animation ID: %d\nTicks: %d\nFrame Index: %d\nLoop From: %d\nAxis: ( %f, %f)\nVelocity: ( %f, %f)\n";
     char info[255];
     sprintf(info, ANIMATION_TEXT, id, ticks, currentFrame, loop, axis.getRelativeX(), axis.getRelativeY(), velocity.getRelativeX(), velocity.getRelativeY());
     return std::string(info) + frames[currentFrame]->getInfo();
@@ -557,7 +569,9 @@ void Animation::calculateEndTicks(){
     // Set end ticks
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
-        endTicks+=frame->getTime();
+        if (frame->getTime() != -1){
+            endTicks += frame->getTime();
+        }
     }
 }
 
@@ -565,6 +579,7 @@ AnimationManager::AnimationManager(){
     // Set the current id to 0 for each context
     CURRENT_ID = 0;
 }
+
 AnimationManager::AnimationManager(const AnimationManager & copy):
 animations(copy.animations){
     // Set the current id to 0 for each context
@@ -631,6 +646,36 @@ void AnimationManager::reset(){
             }
         }
     }
+}
+    
+int AnimationManager::totalTicks() const {
+    int count = 0;
+    for (map<Gui::Animation::Depth, vector<Util::ReferenceCount<Gui::Animation> > >::const_iterator it = animations.begin(); it != animations.end(); it++){
+        Gui::Animation::Depth depth = it->first;
+        const vector<Util::ReferenceCount<Gui::Animation> > & stuff = it->second;
+        int next = countTicks(stuff);
+        /* If any animation takes infinite time then the whole thing takes infinite time */
+        if (next == -1){
+            return -1;
+        }
+        if (next > count){
+            count = next;
+        }
+    }
+    return count;
+}
+
+int AnimationManager::countTicks(const vector<Util::ReferenceCount<Animation> > & toCount) const {
+    int total = 0;
+    for (vector<Util::ReferenceCount<Animation> >::const_iterator it = toCount.begin(); it != toCount.end(); it++){
+        const Util::ReferenceCount<Animation> & animation = *it;
+        int ticks = animation->totalTicks();
+        if (ticks == -1){
+            return ticks;
+        }
+        total += ticks;
+    }
+    return total;
 }
 
 void AnimationManager::setToEnd(){

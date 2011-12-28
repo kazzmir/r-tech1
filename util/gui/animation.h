@@ -95,6 +95,12 @@ public:
             currentFrame = 0; 
         } 
     }
+
+    /* Total number of ticks used by this animation. If any frames have a time
+     * of -1 then the total time will also be -1, meaning infinity.
+     */
+    virtual int totalTicks() const;
+
     /*! Return ID */
     virtual inline int getID() const { 
         return id;
@@ -143,8 +149,8 @@ public:
     
     const AnimationManager & operator=(const AnimationManager &);
     
-    void forward(int tickCount=1);
-    void reverse(int tickCount=1);
+    void forward(int tickCount = 1);
+    void reverse(int tickCount = 1);
     void act();
     void render(const Gui::Animation::Depth &, const Graphics::Bitmap &);
     
@@ -152,6 +158,8 @@ public:
     
     void reset();
     void setToEnd();
+
+    int totalTicks() const;
     
     const std::string getInfo(int id, bool all = false);
     
@@ -160,6 +168,10 @@ public:
     virtual inline const bool empty() const{
         return this->animations.empty();
     }
+
+protected:
+    int countTicks(const std::vector<Util::ReferenceCount<Gui::Animation> > & toCount) const;
+
 private:
     std::map< Gui::Animation::Depth, std::vector< Util::ReferenceCount<Gui::Animation> > > animations;
 };

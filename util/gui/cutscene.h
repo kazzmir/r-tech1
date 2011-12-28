@@ -22,12 +22,12 @@ public:
     Scene(const Token *);
     virtual ~Scene();
 
-    virtual void forward(int tickCount=1);
-    virtual void reverse(int tickCount=1);
+    virtual void forward(int tickCount = 1);
+    virtual void reverse(int tickCount = 1);
     virtual void act();
     virtual void render(const Graphics::Bitmap &);
 
-    virtual void setAnimation(Util::ReferenceCount<Gui::Animation>);
+    virtual void addAnimation(const Util::ReferenceCount<Gui::Animation> &);
     
     virtual void reset();
     virtual void setToEnd();
