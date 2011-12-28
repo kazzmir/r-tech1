@@ -13,7 +13,7 @@ using namespace Gui;
 
 Scene::Scene(const Token * token):
 ticks(0),
-endTicks(0){
+endTicks(-1){
     if ( *token != "scene" ){
         throw LoadException(__FILE__, __LINE__, "Not a Scene");
     }
@@ -25,7 +25,7 @@ endTicks(0){
             if ( *tok == "time" ){
                 tok->view() >> endTicks;
             } else if ( *tok == "animation" || *tok == "anim" ){
-                setAnimation(Util::ReferenceCount<Gui::Animation>(new Gui::Animation(tok)));
+                addAnimation(Util::ReferenceCount<Gui::Animation>(new Gui::Animation(tok)));
             } else if ( *tok == "fade" ){
                 fader.parseDefaults(tok);
             } else {
@@ -49,11 +49,13 @@ void Scene::forward(int tickCount){
     backgrounds.forward(tickCount);
     fader.act();
     // Increment ticks
-    ticks+=tickCount;
+    ticks += tickCount;
     // Fade out
-    const int check = endTicks - ticks;
-    if (check <= fader.getFadeOutTime() && fader.getState() != Gui::FadeTool::FadeOut){
-        fader.setState(Gui::FadeTool::FadeOut);
+    if (endTicks >= 0){
+        const int check = endTicks - ticks;
+        if (check <= fader.getFadeOutTime() && fader.getState() != Gui::FadeTool::FadeOut){
+            fader.setState(Gui::FadeTool::FadeOut);
+        }
     }
 }
 
@@ -61,7 +63,7 @@ void Scene::reverse(int tickCount){
     backgrounds.reverse(tickCount);
     fader.act();
     // Increment ticks
-    ticks-=tickCount;
+    ticks -= tickCount;
     // Fade out
     if (ticks <= fader.getFadeInTime() && fader.getState() != Gui::FadeTool::FadeOut){
         fader.setState(Gui::FadeTool::FadeOut);
@@ -86,7 +88,7 @@ void Scene::render(const Graphics::Bitmap & work){
     fader.draw(work);
 }
 
-void Scene::setAnimation(Util::ReferenceCount<Gui::Animation> animation){
+void Scene::addAnimation(const Util::ReferenceCount<Gui::Animation> & animation){
     backgrounds.add(animation);
 }
 
@@ -97,13 +99,35 @@ void Scene::reset(){
 }
 
 void Scene::setToEnd(){
-    ticks = endTicks;
+    if (endTicks >= 0){
+        ticks = endTicks;
+    } else {
+        if (backgrounds.totalTicks() != -1){
+            ticks = backgrounds.totalTicks();
+        }
+    }
     backgrounds.setToEnd();
     fader.setState(Gui::FadeTool::FadeIn);
 }
 
 bool Scene::done() const {
-    return (ticks <= 0) || (this->ticks >= this->endTicks);
+    if (ticks <= 0){
+        return true;
+    }
+
+    if (endTicks >= 0){
+        if (ticks >= endTicks){
+            return true;
+        }
+    } else {
+        if (backgrounds.totalTicks() != -1){
+            if (ticks >= backgrounds.totalTicks()){
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 CutScene::CutScene():
