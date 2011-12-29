@@ -101,12 +101,15 @@ public:
 
     virtual Util::ReferenceCount<Frame> getCurrentFrame() const = 0;
     virtual int totalTicks() const = 0;
+    virtual void setToEnd() = 0;
 
     /* Move the sequence along by the number of ticks and at the specified speed
      * Returns true if the sequence can't move any farther.
      */ 
     virtual bool forward(int tickCount, double velocityX, double velocityY) = 0;
     virtual bool reverse(int tickCount, double velocityX, double velocityY) = 0;
+    
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) = 0;
 
     virtual void reset() = 0;
     virtual void resetTicks() = 0;
@@ -126,6 +129,9 @@ public:
     virtual int totalTicks() const;
     virtual void reset();
     virtual void resetTicks();
+    virtual void setToEnd();
+    
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
 
     /* Move the sequence along by the number of ticks and at the specified speed */
     virtual bool forward(int tickCount, double velocityX, double velocityY);
@@ -151,9 +157,9 @@ public:
     virtual void resetTicks();
     virtual void setToEnd();
     virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
-    virtual void addSequence(const Util::ReferenceCount<SequenceFrame> & sequence);
-    virtual void addSequence(const Util::ReferenceCount<SequenceLoop> & sequence);
     virtual void parse(const Token * token, ImageMap & map, const std::string & baseDir);
+    
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
     
     virtual int totalTicks() const;
 
@@ -179,6 +185,36 @@ protected:
     const unsigned int loopTimes;
 
     std::vector<Util::ReferenceCount<Sequence> > frames;
+};
+
+/* Shows all sequences simaltaneously */
+class SequenceAll: public Sequence {
+public:
+    SequenceAll(const Token * token, ImageMap & images, const std::string & baseDir);
+    
+    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+
+    virtual void reset();
+    virtual void resetTicks();
+    virtual void setToEnd();
+    virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
+    
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    
+    virtual int totalTicks() const;
+
+    /* Move the sequence along by the number of ticks and at the specified speed */
+    virtual bool forward(int tickCount, double velocityX, double velocityY);
+    virtual bool reverse(int tickCount, double velocityX, double velocityY);
+
+    /* Forcifully move to the next/previous frame */
+    virtual void forwardFrame();
+    virtual void backFrame();
+
+protected:
+    std::vector<Util::ReferenceCount<Sequence> > sequences;
+    typedef std::vector<Util::ReferenceCount<Sequence> >::iterator SequenceIterator;
+    typedef std::vector<Util::ReferenceCount<Sequence> >::const_iterator SequenceConstIterator;
 };
 
 class Animation{

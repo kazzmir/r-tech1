@@ -321,6 +321,10 @@ SequenceFrame::SequenceFrame(const Util::ReferenceCount<Frame> & frame):
 frame(frame),
 ticks(0){
 }
+    
+void SequenceFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+    frame->draw(xaxis, yaxis, work);
+}
 
 Util::ReferenceCount<Frame> SequenceFrame::getCurrentFrame() const {
     return frame;
@@ -328,6 +332,10 @@ Util::ReferenceCount<Frame> SequenceFrame::getCurrentFrame() const {
 
 int SequenceFrame::totalTicks() const {
     return frame->getTime();
+}
+    
+void SequenceFrame::setToEnd(){
+    ticks = frame->getTime();
 }
 
 bool SequenceFrame::forward(int tickCount, double velocityX, double velocityY){
@@ -390,6 +398,13 @@ Util::ReferenceCount<Sequence> SequenceLoop::getCurrentSequence() const {
 
 }
 
+void SequenceLoop::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+    Util::ReferenceCount<Sequence> current = getCurrentSequence();
+    if (current != NULL){
+        current->draw(xaxis, yaxis, work);
+    }
+}
+
 void SequenceLoop::reset(){
     currentFrame = 0;
     currentLoop = loopTimes;
@@ -425,12 +440,24 @@ void SequenceLoop::addSequence(const Util::ReferenceCount<Sequence> & sequence){
     frames.push_back(sequence);
 }
 
-void SequenceLoop::addSequence(const Util::ReferenceCount<SequenceFrame> & sequence){
-    addSequence(sequence.convert<Sequence>());
-}
+static Util::ReferenceCount<Sequence> parseSequence(const Token * token, ImageMap & images, const string & baseDir){
+    if (*token == "frame"){
+        Util::ReferenceCount<Frame> frame(new Frame(token, images, baseDir));
+        return Util::ReferenceCount<Sequence>(new SequenceFrame(frame));
+    } else if (*token == "text"){
+        Util::ReferenceCount<Frame> frame(new TextFrame(token, images, baseDir));
+        return Util::ReferenceCount<Sequence>(new SequenceFrame(frame));
+    } else if (*token == "loop"){
+        int times;
+        token->view() >> times;
+        Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
+        loop->parse(token, images, baseDir);
+        return loop.convert<Sequence>();
+    } else if (*token == "all"){
+        return Util::ReferenceCount<Sequence>(new SequenceAll(token, images, baseDir));
+    }
 
-void SequenceLoop::addSequence(const Util::ReferenceCount<SequenceLoop> & sequence){
-    addSequence(sequence.convert<Sequence>());
+    return Util::ReferenceCount<Sequence>(NULL);
 }
 
 void SequenceLoop::parse(const Token * token, ImageMap & images, const string & baseDir){
@@ -442,18 +469,9 @@ void SequenceLoop::parse(const Token * token, ImageMap & images, const string & 
     while (view.hasMore()){
         const Token * next;
         view >> next;
-        if (*next == "frame"){
-            Util::ReferenceCount<Frame> frame(new Frame(next, images, baseDir));
-            addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
-        } else if (*next == "text"){
-            Util::ReferenceCount<Frame> frame(new TextFrame(next, images, baseDir));
-            addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
-        } else if (*next == "loop"){
-            int times;
-            next->view() >> times;
-            Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
-            loop->parse(next, images, baseDir);
-            addSequence(loop);
+        Util::ReferenceCount<Sequence> sequence = parseSequence(next, images, baseDir);
+        if (sequence != NULL){
+            addSequence(sequence);
         }
     }
 }
@@ -512,6 +530,99 @@ void SequenceLoop::backFrame(){
         } else {
             currentFrame = 0;
         }
+    }
+}
+
+SequenceAll::SequenceAll(const Token * token, ImageMap & images, const string & baseDir){
+    TokenView view = token->view();
+    while (view.hasMore()){
+        const Token * next;
+        view >> next;
+        Util::ReferenceCount<Sequence> sequence = parseSequence(next, images, baseDir);
+        if (sequence != NULL){
+            addSequence(sequence);
+        }
+    }
+}
+    
+Util::ReferenceCount<Frame> SequenceAll::getCurrentFrame() const {
+    return Util::ReferenceCount<Frame>(NULL);
+}
+
+void SequenceAll::reset(){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->reset();
+    }
+}
+
+void SequenceAll::resetTicks(){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->resetTicks();
+    }
+}
+
+void SequenceAll::setToEnd(){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->setToEnd();
+    }
+}
+
+void SequenceAll::addSequence(const Util::ReferenceCount<Sequence> & sequence){
+    sequences.push_back(sequence);
+}
+
+void SequenceAll::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->draw(xaxis, yaxis, work);
+    }
+}
+    
+/* Maximum ticks of any sequence */
+int SequenceAll::totalTicks() const {
+    int max = 0;
+    for (SequenceConstIterator it = sequences.begin(); it != sequences.end(); it++){
+        const Util::ReferenceCount<Sequence> & next = *it;
+        int what = next->totalTicks();
+        if (what > max){
+            max = what;
+        }
+    }
+    return max;
+}
+
+bool SequenceAll::forward(int tickCount, double velocityX, double velocityY){
+    bool go = false;
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        go = next->forward(tickCount, velocityX, velocityY) && go;
+    }
+    return go;
+}
+
+bool SequenceAll::reverse(int tickCount, double velocityX, double velocityY){
+    bool go = false;
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        go = next->reverse(tickCount, velocityX, velocityY) && go;
+    }
+    return go;
+}
+
+void SequenceAll::forwardFrame(){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->forwardFrame();
+    }
+}
+
+void SequenceAll::backFrame(){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->backFrame();
     }
 }
 
@@ -653,17 +764,19 @@ sequence(0){
                 velocity.set(x,y);
             } else if (*token == "frame"){
                 Util::ReferenceCount<Frame> frame(new Frame(token, images, basedir));
-                sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+                sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
             } else if (*token == "text"){
                 Util::ReferenceCount<Frame> frame(new TextFrame(token, images, basedir));
-                sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+                sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
+            } else if (*token == "all"){
+                sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceAll(token, images, basedir)));
             } else if (*token == "loop"){
                 // start loop here
                 int times;
                 token->view() >> times;
                 Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
                 loop->parse(token, images, basedir);
-                sequence.addSequence(loop);
+                sequence.addSequence(loop.convert<Sequence>());
 
                 /*
 		if (l >= (int)frames.size()){
@@ -702,7 +815,7 @@ sequence(0){
         images[0] = bmp;
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
-    sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+    sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
 }
 
 Animation::Animation(const Filesystem::AbsolutePath & path):
@@ -718,7 +831,7 @@ sequence(0){
         images[0] = bmp;
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
-    sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+    sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
 }
 
 Animation::Animation(Util::ReferenceCount<Graphics::Bitmap> image):
@@ -728,7 +841,7 @@ allowReset(true),
 sequence(0){
     images[0] = image;
     Util::ReferenceCount<Frame> frame(new Frame(image));
-    sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+    sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
 }
 
 Animation::~Animation(){
@@ -765,10 +878,7 @@ void Animation::draw(const Graphics::Bitmap & work){
                      work.getWidth() - window.getPosition2().getDistanceFromCenterX(),
                      work.getHeight() - window.getPosition2().getDistanceFromCenterY());
 
-    const Util::ReferenceCount<Frame> & frame = sequence.getCurrentFrame();
-    if (frame != NULL){
-        frame->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(), work);
-    }
+    sequence.draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(), work);
 
     work.setClipRect(0, 0, work.getWidth(), work.getHeight());
 }
