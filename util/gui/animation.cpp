@@ -8,6 +8,7 @@
 #include "util/trans-bitmap.h"
 #include "util/bitmap.h"
 #include "util/stretch-bitmap.h"
+#include "util/font.h"
 #include "globals.h"
 #include "../debug.h"
 #include "../funcs.h"
@@ -49,66 +50,71 @@ time(0),
 horizontalFlip(false),
 verticalFlip(false),
 alpha(255){
-    if ( *the_token != "frame" ){
+    /*
+    if (*the_token != "frame"){
         throw LoadException(__FILE__, __LINE__, "Not an frame");
     }
-    const Token & tok = *the_token;
+    */
     /* The usual setup of an animation frame is
     // use image -1 to not draw anything, it can be used to get a blinking effect
     (frame (image NUM) (alpha NUM) (offset x y) (hflip 0|1) (vflip 0|1) (time NUM))
     */
-    TokenView view = tok.view();
+    TokenView view = the_token->view();
     while (view.hasMore()){
         try{
             const Token * token;
             view >> token;
-            if (*token == "image"){
-                // get the number
-                string maybeNumber;
-                token->view() >> maybeNumber;
-                if (Util::matchRegex("[0-9]+", maybeNumber)){
-                    int num;
-                    token->view() >> num;
-                    if (images.find(num) == images.end()){
-                        ostringstream out;
-                        out << "No image for index " << num;
-                        throw LoadException(__FILE__, __LINE__, out.str());
-                    }
-                    // now assign the bitmap
-                    bmp = images[num];
-                } else {
-                    bmp = Util::ReferenceCount<Graphics::Bitmap>(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(baseDir + "/" + maybeNumber)).path()));
-                }
-            } else if (*token == "alpha"){
-                // get alpha
-                token->view() >> alpha;
-            } else if (*token == "offset"){
-                // Get the offset location it defaults to 0,0
-                double x=0, y=0;
-                try {
-                    token->view() >> x >> y;
-                } catch (const TokenException & ex){
-                }
-                offset.set(x,y);
-            } else if (*token == "hflip"){
-                // horizontal flip
-                token->view() >> horizontalFlip;
-            } else if (*token == "vflip"){
-                // horizontal flip
-                token->view() >> verticalFlip;
-            } else if (*token == "time"){
-                // time to display
-                token->view() >> time;
-            } else {
-                Global::debug( 3 ) << "Unhandled menu attribute: "<<endl;
-                if (Global::getDebug() >= 3){
-                    token->print(" ");
-                }
-            }
+            parseToken(token, baseDir, images);
         } catch ( const TokenException & ex ) {
             throw LoadException(__FILE__, __LINE__, ex, "Menu animation parse error");
         } catch ( const LoadException & ex ) {
             throw ex;
+        }
+    }
+}
+    
+void Frame::parseToken(const Token * token, const string & baseDir, ImageMap & images){
+    if (*token == "image"){
+        // get the number
+        string maybeNumber;
+        token->view() >> maybeNumber;
+        if (Util::matchRegex("[0-9]+", maybeNumber)){
+            int num;
+            token->view() >> num;
+            if (images.find(num) == images.end()){
+                ostringstream out;
+                out << "No image for index " << num;
+                throw LoadException(__FILE__, __LINE__, out.str());
+            }
+            // now assign the bitmap
+            bmp = images[num];
+        } else {
+            bmp = Util::ReferenceCount<Graphics::Bitmap>(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(baseDir + "/" + maybeNumber)).path()));
+        }
+    } else if (*token == "alpha"){
+        // get alpha
+        token->view() >> alpha;
+    } else if (*token == "offset"){
+        // Get the offset location it defaults to 0,0
+        double x=0, y=0;
+        try {
+            token->view() >> x >> y;
+        } catch (const TokenException & ex){
+        }
+        offset.set(x,y);
+    } else if (*token == "hflip"){
+        // horizontal flip
+        token->view() >> horizontalFlip;
+    } else if (*token == "vflip"){
+        // horizontal flip
+        token->view() >> verticalFlip;
+    } else if (*token == "time"){
+        // time to display
+        token->view() >> time;
+    } else {
+        Global::debug( 3 ) << "Unhandled menu attribute: "<<endl;
+        if (Global::getDebug() >= 3){
+            token->print(" ");
         }
     }
 }
@@ -126,15 +132,17 @@ Frame::~Frame(){
 
 void Frame::act(double xvel, double yvel){
     scrollOffset.moveBy(xvel, yvel);
-    if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
-        scrollOffset.setX(0);
-    } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
-        scrollOffset.setX(0);
-    }
-    if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
-        scrollOffset.setY(0);
-    } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
-        scrollOffset.setY(0);
+    if (bmp != NULL){
+        if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
+            scrollOffset.setX(0);
+        } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
+            scrollOffset.setX(0);
+        }
+        if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
+            scrollOffset.setY(0);
+        } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
+            scrollOffset.setY(0);
+        }
     }
 }
     
@@ -238,7 +246,46 @@ const std::string Frame::getInfo(){
     sprintf(info, FRAME_TEXT, offset.getRelativeX(), offset.getRelativeY(), scrollOffset.getRelativeX(), scrollOffset.getRelativeY(), time, horizontalFlip, verticalFlip, alpha);
     return std::string(info);
 }
+
+TextFrame::TextFrame(const Token *token, ImageMap & map, const string & baseDir):
+Frame(token, map, baseDir){
+    TokenView view = token->view();
+    while (view.hasMore()){
+        try{
+            const Token * token;
+            view >> token;
+            parseToken(token, baseDir, map);
+        } catch ( const TokenException & ex ) {
+            throw LoadException(__FILE__, __LINE__, ex, "Menu animation parse error");
+        } catch ( const LoadException & ex ) {
+            throw ex;
+        }
+    }
+}
+
+TextFrame::~TextFrame(){
+}
     
+void TextFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+    double x = xaxis + offset.getDistanceFromCenterX() + scrollOffset.getDistanceFromCenterX();
+    double y = yaxis + offset.getDistanceFromCenterY() + scrollOffset.getDistanceFromCenterY();
+
+    const Font & font = Font::getFont(Filesystem::RelativePath(this->font), 20, 20);
+    font.printf((int) x, (int) y, Graphics::makeColor(255, 255, 255), work, "%s", 0, message.c_str());
+}
+
+void TextFrame::draw(const Graphics::Bitmap & work){
+    /* Probably don't need this.. but implement it if you do! */
+}
+
+void TextFrame::parseToken(const Token * token, const string & baseDir, ImageMap & map){
+    if (*token == "message"){
+        token->view() >> message;
+    } else if (*token == "font"){
+        token->view() >> font;
+    }
+}
+
 Sequence::Sequence(){
 }
 
@@ -371,11 +418,12 @@ void SequenceLoop::parse(const Token * token, ImageMap & images, const string & 
         const Token * next;
         view >> next;
         if (*next == "frame"){
-            // new frame
             Util::ReferenceCount<Frame> frame(new Frame(next, images, baseDir));
             addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+        } else if (*next == "text"){
+            Util::ReferenceCount<Frame> frame(new TextFrame(next, images, baseDir));
+            addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
         } else if (*next == "loop"){
-            // start loop here
             int times;
             next->view() >> times;
             Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
@@ -579,8 +627,10 @@ sequence(0){
                 }
                 velocity.set(x,y);
             } else if (*token == "frame"){
-                // new frame
                 Util::ReferenceCount<Frame> frame(new Frame(token, images, basedir));
+                sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+            } else if (*token == "text"){
+                Util::ReferenceCount<Frame> frame(new TextFrame(token, images, basedir));
                 sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
             } else if (*token == "loop"){
                 // start loop here

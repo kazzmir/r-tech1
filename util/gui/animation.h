@@ -25,6 +25,7 @@ namespace Gui{
 // To hold images by number easier to access and reuse
 typedef std::map<int, Util::ReferenceCount<Graphics::Bitmap> > ImageMap;
 
+/* TODO: move most of this class definition to ImageFrame */
 class Frame{
 public:
     Frame(const Token *token, ImageMap &images, const std::string & baseDir);
@@ -36,21 +37,30 @@ public:
     virtual void reset();
     virtual void setToEnd(const RelativePoint &);
     virtual const std::string getInfo();
+
     virtual inline const Util::ReferenceCount<Graphics::Bitmap> & getBitmap() const {
         return this->bmp;
     }
+
     virtual inline const RelativePoint getOffset() const {
         return this->offset;
     }
+
     virtual inline const RelativePoint getScrollOffset() const {
         return this->offset;
     }
+
     virtual inline int getTime() const {
         return this->time;
     }
+
     virtual inline int getAlpha() const {
         return this->alpha;
     }
+
+protected:
+    virtual void parseToken(const Token * token, const std::string & baseDir, ImageMap & map);
+
 protected:
     Util::ReferenceCount<Graphics::Bitmap> bmp;
     RelativePoint offset;
@@ -59,6 +69,24 @@ protected:
     bool horizontalFlip;
     bool verticalFlip;
     int alpha;
+};
+
+class TextFrame: public Frame {
+public:
+    /* 'map' and 'baseDir' are vestigal parameters only needed for Frame. get rid
+     * of them at some point.
+     */
+    TextFrame(const Token *token, ImageMap & map, const std::string & baseDir);
+    virtual ~TextFrame();
+    
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(const Graphics::Bitmap &);
+
+protected:
+    virtual void parseToken(const Token * token, const std::string & baseDir, ImageMap & map);
+
+    std::string font;
+    std::string message;
 };
 
 /* Iterates over a series of items */
