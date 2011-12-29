@@ -10,6 +10,7 @@
 #include "util/stretch-bitmap.h"
 #include "util/font.h"
 #include "globals.h"
+#include "util/gradient.h"
 #include "../debug.h"
 #include "../funcs.h"
 #include "../file-system.h"
@@ -248,7 +249,9 @@ const std::string Frame::getInfo(){
 }
 
 TextFrame::TextFrame(const Token *token, ImageMap & map, const string & baseDir):
-Frame(token, map, baseDir){
+Frame(token, map, baseDir),
+fontWidth(20),
+fontHeight(20){
     TokenView view = token->view();
     while (view.hasMore()){
         try{
@@ -266,12 +269,17 @@ Frame(token, map, baseDir){
 TextFrame::~TextFrame(){
 }
     
+void TextFrame::act(double xvel, double yvel){
+    gradient.forward();
+    Frame::act(xvel, yvel);
+}
+    
 void TextFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
     double x = xaxis + offset.getDistanceFromCenterX() + scrollOffset.getDistanceFromCenterX();
     double y = yaxis + offset.getDistanceFromCenterY() + scrollOffset.getDistanceFromCenterY();
 
-    const Font & font = Font::getFont(Filesystem::RelativePath(this->font), 20, 20);
-    font.printf((int) x, (int) y, Graphics::makeColor(255, 255, 255), work, "%s", 0, message.c_str());
+    const Font & font = Font::getFont(Filesystem::RelativePath(this->font), fontWidth, fontHeight);
+    font.printf((int) x, (int) y, gradient.current(), work, "%s", 0, message.c_str());
 }
 
 void TextFrame::draw(const Graphics::Bitmap & work){
@@ -282,7 +290,24 @@ void TextFrame::parseToken(const Token * token, const string & baseDir, ImageMap
     if (*token == "message"){
         token->view() >> message;
     } else if (*token == "font"){
-        token->view() >> font;
+        TokenView view = token->view();
+        view >> font;
+        try{
+            view >> fontWidth >> fontHeight;
+        } catch (const TokenException & ignore){
+        }
+        if (fontWidth < 1){
+            fontWidth = 1;
+        }
+        if (fontHeight < 1){
+            fontHeight = 1;
+        }
+    } else if (*token == "color"){
+        int red, green, blue;
+        token->view() >> red >> green >> blue;
+        gradient = Effects::Gradient(Graphics::makeColor(red, green, blue));
+    } else if (*token == "gradient"){
+        gradient = Effects::Gradient(token);
     }
 }
 

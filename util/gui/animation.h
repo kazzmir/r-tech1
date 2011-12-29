@@ -7,6 +7,7 @@
 
 #include "coordinate.h"
 #include "util/pointer.h"
+#include "util/gradient.h"
 
 class Filesystem;
 namespace Path{
@@ -79,14 +80,18 @@ public:
     TextFrame(const Token *token, ImageMap & map, const std::string & baseDir);
     virtual ~TextFrame();
     
+    virtual void act(double xvel, double yvel);
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
     virtual void draw(const Graphics::Bitmap &);
 
 protected:
     virtual void parseToken(const Token * token, const std::string & baseDir, ImageMap & map);
 
+    /* FIXME: default this to Globals::DEFAULT_FONT */
     std::string font;
     std::string message;
+    int fontWidth, fontHeight;
+    Effects::Gradient gradient;
 };
 
 /* Iterates over a series of items */
