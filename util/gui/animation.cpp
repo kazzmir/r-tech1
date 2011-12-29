@@ -43,7 +43,7 @@ static void renderSprite(const Graphics::Bitmap & bmp, const int x, const int y,
     }
 }
 
-Frame::Frame(const Token *the_token, imageMap &images):
+Frame::Frame(const Token *the_token, ImageMap &images):
 bmp(0),
 time(0),
 horizontalFlip(false),
@@ -119,13 +119,13 @@ Frame::~Frame(){
 }
 
 void Frame::act(double xvel, double yvel){
-    scrollOffset.moveBy(xvel,yvel);
-    if (scrollOffset.getDistanceFromCenterX() >=bmp->getWidth()){
+    scrollOffset.moveBy(xvel, yvel);
+    if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
         scrollOffset.setX(0);
     } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
         scrollOffset.setX(0);
     }
-    if (scrollOffset.getDistanceFromCenterY() >=bmp->getHeight()){
+    if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
         scrollOffset.setY(0);
     } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
         scrollOffset.setY(0);
@@ -232,6 +232,209 @@ const std::string Frame::getInfo(){
     sprintf(info, FRAME_TEXT, offset.getRelativeX(), offset.getRelativeY(), scrollOffset.getRelativeX(), scrollOffset.getRelativeY(), time, horizontalFlip, verticalFlip, alpha);
     return std::string(info);
 }
+    
+Sequence::Sequence(){
+}
+
+Sequence::~Sequence(){
+}
+
+SequenceFrame::SequenceFrame(const Util::ReferenceCount<Frame> & frame):
+frame(frame),
+ticks(0){
+}
+
+Util::ReferenceCount<Frame> SequenceFrame::getCurrentFrame() const {
+    return frame;
+}
+
+int SequenceFrame::totalTicks() const {
+    return frame->getTime();
+}
+
+bool SequenceFrame::forward(int tickCount, double velocityX, double velocityY){
+    frame->act(tickCount * velocityX, tickCount * velocityY);
+    ticks += tickCount;
+    return ticks > frame->getTime();
+}
+
+bool SequenceFrame::reverse(int tickCount, double velocityX, double velocityY){
+    frame->act(-tickCount * velocityX, -tickCount * velocityY);
+    ticks -= tickCount;
+    return ticks < 0;
+}
+
+void SequenceFrame::forwardFrame(){
+    /* nop */
+}
+
+void SequenceFrame::backFrame(){
+    /* nop */
+}
+    
+void SequenceFrame::reset(){
+    ticks = 0;
+    frame->reset();
+}
+
+void SequenceFrame::resetTicks(){
+    ticks = 0;
+}
+
+SequenceLoop::SequenceLoop(int loops):
+currentFrame(0),
+currentLoop(0),
+loopTimes(loops){
+}
+    
+Util::ReferenceCount<Frame> SequenceLoop::getCurrentFrame() const {
+    if (currentFrame < frames.size()){
+        return frames[currentFrame]->getCurrentFrame();
+    } else {
+        /* Return the last frame */
+        if (frames.size() > 0){
+            return frames[frames.size() - 1]->getCurrentFrame();
+        }
+    }
+    return Util::ReferenceCount<Frame>(NULL);
+}
+    
+Util::ReferenceCount<Sequence> SequenceLoop::getCurrentSequence() const {
+    if (currentFrame < frames.size()){
+        return frames[currentFrame];
+    } else {
+        /* Return the last frame */
+        if (frames.size() > 0){
+            return frames[frames.size() - 1];
+        }
+    }
+    return Util::ReferenceCount<Sequence>(NULL);
+
+}
+
+void SequenceLoop::reset(){
+    currentFrame = 0;
+    currentLoop = loopTimes;
+    for (vector<Util::ReferenceCount<Sequence> >::iterator it = frames.begin(); it != frames.end(); it++){
+        Util::ReferenceCount<Sequence> & sequence = *it;
+        sequence->reset();
+    }
+}
+
+/* Does the same thing as reset except for calling resetTicks on children nodes */
+void SequenceLoop::resetTicks(){
+    currentFrame = 0;
+    currentLoop = loopTimes;
+    for (vector<Util::ReferenceCount<Sequence> >::iterator it = frames.begin(); it != frames.end(); it++){
+        Util::ReferenceCount<Sequence> & sequence = *it;
+        sequence->resetTicks();
+    }
+}
+
+/* Similar to resetTicks but doesn't reset the current frame or loop */
+void SequenceLoop::resetChildrenTicks(){
+    for (vector<Util::ReferenceCount<Sequence> >::iterator it = frames.begin(); it != frames.end(); it++){
+        Util::ReferenceCount<Sequence> & sequence = *it;
+        sequence->resetTicks();
+    }
+}
+
+void SequenceLoop::setToEnd(){
+    /* FIXME */
+}
+
+void SequenceLoop::addSequence(const Util::ReferenceCount<Sequence> & sequence){
+    frames.push_back(sequence);
+}
+
+void SequenceLoop::addSequence(const Util::ReferenceCount<SequenceFrame> & sequence){
+    addSequence(sequence.convert<Sequence>());
+}
+
+void SequenceLoop::addSequence(const Util::ReferenceCount<SequenceLoop> & sequence){
+    addSequence(sequence.convert<Sequence>());
+}
+
+void SequenceLoop::parse(const Token * token, ImageMap & images){
+    TokenView view = token->view();
+    /* first ignore the number of times to loop */
+    int ignore;
+    view >> ignore;
+
+    while (view.hasMore()){
+        const Token * next;
+        view >> next;
+        if (*next == "frame"){
+            // new frame
+            Util::ReferenceCount<Frame> frame(new Frame(next, images));
+            addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
+        } else if (*next == "loop"){
+            // start loop here
+            int times;
+            next->view() >> times;
+            Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
+            loop->parse(next, images);
+            addSequence(loop);
+        }
+    }
+}
+
+int SequenceLoop::totalTicks() const {
+    int total = 0;
+    for (vector<Util::ReferenceCount<Sequence> >::const_iterator it = frames.begin(); it != frames.end(); it++){
+        const Util::ReferenceCount<Sequence> & sequence = *it;
+        total += sequence->totalTicks();
+    }
+    return total * (1 + loopTimes);
+}
+
+bool SequenceLoop::forward(int tickCount, double velocityX, double velocityY){
+    Util::ReferenceCount<Sequence> current = getCurrentSequence();
+    if (current != NULL){
+        if (current->forward(tickCount, velocityX, velocityY)){
+            forwardFrame();
+        }
+    }
+
+    return currentFrame == frames.size();
+}
+
+bool SequenceLoop::reverse(int tickCount, double velocityX, double velocityY){
+    Util::ReferenceCount<Sequence> current = getCurrentSequence();
+    if (current != NULL){
+        if (current->reverse(tickCount, velocityX, velocityY)){
+            backFrame(); 
+        }
+    }
+
+    return currentFrame == frames.size();
+}
+
+void SequenceLoop::forwardFrame(){
+    currentFrame += 1;
+
+    /* do the loop */
+    if (currentFrame == frames.size() && currentLoop > 0){
+        currentLoop -= 1;
+        currentFrame = 0;
+        resetChildrenTicks();
+    }
+}
+
+void SequenceLoop::backFrame(){
+    currentFrame -= 1;
+
+    /* do the loop */
+    if (currentFrame <= 0 && currentLoop > 0){
+        currentLoop -= 1;
+        resetChildrenTicks();
+        if (frames.size() > 0){
+            currentFrame = frames.size() - 1;
+        } else {
+            currentFrame = 0;
+        }
+    }
+}
 
 static int CURRENT_ID = 0;
 
@@ -244,11 +447,8 @@ id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
-currentFrame(0),
-currentLoop(0),
-loop(0),
-loopPosition(0),
-allowReset(true){
+allowReset(true),
+sequence(0){
     images[-1] = 0;
     std::string basedir = "";
     if ( *the_token != "anim" && *the_token != "animation" ){
@@ -375,11 +575,15 @@ allowReset(true){
             } else if (*token == "frame"){
                 // new frame
                 Util::ReferenceCount<Frame> frame(new Frame(token, images));
-                frames.push_back(frame);
+                sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
             } else if (*token == "loop"){
                 // start loop here
-                token->view() >> loop;
-                loopPosition = frames.size();
+                int times;
+                token->view() >> times;
+                Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
+                loop->parse(token, images);
+                sequence.addSequence(loop);
+
                 /*
 		if (l >= (int)frames.size()){
 		    ostringstream out;
@@ -411,9 +615,8 @@ id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
-currentFrame(0),
-loop(0),
-allowReset(true){
+allowReset(true),
+sequence(0){
     // add bitmap
     Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(background)).path()));
     if (bmp->getError()){
@@ -422,7 +625,7 @@ allowReset(true){
         images[0] = bmp;
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
-    frames.push_back(frame);
+    sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
     // Set end ticks
     calculateEndTicks();
 }
@@ -432,9 +635,8 @@ id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
-currentFrame(0),
-loop(0),
-allowReset(true){
+allowReset(true),
+sequence(0){
     // add bitmap
     Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(path.path()));
     if (bmp->getError()){
@@ -443,7 +645,7 @@ allowReset(true){
         images[0] = bmp;
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
-    frames.push_back(frame);
+    sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
     // Set end ticks
     calculateEndTicks();
 }
@@ -453,12 +655,11 @@ id(getNextId()),
 depth(BackgroundBottom),
 ticks(0),
 endTicks(0),
-currentFrame(0),
-loop(0),
-allowReset(true){
+allowReset(true),
+sequence(0){
     images[0] = image;
     Util::ReferenceCount<Frame> frame(new Frame(image));
-    frames.push_back(frame);
+    sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
     // Set end ticks
     calculateEndTicks();
 }
@@ -467,8 +668,10 @@ Animation::~Animation(){
 }
 
 int Animation::totalTicks() const {
+    return sequence.totalTicks();
+    /*
     int total = 0;
-    for (vector<Util::ReferenceCount<Frame> >::const_iterator it = frames.begin(); it != frames.end(); it++){
+    for (vector<Util::ReferenceCount<Sequence> >::const_iterator it = seque.begin(); it != frames.end(); it++){
         const Util::ReferenceCount<Frame> & frame = *it;
         if (frame->getTime() == -1){
             return -1;
@@ -476,7 +679,7 @@ int Animation::totalTicks() const {
         total += frame->getTime();
     }
 
-    /* Recount the frames that are looped over */
+    / * Recount the frames that are looped over * /
     for (unsigned int loops = 0; loops < loop; loops++){
         for (vector<Util::ReferenceCount<Frame> >::const_iterator it = frames.begin() + loopPosition; it != frames.end(); it++){
             const Util::ReferenceCount<Frame> & frame = *it;
@@ -485,14 +688,19 @@ int Animation::totalTicks() const {
     }
 
     return total;
+    */
 }
 
 void Animation::forward(int tickCount){
+    sequence.forward(tickCount, velocity.getRelativeX(), velocity.getRelativeY());
+
+    /*
     // Used for scrolling
-    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
+    for (std::vector<Util::ReferenceCount<Sequence> >::iterator it = sequence.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
         frame->act(tickCount * velocity.getRelativeX(), tickCount * velocity.getRelativeY());
     }
+
     if (currentFrame < frames.size() && frames[currentFrame]->getTime() != -1){
         ticks += tickCount;
         if (ticks >= frames[currentFrame]->getTime()){
@@ -500,9 +708,13 @@ void Animation::forward(int tickCount){
             forwardFrame();
         }
     }
+    */
 }
 
 void Animation::reverse(int tickCount){
+    sequence.reverse(tickCount, velocity.getRelativeX(), velocity.getRelativeY());
+
+    /*
     // Used for scrolling
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
@@ -515,6 +727,7 @@ void Animation::reverse(int tickCount){
             ticks = frames[currentFrame]->getTime();
         }
     }
+    */
 }
 
 void Animation::act(){
@@ -531,72 +744,76 @@ void Animation::draw(const Graphics::Bitmap & work){
     Graphics::Bitmap clipped(work, x, y, height, width);
     frames[currentFrame]->draw(0, 0,clipped);*/
      // Set clip from the axis default is 0,0,bitmap width, bitmap height
-    if (currentFrame < frames.size()){
-        work.setClipRect(-(window.getPosition().getDistanceFromCenterX()),-(window.getPosition().getDistanceFromCenterY()),work.getWidth() - window.getPosition2().getDistanceFromCenterX(),work.getHeight() - window.getPosition2().getDistanceFromCenterY());
-        frames[currentFrame]->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(),work);
-        work.setClipRect(0,0,work.getWidth(),work.getHeight());
+    work.setClipRect(-window.getPosition().getDistanceFromCenterX(),
+                     -window.getPosition().getDistanceFromCenterY(),
+                     work.getWidth() - window.getPosition2().getDistanceFromCenterX(),
+                     work.getHeight() - window.getPosition2().getDistanceFromCenterY());
+
+    const Util::ReferenceCount<Frame> & frame = sequence.getCurrentFrame();
+    if (frame != NULL){
+        frame->draw(axis.getDistanceFromCenterX(), axis.getDistanceFromCenterY(), work);
     }
+
+    work.setClipRect(0, 0, work.getWidth(), work.getHeight());
 }
 
 void Animation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work){
-    if (currentFrame < frames.size()){
+    const Util::ReferenceCount<Frame> & frame = sequence.getCurrentFrame();
+    if (frame != NULL){
         Graphics::Bitmap clipped(work, x, y, width, height);
-        frames[currentFrame]->draw(clipped);
+        frame->draw(clipped);
     }
 }
 
 void Animation::forwardFrame(){
-    if (currentFrame < frames.size() -1){
-        currentFrame++;
-    } else {
-        if (currentLoop > 0){
-            currentLoop -= 1;
-            currentFrame = loopPosition;
-        }
-    }
+    sequence.forwardFrame();
 }
 
 void Animation::backFrame(){
-    if (currentFrame > 0){
-        currentFrame = 0;
-    }
-    /*
-    if (currentFrame > loop){
-        currentFrame--;
-    } else {
-        currentFrame = frames.size() - 1;
-    }
-    */
+    sequence.backFrame();
+}
+    
+void Animation::reset(){
+    sequence.reset();
 }
 
 void Animation::resetAll(){
-    currentFrame = ticks = 0;
-    currentLoop = loop;
+    sequence.reset();
+    /*
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
         frame->reset();
     }
+    */
 }
 
 void Animation::setToEnd(){
-    currentFrame = frames.size()-1;
+    sequence.setToEnd();
+    // currentFrame = frames.size()-1;
     ticks = endTicks;
-    currentLoop = 0;
+    // currentLoop = 0;
     // Set offsets 
+    /*
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
         frame->setToEnd(RelativePoint(ticks * velocity.getRelativeX(), ticks * velocity.getRelativeY()));
     }
+    */
 }
 
 const std::string Animation::getInfo(){
+    /*
     static const char * ANIMATION_TEXT = "Animation ID: %d\nTicks: %d\nFrame Index: %d\nLoop From: %d\nAxis: ( %f, %f)\nVelocity: ( %f, %f)\n";
     char info[255];
     sprintf(info, ANIMATION_TEXT, id, ticks, currentFrame, loop, axis.getRelativeX(), axis.getRelativeY(), velocity.getRelativeX(), velocity.getRelativeY());
     return std::string(info) + frames[currentFrame]->getInfo();
+    */
+    /* FIXME */
+    return string();
 }
 
 void Animation::calculateEndTicks(){
+    /*
     // Set end ticks
     for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
         Util::ReferenceCount<Frame> frame = *i;
@@ -604,6 +821,7 @@ void Animation::calculateEndTicks(){
             endTicks += frame->getTime();
         }
     }
+    */
 }
 
 AnimationManager::AnimationManager(){
