@@ -206,13 +206,8 @@ public:
     }
 
 private:
-    //! Set end ticks
-    void calculateEndTicks();
-    
     int id;
     Depth depth;
-    int ticks;
-    int endTicks;
     unsigned int currentSequence;
     bool allowReset;
     RelativePoint axis;

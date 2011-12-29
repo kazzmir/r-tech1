@@ -445,8 +445,6 @@ static int getNextId(){
 Animation::Animation(const Token *the_token):
 id(getNextId()),
 depth(BackgroundBottom),
-ticks(0),
-endTicks(0),
 allowReset(true),
 sequence(0){
     images[-1] = 0;
@@ -606,15 +604,11 @@ sequence(0){
             throw ex;
         }
     }
-    // Set end ticks
-    calculateEndTicks();
 }
 
 Animation::Animation(const std::string & background):
 id(getNextId()),
 depth(BackgroundBottom),
-ticks(0),
-endTicks(0),
 allowReset(true),
 sequence(0){
     // add bitmap
@@ -626,15 +620,11 @@ sequence(0){
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
     sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
-    // Set end ticks
-    calculateEndTicks();
 }
 
 Animation::Animation(const Filesystem::AbsolutePath & path):
 id(getNextId()),
 depth(BackgroundBottom),
-ticks(0),
-endTicks(0),
 allowReset(true),
 sequence(0){
     // add bitmap
@@ -646,22 +636,16 @@ sequence(0){
     }
     Util::ReferenceCount<Frame> frame(new Frame(bmp));
     sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
-    // Set end ticks
-    calculateEndTicks();
 }
 
 Animation::Animation(Util::ReferenceCount<Graphics::Bitmap> image):
 id(getNextId()),
 depth(BackgroundBottom),
-ticks(0),
-endTicks(0),
 allowReset(true),
 sequence(0){
     images[0] = image;
     Util::ReferenceCount<Frame> frame(new Frame(image));
     sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
-    // Set end ticks
-    calculateEndTicks();
 }
 
 Animation::~Animation(){
@@ -669,65 +653,14 @@ Animation::~Animation(){
 
 int Animation::totalTicks() const {
     return sequence.totalTicks();
-    /*
-    int total = 0;
-    for (vector<Util::ReferenceCount<Sequence> >::const_iterator it = seque.begin(); it != frames.end(); it++){
-        const Util::ReferenceCount<Frame> & frame = *it;
-        if (frame->getTime() == -1){
-            return -1;
-        }
-        total += frame->getTime();
-    }
-
-    / * Recount the frames that are looped over * /
-    for (unsigned int loops = 0; loops < loop; loops++){
-        for (vector<Util::ReferenceCount<Frame> >::const_iterator it = frames.begin() + loopPosition; it != frames.end(); it++){
-            const Util::ReferenceCount<Frame> & frame = *it;
-            total += frame->getTime();
-        }
-    }
-
-    return total;
-    */
 }
 
 void Animation::forward(int tickCount){
     sequence.forward(tickCount, velocity.getRelativeX(), velocity.getRelativeY());
-
-    /*
-    // Used for scrolling
-    for (std::vector<Util::ReferenceCount<Sequence> >::iterator it = sequence.begin(); i != frames.end(); ++i){
-        Util::ReferenceCount<Frame> frame = *i;
-        frame->act(tickCount * velocity.getRelativeX(), tickCount * velocity.getRelativeY());
-    }
-
-    if (currentFrame < frames.size() && frames[currentFrame]->getTime() != -1){
-        ticks += tickCount;
-        if (ticks >= frames[currentFrame]->getTime()){
-            ticks = 0;
-            forwardFrame();
-        }
-    }
-    */
 }
 
 void Animation::reverse(int tickCount){
     sequence.reverse(tickCount, velocity.getRelativeX(), velocity.getRelativeY());
-
-    /*
-    // Used for scrolling
-    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
-        Util::ReferenceCount<Frame> frame = *i;
-        frame->act(-tickCount * velocity.getRelativeX(), -tickCount * velocity.getRelativeY());
-    }
-    if (currentFrame < frames.size() && frames[currentFrame]->getTime() != -1){
-        ticks -= tickCount;
-        if (ticks < 0){
-            backFrame();
-            ticks = frames[currentFrame]->getTime();
-        }
-    }
-    */
 }
 
 void Animation::act(){
@@ -779,18 +712,12 @@ void Animation::reset(){
 
 void Animation::resetAll(){
     sequence.reset();
-    /*
-    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
-        Util::ReferenceCount<Frame> frame = *i;
-        frame->reset();
-    }
-    */
 }
 
 void Animation::setToEnd(){
+    /* FIXME */
     sequence.setToEnd();
     // currentFrame = frames.size()-1;
-    ticks = endTicks;
     // currentLoop = 0;
     // Set offsets 
     /*
@@ -809,19 +736,9 @@ const std::string Animation::getInfo(){
     return std::string(info) + frames[currentFrame]->getInfo();
     */
     /* FIXME */
-    return string();
-}
-
-void Animation::calculateEndTicks(){
-    /*
-    // Set end ticks
-    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
-        Util::ReferenceCount<Frame> frame = *i;
-        if (frame->getTime() != -1){
-            endTicks += frame->getTime();
-        }
-    }
-    */
+    ostringstream out;
+    out << "Animation ID: " << id;
+    return out.str();
 }
 
 AnimationManager::AnimationManager(){
