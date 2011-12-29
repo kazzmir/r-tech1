@@ -283,7 +283,7 @@ void SequenceFrame::resetTicks(){
 
 SequenceLoop::SequenceLoop(int loops):
 currentFrame(0),
-currentLoop(0),
+currentLoop(loops),
 loopTimes(loops){
 }
     
