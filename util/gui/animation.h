@@ -27,7 +27,7 @@ typedef std::map<int, Util::ReferenceCount<Graphics::Bitmap> > ImageMap;
 
 class Frame{
 public:
-    Frame(const Token *token, ImageMap &images);
+    Frame(const Token *token, ImageMap &images, const std::string & baseDir);
     Frame(Util::ReferenceCount<Graphics::Bitmap> bmp);
     virtual ~Frame();
     virtual void act(double xvel, double yvel);
@@ -120,7 +120,7 @@ public:
     virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
     virtual void addSequence(const Util::ReferenceCount<SequenceFrame> & sequence);
     virtual void addSequence(const Util::ReferenceCount<SequenceLoop> & sequence);
-    virtual void parse(const Token * token, ImageMap & map);
+    virtual void parse(const Token * token, ImageMap & map, const std::string & baseDir);
     
     virtual int totalTicks() const;
 

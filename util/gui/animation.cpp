@@ -43,7 +43,7 @@ static void renderSprite(const Graphics::Bitmap & bmp, const int x, const int y,
     }
 }
 
-Frame::Frame(const Token *the_token, ImageMap &images):
+Frame::Frame(const Token *the_token, ImageMap &images, const string & baseDir):
 bmp(0),
 time(0),
 horizontalFlip(false),
@@ -64,15 +64,21 @@ alpha(255){
             view >> token;
             if (*token == "image"){
                 // get the number
-                int num;
-                token->view() >> num;
-                if (images.find(num) == images.end()){
-                    ostringstream out;
-                    out << "No image for index " << num;
-                    throw LoadException(__FILE__, __LINE__, out.str());
+                string maybeNumber;
+                token->view() >> maybeNumber;
+                if (Util::matchRegex("[0-9]+", maybeNumber)){
+                    int num;
+                    token->view() >> num;
+                    if (images.find(num) == images.end()){
+                        ostringstream out;
+                        out << "No image for index " << num;
+                        throw LoadException(__FILE__, __LINE__, out.str());
+                    }
+                    // now assign the bitmap
+                    bmp = images[num];
+                } else {
+                    bmp = Util::ReferenceCount<Graphics::Bitmap>(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(baseDir + "/" + maybeNumber)).path()));
                 }
-                // now assign the bitmap
-                bmp = images[num];
             } else if (*token == "alpha"){
                 // get alpha
                 token->view() >> alpha;
@@ -355,7 +361,7 @@ void SequenceLoop::addSequence(const Util::ReferenceCount<SequenceLoop> & sequen
     addSequence(sequence.convert<Sequence>());
 }
 
-void SequenceLoop::parse(const Token * token, ImageMap & images){
+void SequenceLoop::parse(const Token * token, ImageMap & images, const string & baseDir){
     TokenView view = token->view();
     /* first ignore the number of times to loop */
     int ignore;
@@ -366,14 +372,14 @@ void SequenceLoop::parse(const Token * token, ImageMap & images){
         view >> next;
         if (*next == "frame"){
             // new frame
-            Util::ReferenceCount<Frame> frame(new Frame(next, images));
+            Util::ReferenceCount<Frame> frame(new Frame(next, images, baseDir));
             addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
         } else if (*next == "loop"){
             // start loop here
             int times;
             next->view() >> times;
             Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
-            loop->parse(next, images);
+            loop->parse(next, images, baseDir);
             addSequence(loop);
         }
     }
@@ -447,8 +453,10 @@ id(getNextId()),
 depth(BackgroundBottom),
 allowReset(true),
 sequence(0){
+    /* Whats this for? */
     images[-1] = 0;
-    std::string basedir = "";
+
+    std::string basedir = ".";
     if ( *the_token != "anim" && *the_token != "animation" ){
         throw LoadException(__FILE__, __LINE__, "Not an animation");
     }
@@ -535,7 +543,7 @@ sequence(0){
                     localScaleSet = true;
                 } catch (const TokenException & fail){
                 }
-                Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(basedir + temp)).path()));
+                Util::ReferenceCount<Graphics::Bitmap> bmp(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(basedir + "/" + temp)).path()));
                 if (!bmp->getError()){
                     if (scaleSet || localScaleSet){
                         if (localScaleSet){
@@ -572,14 +580,14 @@ sequence(0){
                 velocity.set(x,y);
             } else if (*token == "frame"){
                 // new frame
-                Util::ReferenceCount<Frame> frame(new Frame(token, images));
+                Util::ReferenceCount<Frame> frame(new Frame(token, images, basedir));
                 sequence.addSequence(Util::ReferenceCount<SequenceFrame>(new SequenceFrame(frame)));
             } else if (*token == "loop"){
                 // start loop here
                 int times;
                 token->view() >> times;
                 Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
-                loop->parse(token, images);
+                loop->parse(token, images, basedir);
                 sequence.addSequence(loop);
 
                 /*
