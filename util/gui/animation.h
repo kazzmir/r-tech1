@@ -23,11 +23,11 @@ class Token;
 namespace Gui{
 
 // To hold images by number easier to access and reuse
-typedef std::map< int, Util::ReferenceCount<Graphics::Bitmap> > imageMap;
+typedef std::map<int, Util::ReferenceCount<Graphics::Bitmap> > ImageMap;
 
 class Frame{
 public:
-    Frame(const Token *token, imageMap &images);
+    Frame(const Token *token, ImageMap &images);
     Frame(Util::ReferenceCount<Graphics::Bitmap> bmp);
     virtual ~Frame();
     virtual void act(double xvel, double yvel);
@@ -61,10 +61,97 @@ protected:
     int alpha;
 };
 
+/* Iterates over a series of items */
+class Sequence{
+public:
+    Sequence();
+
+    virtual Util::ReferenceCount<Frame> getCurrentFrame() const = 0;
+    virtual int totalTicks() const = 0;
+
+    /* Move the sequence along by the number of ticks and at the specified speed
+     * Returns true if the sequence can't move any farther.
+     */ 
+    virtual bool forward(int tickCount, double velocityX, double velocityY) = 0;
+    virtual bool reverse(int tickCount, double velocityX, double velocityY) = 0;
+
+    virtual void reset() = 0;
+    virtual void resetTicks() = 0;
+
+    /* Forcifully move to the next/previous frame */
+    virtual void forwardFrame() = 0;
+    virtual void backFrame() = 0;
+
+    virtual ~Sequence();
+};
+
+class SequenceFrame: public Sequence {
+public:
+    SequenceFrame(const Util::ReferenceCount<Frame> & frame);
+    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+
+    virtual int totalTicks() const;
+    virtual void reset();
+    virtual void resetTicks();
+
+    /* Move the sequence along by the number of ticks and at the specified speed */
+    virtual bool forward(int tickCount, double velocityX, double velocityY);
+    virtual bool reverse(int tickCount, double velocityX, double velocityY);
+
+    /* Forcifully move to the next/previous frame */
+    virtual void forwardFrame();
+    virtual void backFrame();
+
+protected:
+    Util::ReferenceCount<Frame> frame;
+    int ticks;
+};
+
+/* Shows sequences in a loop */
+class SequenceLoop: public Sequence {
+public:
+    SequenceLoop(int loops);
+    
+    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+
+    virtual void reset();
+    virtual void resetTicks();
+    virtual void setToEnd();
+    virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
+    virtual void addSequence(const Util::ReferenceCount<SequenceFrame> & sequence);
+    virtual void addSequence(const Util::ReferenceCount<SequenceLoop> & sequence);
+    virtual void parse(const Token * token, ImageMap & map);
+    
+    virtual int totalTicks() const;
+
+    /* Move the sequence along by the number of ticks and at the specified speed */
+    virtual bool forward(int tickCount, double velocityX, double velocityY);
+    virtual bool reverse(int tickCount, double velocityX, double velocityY);
+
+    /* Forcifully move to the next/previous frame */
+    virtual void forwardFrame();
+    virtual void backFrame();
+
+protected:
+    void resetChildrenTicks();
+    virtual Util::ReferenceCount<Sequence> getCurrentSequence() const;
+
+    /* The current frame to display */
+    unsigned int currentFrame;
+
+    /* The number of times left to loop */
+    unsigned int currentLoop;
+
+    /* The total number of times to loop */
+    const unsigned int loopTimes;
+
+    std::vector<Util::ReferenceCount<Sequence> > frames;
+};
+
 class Animation{
 public:
     Animation(const Token *token);
-    /*! Load only a single bitmap (for bacwards compatibility of backgrounds in menu) */
+    /*! Load only a single bitmap (for backwards compatibility of backgrounds in menu) */
     Animation(const std::string &);
     Animation(const AbsolutePath &);
     /*! use an existing bitmap */
@@ -89,12 +176,9 @@ public:
     virtual void setToEnd();
     /*! Get printable information regarding current frame */
     virtual const std::string getInfo();
+
     /*! Reset only frame ticks and other things are ignored */
-    virtual inline void reset(){ 
-        if (allowReset){ 
-            currentFrame = 0; 
-        } 
-    }
+    virtual void reset();
 
     /* Total number of ticks used by this animation. If any frames have a time
      * of -1 then the total time will also be -1, meaning infinity.
@@ -129,17 +213,15 @@ private:
     Depth depth;
     int ticks;
     int endTicks;
-    unsigned int currentFrame;
-    unsigned int currentLoop;
-    unsigned int loop;
-    unsigned int loopPosition;
+    unsigned int currentSequence;
     bool allowReset;
     RelativePoint axis;
     // This allows the frames to scroll in place
     RelativePoint velocity;
     Coordinate window;
-    std::vector<Util::ReferenceCount<Frame> > frames;
-    imageMap images;
+    // std::vector<Util::ReferenceCount<Frame> > frames;
+    SequenceLoop sequence;
+    ImageMap images;
 };
 
 /*! Generalized to for re-use in other contexts (menu, cutscene, characterselect, etc) */

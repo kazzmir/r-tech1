@@ -6,7 +6,6 @@
 
 #include "util/debug.h"
 
-
 using namespace Gui;
 
 FadeTool::FadeTool():
@@ -51,8 +50,6 @@ void FadeTool::parseDefaults(const Token * token){
     }
 }
 
-
-
 void FadeTool::setState( const State & f){
     lastState = currentState;
     currentState = f;
@@ -75,15 +72,15 @@ void FadeTool::setState( const State & f){
 void FadeTool::act(){
     switch (currentState){
         case FadeIn:
-            fadeTime-=(255/(fadeInTime <= 0 ? 1 : fadeInTime));
+            fadeTime -= (255/(fadeInTime <= 0 ? 1 : fadeInTime));
             if (fadeTime<=0){
-            setState(NoFade);
+                setState(NoFade);
             }
             break;
         case FadeOut:
-            fadeTime+=(255/(fadeOutTime <= 0 ? 1 : fadeOutTime));
+            fadeTime += (255/(fadeOutTime <= 0 ? 1 : fadeOutTime));
             if (fadeTime>=255){
-            setState(EndFade);
+                setState(EndFade);
             }
             break;
         case NoFade:
@@ -96,11 +93,11 @@ void FadeTool::act(){
 void FadeTool::draw(const Graphics::Bitmap &bmp){
     switch (currentState){
         case FadeIn:
-                Graphics::Bitmap::transBlender(0,0,0,fadeTime);
+            Graphics::Bitmap::transBlender(0,0,0,fadeTime);
             bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeInColor);
             break;
         case FadeOut:
-                Graphics::Bitmap::transBlender(0,0,0,fadeTime);
+            Graphics::Bitmap::transBlender(0,0,0,fadeTime);
             bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeOutColor);
             break;
         case NoFade:
@@ -151,4 +148,3 @@ void FadeTool::readFade(const Token * token, const State & type){
         }
     }
 }
-
