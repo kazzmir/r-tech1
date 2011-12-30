@@ -455,6 +455,8 @@ static Util::ReferenceCount<Sequence> parseSequence(const Token * token, ImageMa
         return loop.convert<Sequence>();
     } else if (*token == "all"){
         return Util::ReferenceCount<Sequence>(new SequenceAll(token, images, baseDir));
+    } else if (*token == "random"){
+        return Util::ReferenceCount<Sequence>(new SequenceRandom(token, images, baseDir));
     }
 
     return Util::ReferenceCount<Sequence>(NULL);
@@ -626,6 +628,99 @@ void SequenceAll::backFrame(){
     }
 }
 
+SequenceRandom::SequenceRandom(const Token * token, ImageMap & images, const std::string & baseDir):
+current(0){
+    TokenView view = token->view();
+    while (view.hasMore()){
+        const Token * next;
+        view >> next;
+        Util::ReferenceCount<Sequence> sequence = parseSequence(next, images, baseDir);
+        if (sequence != NULL){
+            addSequence(sequence);
+        }
+    }
+
+    current = Util::rnd(sequences.size());
+}
+    
+Util::ReferenceCount<Frame> SequenceRandom::getCurrentFrame() const {
+    return Util::ReferenceCount<Frame>(NULL);
+}
+
+void SequenceRandom::reset(){
+    current = Util::rnd(sequences.size());
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->reset();
+    }
+}
+
+void SequenceRandom::resetTicks(){
+    current = Util::rnd(sequences.size());
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->resetTicks();
+    }
+}
+
+void SequenceRandom::setToEnd(){
+    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
+        Util::ReferenceCount<Sequence> & next = *it;
+        next->setToEnd();
+    }
+}
+
+void SequenceRandom::addSequence(const Util::ReferenceCount<Sequence> & sequence){
+    sequences.push_back(sequence);
+}
+
+void SequenceRandom::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+    if (current < sequences.size()){
+        Util::ReferenceCount<Sequence> now = sequences[current];
+        now->draw(xaxis, yaxis, work);
+    }
+}
+    
+int SequenceRandom::totalTicks() const {
+    int max = 0;
+    for (SequenceConstIterator it = sequences.begin(); it != sequences.end(); it++){
+        const Util::ReferenceCount<Sequence> & next = *it;
+        int what = next->totalTicks();
+        if (what > max){
+            max = what;
+        }
+    }
+    return max;
+}
+
+bool SequenceRandom::forward(int tickCount, double velocityX, double velocityY){
+    if (current < sequences.size()){
+        Util::ReferenceCount<Sequence> now = sequences[current];
+        return now->forward(tickCount, velocityX, velocityY);
+    }
+    return true;
+}
+
+bool SequenceRandom::reverse(int tickCount, double velocityX, double velocityY){
+    if (current < sequences.size()){
+        Util::ReferenceCount<Sequence> now = sequences[current];
+        return now->reverse(tickCount, velocityX, velocityY);
+    }
+    return true;
+}
+
+void SequenceRandom::forwardFrame(){
+    if (current < sequences.size()){
+        sequences[current]->forwardFrame();
+    }
+}
+
+void SequenceRandom::backFrame(){
+    if (current < sequences.size()){
+        sequences[current]->backFrame();
+    }
+}
+
 static int CURRENT_ID = 0;
 
 static int getNextId(){
@@ -770,6 +865,8 @@ sequence(0){
                 sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
             } else if (*token == "all"){
                 sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceAll(token, images, basedir)));
+            } else if (*token == "random"){
+                sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceRandom(token, images, basedir)));
             } else if (*token == "loop"){
                 // start loop here
                 int times;
