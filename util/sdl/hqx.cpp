@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include "util/bitmap.h"
+#include <SDL/SDL.h>
 
 namespace hq2x{
 
@@ -212,30 +213,29 @@ void filter_size(unsigned &width, unsigned &height) {
     height *= 2;
 }
 
-void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
-                   const uint16_t *input, unsigned pitch, unsigned width, unsigned height){
+void filter_render(uint16_t *colortable, SDL_Surface * input, SDL_Surface * output){
     initialize();
     /* pitch is adjusted by the bit depth (2 bytes per pixel) so we
      * divide by two since we are using int16_t
      */
-    pitch >>= 1;
-    outpitch >>= 1;
+    int pitch = input->pitch / 2;
+    int outpitch = output->pitch / 2;
 
     //#pragma omp parallel for
-    for (unsigned int y = 0; y < height; y++){
-        const uint16_t *in = input + y * pitch;
-        uint16_t *out0 = output + y * outpitch * 2;
-        uint16_t *out1 = output + y * outpitch * 2 + outpitch;
+    for (unsigned int y = 0; y < input->h; y++){
+        const uint16_t * in = (uint16_t*) input->pixels + y * pitch;
+        uint16_t *out0 = (uint16_t*) output->pixels + y * outpitch * 2;
+        uint16_t *out1 = (uint16_t*) output->pixels + y * outpitch * 2 + outpitch;
 
         int prevline = (y == 0 ? 0 : pitch);
-        int nextline = (y == height - 1 ? 0 : pitch);
+        int nextline = (y == input->h - 1 ? 0 : pitch);
 
         // *out0 = Graphics::makeColor(255, 255, 255);
         *out0++ = *in; *out0++ = *in;
         *out1++ = *in; *out1++ = *in;
         in++;
 
-        for (unsigned int x = 1; x < width - 1; x++){
+        for (unsigned int x = 1; x < input->w - 1; x++){
             uint16_t A = *(in - prevline - 1);
             uint16_t B = *(in - prevline + 0);
             uint16_t C = *(in - prevline + 1);
@@ -277,10 +277,9 @@ void filter_render(uint16_t *colortable, uint16_t *output, unsigned outpitch,
     }
 }
 
-void filter_render_565(uint16_t *output, unsigned outpitch,
-                       const uint16_t *input, unsigned pitch, unsigned width, unsigned height){
+void filter_render_565(SDL_Surface * input, SDL_Surface * output){
     initialize();
-    filter_render(rgb565Table, output, outpitch, input, pitch, width, height);
+    filter_render(rgb565Table, input, output);
 }
 
 }

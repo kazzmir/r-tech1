@@ -5,7 +5,7 @@
 #include "../../util/debug.h"
 #include "../system.h"
 #include "../init.h"
-#include "util/hq4x/hqx.h"
+#include "hqx.h"
 #include "sprig/sprig.h"
 #include "stretch/SDL_stretch.h"
 #include <SDL.h>
@@ -1025,7 +1025,7 @@ void Bitmap::Stretch( const Bitmap & where ) const {
 }
 */
 
-void Bitmap::SmoothStretch(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const {
+void Bitmap::StretchXbr(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const {
     Bitmap subSource(*this, sourceX, sourceY, sourceWidth, sourceHeight);
     Bitmap subDestination(where, destX, destY, destWidth, destHeight);
 
@@ -1040,8 +1040,36 @@ void Bitmap::SmoothStretch(const Bitmap & where, const int sourceX, const int so
         SDL_LockSurface(destination);
     }
 
+    /*
     hq2x::filter_render_565((uint16_t*) destination->pixels, destination->pitch,
                             (uint16_t*) source->pixels, source->pitch, sourceWidth, sourceHeight);
+                            */
+
+    if (SDL_MUSTLOCK(source)){
+        SDL_UnlockSurface(source);
+    }
+
+    if (SDL_MUSTLOCK(destination)){
+        SDL_UnlockSurface(destination);
+    }
+}
+
+void Bitmap::StretchHqx(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const {
+    Bitmap subSource(*this, sourceX, sourceY, sourceWidth, sourceHeight);
+    Bitmap subDestination(where, destX, destY, destWidth, destHeight);
+
+    SDL_Surface * source = subSource.getData()->getSurface();
+    SDL_Surface * destination = subDestination.getData()->getSurface();
+
+    if (SDL_MUSTLOCK(source)){
+        SDL_LockSurface(source);
+    }
+
+    if (SDL_MUSTLOCK(destination)){
+        SDL_LockSurface(destination);
+    }
+
+    hq2x::filter_render_565(source, destination);
 
     if (SDL_MUSTLOCK(source)){
         SDL_UnlockSurface(source);
