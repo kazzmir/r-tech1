@@ -32,10 +32,14 @@ unsigned long long int TimeDifference::getTime(){
 static double roundit(double number, int digits){
     return (long long) (number * pow((double) 10.0, digits)) / pow((double) 10.0, digits);
 }
+    
+const string TimeDifference::printAverageTime(const std::string & description, int runs){
+    return printTime(description, runs);
+}
 
-const string TimeDifference::printTime(const string & s){
+const string TimeDifference::printTime(const string & description, int runs){
 
-    double total = getTime();
+    double total = getTime() / (double) runs;
     string units = "microseconds";
 
     int unit_times[] = {1000, 1000, 60};
@@ -51,7 +55,7 @@ const string TimeDifference::printTime(const string & s){
     }
 
     ostringstream o;
-    o << s << " " << roundit(total, 3) << " " << units;
+    o << description << " " << roundit(total, 3) << " " << units;
     return o.str();
 
     /*
