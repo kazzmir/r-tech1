@@ -409,12 +409,20 @@ void Bitmap::Stretch( const Bitmap & where ) const {
         Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
     }
 }
-        
-void Bitmap::SmoothStretch(const Bitmap & where) const {
+
+void Bitmap::StretchHqx(const Bitmap & where) const {
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
         Blit(where);
     } else {
-        SmoothStretch(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
+        StretchHqx(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
+    }
+}
+
+void Bitmap::StretchXbr(const Bitmap & where) const {
+    if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
+        Blit(where);
+    } else {
+        StretchXbr(where, 0, 0, getWidth(), getHeight(), 0, 0, where.getWidth(), where.getHeight());
     }
 }
 

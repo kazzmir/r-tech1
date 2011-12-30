@@ -271,9 +271,15 @@ public:
 	virtual void drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where );
 	virtual void drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where );
 
-        /* Supposed to use some nice smoother, like hq2x/hq4x */
-        virtual void SmoothStretch(const Bitmap & where) const;
-	virtual void SmoothStretch(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const;
+        /* Stretch using the hqx algorithm */
+        virtual void StretchHqx(const Bitmap & where) const;
+	virtual void StretchHqx(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const;
+        
+        /* Xbr is defined here:
+         * http://board.byuu.org/viewtopic.php?f=10&t=2248
+         */
+        virtual void StretchXbr(const Bitmap & where) const;
+	virtual void StretchXbr(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const;
 
         /* Just copies pixels (fast) */
 	virtual void Stretch(const Bitmap & where) const;
