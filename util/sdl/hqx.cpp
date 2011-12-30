@@ -44,6 +44,11 @@ static void yuv888_to_rgb888(double y, double u, double v,
     red = 1.164 * (y - 16) + 1.596 * (v - 128);
 }
 
+#define RGB32_555 0x3e07c1f
+// #define RGB32_565 0x3e0fc1f 
+#define RGB32_565 0x7E0F81F
+static void grow(uint32_t &n) { n |= n << 16; n &= RGB32_565; }
+static uint16_t pack(uint32_t n) { n &= RGB32_565; return n | (n >> 16); }
 
 namespace hq2x{
 
@@ -136,12 +141,6 @@ static bool diff(uint32_t x, uint16_t y) {
 /* 0x03e07c1f: 011111000000111110000011111 */
 /* 0x03e0fc1f: 011111000001111110000011111 */
 /* 0x07E0F81F: 111111000001111100000011111 */
-
-#define RGB32_555 0x3e07c1f
-// #define RGB32_565 0x3e0fc1f 
-#define RGB32_565 0x7E0F81F
-static void grow(uint32_t &n) { n |= n << 16; n &= RGB32_565; }
-static uint16_t pack(uint32_t n) { n &= RGB32_565; return n | (n >> 16); }
 
 static uint16_t blend1(uint32_t A, uint32_t B) {
   grow(A); grow(B);
@@ -300,54 +299,116 @@ namespace hq4x{
 static int   LUT16to32[65536];
 static int   RGBtoYUV[65536];
 static int   YUV1, YUV2;
-const  int   Ymask = 0x00FF0000;
-const  int   Umask = 0x0000FF00;
-const  int   Vmask = 0x000000FF;
-const  int   trY   = 0x00300000;
-const  int   trU   = 0x00000700;
-const  int   trV   = 0x00000006;
+static const  int   Ymask = 0x00FF0000;
+static const  int   Umask = 0x0000FF00;
+static const  int   Vmask = 0x000000FF;
+static const  int   trY   = 0x00300000;
+static const  int   trU   = 0x00000700;
+static const  int   trV   = 0x00000006;
 
+/* 1111100000000000 */
+static const int redMask = 0xf800;
+/* 0000011111100000 */
+static const int greenMask = 0x7e0;
+/* 0000000000011111 */
+static const int blueMask = 0x1f;
+
+static const int not_greenMask = (redMask | blueMask);
+
+static const int partial_red_green_mask = 0x1f80;
+static const int partial_red_blue_mask = 0xe07c;
+
+#define PIXEL_TYPE uint16_t
+
+/*
 inline void Interp1(unsigned char * pc, int c1, int c2){
-  *((int*)pc) = (c1*3+c2) >> 2;
+  *((PIXEL_TYPE*)pc) = (c1*3+c2) >> 2;
 }
 
 inline void Interp2(unsigned char * pc, int c1, int c2, int c3){
-  *((int*)pc) = (c1*2+c2+c3) >> 2;
+  *((PIXEL_TYPE*)pc) = (c1*2+c2+c3) >> 2;
 }
 
 inline void Interp3(unsigned char * pc, int c1, int c2){
-  //*((int*)pc) = (c1*7+c2)/8;
-
-  *((int*)pc) = ((((c1 & 0x00FF00)*7 + (c2 & 0x00FF00) ) & 0x0007F800) +
-                 (((c1 & 0xFF00FF)*7 + (c2 & 0xFF00FF) ) & 0x07F807F8)) >> 3;
+  *((PIXEL_TYPE*)pc) = ((((c1 & greenMask)*7 + (c2 & greenMask) ) & partial_red_green_mask) +
+                 (((c1 & not_greenMask)*7 + (c2 & not_greenMask) ) & partial_red_blue_mask)) >> 3;
 }
 
 inline void Interp5(unsigned char * pc, int c1, int c2){
-  *((int*)pc) = (c1+c2) >> 1;
+  *((PIXEL_TYPE*)pc) = (c1+c2) >> 1;
 }
 
 inline void Interp6(unsigned char * pc, int c1, int c2, int c3){
-  //*((int*)pc) = (c1*5+c2*2+c3)/8;
-
-  *((int*)pc) = ((((c1 & 0x00FF00)*5 + (c2 & 0x00FF00)*2 + (c3 & 0x00FF00) ) & 0x0007F800) +
-                 (((c1 & 0xFF00FF)*5 + (c2 & 0xFF00FF)*2 + (c3 & 0xFF00FF) ) & 0x07F807F8)) >> 3;
+  *((PIXEL_TYPE*)pc) = ((((c1 & greenMask)*5 + (c2 & greenMask)*2 + (c3 & greenMask) ) & partial_red_green_mask) +
+                 (((c1 & not_greenMask)*5 + (c2 & not_greenMask)*2 + (c3 & not_greenMask) ) & partial_red_blue_mask)) >> 3;
 }
 
 inline void Interp7(unsigned char * pc, int c1, int c2, int c3){
-  //*((int*)pc) = (c1*6+c2+c3)/8;
-
-  *((int*)pc) = ((((c1 & 0x00FF00)*6 + (c2 & 0x00FF00) + (c3 & 0x00FF00) ) & 0x0007F800) +
-                 (((c1 & 0xFF00FF)*6 + (c2 & 0xFF00FF) + (c3 & 0xFF00FF) ) & 0x07F807F8)) >> 3;
+  *((PIXEL_TYPE*)pc) = ((((c1 & greenMask)*6 + (c2 & greenMask) + (c3 & greenMask) ) & partial_red_green_mask) +
+                 (((c1 & not_greenMask)*6 + (c2 & not_greenMask) + (c3 & not_greenMask) ) & partial_red_blue_mask)) >> 3;
 }
 
 inline void Interp8(unsigned char * pc, int c1, int c2){
-  //*((int*)pc) = (c1*5+c2*3)/8;
+  *((PIXEL_TYPE*)pc) = ((((c1 & greenMask)*5 + (c2 & greenMask)*3 ) & partial_red_green_mask) +
+                 (((c1 & not_greenMask)*5 + (c2 & not_greenMask)*3 ) & partial_red_blue_mask)) >> 3;
+}
+*/
 
-  *((int*)pc) = ((((c1 & 0x00FF00)*5 + (c2 & 0x00FF00)*3 ) & 0x0007F800) +
-                 (((c1 & 0xFF00FF)*5 + (c2 & 0xFF00FF)*3 ) & 0x07F807F8)) >> 3;
+inline void Interp1(unsigned char * pc, uint32_t c1, uint32_t c2){
+    grow(c1); grow(c2);
+    *((PIXEL_TYPE*)pc) = pack((c1*3+c2) >> 2);
 }
 
-#define PIXEL_TYPE uint16_t
+inline void Interp2(unsigned char * pc, uint32_t c1, uint32_t c2, uint32_t c3){
+    grow(c1); grow(c2); grow(c3);
+    *((PIXEL_TYPE*)pc) = pack((c1*2+c2+c3) >> 2);
+}
+
+inline void Interp3(unsigned char * pc, uint32_t c1, uint32_t c2){
+    grow(c1); grow(c2);
+    *((PIXEL_TYPE*)pc) = pack((c1*7+c2)/8);
+
+    /*
+  *((PIXEL_TYPE*)pc) = ((((c1 & 0x00FF00)*7 + (c2 & 0x00FF00) ) & 0x0007F800) +
+                 (((c1 & 0xFF00FF)*7 + (c2 & 0xFF00FF) ) & 0x07F807F8)) >> 3;
+                 */
+}
+
+inline void Interp5(unsigned char * pc, uint32_t c1, uint32_t c2){
+    grow(c1); grow(c2);
+    *((PIXEL_TYPE*)pc) = pack((c1+c2) >> 1);
+}
+
+inline void Interp6(unsigned char * pc, uint32_t c1, uint32_t c2, uint32_t c3){
+    grow(c1); grow(c2); grow(c3);
+    *((PIXEL_TYPE*)pc) = pack((c1*5+c2*2+c3)/8);
+
+  /*
+  *((PIXEL_TYPE*)pc) = ((((c1 & 0x00FF00)*5 + (c2 & 0x00FF00)*2 + (c3 & 0x00FF00) ) & 0x0007F800) +
+                 (((c1 & 0xFF00FF)*5 + (c2 & 0xFF00FF)*2 + (c3 & 0xFF00FF) ) & 0x07F807F8)) >> 3;
+                 */
+}
+
+inline void Interp7(unsigned char * pc, uint32_t c1, uint32_t c2, uint32_t c3){
+    grow(c1); grow(c2); grow(c3);
+    *((PIXEL_TYPE*)pc) = pack((c1*6+c2+c3)/8);
+
+  /*
+  *((PIXEL_TYPE*)pc) = ((((c1 & 0x00FF00)*6 + (c2 & 0x00FF00) + (c3 & 0x00FF00) ) & 0x0007F800) +
+                 (((c1 & 0xFF00FF)*6 + (c2 & 0xFF00FF) + (c3 & 0xFF00FF) ) & 0x07F807F8)) >> 3;
+                 */
+}
+
+inline void Interp8(unsigned char * pc, uint32_t c1, uint32_t c2){
+    grow(c1); grow(c2);
+    *((PIXEL_TYPE*)pc) = pack((c1*5+c2*3)/8);
+
+  /*
+  *((PIXEL_TYPE*)pc) = ((((c1 & 0x00FF00)*5 + (c2 & 0x00FF00)*3 ) & 0x0007F800) +
+                 (((c1 & 0xFF00FF)*5 + (c2 & 0xFF00FF)*3 ) & 0x07F807F8)) >> 3;
+                 */
+}
+
 #define PIXEL00_0     *((PIXEL_TYPE*)(pOut)) = c[5];
 #define PIXEL00_11    Interp1(pOut, c[5], c[4]);
 #define PIXEL00_12    Interp1(pOut, c[5], c[2]);
@@ -498,7 +559,7 @@ inline bool Diff(unsigned int w1, unsigned int w2){
 }
 
 void InitLUTs(void){
-  int i, j, k, r, g, b, Y, u, v;
+  // int i, j, k, r, g, b, Y, u, v;
 
   /*
   for (i=0; i<65536; i++)
@@ -515,11 +576,17 @@ void InitLUTs(void){
 
         LUT16to32[i] = Graphics::makeColor(r, g, b);
 
+        /*
         double y, u, v;
         rgb888_to_yuv888(r, g, b, y, u, v);
+        */
+              
+        int y = (r + g + b) >> 2;
+        int u = 128 + ((r - b) >> 2);
+        int v = 128 + ((-r + 2*g -b)>>3);
 
         /* Pack the YUV parameters into a single int */
-        RGBtoYUV[i] = ((unsigned)y << 21) + ((unsigned)u << 11) + ((unsigned)v);
+        RGBtoYUV[i] = ((unsigned)y << 16) + ((unsigned)u << 8) + ((unsigned)v);
   }
 
   /*
