@@ -217,6 +217,37 @@ protected:
     typedef std::vector<Util::ReferenceCount<Sequence> >::const_iterator SequenceConstIterator;
 };
 
+/* Displays a random child node for its duration */
+class SequenceRandom: public Sequence {
+public:
+    SequenceRandom(const Token * token, ImageMap & images, const std::string & baseDir);
+    
+    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+
+    virtual void reset();
+    virtual void resetTicks();
+    virtual void setToEnd();
+    virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
+    
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    
+    virtual int totalTicks() const;
+
+    /* Move the sequence along by the number of ticks and at the specified speed */
+    virtual bool forward(int tickCount, double velocityX, double velocityY);
+    virtual bool reverse(int tickCount, double velocityX, double velocityY);
+
+    /* Forcifully move to the next/previous frame */
+    virtual void forwardFrame();
+    virtual void backFrame();
+
+protected:
+    unsigned int current;
+    std::vector<Util::ReferenceCount<Sequence> > sequences;
+    typedef std::vector<Util::ReferenceCount<Sequence> >::iterator SequenceIterator;
+    typedef std::vector<Util::ReferenceCount<Sequence> >::const_iterator SequenceConstIterator;
+};
+
 class Animation{
 public:
     Animation(const Token *token);
