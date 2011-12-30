@@ -93,11 +93,11 @@ void FadeTool::act(){
 void FadeTool::draw(const Graphics::Bitmap &bmp){
     switch (currentState){
         case FadeIn:
-            Graphics::Bitmap::transBlender(0,0,0,fadeTime);
+            Graphics::Bitmap::transBlender(0,0,0, fadeTime);
             bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeInColor);
             break;
         case FadeOut:
-            Graphics::Bitmap::transBlender(0,0,0,fadeTime);
+            Graphics::Bitmap::transBlender(0,0,0, fadeTime);
             bmp.translucent().rectangleFill(0, 0, bmp.getWidth(), bmp.getHeight(), fadeOutColor);
             break;
         case NoFade:
@@ -113,16 +113,16 @@ void FadeTool::readFade(const Token * token, const State & type){
         try{
             const Token * tok;
             view >> tok;
-            if ( *tok == "color" ){
-                int r=0,g=0,b=0;
+            if (*tok == "color"){
+                int red = 0, green = 0, blue = 0;
                 try {
-                    tok->view() >> r >> g >> b;
+                    tok->view() >> red >> green >> blue;
                 } catch (const TokenException & ex){
                 }
                 if (type == FadeIn){
-                    setFadeInColor(Graphics::makeColor(r,b,g));
+                    setFadeInColor(Graphics::makeColor(red, green, blue));
                 } else if (type == FadeOut){
-                    setFadeOutColor(Graphics::makeColor(r,b,g));
+                    setFadeOutColor(Graphics::makeColor(red, green, blue));
                 }
             } else if ( *tok == "time" ){
                 int time=0;
