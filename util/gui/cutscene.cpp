@@ -141,22 +141,22 @@ bool Scene::done() const {
 }
 
 CutScene::CutScene():
-width(0),
-height(0),
+width(640),
+height(480),
 current(0){
 }
     
 CutScene::CutScene(const Filesystem::AbsolutePath & path):
-width(0),
-height(0),
+width(640),
+height(480),
 current(0){
     TokenReader reader;
     load(reader.readTokenFromFile(path.path().c_str()));
 }
 
 CutScene::CutScene(const Token * token):
-width(0),
-height(0),
+width(640),
+height(480),
 current(0){
     load(token);
 }
