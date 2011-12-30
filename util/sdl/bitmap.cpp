@@ -1070,9 +1070,21 @@ void Bitmap::StretchHqx(const Bitmap & where, const int sourceX, const int sourc
     }
 
     if (sourceWidth * 4 <= destWidth && sourceHeight * 4 <= destHeight){
-        hq4x::filter_render_565(source, destination);
+        hqx::hq4x(source, destination);
+    } else if (sourceWidth * 3 <= destWidth && sourceHeight * 3 <= destHeight){
+        hqx::hq3x(source, destination);
+    } else if (sourceWidth * 2 <= destWidth && sourceHeight * 2 <= destHeight){
+        hq2x::hq2x(source, destination);
     } else {
-        hq2x::filter_render_565(source, destination);
+        if (SDL_MUSTLOCK(source)){
+            SDL_UnlockSurface(source);
+        }
+
+        if (SDL_MUSTLOCK(destination)){
+            SDL_UnlockSurface(destination);
+        }
+        subSource.Stretch(subDestination);
+        return;
     }
 
     if (SDL_MUSTLOCK(source)){
