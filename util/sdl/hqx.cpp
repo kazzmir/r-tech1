@@ -44,6 +44,19 @@ static void yuv888_to_rgb888(double y, double u, double v,
     red = 1.164 * (y - 16) + 1.596 * (v - 128);
 }
 
+/* 0x03e07c1f: 11111000000111110000011111 */
+/* grow/pack are used to do psuedo-simd operations on pixels,
+ * operations on all the components can be done in parallel because they are separated
+ * by enough bits.
+ * Grow duplicates values, pack unduplicates them.
+ *
+ */
+
+/* 0x03e07e1f: 011111000000111111000011111 */
+/* 0x03e07c1f: 011111000000111110000011111 */
+/* 0x03e0fc1f: 011111000001111110000011111 */
+/* 0x07E0F81F: 111111000001111100000011111 */
+
 #define RGB32_555 0x3e07c1f
 // #define RGB32_565 0x3e0fc1f 
 #define RGB32_565 0x7E0F81F
@@ -66,7 +79,7 @@ enum {
 };
 
 uint32_t yuvTable[65536];
-uint16_t rgb565Table[65536];
+// uint16_t rgb565Table[65536];
 uint8_t rotate[256];
 
 /* FIXME: replace these with readable constant names */
@@ -107,7 +120,7 @@ static void initialize() {
         double y, u, v;
         rgb888_to_yuv888(r, g, b, y, u, v);
 
-        rgb565Table[i] = Graphics::makeColor(r, g, b);
+        // rgb565Table[i] = Graphics::makeColor(r, g, b);
 
         /* Pack the YUV parameters into a single int */
         yuvTable[i] = ((unsigned)y << 21) + ((unsigned)u << 11) + ((unsigned)v);
@@ -128,19 +141,6 @@ static bool same(uint16_t x, uint16_t y) {
 static bool diff(uint32_t x, uint16_t y) {
   return ((x - yuvTable[y]) & diff_mask);
 }
-
-/* 0x03e07c1f: 11111000000111110000011111 */
-/* I'm pretty sure grow/pack are used to do psuedo-simd operations on pixels,
- * operations on all the components can be done in parallel because they are separated
- * by enough bits.
- * Grow duplicates values, pack unduplicates them.
- *
- */
-
-/* 0x03e07e1f: 011111000000111111000011111 */
-/* 0x03e07c1f: 011111000000111110000011111 */
-/* 0x03e0fc1f: 011111000001111110000011111 */
-/* 0x07E0F81F: 111111000001111100000011111 */
 
 static uint16_t blend1(uint32_t A, uint32_t B) {
   grow(A); grow(B);
@@ -205,7 +205,7 @@ void filter_size(unsigned &width, unsigned &height) {
     height *= 2;
 }
 
-void filter_render(uint16_t *colortable, SDL_Surface * input, SDL_Surface * output){
+void filter_render(SDL_Surface * input, SDL_Surface * output){
     initialize();
     /* pitch is adjusted by the bit depth (2 bytes per pixel) so we
      * divide by two since we are using int16_t
@@ -250,13 +250,13 @@ void filter_render(uint16_t *colortable, SDL_Surface * input, SDL_Surface * outp
             pattern |= diff(e, I) << 7;
 
             /* upper left */
-            *(out0 + 0) = colortable[blend(hqTable[pattern], E, A, B, D, F, H)]; pattern = rotate[pattern];
+            *(out0 + 0) = blend(hqTable[pattern], E, A, B, D, F, H); pattern = rotate[pattern];
             /* upper right */
-            *(out0 + 1) = colortable[blend(hqTable[pattern], E, C, F, B, H, D)]; pattern = rotate[pattern];
+            *(out0 + 1) = blend(hqTable[pattern], E, C, F, B, H, D); pattern = rotate[pattern];
             /* lower right */
-            *(out1 + 1) = colortable[blend(hqTable[pattern], E, I, H, F, D, B)]; pattern = rotate[pattern];
+            *(out1 + 1) = blend(hqTable[pattern], E, I, H, F, D, B); pattern = rotate[pattern];
             /* lower left */
-            *(out1 + 0) = colortable[blend(hqTable[pattern], E, G, D, H, B, F)];
+            *(out1 + 0) = blend(hqTable[pattern], E, G, D, H, B, F);
 
             in++;
             out0 += 2;
@@ -271,7 +271,7 @@ void filter_render(uint16_t *colortable, SDL_Surface * input, SDL_Surface * outp
 
 void filter_render_565(SDL_Surface * input, SDL_Surface * output){
     initialize();
-    filter_render(rgb565Table, input, output);
+    filter_render(input, output);
 }
 
 }
@@ -296,7 +296,7 @@ namespace hq4x{
 //License along with this program; if not, write to the Free Software
 //Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-static int   LUT16to32[65536];
+// static int   LUT16to32[65536];
 static int   RGBtoYUV[65536];
 static int   YUV1, YUV2;
 static const  int   Ymask = 0x00FF0000;
@@ -417,7 +417,7 @@ inline void Interp8(unsigned char * pc, uint32_t c1, uint32_t c2){
 #define PIXEL00_80    Interp8(pOut, c[5], c[1]);
 #define PIXEL00_81    Interp8(pOut, c[5], c[4]);
 #define PIXEL00_82    Interp8(pOut, c[5], c[2]);
-#define PIXEL01_0     *((PIXEL_TYPE*)(pOut+4)) = c[5];
+#define PIXEL01_0     *((PIXEL_TYPE*)(pOut+sizeof(PIXEL_TYPE))) = c[5];
 #define PIXEL01_10    Interp1(pOut+sizeof(PIXEL_TYPE), c[5], c[1]);
 #define PIXEL01_12    Interp1(pOut+sizeof(PIXEL_TYPE), c[5], c[2]);
 #define PIXEL01_14    Interp1(pOut+sizeof(PIXEL_TYPE), c[2], c[5]);
@@ -458,7 +458,7 @@ inline void Interp8(unsigned char * pc, uint32_t c1, uint32_t c2){
 #define PIXEL10_61    Interp6(pOut+BpL, c[5], c[4], c[1]);
 #define PIXEL10_81    Interp8(pOut+BpL, c[5], c[4]);
 #define PIXEL10_83    Interp8(pOut+BpL, c[4], c[2]);
-#define PIXEL11_0     *((PIXEL_TYPE*)(pOut+BpL+4)) = c[5];
+#define PIXEL11_0     *((PIXEL_TYPE*)(pOut+BpL+sizeof(PIXEL_TYPE))) = c[5];
 #define PIXEL11_30    Interp3(pOut+BpL+sizeof(PIXEL_TYPE), c[5], c[1]);
 #define PIXEL11_31    Interp3(pOut+BpL+sizeof(PIXEL_TYPE), c[5], c[4]);
 #define PIXEL11_32    Interp3(pOut+BpL+sizeof(PIXEL_TYPE), c[5], c[2]);
@@ -559,6 +559,11 @@ inline bool Diff(unsigned int w1, unsigned int w2){
 }
 
 void InitLUTs(void){
+    static bool initialized = false;
+    if (initialized){
+        return;
+    }
+    initialized = true;
   // int i, j, k, r, g, b, Y, u, v;
 
   /*
@@ -574,16 +579,16 @@ void InitLUTs(void){
         uint8_t r, g, b;
         rgb565_to_rgb888(R, G, B, r, g, b);
 
-        LUT16to32[i] = Graphics::makeColor(r, g, b);
+        // LUT16to32[i] = Graphics::makeColor(r, g, b);
 
-        /*
         double y, u, v;
         rgb888_to_yuv888(r, g, b, y, u, v);
-        */
-              
+
+        /*
         int y = (r + g + b) >> 2;
         int u = 128 + ((r - b) >> 2);
         int v = 128 + ((-r + 2*g -b)>>3);
+        */
 
         /* Pack the YUV parameters into a single int */
         RGBtoYUV[i] = ((unsigned)y << 16) + ((unsigned)u << 8) + ((unsigned)v);
@@ -637,9 +642,9 @@ void hq4x_16(unsigned char * input, unsigned char * output, int Xres, int Yres, 
       w[8] = *((unsigned short*)(pIn + nextline));
 
       if (i>0){
-        w[1] = *((unsigned short*)(pIn + prevline - 2));
-        w[4] = *((unsigned short*)(pIn - 2));
-        w[7] = *((unsigned short*)(pIn + nextline - 2));
+        w[1] = *((unsigned short*)(pIn + prevline - sizeof(PIXEL_TYPE)));
+        w[4] = *((unsigned short*)(pIn - sizeof(PIXEL_TYPE)));
+        w[7] = *((unsigned short*)(pIn + nextline - sizeof(PIXEL_TYPE)));
       } else {
         w[1] = w[2];
         w[4] = w[5];
@@ -647,9 +652,9 @@ void hq4x_16(unsigned char * input, unsigned char * output, int Xres, int Yres, 
       }
 
       if (i<Xres-1) {
-        w[3] = *((unsigned short*)(pIn + prevline + 2));
-        w[6] = *((unsigned short*)(pIn + 2));
-        w[9] = *((unsigned short*)(pIn + nextline + 2));
+        w[3] = *((unsigned short*)(pIn + prevline + sizeof(PIXEL_TYPE)));
+        w[6] = *((unsigned short*)(pIn + sizeof(PIXEL_TYPE)));
+        w[9] = *((unsigned short*)(pIn + nextline + sizeof(PIXEL_TYPE)));
       } else {
         w[3] = w[2];
         w[6] = w[5];
@@ -676,7 +681,8 @@ void hq4x_16(unsigned char * input, unsigned char * output, int Xres, int Yres, 
       }
 
       for (int k = 1; k <= 9; k++){
-        c[k] = LUT16to32[w[k]];
+        // c[k] = LUT16to32[w[k]];
+        c[k] = w[k];
       }
 
       switch (pattern){
@@ -5656,12 +5662,6 @@ void hq4x_16(unsigned char * input, unsigned char * output, int Xres, int Yres, 
       /* move by 4 pixels each time */
       pOut += sizeof(uint16_t) * 4;
     }
-
-    /*
-    pOut += BpL;
-    pOut += BpL;
-    pOut += BpL;
-    */
   }
 }
 
