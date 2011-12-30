@@ -5922,7 +5922,7 @@ inline void Interp5(unsigned char * pc, int c1, int c2)
 #define PIXEL22_2   Interp2(pOut+BpL+BpL+sizeof(PIXEL_TYPE)*2, c[5], c[6], c[8]);
 #define PIXEL22_4   Interp4(pOut+BpL+BpL+sizeof(PIXEL_TYPE)*2, c[5], c[6], c[8]);
 #define PIXEL22_5   Interp5(pOut+BpL+BpL+sizeof(PIXEL_TYPE)*2, c[6], c[8]);
-#define PIXEL22_C   *((PIXEL_TYPE*)(pOut+BpL+BpL+sizeof(PIXEL_TYPE))) = c[5];
+#define PIXEL22_C   *((PIXEL_TYPE*)(pOut+BpL+BpL+sizeof(PIXEL_TYPE)*2)) = c[5];
 
 /*
 inline bool Diff(unsigned int w1, unsigned int w2){
