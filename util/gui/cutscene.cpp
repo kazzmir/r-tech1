@@ -9,6 +9,7 @@
 #include "util/token.h"
 #include "util/tokenreader.h"
 #include "util/file-system.h"
+#include "configuration.h"
 
 using namespace Gui;
 
@@ -293,6 +294,8 @@ void CutScene::playScene(unsigned int scene){
         InputMap<Keys> input;
         input.set(Keyboard::Key_ESC, 0, true, Esc);
         input.set(Joystick::Quit, 0, true, Esc);
+        input.set(Configuration::config(0).getAttack1(), Esc);
+        input.set(Configuration::config(0).getJoystickAttack1(), Esc);
 
         Logic logic(input, scenes[scene]);
         Draw draw(logic, scenes[scene], width, height);
