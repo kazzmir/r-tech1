@@ -8,13 +8,21 @@
 #include "util/stretch-bitmap.h"
 #include "util/token.h"
 #include "util/tokenreader.h"
+#include "util/file-system.h"
 
 using namespace Gui;
 
 Scene::Scene(const Token * token):
 ticks(0),
 endTicks(-1){
-    if ( *token != "scene" ){
+    parseScene(token);
+}
+
+Scene::~Scene(){
+}
+
+void Scene::parseScene(const Token * token){
+    if (*token != "scene"){
         throw LoadException(__FILE__, __LINE__, "Not a Scene");
     }
     TokenView view = token->view();
@@ -22,12 +30,17 @@ endTicks(-1){
         try{
             const Token * tok;
             view >> tok;
-            if ( *tok == "time" ){
+            if (*tok == "time"){
                 tok->view() >> endTicks;
-            } else if ( *tok == "animation" || *tok == "anim" ){
+            } else if (*tok == "animation" || *tok == "anim"){
                 addAnimation(Util::ReferenceCount<Gui::Animation>(new Gui::Animation(tok)));
-            } else if ( *tok == "fade" ){
+            } else if (*tok == "fade"){
                 fader.parseDefaults(tok);
+            } else if (*tok == "file"){
+                std::string file;
+                tok->view() >> file;
+                TokenReader reader;
+                parseScene(reader.readTokenFromFile(Storage::instance().find(Filesystem::RelativePath(file)).path()));
             } else {
                 Global::debug(3) << "Unhandled Scene attribute: " << std::endl;
                 if (Global::getDebug() >= 3){
@@ -40,9 +53,6 @@ endTicks(-1){
             throw ex;
         }
     }
-}
-
-Scene::~Scene(){
 }
 
 void Scene::forward(int tickCount){
@@ -163,9 +173,9 @@ void CutScene::load(const Token * token){
         try{
             const Token * tok;
             view >> tok;
-            if ( *tok == "name"){
+            if (*tok == "name"){
                 tok->view() >> name;
-            } else if ( *tok == "scene" ){
+            } else if (*tok == "scene"){
                 scenes.push_back(Util::ReferenceCount<Scene>(new Scene(tok)));
             } else {
                 Global::debug(3) << "Unhandled Cutscene attribute: " << std::endl;

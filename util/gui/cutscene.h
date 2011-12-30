@@ -43,6 +43,9 @@ public:
     }
 
 protected:
+    void parseScene(const Token * token);
+
+protected:
     int ticks;
     int endTicks;
 
