@@ -7,21 +7,22 @@
 
 class TimeDifference{
 public:
+    TimeDifference();
 
-	TimeDifference();
+    void startTime();
+    void endTime();
 
-	void startTime();
-	void endTime();
+    unsigned long long int getTime();
 
-	unsigned long long int getTime();
+    const std::string printTime();
+    const std::string printTime(const std::string & description, int runs = 1);
 
-	const std::string printTime();
-	const std::string printTime( const std::string & s );
+    const std::string printAverageTime(const std::string & description, int runs);
 
-	~TimeDifference();
+    ~TimeDifference();
 
 protected:
-	unsigned long long start, end;
+    unsigned long long start, end;
 
 };
 
