@@ -1069,7 +1069,11 @@ void Bitmap::StretchHqx(const Bitmap & where, const int sourceX, const int sourc
         SDL_LockSurface(destination);
     }
 
-    hq2x::filter_render_565(source, destination);
+    if (sourceWidth * 4 <= destWidth && sourceHeight * 4 <= destHeight){
+        hq4x::filter_render_565(source, destination);
+    } else {
+        hq2x::filter_render_565(source, destination);
+    }
 
     if (SDL_MUSTLOCK(source)){
         SDL_UnlockSurface(source);
