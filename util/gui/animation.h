@@ -26,19 +26,16 @@ namespace Gui{
 // To hold images by number easier to access and reuse
 typedef std::map<int, Util::ReferenceCount<Graphics::Bitmap> > ImageMap;
 
-/* TODO: move most of this class definition to ImageFrame */
-class Frame{
+/*! Base Element class for frame types */
+class Element{
 public:
-    Frame(const Token *token, ImageMap &images, const std::string & baseDir);
-    Frame(Util::ReferenceCount<Graphics::Bitmap> bmp);
-    virtual ~Frame();
+    virtual ~Element();
     virtual void act(double xvel, double yvel);
-    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
-    virtual void draw(const Graphics::Bitmap &);
-    virtual void reset();
-    virtual void setToEnd(const RelativePoint &);
-    virtual const std::string getInfo();
-
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) = 0;
+    virtual void draw(const Graphics::Bitmap &) = 0;
+    virtual void reset() = 0;
+    virtual void setToEnd(const RelativePoint &) = 0;
+    virtual const std::string getInfo() = 0;
     virtual inline const Util::ReferenceCount<Graphics::Bitmap> & getBitmap() const {
         return this->bmp;
     }
@@ -50,7 +47,7 @@ public:
     virtual inline const RelativePoint getScrollOffset() const {
         return this->offset;
     }
-
+    
     virtual inline int getTime() const {
         return this->time;
     }
@@ -58,34 +55,49 @@ public:
     virtual inline int getAlpha() const {
         return this->alpha;
     }
-
 protected:
-    virtual void parseToken(const Token * token, const std::string & baseDir, ImageMap & map);
-
-protected:
+    Element();
     Util::ReferenceCount<Graphics::Bitmap> bmp;
     RelativePoint offset;
     RelativePoint scrollOffset;
     int time;
-    bool horizontalFlip;
-    bool verticalFlip;
     int alpha;
 };
 
-class TextFrame: public Frame {
+/*! Image Frame */
+class ImageFrame : public Element{
 public:
-    /* 'map' and 'baseDir' are vestigal parameters only needed for Frame. get rid
-     * of them at some point.
-     */
-    TextFrame(const Token *token, ImageMap & map, const std::string & baseDir);
+    ImageFrame(const Token *, ImageMap &, const std::string &);
+    ImageFrame(Util::ReferenceCount<Graphics::Bitmap> bmp);
+    virtual ~ImageFrame();
+    //virtual void act(double xvel, double yvel);
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(const Graphics::Bitmap &);
+    virtual void reset();
+    virtual void setToEnd(const RelativePoint &);
+    virtual const std::string getInfo();
+protected:
+    virtual void parseToken(const Token *, const std::string &, ImageMap &);
+
+protected:
+    bool horizontalFlip;
+    bool verticalFlip;
+};
+
+/*! Text Frame */
+class TextFrame: public Element {
+public:
+    TextFrame(const Token *);
     virtual ~TextFrame();
     
     virtual void act(double xvel, double yvel);
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
     virtual void draw(const Graphics::Bitmap &);
-
+    virtual void reset();
+    virtual void setToEnd(const RelativePoint &);
+    virtual const std::string getInfo();
 protected:
-    virtual void parseToken(const Token * token, const std::string & baseDir, ImageMap & map);
+    virtual void parseToken(const Token *);
 
     /* FIXME: default this to Globals::DEFAULT_FONT */
     std::string font;
@@ -99,7 +111,7 @@ class Sequence{
 public:
     Sequence();
 
-    virtual Util::ReferenceCount<Frame> getCurrentFrame() const = 0;
+    virtual Util::ReferenceCount<Element> getCurrentFrame() const = 0;
     virtual int totalTicks() const = 0;
     virtual void setToEnd() = 0;
 
@@ -123,8 +135,8 @@ public:
 
 class SequenceFrame: public Sequence {
 public:
-    SequenceFrame(const Util::ReferenceCount<Frame> & frame);
-    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+    SequenceFrame(const Util::ReferenceCount<Element> & frame);
+    virtual Util::ReferenceCount<Element> getCurrentFrame() const;
 
     virtual int totalTicks() const;
     virtual void reset();
@@ -142,7 +154,7 @@ public:
     virtual void backFrame();
 
 protected:
-    Util::ReferenceCount<Frame> frame;
+    Util::ReferenceCount<Element> frame;
     int ticks;
 };
 
@@ -151,7 +163,7 @@ class SequenceLoop: public Sequence {
 public:
     SequenceLoop(int loops);
     
-    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+    virtual Util::ReferenceCount<Element> getCurrentFrame() const;
 
     virtual void reset();
     virtual void resetTicks();
@@ -192,7 +204,7 @@ class SequenceAll: public Sequence {
 public:
     SequenceAll(const Token * token, ImageMap & images, const std::string & baseDir);
     
-    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+    virtual Util::ReferenceCount<Element> getCurrentFrame() const;
 
     virtual void reset();
     virtual void resetTicks();
@@ -222,7 +234,7 @@ class SequenceRandom: public Sequence {
 public:
     SequenceRandom(const Token * token, ImageMap & images, const std::string & baseDir);
     
-    virtual Util::ReferenceCount<Frame> getCurrentFrame() const;
+    virtual Util::ReferenceCount<Element> getCurrentFrame() const;
 
     virtual void reset();
     virtual void resetTicks();

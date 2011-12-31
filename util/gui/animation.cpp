@@ -45,12 +45,34 @@ static void renderSprite(const Graphics::Bitmap & bmp, const int x, const int y,
     }
 }
 
-Frame::Frame(const Token *the_token, ImageMap &images, const string & baseDir):
-bmp(0),
-time(0),
-horizontalFlip(false),
-verticalFlip(false),
+Element::Element():
+bmp(NULL),
+time(50),
 alpha(255){
+}
+
+Element::~Element(){
+}
+
+void Element::act(double xvel, double yvel){
+    scrollOffset.moveBy(xvel, yvel);
+    if (bmp != NULL){
+        if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
+            scrollOffset.setX(0);
+        } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
+            scrollOffset.setX(0);
+        }
+        if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
+            scrollOffset.setY(0);
+        } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
+            scrollOffset.setY(0);
+        }
+    }
+}
+
+ImageFrame::ImageFrame(const Token *the_token, ImageMap &images, const string & baseDir):
+horizontalFlip(false),
+verticalFlip(false){
     /*
     if (*the_token != "frame"){
         throw LoadException(__FILE__, __LINE__, "Not an frame");
@@ -74,7 +96,7 @@ alpha(255){
     }
 }
     
-void Frame::parseToken(const Token * token, const string & baseDir, ImageMap & images){
+void ImageFrame::parseToken(const Token * token, const string & baseDir, ImageMap & images){
     if (*token == "image"){
         // get the number
         string maybeNumber;
@@ -120,31 +142,14 @@ void Frame::parseToken(const Token * token, const string & baseDir, ImageMap & i
     }
 }
 
-Frame::Frame(Util::ReferenceCount<Graphics::Bitmap> bmp):
-bmp(bmp),
-time(0),
+ImageFrame::ImageFrame(Util::ReferenceCount<Graphics::Bitmap> bmp):
 horizontalFlip(false),
-verticalFlip(false),
-alpha(255){
+verticalFlip(false){
+    Element::bmp = bmp;
+    time = -1;
 }
 
-Frame::~Frame(){
-}
-
-void Frame::act(double xvel, double yvel){
-    scrollOffset.moveBy(xvel, yvel);
-    if (bmp != NULL){
-        if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
-            scrollOffset.setX(0);
-        } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
-            scrollOffset.setX(0);
-        }
-        if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
-            scrollOffset.setY(0);
-        } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
-            scrollOffset.setY(0);
-        }
-    }
+ImageFrame::~ImageFrame(){
 }
     
 static bool closeFloat(double a, double b){
@@ -152,7 +157,7 @@ static bool closeFloat(double a, double b){
     return fabs(a-b) < epsilon;
 }
 
-void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work){
+void ImageFrame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work){
     if (!bmp){
         return;
     }
@@ -217,7 +222,7 @@ void Frame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work
  * likely the cell will contain an image and the image will be the same
  * size as the cell.
  */
-void Frame::draw(const Graphics::Bitmap & work){
+void ImageFrame::draw(const Graphics::Bitmap & work){
     const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
     temp.clearToMask();
     renderSprite(*bmp, 0, 0, alpha, horizontalFlip, verticalFlip, temp);
@@ -232,24 +237,23 @@ void Frame::draw(const Graphics::Bitmap & work){
     */
 }
 
-void Frame::reset(){
+void ImageFrame::reset(){
     scrollOffset = RelativePoint();
 }
 
-void Frame::setToEnd(const RelativePoint & end){
+void ImageFrame::setToEnd(const RelativePoint & end){
     scrollOffset = end;
 }
 
 static const char * FRAME_TEXT = "Offset: ( %f, %f)\nScroll Offset: ( %f, %f)\nTime: %d\nHorizontal Flip: %d\nVertical Flip: %d\nAlpha: %d\n\n";
 
-const std::string Frame::getInfo(){
+const std::string ImageFrame::getInfo(){
     char info[255];
     sprintf(info, FRAME_TEXT, offset.getRelativeX(), offset.getRelativeY(), scrollOffset.getRelativeX(), scrollOffset.getRelativeY(), time, horizontalFlip, verticalFlip, alpha);
     return std::string(info);
 }
 
-TextFrame::TextFrame(const Token *token, ImageMap & map, const string & baseDir):
-Frame(token, map, baseDir),
+TextFrame::TextFrame(const Token *token):
 fontWidth(20),
 fontHeight(20){
     TokenView view = token->view();
@@ -257,7 +261,7 @@ fontHeight(20){
         try{
             const Token * token;
             view >> token;
-            parseToken(token, baseDir, map);
+            parseToken(token);
         } catch ( const TokenException & ex ) {
             throw LoadException(__FILE__, __LINE__, ex, "Menu animation parse error");
         } catch ( const LoadException & ex ) {
@@ -271,7 +275,7 @@ TextFrame::~TextFrame(){
     
 void TextFrame::act(double xvel, double yvel){
     gradient.forward();
-    Frame::act(xvel, yvel);
+    Element::act(xvel, yvel);
 }
     
 void TextFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
@@ -286,7 +290,17 @@ void TextFrame::draw(const Graphics::Bitmap & work){
     /* Probably don't need this.. but implement it if you do! */
 }
 
-void TextFrame::parseToken(const Token * token, const string & baseDir, ImageMap & map){
+void TextFrame::reset(){
+}
+
+void TextFrame::setToEnd(const RelativePoint & point){
+}
+
+const std::string TextFrame::getInfo(){
+    return message;
+}
+
+void TextFrame::parseToken(const Token * token){
     if (*token == "message"){
         token->view() >> message;
     } else if (*token == "font"){
@@ -317,7 +331,7 @@ Sequence::Sequence(){
 Sequence::~Sequence(){
 }
 
-SequenceFrame::SequenceFrame(const Util::ReferenceCount<Frame> & frame):
+SequenceFrame::SequenceFrame(const Util::ReferenceCount<Element> & frame):
 frame(frame),
 ticks(0){
 }
@@ -326,7 +340,7 @@ void SequenceFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
     frame->draw(xaxis, yaxis, work);
 }
 
-Util::ReferenceCount<Frame> SequenceFrame::getCurrentFrame() const {
+Util::ReferenceCount<Element> SequenceFrame::getCurrentFrame() const {
     return frame;
 }
 
@@ -373,7 +387,7 @@ currentLoop(loops),
 loopTimes(loops){
 }
     
-Util::ReferenceCount<Frame> SequenceLoop::getCurrentFrame() const {
+Util::ReferenceCount<Element> SequenceLoop::getCurrentFrame() const {
     if (currentFrame < frames.size()){
         return frames[currentFrame]->getCurrentFrame();
     } else {
@@ -382,7 +396,7 @@ Util::ReferenceCount<Frame> SequenceLoop::getCurrentFrame() const {
             return frames[frames.size() - 1]->getCurrentFrame();
         }
     }
-    return Util::ReferenceCount<Frame>(NULL);
+    return Util::ReferenceCount<Element>(NULL);
 }
     
 Util::ReferenceCount<Sequence> SequenceLoop::getCurrentSequence() const {
@@ -442,10 +456,10 @@ void SequenceLoop::addSequence(const Util::ReferenceCount<Sequence> & sequence){
 
 static Util::ReferenceCount<Sequence> parseSequence(const Token * token, ImageMap & images, const string & baseDir){
     if (*token == "frame"){
-        Util::ReferenceCount<Frame> frame(new Frame(token, images, baseDir));
+        Util::ReferenceCount<Element> frame(new ImageFrame(token, images, baseDir));
         return Util::ReferenceCount<Sequence>(new SequenceFrame(frame));
     } else if (*token == "text"){
-        Util::ReferenceCount<Frame> frame(new TextFrame(token, images, baseDir));
+        Util::ReferenceCount<Element> frame(new TextFrame(token));
         return Util::ReferenceCount<Sequence>(new SequenceFrame(frame));
     } else if (*token == "loop"){
         int times;
@@ -547,8 +561,8 @@ SequenceAll::SequenceAll(const Token * token, ImageMap & images, const string & 
     }
 }
     
-Util::ReferenceCount<Frame> SequenceAll::getCurrentFrame() const {
-    return Util::ReferenceCount<Frame>(NULL);
+Util::ReferenceCount<Element> SequenceAll::getCurrentFrame() const {
+    return Util::ReferenceCount<Element>(NULL);
 }
 
 void SequenceAll::reset(){
@@ -643,8 +657,8 @@ current(0){
     current = Util::rnd(sequences.size());
 }
     
-Util::ReferenceCount<Frame> SequenceRandom::getCurrentFrame() const {
-    return Util::ReferenceCount<Frame>(NULL);
+Util::ReferenceCount<Element> SequenceRandom::getCurrentFrame() const {
+    return Util::ReferenceCount<Element>(NULL);
 }
 
 void SequenceRandom::reset(){
@@ -858,10 +872,10 @@ sequence(0){
                 }
                 velocity.set(x,y);
             } else if (*token == "frame"){
-                Util::ReferenceCount<Frame> frame(new Frame(token, images, basedir));
+                Util::ReferenceCount<Element> frame(new ImageFrame(token, images, basedir));
                 sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
             } else if (*token == "text"){
-                Util::ReferenceCount<Frame> frame(new TextFrame(token, images, basedir));
+                Util::ReferenceCount<Element> frame(new TextFrame(token));
                 sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
             } else if (*token == "all"){
                 sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceAll(token, images, basedir)));
@@ -911,7 +925,7 @@ sequence(0){
     } else {
         images[0] = bmp;
     }
-    Util::ReferenceCount<Frame> frame(new Frame(bmp));
+    Util::ReferenceCount<Element> frame(new ImageFrame(bmp));
     sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
 }
 
@@ -927,7 +941,7 @@ sequence(0){
     } else {
         images[0] = bmp;
     }
-    Util::ReferenceCount<Frame> frame(new Frame(bmp));
+    Util::ReferenceCount<Element> frame(new ImageFrame(bmp));
     sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
 }
 
@@ -937,7 +951,7 @@ depth(BackgroundBottom),
 allowReset(true),
 sequence(0){
     images[0] = image;
-    Util::ReferenceCount<Frame> frame(new Frame(image));
+    Util::ReferenceCount<Element> frame(new ImageFrame(image));
     sequence.addSequence(Util::ReferenceCount<Sequence>(new SequenceFrame(frame)));
 }
 
@@ -981,7 +995,7 @@ void Animation::draw(const Graphics::Bitmap & work){
 }
 
 void Animation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work){
-    const Util::ReferenceCount<Frame> & frame = sequence.getCurrentFrame();
+    const Util::ReferenceCount<Element> & frame = sequence.getCurrentFrame();
     if (frame != NULL){
         Graphics::Bitmap clipped(work, x, y, width, height);
         frame->draw(clipped);
@@ -1011,8 +1025,8 @@ void Animation::setToEnd(){
     // currentLoop = 0;
     // Set offsets 
     /*
-    for (std::vector<Util::ReferenceCount<Frame> >::iterator i = frames.begin(); i != frames.end(); ++i){
-        Util::ReferenceCount<Frame> frame = *i;
+    for (std::vector<Util::ReferenceCount<Element> >::iterator i = frames.begin(); i != frames.end(); ++i){
+        Util::ReferenceCount<Element> frame = *i;
         frame->setToEnd(RelativePoint(ticks * velocity.getRelativeX(), ticks * velocity.getRelativeY()));
     }
     */
