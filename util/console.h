@@ -57,6 +57,8 @@ public:
     virtual void pageUp();
     virtual void pageDown();
 
+    virtual bool isActive() const;
+
     /* add a line of text */
     virtual void addLine(const std::string & line);
     
