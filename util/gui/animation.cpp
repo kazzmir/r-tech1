@@ -321,9 +321,11 @@ void TextFrame::draw(const Graphics::Bitmap & work){
 }
 
 void TextFrame::reset(){
+    scrollOffset = RelativePoint();
 }
 
 void TextFrame::setToEnd(const RelativePoint & point){
+    scrollOffset = point;
 }
 
 const std::string TextFrame::getInfo(){
