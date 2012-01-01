@@ -184,10 +184,14 @@ void Console::activate(){
     }
     textInput.clearInput();
 }
+    
+bool Console::isActive() const {
+    return state == Open || state == Opening;
+}
 
 /* console input */
 bool Console::doInput() {
-    if (state != Open){
+    if (state == Closed || state == Closing){
         return false;
     }
 
