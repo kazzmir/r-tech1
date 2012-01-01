@@ -45,32 +45,58 @@ static void renderSprite(const Graphics::Bitmap & bmp, const int x, const int y,
     }
 }
 
-Element::Element():
-bmp(NULL),
+Element::Element(const Token * token):
 time(50),
 alpha(255){
+    if (token != NULL){
+        TokenView view = token->view();
+        while (view.hasMore()){
+            try{
+                const Token * tok;
+                view >> tok;
+                parseToken(tok);
+            } catch ( const TokenException & ex ) {
+                throw LoadException(__FILE__, __LINE__, ex, "Gui::Animation::Element parse error");
+            } catch ( const LoadException & ex ) {
+                throw ex;
+            }
+        }
+    }
 }
 
 Element::~Element(){
 }
 
-void Element::act(double xvel, double yvel){
-    scrollOffset.moveBy(xvel, yvel);
-    if (bmp != NULL){
-        if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
-            scrollOffset.setX(0);
-        } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
-            scrollOffset.setX(0);
+void Element::parseToken(const Token * token){
+    if (*token == "alpha"){
+        // get alpha
+        token->view() >> alpha;
+    } else if (*token == "offset"){
+        // Get the offset location it defaults to 0,0
+        double x=0, y=0;
+        try {
+            token->view() >> x >> y;
+        } catch (const TokenException & ex){
         }
-        if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
-            scrollOffset.setY(0);
-        } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
-            scrollOffset.setY(0);
+        offset.set(x,y);
+    } else if (*token == "time"){
+        // time to display
+        token->view() >> time;
+    } else {
+        Global::debug( 3 ) << "Unhandled Gui::Animation::Element attribute: " << endl;
+        if (Global::getDebug() >= 3){
+            token->print(" ");
         }
     }
 }
 
+void Element::act(double xvel, double yvel){
+    scrollOffset.moveBy(xvel, yvel);
+}
+
 ImageFrame::ImageFrame(const Token *the_token, ImageMap &images, const string & baseDir):
+Element(the_token),
+bmp(NULL),
 horizontalFlip(false),
 verticalFlip(false){
     /*
@@ -114,28 +140,14 @@ void ImageFrame::parseToken(const Token * token, const string & baseDir, ImageMa
         } else {
             bmp = Util::ReferenceCount<Graphics::Bitmap>(new Graphics::Bitmap(Storage::instance().find(Filesystem::RelativePath(baseDir + "/" + maybeNumber)).path()));
         }
-    } else if (*token == "alpha"){
-        // get alpha
-        token->view() >> alpha;
-    } else if (*token == "offset"){
-        // Get the offset location it defaults to 0,0
-        double x=0, y=0;
-        try {
-            token->view() >> x >> y;
-        } catch (const TokenException & ex){
-        }
-        offset.set(x,y);
     } else if (*token == "hflip"){
         // horizontal flip
         token->view() >> horizontalFlip;
     } else if (*token == "vflip"){
         // horizontal flip
         token->view() >> verticalFlip;
-    } else if (*token == "time"){
-        // time to display
-        token->view() >> time;
     } else {
-        Global::debug( 3 ) << "Unhandled menu attribute: "<<endl;
+        Global::debug( 3 ) << "Unhandled Gui::Animation::ImageFrame attribute: "<<endl;
         if (Global::getDebug() >= 3){
             token->print(" ");
         }
@@ -143,9 +155,10 @@ void ImageFrame::parseToken(const Token * token, const string & baseDir, ImageMa
 }
 
 ImageFrame::ImageFrame(Util::ReferenceCount<Graphics::Bitmap> bmp):
+Element(NULL),
+bmp(bmp),
 horizontalFlip(false),
 verticalFlip(false){
-    Element::bmp = bmp;
     time = -1;
 }
 
@@ -155,6 +168,22 @@ ImageFrame::~ImageFrame(){
 static bool closeFloat(double a, double b){
     const double epsilon = 0.001;
     return fabs(a-b) < epsilon;
+}
+
+void ImageFrame::act(double xvel, double yvel){
+    scrollOffset.moveBy(xvel, yvel);
+    if (bmp != NULL){
+        if (scrollOffset.getDistanceFromCenterX() >= bmp->getWidth()){
+            scrollOffset.setX(0);
+        } else if (scrollOffset.getDistanceFromCenterX() <= -(bmp->getWidth())){
+            scrollOffset.setX(0);
+        }
+        if (scrollOffset.getDistanceFromCenterY() >= bmp->getHeight()){
+            scrollOffset.setY(0);
+        } else if (scrollOffset.getDistanceFromCenterY() <= -(bmp->getHeight())){
+            scrollOffset.setY(0);
+        }
+    }
 }
 
 void ImageFrame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap & work){
@@ -254,6 +283,7 @@ const std::string ImageFrame::getInfo(){
 }
 
 TextFrame::TextFrame(const Token *token):
+Element(token),
 fontWidth(20),
 fontHeight(20){
     TokenView view = token->view();
