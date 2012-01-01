@@ -36,9 +36,6 @@ public:
     virtual void reset() = 0;
     virtual void setToEnd(const RelativePoint &) = 0;
     virtual const std::string getInfo() = 0;
-    virtual inline const Util::ReferenceCount<Graphics::Bitmap> & getBitmap() const {
-        return this->bmp;
-    }
 
     virtual inline const RelativePoint getOffset() const {
         return this->offset;
@@ -56,12 +53,13 @@ public:
         return this->alpha;
     }
 protected:
-    Element();
-    Util::ReferenceCount<Graphics::Bitmap> bmp;
+    Element(const Token *);
     RelativePoint offset;
     RelativePoint scrollOffset;
     int time;
     int alpha;
+private:
+    void parseToken(const Token *);
 };
 
 /*! Image Frame */
@@ -70,16 +68,20 @@ public:
     ImageFrame(const Token *, ImageMap &, const std::string &);
     ImageFrame(Util::ReferenceCount<Graphics::Bitmap> bmp);
     virtual ~ImageFrame();
-    //virtual void act(double xvel, double yvel);
+    virtual void act(double xvel, double yvel);
     virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
     virtual void draw(const Graphics::Bitmap &);
     virtual void reset();
     virtual void setToEnd(const RelativePoint &);
     virtual const std::string getInfo();
+    virtual inline const Util::ReferenceCount<Graphics::Bitmap> & getBitmap() const {
+        return this->bmp;
+    }
 protected:
     virtual void parseToken(const Token *, const std::string &, ImageMap &);
 
 protected:
+    Util::ReferenceCount<Graphics::Bitmap> bmp;
     bool horizontalFlip;
     bool verticalFlip;
 };
