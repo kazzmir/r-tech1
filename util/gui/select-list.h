@@ -78,6 +78,15 @@ public:
         return this->accessEmpty;
     }
     
+    //! Draw Empty
+    virtual inline void setDrawEmpty(bool draw){
+        this->drawEmpty = draw;
+    }
+    //! Get Draw empty
+    virtual inline bool getDrawEmpty() const {
+        return this->drawEmpty;
+    }
+    
     //! Set wrap
     virtual inline void setWrap(bool wrap){
         this->allowWrap = wrap;
@@ -91,6 +100,9 @@ protected:
     
     //! Can occupy empty cells/spaces
     bool accessEmpty;
+    
+    //! Can draw empty cells
+    bool drawEmpty;
     
     //! Is wrappable
     bool allowWrap;
