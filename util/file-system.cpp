@@ -72,7 +72,7 @@ const string & Path::path() const {
 }
         
 const string Path::getExtension() const {
-    size_t dot = mypath.find('.');
+    size_t dot = mypath.rfind('.');
     if (dot == string::npos){
         return "";
     } else {
