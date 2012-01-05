@@ -46,7 +46,7 @@ public:
     virtual const Util::ReferenceCount<SelectItem> getItem(unsigned int index) const = 0;
     
     //! Get specific item
-    virtual const Util::ReferenceCount<SelectItem> getItemByCursor(int index) const = 0;
+    virtual const Util::ReferenceCount<SelectItem> getItemByCursor(unsigned int index) const = 0;
     
     virtual void clearItems() = 0;
     
@@ -58,12 +58,21 @@ public:
     virtual void setCursors(int total) = 0;
     virtual int totalCursors() const = 0;
     
-    virtual void setCurrentIndex(int cursor, unsigned int location) = 0;
-    virtual unsigned int getCurrentIndex(int cursor) const = 0;
-    virtual bool up(int cursor) = 0;
-    virtual bool down(int cursor) = 0;
-    virtual bool left(int cursor) = 0;
-    virtual bool right(int cursor) = 0;
+    enum CursorState{
+        Disabled,
+        Active,
+        Done,
+        Invalid,
+    };
+    
+    virtual void setCurrentIndex(unsigned int cursor, unsigned int location) = 0;
+    virtual unsigned int getCurrentIndex(unsigned int cursor) const = 0;
+    virtual void setCurrentState(unsigned int cursor, const CursorState &) = 0;
+    virtual const CursorState getCurrentState(unsigned int cursor) const = 0;
+    virtual bool up(unsigned int cursor) = 0;
+    virtual bool down(unsigned int cursor) = 0;
+    virtual bool left(unsigned int cursor) = 0;
+    virtual bool right(unsigned int cursor) = 0;
     
     //! Has more low/high
     virtual bool hasMoreLow() const = 0;
@@ -112,6 +121,24 @@ protected:
     bool allowWrap;
 };
 
+/*! Cursor handler */
+class Cursor{
+public:
+    Cursor(unsigned int index, const SelectListInterface::CursorState &);
+    ~Cursor();
+    Cursor(const Cursor &);
+    const Cursor & operator=(const Cursor &);
+    void setIndex(unsigned int index);
+    unsigned int getIndex() const;
+    void increment();
+    void decrement();
+    void setState(const SelectListInterface::CursorState &);
+    const SelectListInterface::CursorState & getState() const;
+private:
+    unsigned int index;
+    SelectListInterface::CursorState state;
+};
+
 /*! Simple list */
 class SimpleSelect: public SelectListInterface {
 public:
@@ -124,7 +151,7 @@ public:
     virtual void addItems(const std::vector<Util::ReferenceCount<SelectItem> > &);
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const;
     virtual const Util::ReferenceCount<SelectItem> getItem(unsigned int index) const;
-    virtual const Util::ReferenceCount<SelectItem> getItemByCursor(int cursor) const;
+    virtual const Util::ReferenceCount<SelectItem> getItemByCursor(unsigned int cursor) const;
     virtual void clearItems();
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
@@ -132,12 +159,14 @@ public:
     virtual void setStartingOffset(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
-    virtual void setCurrentIndex(int cursor, unsigned int location);
-    virtual unsigned int getCurrentIndex(int cursor) const;
-    virtual bool up(int cursor);
-    virtual bool down(int cursor);
-    virtual bool left(int cursor);
-    virtual bool right(int cursor);
+    virtual void setCurrentIndex(unsigned int cursor, unsigned int location);
+    virtual unsigned int getCurrentIndex(unsigned int cursor) const;
+    virtual void setCurrentState(unsigned int cursor, const SelectListInterface::CursorState &);
+    virtual const SelectListInterface::CursorState getCurrentState(unsigned int cursor) const;
+    virtual bool up(unsigned int cursor);
+    virtual bool down(unsigned int cursor);
+    virtual bool left(unsigned int cursor);
+    virtual bool right(unsigned int cursor);
     
     virtual bool hasMoreLow() const;
     virtual bool hasMoreHigh() const;
@@ -173,9 +202,9 @@ public:
     }
     
 protected:
-    bool checkCursor(int cursor) const;
-    void calculateLeft(int cursor);
-    void calculateRight(int cursor);
+    bool checkCursor(unsigned int cursor) const;
+    void calculateLeft(unsigned int cursor);
+    void calculateRight(unsigned int cursor);
     Layout layout;
     unsigned int viewable;
     unsigned int currentTop;
@@ -184,7 +213,7 @@ protected:
     int cellSpacingX, cellSpacingY;
     int cellMarginX, cellMarginY;
     int startOffsetX, startOffsetY;
-    std::vector<unsigned int> cursors;
+    std::vector<Cursor> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };
 
@@ -200,7 +229,7 @@ public:
     virtual void addItems(const std::vector<Util::ReferenceCount<SelectItem> > &);
     virtual const std::vector<Util::ReferenceCount<SelectItem> > & getItems() const;
     virtual const Util::ReferenceCount<SelectItem> getItem(unsigned int index) const;
-    virtual const Util::ReferenceCount<SelectItem> getItemByCursor(int cursor) const;
+    virtual const Util::ReferenceCount<SelectItem> getItemByCursor(unsigned int cursor) const;
     virtual void clearItems();
     virtual void setCellDimensions(int width, int height);
     virtual void setCellSpacing(int x, int y);
@@ -208,12 +237,14 @@ public:
     virtual void setStartingOffset(int x, int y);
     virtual void setCursors(int total);
     virtual int totalCursors() const;
-    virtual void setCurrentIndex(int cursor, unsigned int location);
-    virtual unsigned int getCurrentIndex(int cursor) const;
-    virtual bool up(int cursor);
-    virtual bool down(int cursor);
-    virtual bool left(int cursor);
-    virtual bool right(int cursor);
+    virtual void setCurrentIndex(unsigned int cursor, unsigned int location);
+    virtual unsigned int getCurrentIndex(unsigned int cursor) const;
+    virtual void setCurrentState(unsigned int cursor, const SelectListInterface::CursorState &);
+    virtual const SelectListInterface::CursorState getCurrentState(unsigned int cursor) const;
+    virtual bool up(unsigned int cursor);
+    virtual bool down(unsigned int cursor);
+    virtual bool left(unsigned int cursor);
+    virtual bool right(unsigned int cursor);
     
     virtual bool hasMoreLow() const;
     virtual bool hasMoreHigh() const;
@@ -246,7 +277,7 @@ public:
     }
     
 protected:
-    bool checkCursor(int cursor) const;
+    bool checkCursor(unsigned int cursor) const;
     
     Layout layout;
     int gridX, gridY;
@@ -255,7 +286,7 @@ protected:
     int cellMarginX, cellMarginY;
     int startOffsetX, startOffsetY;
     unsigned int offset;
-    std::vector<unsigned int> cursors;
+    std::vector<Cursor> cursors;
     std::vector<Util::ReferenceCount<SelectItem> > items;
 };
 
