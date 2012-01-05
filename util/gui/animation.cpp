@@ -307,12 +307,20 @@ void TextFrame::act(double xvel, double yvel){
     gradient.forward();
     Element::act(xvel, yvel);
 }
-    
+
+static const Font & getFont(const string & font, int width, int height){
+    if (font != ""){
+        return Font::getFont(Filesystem::RelativePath(font), width, height);
+    }
+
+    return Font::getDefaultFont(width, height);
+}
+
 void TextFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
     double x = xaxis + offset.getDistanceFromCenterX() + scrollOffset.getDistanceFromCenterX();
     double y = yaxis + offset.getDistanceFromCenterY() + scrollOffset.getDistanceFromCenterY();
 
-    const Font & font = Font::getFont(Filesystem::RelativePath(this->font), fontWidth, fontHeight);
+    const Font & font = getFont(this->font, fontWidth, fontHeight);
     font.printf((int) x, (int) y, gradient.current(), work, "%s", 0, message.c_str());
 }
 
