@@ -208,6 +208,28 @@ bool SimpleSelect::hasMoreHigh() const{
     return ((currentTop + viewable) < items.size());
 }
 
+int SimpleSelect::getWidth(){
+    int x = startOffsetX + cellMarginX;
+    const int stop = currentTop + viewable;
+    int count = currentTop;
+    for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin() + currentTop; i != items.end() && count != stop; ++i, ++count){
+        x+=cellSpacingX + (layout == Horizontal ? cellWidth + cellMarginX : 0);
+    }
+    x+=cellSpacingX + (layout == Horizontal ? cellWidth + cellMarginX : 0);
+    return x;
+}
+
+int SimpleSelect::getHeight(){
+    int y = startOffsetY + cellMarginY;
+    const int stop = currentTop + viewable;
+    int count = currentTop;
+    for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin() + currentTop; i != items.end() && count != stop; ++i, ++count){
+        y+=cellSpacingY + (layout == Vertical ? cellHeight + cellMarginY : 0);
+    }
+    y+=cellSpacingY + (layout == Vertical ? cellHeight + cellMarginY : 0);
+    return y;
+}
+
 bool SimpleSelect::checkCursor(int cursor) const {
     return ((unsigned int)cursor >= cursors.size());
 }
@@ -713,6 +735,14 @@ bool GridSelect::hasMoreHigh() const{
         }
     }
     return false;
+}
+
+int GridSelect::getWidth(){
+    return (cellWidth+cellMarginX+cellSpacingX) * gridX;
+}
+
+int GridSelect::getHeight(){
+    return (cellHeight+cellMarginY+cellSpacingY) * gridY;
 }
 
 bool GridSelect::checkCursor(int cursor) const {
