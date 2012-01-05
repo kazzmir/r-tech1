@@ -69,6 +69,10 @@ public:
     virtual bool hasMoreLow() const = 0;
     virtual bool hasMoreHigh() const = 0;
     
+    //! Get dimensions
+    virtual int getWidth() = 0;
+    virtual int getHeight() = 0;
+    
     //! Access Empty
     virtual inline void setAccessEmpty(bool access){
         this->accessEmpty = access;
@@ -137,6 +141,9 @@ public:
     
     virtual bool hasMoreLow() const;
     virtual bool hasMoreHigh() const;
+    
+    virtual int getWidth();
+    virtual int getHeight();
     
     virtual void setViewable(unsigned int viewable){
         this->viewable = viewable;
@@ -210,6 +217,9 @@ public:
     
     virtual bool hasMoreLow() const;
     virtual bool hasMoreHigh() const;
+    
+    virtual int getWidth();
+    virtual int getHeight();
     
     enum Layout {
         Static,
