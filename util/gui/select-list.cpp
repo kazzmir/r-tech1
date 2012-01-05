@@ -55,8 +55,10 @@ void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) cons
     int count = currentTop;
     for (std::vector<Util::ReferenceCount<SelectItem> >::const_iterator i = items.begin() + currentTop; i != items.end() && count != stop; ++i, ++count){
         const Util::ReferenceCount<SelectItem> item = *i;
-        if (item->isEmpty() && drawEmpty){
-            item->draw(x, y, cellWidth, cellHeight, work, font);
+        if (item->isEmpty()){
+            if (drawEmpty){
+                item->draw(x, y, cellWidth, cellHeight, work, font);
+            }
         } else {
             item->draw(x, y, cellWidth, cellHeight, work, font);
         }
@@ -284,8 +286,10 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
                 for (int column = 0; column < gridX; ++column){
                     if (item_iterator != items.end()){
                         Util::ReferenceCount<SelectItem> item = *item_iterator;
-                        if (item->isEmpty() && drawEmpty){
-                            item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
+                        if (item->isEmpty()){
+                            if (drawEmpty){
+                                item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
+                            }
                         } else {
                             item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
                         }
@@ -310,8 +314,10 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
                 for (int row = 0; row < gridY; ++row){
                     if (item_iterator != items.end()){
                         Util::ReferenceCount<SelectItem> item = *item_iterator;
-                        if (item->isEmpty() && drawEmpty){
-                            item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
+                        if (item->isEmpty()){
+                            if (drawEmpty){
+                                item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
+                            }
                         } else {
                             item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
                         }
@@ -336,8 +342,10 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
                 for (int column = 0; column < gridX; ++column){
                     if (item_iterator != items.end()){
                         Util::ReferenceCount<SelectItem> item = *item_iterator;
-                        if (item->isEmpty() && drawEmpty){
-                            item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
+                        if (item->isEmpty()){
+                            if (drawEmpty){
+                                item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
+                            }
                         } else {
                             item->draw(x_spacing_mod, y_spacing_mod, cellWidth, cellHeight, where, font);
                         }
