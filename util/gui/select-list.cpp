@@ -23,6 +23,51 @@ allowWrap(true){
 SelectListInterface::~SelectListInterface(){
 }
 
+Cursor::Cursor(unsigned int index, const SelectListInterface::CursorState & state):
+index(index),
+state(state){
+}
+
+Cursor::~Cursor(){
+}
+
+Cursor::Cursor(const Cursor & cursor):
+index(cursor.index),
+state(cursor.state){
+}
+
+const Cursor & Cursor::operator=(const Cursor & copy){
+    this->index = copy.index;
+    this->state = copy.state;
+    return *this;
+}
+
+void Cursor::setIndex(unsigned int index){
+    this->index = index;
+}
+
+unsigned int Cursor::getIndex() const{
+    return index;
+}
+
+void Cursor::increment(){
+    index++;
+}
+
+void Cursor::decrement(){
+    if (index > 0){
+        index--;
+    }
+}
+
+void Cursor::setState(const SelectListInterface::CursorState & state){
+    this->state = state;
+}
+
+const SelectListInterface::CursorState & Cursor::getState() const{
+    return state;
+}
+
 SimpleSelect::SimpleSelect():
 layout(Horizontal),
 viewable(3),
@@ -86,7 +131,7 @@ const Util::ReferenceCount<SelectItem> SimpleSelect::getItem(unsigned int index)
     return items[index];
 }
 
-const Util::ReferenceCount<SelectItem> SimpleSelect::getItemByCursor(int cursor) const{
+const Util::ReferenceCount<SelectItem> SimpleSelect::getItemByCursor(unsigned int cursor) const{
     if (getCurrentIndex(cursor) >= items.size()){
         return Util::ReferenceCount<SelectItem>();
     }
@@ -118,85 +163,104 @@ void SimpleSelect::setStartingOffset(int x, int y){
 }
 
 void SimpleSelect::setCursors(int total){
-    cursors.resize(total);
+    cursors.clear();
+    for (int i = 0; i < total; ++i){
+        cursors.push_back(Cursor(i, SelectListInterface::Active));
+    }
 }
 
 int SimpleSelect::totalCursors() const{
     return cursors.size();
 }
 
-void SimpleSelect::setCurrentIndex(int cursor, unsigned int location){
+void SimpleSelect::setCurrentIndex(unsigned int cursor, unsigned int location){
     if (checkCursor(cursor) && location >= items.size()){
         return;
     }
-    cursors[cursor] = location;
+    cursors[cursor].setIndex(location);
 }
 
-unsigned int SimpleSelect::getCurrentIndex(int cursor) const{
+unsigned int SimpleSelect::getCurrentIndex(unsigned int cursor) const{
     if (checkCursor(cursor)){
         return 0;
     }
-    return cursors[cursor];
+    return cursors[cursor].getIndex();
+}
+
+void SimpleSelect::setCurrentState(unsigned int cursor, const SelectListInterface::CursorState & state){
+    if (checkCursor(cursor)){
+        return;
+    }
+    cursors[cursor].setState(state);
+}
+
+const SelectListInterface::CursorState SimpleSelect::getCurrentState(unsigned int cursor) const{
+    if (checkCursor(cursor)){
+        return Invalid;
+    }
+    return cursors[cursor].getState();
 }
 
 /* NOTE This doesn't account for other cursors and viewable areas */
-bool SimpleSelect::up(int cursor){
+bool SimpleSelect::up(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
-    if (cursors[cursor] > 0){
-        cursors[cursor]--;
+    if (cursors[cursor].getIndex() > 0){
+        cursors[cursor].decrement();
         calculateLeft(cursor);
         return true;
     } else if (allowWrap){
-        cursors[cursor] = items.size()-1;
-        currentTop = cursors[cursor] - viewable+1;
+        cursors[cursor].setIndex(items.size()-1);
+        currentTop = cursors[cursor].getIndex() - viewable+1;
         return true;
     }
     return false;
 }
 
-bool SimpleSelect::down(int cursor){
+bool SimpleSelect::down(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
-    if (cursors[cursor] < items.size()-1){
-        cursors[cursor]++;
+    if (cursors[cursor].getIndex() < items.size()-1){
+        cursors[cursor].increment();
         calculateRight(cursor);
         return true;
     } else if (allowWrap){
-        cursors[cursor] = currentTop = 0;
+        cursors[cursor].setIndex(0);
+        currentTop = 0;
         return true;
     }
     return false;
 }
 
-bool SimpleSelect::left(int cursor){
+bool SimpleSelect::left(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
-    if (cursors[cursor] > 0){
-        cursors[cursor]--;
+    if (cursors[cursor].getIndex() > 0){
+        cursors[cursor].decrement();
         calculateLeft(cursor);
         return true;
     } else if (allowWrap){
-        cursors[cursor] = items.size()-1;
-        currentTop = cursors[cursor] - viewable + 1;
+        cursors[cursor].setIndex(items.size()-1);
+        currentTop = cursors[cursor].getIndex() - viewable + 1;
         return true;
     }
     return false;
 }
 
-bool SimpleSelect::right(int cursor){
+bool SimpleSelect::right(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
-    if (cursors[cursor] < items.size()-1){
-        cursors[cursor]++;
+    if (cursors[cursor].getIndex() < items.size()-1){
+        cursors[cursor].increment();
         calculateRight(cursor);
         return true;
     } else if (allowWrap){
-        cursors[cursor] = currentTop = 0;
+        cursors[cursor].setIndex(0);
+        currentTop = 0;
         return true;
     }
     return false;
@@ -232,24 +296,24 @@ int SimpleSelect::getHeight(){
     return y;
 }
 
-bool SimpleSelect::checkCursor(int cursor) const {
+bool SimpleSelect::checkCursor(unsigned int cursor) const {
     return ((unsigned int)cursor >= cursors.size());
 }
 
-void SimpleSelect::calculateLeft(int cursor){
+void SimpleSelect::calculateLeft(unsigned int cursor){
     if (currentTop == 0){
         //currentTop = cursors[cursor];
-    } else if (cursors[cursor] < currentTop + scrollOffset){
-        currentTop = cursors[cursor] - scrollOffset;
+    } else if (cursors[cursor].getIndex() < currentTop + scrollOffset){
+        currentTop = cursors[cursor].getIndex() - scrollOffset;
     }
 }
 
-void SimpleSelect::calculateRight(int cursor){
+void SimpleSelect::calculateRight(unsigned int cursor){
     const unsigned int view = viewable-1;
     if ((currentTop + view) == items.size()-1){
         //currentTop = right;
-    } else if (cursors[cursor] >= (currentTop + view - scrollOffset)){
-        currentTop = cursors[cursor] - view + scrollOffset;
+    } else if (cursors[cursor].getIndex() >= (currentTop + view - scrollOffset)){
+        currentTop = cursors[cursor].getIndex() - view + scrollOffset;
     }
 }
 
@@ -383,7 +447,7 @@ const Util::ReferenceCount<SelectItem> GridSelect::getItem(unsigned int index) c
     return items[index];
 }
 
-const Util::ReferenceCount<SelectItem> GridSelect::getItemByCursor(int cursor) const{
+const Util::ReferenceCount<SelectItem> GridSelect::getItemByCursor(unsigned int cursor) const{
     if (getCurrentIndex(cursor) >= items.size()){
         return Util::ReferenceCount<SelectItem>();
     }
@@ -415,25 +479,42 @@ void GridSelect::setStartingOffset(int x, int y){
 }
 
 void GridSelect::setCursors(int total){
-    cursors.resize(total);
+    cursors.clear();
+    for (int i = 0; i < total; ++i){
+        cursors.push_back(Cursor(i, SelectListInterface::Active));
+    }
 }
 
 int GridSelect::totalCursors() const{
     return cursors.size();
 }
 
-void GridSelect::setCurrentIndex(int cursor, unsigned int location){
+void GridSelect::setCurrentIndex(unsigned int cursor, unsigned int location){
     if (checkCursor(cursor) && location >= items.size()){
         return;
     }
-    cursors[cursor] = location;
+    cursors[cursor].setIndex(location);
 }
 
-unsigned int GridSelect::getCurrentIndex(int cursor) const{
+unsigned int GridSelect::getCurrentIndex(unsigned int cursor) const{
     if (checkCursor(cursor)){
         return 0;
     }
-    return cursors[cursor];
+    return cursors[cursor].getIndex();
+}
+
+void GridSelect::setCurrentState(unsigned int cursor, const SelectListInterface::CursorState & status){
+    if (checkCursor(cursor)){
+        return;
+    }
+    
+}
+
+const SelectListInterface::CursorState GridSelect::getCurrentState(unsigned int cursor) const{
+    if (checkCursor(cursor)){
+        return Invalid;
+    }
+    return cursors[cursor].getState();
 }
 
 static bool inRange(int check, int start, int end){
@@ -468,27 +549,27 @@ static int computeOffset(int location, int width, int height){
     return offset;
 }
 
-bool GridSelect::up(int cursor){
+bool GridSelect::up(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
     switch (layout){
         case Static:{
-            if (inRange(cursors[cursor], 0, gridX-1)){
+            if (inRange(cursors[cursor].getIndex(), 0, gridX-1)){
                 if (allowWrap){
-                    unsigned int location = (gridX * (gridY-1)) + cursors[cursor];
+                    unsigned int location = (gridX * (gridY-1)) + cursors[cursor].getIndex();
                     if (location >= items.size()){
                         location = items.size()-1;
                     }
-                    cursors[cursor] = location;
+                    cursors[cursor].setIndex(location);
                 }
             } else {
-                cursors[cursor] -= gridX;
+                cursors[cursor].setIndex(cursors[cursor].getIndex() - gridX);
             }
             break;
         }
         case InfiniteHorizontal:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location--;
             if (location < 0){
                 if (allowWrap){
@@ -502,25 +583,25 @@ bool GridSelect::up(int cursor){
                     offset--;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         case InfiniteVertical:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location-=gridX;
             if (location < 0){
                 if (allowWrap){
                     location = items.size()-1;
                     offset = computeOffset(location, gridX, gridY);
                 } else {
-                    location = cursors[cursor];
+                    location = cursors[cursor].getIndex();
                 }
             } else {
                 if ((unsigned int)location < offset * gridX){
                     offset--;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         default:
@@ -529,28 +610,28 @@ bool GridSelect::up(int cursor){
     return false;
 }
 
-bool GridSelect::down(int cursor){
+bool GridSelect::down(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
     switch (layout){
         case Static:{
-            if (inRange(cursors[cursor], gridX * (gridY-1), gridX * gridY)){
+            if (inRange(cursors[cursor].getIndex(), gridX * (gridY-1), gridX * gridY)){
                 if (allowWrap){
-                    unsigned int location = cursors[cursor] - (gridX * (gridY-1));
-                    cursors[cursor] = location;
+                    unsigned int location = cursors[cursor].getIndex() - (gridX * (gridY-1));
+                    cursors[cursor].setIndex(location);
                 }
             } else {
-                unsigned int location = cursors[cursor] + gridX;
+                unsigned int location = cursors[cursor].getIndex() + gridX;
                 if (location >= items.size()){
                     location = items.size()-1;
                 }
-                cursors[cursor] = location;
+                cursors[cursor].setIndex(location);
             }
             break;
         }
         case InfiniteHorizontal:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location++;
             if ((unsigned int)location >= items.size()){
                 if (allowWrap){
@@ -561,14 +642,14 @@ bool GridSelect::down(int cursor){
                     offset++;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         case InfiniteVertical:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location+=gridX;
             if ((unsigned int)location >= items.size()){
-                if (cursors[cursor] < items.size()-1){
+                if (cursors[cursor].getIndex() < items.size()-1){
                     location = items.size()-1;
                     offset = computeOffset(location, gridX, gridY);
                 } else if (allowWrap){
@@ -579,7 +660,7 @@ bool GridSelect::down(int cursor){
                     offset++;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         default:
@@ -588,45 +669,45 @@ bool GridSelect::down(int cursor){
     return false;
 }
 
-bool GridSelect::left(int cursor){
+bool GridSelect::left(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
     switch (layout){
         case Static:{
-            if (endPoint(cursors[cursor], 0, gridX * gridY, gridX)){
+            if (endPoint(cursors[cursor].getIndex(), 0, gridX * gridY, gridX)){
                 if (allowWrap){
-                    unsigned int location = cursors[cursor] += gridX-1;
+                    unsigned int location = cursors[cursor].getIndex() + gridX-1;
                     if (location >= items.size()){
                         location = items.size()-1;
                     }
-                    cursors[cursor] = location;
+                    cursors[cursor].setIndex(location);
                 }
             } else {
-                cursors[cursor]--;
+                cursors[cursor].decrement();
             }
             break;
         }
         case InfiniteHorizontal:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location-=gridY;
             if (location < 0){
                 if (allowWrap){
                     location = items.size()-1;
                     offset = computeOffset(location, gridX, gridY);
                 } else {
-                    location = cursors[cursor];
+                    location = cursors[cursor].getIndex();
                 }
             } else {
                 if ((unsigned int)location < offset * gridY){
                     offset--;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         case InfiniteVertical:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location--;
             if (location < 0){
                 if (allowWrap){
@@ -640,7 +721,7 @@ bool GridSelect::left(int cursor){
                     offset--;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         default:
@@ -649,22 +730,22 @@ bool GridSelect::left(int cursor){
     return false;
 }
 
-bool GridSelect::right(int cursor){
+bool GridSelect::right(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
     switch (layout){
         case Static:{
-            if (endPoint(cursors[cursor], gridX-1, gridX * gridY, gridX)){
+            if (endPoint(cursors[cursor].getIndex(), gridX-1, gridX * gridY, gridX)){
                 if (allowWrap){
-                    int location = cursors[cursor] - gridX+1;
+                    int location = cursors[cursor].getIndex() - gridX+1;
                     if (location < 0){
                         location = 0;
                     }
-                    cursors[cursor] = location;
+                    cursors[cursor].setIndex(location);
                 }
             } else {
-                unsigned int location = cursors[cursor]+1;
+                unsigned int location = cursors[cursor].getIndex()+1;
                 if (location >= items.size()){
                     if (allowWrap){
                         location = (gridX * gridY) - gridX;
@@ -672,15 +753,15 @@ bool GridSelect::right(int cursor){
                         location = items.size()-1;
                     }
                 }
-                cursors[cursor] = location;
+                cursors[cursor].setIndex(location);
             }
             break;
         }
         case InfiniteHorizontal:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location+=gridY;
             if ((unsigned int)location >= items.size()){
-                if (cursors[cursor] < items.size()-1){
+                if (cursors[cursor].getIndex() < items.size()-1){
                     location = items.size()-1;
                     offset = computeOffset(location, gridX, gridY);
                 } else if (allowWrap){
@@ -691,11 +772,11 @@ bool GridSelect::right(int cursor){
                     offset++;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         case InfiniteVertical:{
-            int location = cursors[cursor];
+            int location = cursors[cursor].getIndex();
             location++;
             if ((unsigned int)location >= items.size()){
                 if (allowWrap){
@@ -706,7 +787,7 @@ bool GridSelect::right(int cursor){
                     offset++;
                 }
             }
-            cursors[cursor] = location;
+            cursors[cursor].setIndex(location);
             break;
         }
         default:
@@ -753,6 +834,6 @@ int GridSelect::getHeight(){
     return (cellHeight+cellMarginY+cellSpacingY) * gridY;
 }
 
-bool GridSelect::checkCursor(int cursor) const {
+bool GridSelect::checkCursor(unsigned int cursor) const {
     return ((unsigned int)cursor >= cursors.size());
 }
