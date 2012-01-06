@@ -45,10 +45,12 @@ public:
     virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path);
 
 public:
-    int libcOpen(const char * path, int mode, int params);
-    ssize_t libcRead(int fd, void * buf, size_t count);
-    int libcClose(int fd);
-    off_t libcLseek(int fd, off_t offset, int whence);
+    virtual int libcOpen(const char * path, int mode, int params);
+    virtual ssize_t libcRead(int fd, void * buf, size_t count);
+    virtual int libcClose(int fd);
+    virtual off_t libcLseek(int fd, off_t offset, int whence);
+    virtual int libcLstat(const char * path, struct stat * buf);
+    virtual int libcAccess(const char *filename, int mode);
 
 protected:
     /*

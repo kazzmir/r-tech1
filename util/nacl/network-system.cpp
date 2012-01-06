@@ -933,6 +933,17 @@ off_t NetworkSystem::libcLseek(int fd, off_t offset, int whence){
     return handle->seek(offset, whence);
 }
 
+int NetworkSystem::libcLstat(const char * path, struct stat * buf){
+    return -1;
+}
+    
+int NetworkSystem::libcAccess(const char *filename, int mode){
+    if (mode == R_OK){
+        return exists(Filesystem::AbsolutePath(filename));
+    }
+    return -1;
+}
+
 }
 
 /* NOTE FIXME Missing I/O in Native Client */
@@ -947,6 +958,7 @@ extern "C" {
  * --wrap=symbol
  * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
  */
+#if 0
 int __wrap_open(const char * path, int mode, int params){
     return getSystem().libcOpen(path, mode, params);
 }
@@ -973,14 +985,6 @@ off_t __wrap_lseek(int fd, off_t offset, int whence){
     return getSystem().libcLseek(fd, offset, whence);
 }
 
-int pipe (int filedes[2]){
-    return -1;
-}
-
-int mkdir (const char *filename, mode_t mode){
-    return -1;
-}
-
 int __wrap_access(const char *filename, int mode){
     Global::debug(0) << "Access for " << filename << std::endl;
     if (mode == R_OK){
@@ -989,13 +993,22 @@ int __wrap_access(const char *filename, int mode){
     return -1;
 }
 
-char * getcwd (char *buffer, size_t size){
-    return NULL;
-}
-
 int __wrap_lstat (const char *path, struct stat *buf){
     Global::debug(0) << "Lstat for " << path << std::endl;
     return -1;
+}
+#endif
+
+int pipe (int filedes[2]){
+    return -1;
+}
+
+int mkdir (const char *filename, mode_t mode){
+    return -1;
+}
+
+char * getcwd (char *buffer, size_t size){
+    return NULL;
 }
 
 int rmdir (const char *filename){

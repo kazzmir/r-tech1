@@ -8,6 +8,7 @@
 #include <vector>
 #include <stdint.h>
 
+struct stat;
 /* path utilities */
 namespace Path{
     class Path{
@@ -258,9 +259,16 @@ namespace Storage{
         virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path) = 0;
         virtual AbsolutePath findInsensitive(const RelativePath & path) = 0;
         virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path) = 0;
+        virtual int libcOpen(const char * path, int mode, int params) = 0;
+        virtual ssize_t libcRead(int fd, void * buf, size_t count) = 0;
+        virtual int libcClose(int fd) = 0;
+        virtual off_t libcLseek(int fd, off_t offset, int whence) = 0;
+        virtual int libcLstat(const char * path, struct stat * buf) = 0;
+        virtual int libcAccess(const char *filename, int mode) = 0;
     };
 
     System & instance();
+    bool hasInstance();
     System & setInstance(const Util::ReferenceCount<System> & what);
 
     class ZipFileSystem: public System {
@@ -322,6 +330,13 @@ public:
 
     /* same as getFiles but search directories recursively */
     std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+
+    virtual int libcOpen(const char * path, int mode, int params);
+    virtual ssize_t libcRead(int fd, void * buf, size_t count);
+    virtual int libcClose(int fd);
+    virtual off_t libcLseek(int fd, off_t offset, int whence);
+    virtual int libcLstat(const char * path, struct stat * buf);
+    virtual int libcAccess(const char *filename, int mode);
 
 protected:
     AbsolutePath lookup(const RelativePath path);
