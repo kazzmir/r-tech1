@@ -428,6 +428,9 @@ System & instance(){
     self = new Filesystem(Util::getDataPath2());
     return *self;
 }
+        
+void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
+}
 
 bool hasInstance(){
     return self != NULL;

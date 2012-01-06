@@ -252,6 +252,8 @@ namespace Storage{
         /* search for a pattern of a single file within a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
 
+        virtual void addOverlay(const AbsolutePath & container, const AbsolutePath & where);
+
         /* search for some path which may contain wildcards in a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const RelativePath & find, bool caseInsensitive);
         virtual AbsolutePath configFile() = 0;
