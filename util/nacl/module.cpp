@@ -5,7 +5,7 @@
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/module.h>
 #include <ppapi/cpp/var.h>
-#include <ppapi/cpp/dev/scriptable_object_deprecated.h>
+// #include <ppapi/cpp/dev/scriptable_object_deprecated.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_nacl.h>
 #include <string>
@@ -14,11 +14,13 @@
 #include "../funcs.h"
 
 namespace nacl{
+    /*
     class PaintownScript: public pp::deprecated::ScriptableObject {
     public:
         virtual bool HasMethod(const pp::Var& method, pp::Var* exception);
         virtual pp::Var Call(const pp::Var& method, const std::vector<pp::Var>& args,pp::Var* exception);
     };
+    */
 
     class PaintownInstance : public pp::Instance {
     public:
@@ -86,6 +88,7 @@ namespace nacl{
     };
     PaintownInstance * PaintownInstance::the_instance;
 
+    /*
     bool PaintownScript::HasMethod(const pp::Var& method, pp::Var* exception){
         if (!method.is_string()){
             return false;
@@ -110,6 +113,7 @@ namespace nacl{
 
         return pp::Var();
     }
+    */
 
     class PaintownModule : public pp::Module {
     public:

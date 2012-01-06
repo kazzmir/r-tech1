@@ -429,6 +429,10 @@ System & instance(){
     return *self;
 }
 
+bool hasInstance(){
+    return self != NULL;
+}
+
 System & setInstance(const Util::ReferenceCount<System> & what){
     self = what;
     return *self;
@@ -796,4 +800,126 @@ Filesystem::RelativePath Filesystem::cleanse(const AbsolutePath & path){
         str.erase(0, userDirectory().path().length());
     }
     return RelativePath(str);
+}
+
+extern "C" {
+    int __real_open(const char * path, int mode, int params);
+    ssize_t __real_read(int fd, void * buf, size_t count);
+    int __real_close(int fd);
+    off_t __real_lseek(int fd, off_t offset, int whence);
+    int __real_lstat(const char * path, struct stat * buf);
+    int __real_access(const char *filename, int mode);
+}
+
+int Filesystem::libcOpen(const char * path, int mode, int params){
+    return __real_open(path, mode, params);
+}
+
+ssize_t Filesystem::libcRead(int fd, void * buf, size_t count){
+    return __real_read(fd, buf, count);
+}
+
+int Filesystem::libcClose(int fd){
+    return __real_close(fd);
+}
+
+off_t Filesystem::libcLseek(int fd, off_t offset, int whence){
+    return __real_lseek(fd, offset, whence);
+}
+
+int Filesystem::libcLstat(const char * path, struct stat * buf){
+#if !defined(WII) && !defined(NACL)
+    return __real_lstat(path, buf);
+#else
+    return 0;
+#endif
+}
+    
+int Filesystem::libcAccess(const char *filename, int mode){
+#if !defined(NACL)
+    return __real_access(filename, mode);
+#else
+    return -1;
+#endif
+}
+
+extern "C" {
+
+/* http://sourceware.org/binutils/docs-2.21/ld/Options.html#index-g_t_002d_002dwrap_003d_0040var_007bsymbol_007d-261
+ * --wrap=symbol
+ * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
+ */
+int __wrap_open(const char * path, int mode, int params){
+    if (Storage::hasInstance()){
+        return Storage::instance().libcOpen(path, mode, params);
+    } else {
+        return __real_open(path, mode, params);
+    }
+}
+
+ssize_t __wrap_read(int fd, void * buf, size_t count){
+    if (Storage::hasInstance()){
+        return Storage::instance().libcRead(fd, buf, count);
+    } else {
+        return __real_read(fd, buf, count);
+    }
+}
+
+int __wrap_close(int fd){
+    /* we may be given a file descriptor that we do not own, probably
+     * because some file descriptors are really tied to sockets so
+     * if we don't own the fd then pass it to the real close function.
+     */
+
+    if (Storage::hasInstance()){
+        int ok = Storage::instance().libcClose(fd);
+        if (ok == -1){
+            return __real_close(fd);
+        }
+        return ok;
+    } else {
+        return __real_close(fd);
+    }
+}
+
+off_t __wrap_lseek(int fd, off_t offset, int whence){
+    if (Storage::hasInstance()){
+        return Storage::instance().libcLseek(fd, offset, whence);
+    } else {
+        return __real_lseek(fd, offset, whence);
+    }
+}
+
+int __wrap_access(const char *filename, int mode){
+    if (Storage::hasInstance()){
+        // Global::debug(1) << "Access for " << filename << std::endl;
+        // if (mode == R_OK){
+            return Storage::instance().libcAccess(filename, mode);
+        // }
+    } else {
+#if !defined(NACL)
+        return __real_access(filename, mode);
+#else
+        return -1;
+#endif
+    }
+}
+
+int __wrap_lstat (const char *path, struct stat *buf){
+    if (Storage::hasInstance()){
+        return Storage::instance().libcLstat(path, buf);
+    } else {
+#if !defined(NACL)
+        return __real_lstat(path, buf);
+#else
+        return -1;
+#endif
+    }
+    /*
+    Global::debug(0) << "Lstat for " << path << std::endl;
+    return -1;
+    return 0;
+    */
+}
+
 }
