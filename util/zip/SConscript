@@ -1,0 +1,7 @@
+Import('env')
+
+zenv = env.Clone()
+source = Split("""ioapi.c unzip.c zip.c""")
+
+library = zenv.StaticLibrary('minizip', source)
+Return('library')

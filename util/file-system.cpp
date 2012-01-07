@@ -22,6 +22,8 @@
 #include <fstream>
 #include <ostream>
 
+#include <zlib.h>
+
 #ifndef USE_ALLEGRO
 /* some sfl symbols conflict with allegro */
 #include "sfl/sfl.h"
@@ -428,11 +430,52 @@ System & instance(){
     self = new Filesystem(Util::getDataPath2());
     return *self;
 }
-        
+
+/* overlays:
+ * add x/y.zip
+ * y.zip contains
+ *   example.txt
+ * try to read x/example.txt, goto y.zip
+ * or y.zip could contain y/
+ * 
+ * z.zip contains
+ *   example.txt
+ *
+ * how can you prevent two zip files from providing the same files?
+ */
+class ZipFile{
+public:
+    ZipFile(const string & path):
+    path(path){
+        zipStream.zalloc = Z_NULL;
+        zipStream.zfree = Z_NULL;
+        zipStream.opaque = Z_NULL;
+        inflateInit(&zipStream);
+    }
+
+    ~ZipFile(){
+        inflateEnd(&zipStream);
+    }
+
+    vector<string> getFiles() const {
+    }
+
+protected:
+    const string path;
+    z_stream zipStream;
+};
+
 void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
+    Global::debug(0) << "Opening zip file " << container.path() << std::endl;
+    ZipFile zip(container.path());
+    for (vector<string>::const_iterator it = zip.getFiles().begin(); it != zip.getFiles().end(); it++){
+        string path = *it;
+        Global::debug(0) << "Zip file contains: " << path << std::endl;
+    }
 }
 
 bool hasInstance(){
+    // return true;
     return self != NULL;
 }
 
@@ -853,19 +896,23 @@ extern "C" {
  * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
  */
 int __wrap_open(const char * path, int mode, int params){
-    if (Storage::hasInstance()){
+    // if (Storage::hasInstance()){
         return Storage::instance().libcOpen(path, mode, params);
+        /*
     } else {
         return __real_open(path, mode, params);
     }
+    */
 }
 
 ssize_t __wrap_read(int fd, void * buf, size_t count){
-    if (Storage::hasInstance()){
+    // if (Storage::hasInstance()){
         return Storage::instance().libcRead(fd, buf, count);
+        /*
     } else {
         return __real_read(fd, buf, count);
     }
+    */
 }
 
 int __wrap_close(int fd){
@@ -874,31 +921,36 @@ int __wrap_close(int fd){
      * if we don't own the fd then pass it to the real close function.
      */
 
-    if (Storage::hasInstance()){
+    // if (Storage::hasInstance()){
         int ok = Storage::instance().libcClose(fd);
         if (ok == -1){
             return __real_close(fd);
         }
         return ok;
+        /*
     } else {
         return __real_close(fd);
     }
+    */
 }
 
 off_t __wrap_lseek(int fd, off_t offset, int whence){
-    if (Storage::hasInstance()){
+    // if (Storage::hasInstance()){
         return Storage::instance().libcLseek(fd, offset, whence);
+        /*
     } else {
         return __real_lseek(fd, offset, whence);
     }
+    */
 }
 
 int __wrap_access(const char *filename, int mode){
-    if (Storage::hasInstance()){
+    // if (Storage::hasInstance()){
         // Global::debug(1) << "Access for " << filename << std::endl;
         // if (mode == R_OK){
             return Storage::instance().libcAccess(filename, mode);
         // }
+/*
     } else {
 #if !defined(NACL)
         return __real_access(filename, mode);
@@ -906,11 +958,13 @@ int __wrap_access(const char *filename, int mode){
         return -1;
 #endif
     }
+    */
 }
 
 int __wrap_lstat (const char *path, struct stat *buf){
-    if (Storage::hasInstance()){
+    // if (Storage::hasInstance()){
         return Storage::instance().libcLstat(path, buf);
+/*
     } else {
 #if !defined(NACL)
         return __real_lstat(path, buf);
@@ -918,6 +972,7 @@ int __wrap_lstat (const char *path, struct stat *buf){
         return -1;
 #endif
     }
+    */
     /*
     Global::debug(0) << "Lstat for " << path << std::endl;
     return -1;
