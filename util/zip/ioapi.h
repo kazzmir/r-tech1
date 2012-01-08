@@ -44,6 +44,10 @@
 #include <stdlib.h>
 #include "zlib.h"
 
+#ifdef MACOSX
+#define USE_FILE32API
+#endif
+
 #if defined(USE_FILE32API)
 #define fopen64 fopen
 #define ftello64 ftell
