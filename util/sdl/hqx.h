@@ -1,7 +1,5 @@
-#ifndef _hqx_h
-#define _hqx_h
-
-#include <stdint.h>
+#ifndef _paintown_hqx_h
+#define _paintown_hqx_h
 
 struct SDL_Surface;
 

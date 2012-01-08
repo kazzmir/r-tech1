@@ -6,6 +6,7 @@
 #include "../system.h"
 #include "../init.h"
 #include "hqx.h"
+#include "xbr.h"
 #include "sprig/sprig.h"
 #include "stretch/SDL_stretch.h"
 #include <SDL.h>
@@ -1040,10 +1041,23 @@ void Bitmap::StretchXbr(const Bitmap & where, const int sourceX, const int sourc
         SDL_LockSurface(destination);
     }
 
-    /*
-    hq2x::filter_render_565((uint16_t*) destination->pixels, destination->pitch,
-                            (uint16_t*) source->pixels, source->pitch, sourceWidth, sourceHeight);
-                            */
+    if (sourceWidth * 4 <= destWidth && sourceHeight * 4 <= destHeight){
+        xbr::xbr4x(source, destination);
+    } else if (sourceWidth * 3 <= destWidth && sourceHeight * 3 <= destHeight){
+        xbr::xbr3x(source, destination);
+    } else if (sourceWidth * 2 <= destWidth && sourceHeight * 2 <= destHeight){
+        xbr::xbr2x(source, destination);
+    } else {
+        if (SDL_MUSTLOCK(source)){
+            SDL_UnlockSurface(source);
+        }
+
+        if (SDL_MUSTLOCK(destination)){
+            SDL_UnlockSurface(destination);
+        }
+        subSource.Stretch(subDestination);
+        return;
+    }
 
     if (SDL_MUSTLOCK(source)){
         SDL_UnlockSurface(source);

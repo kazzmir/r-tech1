@@ -47,6 +47,7 @@ input/sdl/joystick.cpp
 input/psp/joystick.cpp
 input/wii/joystick.cpp
 sdl/hqx.cpp
+sdl/xbr.cpp
 system.cpp
 compress.cpp
 audio.cpp
