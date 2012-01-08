@@ -239,7 +239,37 @@ namespace Storage{
             }
     };
 
-    class ZipFile;
+    /* Abstraction for files. Should be used instead of FILE, ifstream, SDL_RWOps, anything else */
+    class File{
+    public:
+        enum Access{
+            Read,
+            Write,
+            ReadWrite
+        };
+
+        File(const Path::AbsolutePath & path, Access mode = Read);
+        virtual ~File();
+
+        /* Returns the number of bytes read */
+        virtual int readLine(char * output, int size);
+
+    protected:
+        const Path::AbsolutePath path;
+    };
+    
+    class ZipContainer;
+    class ZipFile: public File {
+    public:
+        ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & container);
+        virtual ~ZipFile();
+        
+        virtual int readLine(char * output, int size);
+
+    protected:
+        const Util::ReferenceCount<ZipContainer> zip;
+    };
+
     class System{
     public:
         System();
@@ -266,17 +296,16 @@ namespace Storage{
         virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path) = 0;
         virtual AbsolutePath findInsensitive(const RelativePath & path) = 0;
         virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path) = 0;
+
+        virtual Util::ReferenceCount<File> open(const AbsolutePath & path, File::Access mode = File::Read);
     protected:
-        void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipFile> zip);
-        std::map<AbsolutePath, Util::ReferenceCount<ZipFile> > overlays;
+        void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
+        std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
     };
 
     System & instance();
     bool hasInstance();
     System & setInstance(const Util::ReferenceCount<System> & what);
-
-    class ZipFileSystem: public System {
-    };
 }
 
 /*
