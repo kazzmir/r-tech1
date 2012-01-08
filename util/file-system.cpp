@@ -282,8 +282,8 @@ bool AbsolutePath::operator<(const AbsolutePath & path) const {
 RelativePath AbsolutePath::remove(const AbsolutePath & what) const {
     string real = path();
     real.erase(0, what.path().size());
-    while (real.rfind("/") != string::npos){
-        real.erase(real.size() - 1);
+    while (real.find("/") == 0){
+        real.erase(0, 1);
     }
     return RelativePath(real);
 }
@@ -442,6 +442,17 @@ System & instance(){
     self = new Filesystem(Util::getDataPath2());
     return *self;
 }
+        
+File::File(const Path::AbsolutePath & path, Access mode):
+path(path){
+}
+        
+File::~File(){
+}
+        
+int File::readLine(char * output, int size){
+    return 0;
+}
 
 /* overlays:
  * add x/y.zip
@@ -455,9 +466,9 @@ System & instance(){
  *
  * how can you prevent two zip files from providing the same files?
  */
-class ZipFile{
+class ZipContainer{
 public:
-    ZipFile(const string & path, const Filesystem::AbsolutePath & start):
+    ZipContainer(const string & path, const Filesystem::AbsolutePath & start):
     path(path),
     start(start){
         zipFile = unzOpen(path.c_str());
@@ -505,7 +516,7 @@ public:
         */
     }
 
-    ~ZipFile(){
+    ~ZipContainer(){
         if (zipFile != NULL){
             unzClose(zipFile);
         }
@@ -518,6 +529,27 @@ public:
         } else {
             Global::debug(0) << "Found " << find.path() << " in zip file " << path << std::endl;
         }
+    }
+
+    int read(char * buffer, int size){
+        int got = unzReadCurrentFile(zipFile, buffer, size);
+        if (got < 0){
+            throw Exception(__FILE__, __LINE__, "Could not read bytes from zip");
+        }
+        return got;
+    }
+
+    void open(const Path::AbsolutePath & file){
+        findFile(file);
+        if (unzOpenCurrentFile(zipFile) != UNZ_OK){
+            std::ostringstream out;
+            out << "Could not open zip file entry " << file.path();
+            throw Exception(__FILE__, __LINE__, out.str());
+        }
+    }
+
+    void close(){
+        unzCloseCurrentFile(zipFile);
     }
 
     vector<string> getFiles() const {
@@ -534,17 +566,40 @@ protected:
     vector<string> files;
 };
 
-void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipFile> zip){
+ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
+File(path, Read),
+zip(zip){
+    zip->open(path);
+}
+
+ZipFile::~ZipFile(){
+    zip->close();
+}
+        
+int ZipFile::readLine(char * output, int size){
+    return zip->read(output, size);
+}
+
+void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
     overlays[where] = zip;
 }
 
 void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
     Global::debug(1) << "Opening zip file " << container.path() << std::endl;
-    Util::ReferenceCount<ZipFile> zip(new ZipFile(container.path(), where));
+    Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), where));
     vector<string> files = zip->getFiles();
     for (vector<string>::const_iterator it = files.begin(); it != files.end(); it++){
         string path = *it;
+        Global::debug(0) << "Add overlay to " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
         overlayFile(where.join(Filesystem::RelativePath(path)), zip);
+    }
+}
+        
+Util::ReferenceCount<File> System::open(const AbsolutePath & path, File::Access mode){
+    if (overlays[path] != NULL){
+        return Util::ReferenceCount<File>(new ZipFile(path, overlays[path]));
+    } else {
+        return Util::ReferenceCount<File>(new File(path, mode));
     }
 }
 
