@@ -22,7 +22,8 @@
 #include <fstream>
 #include <ostream>
 
-#include <zlib.h>
+#include "zip/unzip.h"
+#include "zip/ioapi.h"
 
 #ifndef USE_ALLEGRO
 /* some sfl symbols conflict with allegro */
@@ -44,6 +45,8 @@ using namespace std;
  * initialize() must be called to initialize this lock
  */
 // Util::Thread::Lock lock;
+
+
 
 namespace Path{
 
@@ -276,6 +279,15 @@ bool AbsolutePath::operator<(const AbsolutePath & path) const {
     return this->path() < path.path();
 }
         
+RelativePath AbsolutePath::remove(const AbsolutePath & what) const {
+    string real = path();
+    real.erase(0, what.path().size());
+    while (real.rfind("/") != string::npos){
+        real.erase(real.size() - 1);
+    }
+    return RelativePath(real);
+}
+        
 AbsolutePath AbsolutePath::getDirectory() const {
     return AbsolutePath(dirname(path()));
 }
@@ -445,32 +457,94 @@ System & instance(){
  */
 class ZipFile{
 public:
-    ZipFile(const string & path):
-    path(path){
-        zipStream.zalloc = Z_NULL;
-        zipStream.zfree = Z_NULL;
-        zipStream.opaque = Z_NULL;
-        inflateInit(&zipStream);
+    ZipFile(const string & path, const Filesystem::AbsolutePath & start):
+    path(path),
+    start(start){
+        zipFile = unzOpen(path.c_str());
+        if (zipFile == NULL){
+            throw Exception(__FILE__, __LINE__, "Could not open zip file");
+        }
+
+        if (unzGoToFirstFile(zipFile) != UNZ_OK){
+            throw Exception(__FILE__, __LINE__, "Could not get to first file");
+        }
+
+        do{
+            char filename[1024];
+            unz_file_info fileInfo;
+            unzGetCurrentFileInfo(zipFile, &fileInfo, filename, sizeof(filename), NULL, 0, NULL, 0);
+            files.push_back(string(filename));
+
+        } while (unzGoToNextFile(zipFile) != UNZ_END_OF_LIST_OF_FILE);
+
+        /*
+        zlib_filefunc64_32_def functions;
+        functions.open_file_func = __real_open;
+        functions.tell_file_func = __real_lseek;
+        functions.seek_file_func = __real_lseek;
+        */
+        /*
+        unzFile zip = unzOpen(path.c_str());
+        unz_global_info info;
+        if (unzGetGlobalInfo(zip, &info) == UNZ_OK){
+            Global::debug(0) << "Entries: " << info.number_entry << std::endl;
+        }
+
+        if (unzGoToFirstFile(zip) != UNZ_OK){
+            throw Exception(__FILE__, __LINE__, "Could not get to first file");
+        }
+        do{
+            char filename[1024];
+            unz_file_info fileInfo;
+            unzGetCurrentFileInfo(zip, &fileInfo, filename, sizeof(filename), NULL, 0, NULL, 0);
+            Global::debug(0) << "Got file " << filename << std::endl;
+            Global::debug(0) << " Compressed " << fileInfo.compressed_size << " uncompressed " << fileInfo.uncompressed_size << std::endl;
+
+        } while (unzGoToNextFile(zip) != UNZ_END_OF_LIST_OF_FILE);
+        unzClose(zip);
+        */
     }
 
     ~ZipFile(){
-        inflateEnd(&zipStream);
+        if (zipFile != NULL){
+            unzClose(zipFile);
+        }
+    }
+
+    void findFile(const Path::AbsolutePath & file){
+        Path::RelativePath find(file.remove(start));
+        if (unzLocateFile(zipFile, find.path().c_str(), 2) != UNZ_OK){
+            Global::debug(0) << "Could not find " << find.path() << std::endl;
+        } else {
+            Global::debug(0) << "Found " << find.path() << " in zip file " << path << std::endl;
+        }
     }
 
     vector<string> getFiles() const {
+        return files;
     }
 
 protected:
+    /* Path to the zip file itself */
     const string path;
-    z_stream zipStream;
+    /* Where overlay starts */
+    const Path::AbsolutePath start;
+
+    unzFile zipFile;
+    vector<string> files;
 };
 
+void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipFile> zip){
+    overlays[where] = zip;
+}
+
 void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
-    Global::debug(0) << "Opening zip file " << container.path() << std::endl;
-    ZipFile zip(container.path());
-    for (vector<string>::const_iterator it = zip.getFiles().begin(); it != zip.getFiles().end(); it++){
+    Global::debug(1) << "Opening zip file " << container.path() << std::endl;
+    Util::ReferenceCount<ZipFile> zip(new ZipFile(container.path(), where));
+    vector<string> files = zip->getFiles();
+    for (vector<string>::const_iterator it = files.begin(); it != files.end(); it++){
         string path = *it;
-        Global::debug(0) << "Zip file contains: " << path << std::endl;
+        overlayFile(where.join(Filesystem::RelativePath(path)), zip);
     }
 }
 
@@ -846,138 +920,4 @@ Filesystem::RelativePath Filesystem::cleanse(const AbsolutePath & path){
         str.erase(0, userDirectory().path().length());
     }
     return RelativePath(str);
-}
-
-extern "C" {
-    int __real_open(const char * path, int mode, int params);
-    ssize_t __real_read(int fd, void * buf, size_t count);
-    int __real_close(int fd);
-    off_t __real_lseek(int fd, off_t offset, int whence);
-    int __real_lstat(const char * path, struct stat * buf);
-    int __real_access(const char *filename, int mode);
-}
-
-int Filesystem::libcOpen(const char * path, int mode, int params){
-    return __real_open(path, mode, params);
-}
-
-ssize_t Filesystem::libcRead(int fd, void * buf, size_t count){
-    return __real_read(fd, buf, count);
-}
-
-int Filesystem::libcClose(int fd){
-    return __real_close(fd);
-}
-
-off_t Filesystem::libcLseek(int fd, off_t offset, int whence){
-    return __real_lseek(fd, offset, whence);
-}
-
-int Filesystem::libcLstat(const char * path, struct stat * buf){
-#if !defined(WII) && !defined(NACL)
-    return __real_lstat(path, buf);
-#else
-    return 0;
-#endif
-}
-    
-int Filesystem::libcAccess(const char *filename, int mode){
-#if !defined(NACL)
-    return __real_access(filename, mode);
-#else
-    return -1;
-#endif
-}
-
-extern "C" {
-
-/* http://sourceware.org/binutils/docs-2.21/ld/Options.html#index-g_t_002d_002dwrap_003d_0040var_007bsymbol_007d-261
- * --wrap=symbol
- * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
- */
-int __wrap_open(const char * path, int mode, int params){
-    // if (Storage::hasInstance()){
-        return Storage::instance().libcOpen(path, mode, params);
-        /*
-    } else {
-        return __real_open(path, mode, params);
-    }
-    */
-}
-
-ssize_t __wrap_read(int fd, void * buf, size_t count){
-    // if (Storage::hasInstance()){
-        return Storage::instance().libcRead(fd, buf, count);
-        /*
-    } else {
-        return __real_read(fd, buf, count);
-    }
-    */
-}
-
-int __wrap_close(int fd){
-    /* we may be given a file descriptor that we do not own, probably
-     * because some file descriptors are really tied to sockets so
-     * if we don't own the fd then pass it to the real close function.
-     */
-
-    // if (Storage::hasInstance()){
-        int ok = Storage::instance().libcClose(fd);
-        if (ok == -1){
-            return __real_close(fd);
-        }
-        return ok;
-        /*
-    } else {
-        return __real_close(fd);
-    }
-    */
-}
-
-off_t __wrap_lseek(int fd, off_t offset, int whence){
-    // if (Storage::hasInstance()){
-        return Storage::instance().libcLseek(fd, offset, whence);
-        /*
-    } else {
-        return __real_lseek(fd, offset, whence);
-    }
-    */
-}
-
-int __wrap_access(const char *filename, int mode){
-    // if (Storage::hasInstance()){
-        // Global::debug(1) << "Access for " << filename << std::endl;
-        // if (mode == R_OK){
-            return Storage::instance().libcAccess(filename, mode);
-        // }
-/*
-    } else {
-#if !defined(NACL)
-        return __real_access(filename, mode);
-#else
-        return -1;
-#endif
-    }
-    */
-}
-
-int __wrap_lstat (const char *path, struct stat *buf){
-    // if (Storage::hasInstance()){
-        return Storage::instance().libcLstat(path, buf);
-/*
-    } else {
-#if !defined(NACL)
-        return __real_lstat(path, buf);
-#else
-        return -1;
-#endif
-    }
-    */
-    /*
-    Global::debug(0) << "Lstat for " << path << std::endl;
-    return -1;
-    return 0;
-    */
-}
-
 }

@@ -954,11 +954,17 @@ Nacl::NetworkSystem & getSystem(){
 
 extern "C" {
 
+int __real_open(const char * path, int mode, int params);
+ssize_t __real_read(int fd, void * buf, size_t count);
+int __real_close(int fd);
+off_t __real_lseek(int fd, off_t offset, int whence);
+int __real_lstat(const char * path, struct stat * buf);
+int __real_access(const char *filename, int mode);
+
 /* http://sourceware.org/binutils/docs-2.21/ld/Options.html#index-g_t_002d_002dwrap_003d_0040var_007bsymbol_007d-261
  * --wrap=symbol
  * Use a wrapper function for symbol. Any undefined reference to symbol will be resolved to __wrap_symbol. Any undefined reference to __real_symbol will be resolved to symbol.
  */
-#if 0
 int __wrap_open(const char * path, int mode, int params){
     return getSystem().libcOpen(path, mode, params);
 }
@@ -993,11 +999,23 @@ int __wrap_access(const char *filename, int mode){
     return -1;
 }
 
+/* Need these functions for minizip. Maybe they are are wrong? */
+int fseeko64(FILE * stream, long long offset, int whence){
+    return fseek(stream, (long) offset, whence);
+}
+
+long long ftello64(FILE * stream){
+    return ftell(stream);
+}
+
+FILE * fopen64(const char * filename, const char * mode){
+    return fopen(filename, mode);
+}
+
 int __wrap_lstat (const char *path, struct stat *buf){
     Global::debug(0) << "Lstat for " << path << std::endl;
     return -1;
 }
-#endif
 
 int pipe (int filedes[2]){
     return -1;
