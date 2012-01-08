@@ -44,9 +44,13 @@
 #include <stdlib.h>
 #include "zlib.h"
 
+/*
 #ifdef MACOSX
 #define USE_FILE32API
 #endif
+*/
+
+#define USE_FILE32API
 
 #if defined(USE_FILE32API)
 #define fopen64 fopen
