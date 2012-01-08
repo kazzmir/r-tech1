@@ -6,6 +6,7 @@
 #include "thread.h"
 #include <string>
 #include <vector>
+#include <map>
 #include <stdint.h>
 
 struct stat;
@@ -80,6 +81,9 @@ namespace Path{
         bool operator==(const AbsolutePath & path) const;
         bool operator!=(const AbsolutePath & path) const;
         
+        /* Remove a given path from the start of this path */
+        virtual RelativePath remove(const AbsolutePath & path) const;
+
         virtual AbsolutePath getDirectory() const;
         virtual AbsolutePath getFilename() const;
         
@@ -235,6 +239,7 @@ namespace Storage{
             }
     };
 
+    class ZipFile;
     class System{
     public:
         System();
@@ -261,12 +266,9 @@ namespace Storage{
         virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path) = 0;
         virtual AbsolutePath findInsensitive(const RelativePath & path) = 0;
         virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path) = 0;
-        virtual int libcOpen(const char * path, int mode, int params) = 0;
-        virtual ssize_t libcRead(int fd, void * buf, size_t count) = 0;
-        virtual int libcClose(int fd) = 0;
-        virtual off_t libcLseek(int fd, off_t offset, int whence) = 0;
-        virtual int libcLstat(const char * path, struct stat * buf) = 0;
-        virtual int libcAccess(const char *filename, int mode) = 0;
+    protected:
+        void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipFile> zip);
+        std::map<AbsolutePath, Util::ReferenceCount<ZipFile> > overlays;
     };
 
     System & instance();
@@ -332,13 +334,6 @@ public:
 
     /* same as getFiles but search directories recursively */
     std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
-
-    virtual int libcOpen(const char * path, int mode, int params);
-    virtual ssize_t libcRead(int fd, void * buf, size_t count);
-    virtual int libcClose(int fd);
-    virtual off_t libcLseek(int fd, off_t offset, int whence);
-    virtual int libcLstat(const char * path, struct stat * buf);
-    virtual int libcAccess(const char *filename, int mode);
 
 protected:
     AbsolutePath lookup(const RelativePath path);
