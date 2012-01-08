@@ -1041,11 +1041,11 @@ void Bitmap::StretchXbr(const Bitmap & where, const int sourceX, const int sourc
         SDL_LockSurface(destination);
     }
 
-    if (sourceWidth * 4 <= destWidth && sourceHeight * 4 <= destHeight){
+    if (sourceWidth * 4 == destWidth && sourceHeight * 4 == destHeight){
         xbr::xbr4x(source, destination);
-    } else if (sourceWidth * 3 <= destWidth && sourceHeight * 3 <= destHeight){
+    } else if (sourceWidth * 3 == destWidth && sourceHeight * 3 == destHeight){
         xbr::xbr3x(source, destination);
-    } else if (sourceWidth * 2 <= destWidth && sourceHeight * 2 <= destHeight){
+    } else if (sourceWidth * 2 == destWidth && sourceHeight * 2 == destHeight){
         xbr::xbr2x(source, destination);
     } else {
         if (SDL_MUSTLOCK(source)){
@@ -1083,11 +1083,11 @@ void Bitmap::StretchHqx(const Bitmap & where, const int sourceX, const int sourc
         SDL_LockSurface(destination);
     }
 
-    if (sourceWidth * 4 <= destWidth && sourceHeight * 4 <= destHeight){
+    if (sourceWidth * 4 == destWidth && sourceHeight * 4 == destHeight){
         hqx::hq4x(source, destination);
-    } else if (sourceWidth * 3 <= destWidth && sourceHeight * 3 <= destHeight){
+    } else if (sourceWidth * 3 == destWidth && sourceHeight * 3 == destHeight){
         hqx::hq3x(source, destination);
-    } else if (sourceWidth * 2 <= destWidth && sourceHeight * 2 <= destHeight){
+    } else if (sourceWidth * 2 == destWidth && sourceHeight * 2 == destHeight){
         hq2x::hq2x(source, destination);
     } else {
         if (SDL_MUSTLOCK(source)){
