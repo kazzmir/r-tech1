@@ -193,21 +193,33 @@ void xbr2x(SDL_Surface * input, SDL_Surface * output){
     unsigned int ex, ex2, ex3;
     unsigned int ke, ki;
 
-    int y = input->h;
-
     int nextOutputLine = output->pitch / 2;
 
-    while (y--){
+    for (int y = 0; y < input->h; y++){
+    // for (int y = 0; y < 3; y++){
         unsigned short int * E = (unsigned short *)((char*) output->pixels + y * output->pitch * 2);
-        unsigned short int * sa0 = (unsigned short *)((char*) input->pixels + y * input->pitch - 4);
-        unsigned short int * sa1 = sa0;
-        unsigned short int * sa2 = sa1;
-        unsigned short int * sa3 = sa2 + input->pitch;
-        unsigned short int * sa4 = sa3 + input->pitch;
+
+        /* middle. the -4 just makes the offsets later on work out */
+        unsigned short int * sa2 = (unsigned short *)((char*) input->pixels + y * input->pitch - 4);
+        /* up one */
+        unsigned short int * sa1 = sa2 - input->pitch / 2;
+        /* up two */
+        unsigned short int * sa0 = sa1 - input->pitch / 2;
+        /* down one */
+        unsigned short int * sa3 = sa2 + input->pitch / 2;
+        /* down two */
+        unsigned short int * sa4 = sa3 + input->pitch / 2;
 
         if (y <= 1){ 
+            sa0 = sa1;
+            if (y == 0){
+                sa0 = sa1 = sa2;
+            }
+        }
+
+        if (y >= input->h - 2){
             sa4 = sa3;
-            if (!y){
+            if (y == input->h - 1){
                 sa4 = sa3 = sa2;
             }
         }
@@ -216,41 +228,41 @@ void xbr2x(SDL_Surface * input, SDL_Surface * output){
         unsigned char pprev2;
         pprev = pprev2 = 2;
 
-        int x = input->w;
-
-        while (x--){			
+        for (int x = 0; x < input->w; x++){
             unsigned short B1 = sa0[2];
             unsigned short PB = sa1[2];
-            unsigned short PE = sa2[2];			
+            unsigned short PE = sa2[2];
             unsigned short PH = sa3[2];
             unsigned short H5 = sa4[2];
 
             unsigned short A1 = sa0[pprev];
             unsigned short PA = sa1[pprev];
-            unsigned short PD = sa2[pprev];			
+            unsigned short PD = sa2[pprev];
             unsigned short PG = sa3[pprev];
             unsigned short G5 = sa4[pprev];
 
             unsigned short A0 = sa1[pprev2];
-            unsigned short D0 = sa2[pprev2];			
+            unsigned short D0 = sa2[pprev2];
             unsigned short G0 = sa3[pprev2];
 
-            unsigned short C1 = sa0[3];
-            unsigned short PC = sa1[3];
-            unsigned short PF = sa2[3];
-            unsigned short PI = sa3[3];
-            unsigned short I5 = sa4[3];
+            unsigned short C1 = 0;
+            unsigned short PC = 0;
+            unsigned short PF = 0;
+            unsigned short PI = 0;
+            unsigned short I5 = 0;
 
-            unsigned short C4 = sa1[4];
-            unsigned short F4 = sa2[4];
-            unsigned short I4 = sa3[4];
+            unsigned short C4 = 0;
+            unsigned short F4 = 0;
+            unsigned short I4 = 0;
 
-            if (x <= 1){
+            if (x >= input->w - 2){
+                /*
                 C4 = sa1[3];
                 F4 = sa2[3];
                 I4 = sa3[3];
+                */
 
-                if (!x){
+                if (x == input->w - 1){
                     C1 = sa0[2];
                     PC = sa1[2];
                     PF = sa2[2];
@@ -260,7 +272,27 @@ void xbr2x(SDL_Surface * input, SDL_Surface * output){
                     C4 = sa1[2];
                     F4 = sa2[2];
                     I4 = sa3[2];
+                } else {
+                    C1 = sa0[3];
+                    PC = sa1[3];
+                    PF = sa2[3];
+                    PI = sa3[3];
+                    I5 = sa4[3];
+                
+                    C4 = sa1[3];
+                    F4 = sa2[3];
+                    I4 = sa3[3];
                 }
+            } else {
+                C1 = sa0[3];
+                PC = sa1[3];
+                PF = sa2[3];
+                PI = sa3[3];
+                I5 = sa4[3];
+
+                C4 = sa1[4];
+                F4 = sa2[4];
+                I4 = sa3[4];
             }
 
             E[0] = E[1] = E[nextOutputLine] = E[nextOutputLine + 1] = PE; // 0, 1, 2, 3
