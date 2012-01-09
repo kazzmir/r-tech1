@@ -196,7 +196,6 @@ void xbr2x(SDL_Surface * input, SDL_Surface * output){
     int nextOutputLine = output->pitch / 2;
 
     for (int y = 0; y < input->h; y++){
-    // for (int y = 0; y < 3; y++){
         unsigned short int * E = (unsigned short *)((char*) output->pixels + y * output->pitch * 2);
 
         /* middle. the -4 just makes the offsets later on work out */
@@ -315,33 +314,388 @@ void xbr2x(SDL_Surface * input, SDL_Surface * output){
                 pprev = 1;
             }
         }
-
-        /*
-        sa2 += complete_line_src;
-        sa1 = sa2 - nl_src;		
-        sa3 = sa2 + nl_src;
-
-        if (y == src_height - 1){
-            sa0 = sa1;		
-            sa4 = sa3 + nl_src;
-        } else if (!y){
-            sa0 = sa1 - nl_src;		
-            sa4 = sa3;
-        } else {
-            sa0 = sa1 - nl_src;		
-            sa4 = sa3 + nl_src;
-        }
-
-        E += complete_line_dst;				
-        */
     }
 }
+#undef FILTRO
+
+#define LEFT_UP_2_3X(N7, N5, N6, N2, N8, PIXEL)\
+             ALPHA_BLEND_192_W(E[N7], PIXEL); \
+             ALPHA_BLEND_64_W( E[N6], PIXEL); \
+             E[N5] = E[N7]; \
+             E[N2] = E[N6]; \
+             E[N8] =  PIXEL;\
+
+        
+#define LEFT_2_3X(N7, N5, N6, N8, PIXEL)\
+             ALPHA_BLEND_192_W(E[N7], PIXEL); \
+             ALPHA_BLEND_64_W( E[N5], PIXEL); \
+             ALPHA_BLEND_64_W( E[N6], PIXEL); \
+             E[N8] =  PIXEL;\
+
+#define UP_2_3X(N5, N7, N2, N8, PIXEL)\
+             ALPHA_BLEND_192_W(E[N5], PIXEL); \
+             ALPHA_BLEND_64_W( E[N7], PIXEL); \
+             ALPHA_BLEND_64_W( E[N2], PIXEL); \
+             E[N8] =  PIXEL;\
+
+#define DIA_3X(N8, N5, N7, PIXEL)\
+             ALPHA_BLEND_224_W(E[N8], PIXEL); \
+             ALPHA_BLEND_32_W(E[N5], PIXEL); \
+             ALPHA_BLEND_32_W(E[N7], PIXEL); \
+
+#define FILTRO(PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, N0, N1, N2, N3, N4, N5, N6, N7, N8) \
+     ex   = (PE!=PH && PE!=PF); \
+     if ( ex )\
+     {\
+          e = (df(PE,PC)+df(PE,PG)+df(PI,H5)+df(PI,F4))+(df(PH,PF)<<2); \
+          i = (df(PH,PD)+df(PH,I5)+df(PF,I4)+df(PF,PB))+(df(PE,PI)<<2); \
+          if ((e<i)  && ( !eq(PF,PB) && !eq(PF,PC) || !eq(PH,PD) && !eq(PH,PG) || eq(PE,PI) && (!eq(PF,F4) && !eq(PF,I4) || !eq(PH,H5) && !eq(PH,I5)) || eq(PE,PG) || eq(PE,PC)) )\
+          {\
+              ke=df(PF,PG); ki=df(PH,PC); \
+              ex2 = (PE!=PC && PB!=PC); ex3 = (PE!=PG && PD!=PG); px = (df(PE,PF) <= df(PE,PH)) ? PF : PH; \
+              if ( ((ke<<1)<=ki) && ex3 && (ke>=(ki<<1)) && ex2 ) \
+              {\
+                     LEFT_UP_2_3X(N7, N5, N6, N2, N8, px)\
+              }\
+              else if ( ((ke<<1)<=ki) && ex3 ) \
+              {\
+                     LEFT_2_3X(N7, N5, N6, N8, px);\
+              }\
+              else if ( (ke>=(ki<<1)) && ex2 ) \
+              {\
+                     UP_2_3X(N5, N7, N2, N8, px);\
+              }\
+              else \
+              {\
+                     DIA_3X(N8, N5, N7, px);\
+              }\
+          }\
+          else if (e<=i)\
+          {\
+               ALPHA_BLEND_128_W( E[N8], ((df(PE,PF) <= df(PE,PH)) ? PF : PH)); \
+          }\
+     }\
 
 void xbr3x(SDL_Surface * input, SDL_Surface * output){
+    initialize();
+
+    const int nl = output->pitch / 2;
+    const int nl1 = nl + nl;
+
+    for (int y = 0; y < input->h; y++){
+        unsigned short int * E = (unsigned short *)((char*) output->pixels + y * output->pitch * 3);
+
+        /* middle. the -4 just makes the offsets later on work out */
+        unsigned short int * sa2 = (unsigned short *)((char*) input->pixels + y * input->pitch - 4);
+        /* up one */
+        unsigned short int * sa1 = sa2 - input->pitch / 2;
+        /* up two */
+        unsigned short int * sa0 = sa1 - input->pitch / 2;
+        /* down one */
+        unsigned short int * sa3 = sa2 + input->pitch / 2;
+        /* down two */
+        unsigned short int * sa4 = sa3 + input->pitch / 2;
+
+        if (y <= 1){ 
+            sa0 = sa1;
+            if (y == 0){
+                sa0 = sa1 = sa2;
+            }
+        }
+
+        if (y >= input->h - 2){
+            sa4 = sa3;
+            if (y == input->h - 1){
+                sa4 = sa3 = sa2;
+            }
+        }
+
+        unsigned char pprev;
+        unsigned char pprev2;
+        pprev = pprev2 = 2;
+
+        for (int x = 0; x < input->w; x++){
+            unsigned short B1 = sa0[2];
+            unsigned short PB = sa1[2];
+            unsigned short PE = sa2[2];
+            unsigned short PH = sa3[2];
+            unsigned short H5 = sa4[2];
+
+            unsigned short A1 = sa0[pprev];
+            unsigned short PA = sa1[pprev];
+            unsigned short PD = sa2[pprev];
+            unsigned short PG = sa3[pprev];
+            unsigned short G5 = sa4[pprev];
+
+            unsigned short A0 = sa1[pprev2];
+            unsigned short D0 = sa2[pprev2];
+            unsigned short G0 = sa3[pprev2];
+
+            unsigned short C1 = 0;
+            unsigned short PC = 0;
+            unsigned short PF = 0;
+            unsigned short PI = 0;
+            unsigned short I5 = 0;
+
+            unsigned short C4 = 0;
+            unsigned short F4 = 0;
+            unsigned short I4 = 0;
+
+            if (x >= input->w - 2){
+                if (x == input->w - 1){
+                    C1 = sa0[2];
+                    PC = sa1[2];
+                    PF = sa2[2];
+                    PI = sa3[2];
+                    I5 = sa4[2];
+
+                    C4 = sa1[2];
+                    F4 = sa2[2];
+                    I4 = sa3[2];
+                } else {
+                    C1 = sa0[3];
+                    PC = sa1[3];
+                    PF = sa2[3];
+                    PI = sa3[3];
+                    I5 = sa4[3];
+                
+                    C4 = sa1[3];
+                    F4 = sa2[3];
+                    I4 = sa3[3];
+                }
+            } else {
+                C1 = sa0[3];
+                PC = sa1[3];
+                PF = sa2[3];
+                PI = sa3[3];
+                I5 = sa4[3];
+
+                C4 = sa1[4];
+                F4 = sa2[4];
+                I4 = sa3[4];
+            }
+
+            unsigned int e, i, p[10], px;
+            unsigned int ex, ex2, ex3;
+            unsigned int ke, ki;
+
+            E[0]   = E[1]     = E[2]     = PE;
+            E[nl]  = E[nl+1]  = E[nl+2]  = PE; // 3, 4, 5
+            E[nl1] = E[nl1+1] = E[nl1+2] = PE; // 6, 7, 8
+			
+            FILTRO(PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, nl, nl+1, nl+2, nl1, nl1+1, nl1+2);
+            FILTRO(PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, nl1, nl, 0, nl1+1, nl+1, 1, nl1+2, nl+2, 2);
+            FILTRO(PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, nl1+2, nl1+1, nl1, nl+2, nl+1, nl, 2, 1, 0);
+            FILTRO(PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, nl+2, nl1+2, 1, nl+1, nl1+1, 0, nl, nl1);
+
+            sa0 += 1;
+            sa1 += 1;
+            sa2 += 1;
+            sa3 += 1;
+            sa4 += 1;
+
+            E += 3;
+
+            if (pprev2){
+                pprev2--;
+                pprev = 1;
+            }
+        }
+    }
 }
+#undef FILTRO
+
+#define LEFT_UP_2(N15, N14, N11, N13, N12, N10, N7, N3, PIXEL)\
+                                ALPHA_BLEND_192_W(E[N13], PIXEL); \
+                                ALPHA_BLEND_64_W( E[N12], PIXEL); \
+                                E[N15] = E[N14] = E[N11] = PIXEL; \
+                                E[N10] = E[N3] = E[N12]; \
+                                E[N7]  = E[N13]; \
+
+#define LEFT_2(N15, N14, N11, N13, N12, N10, PIXEL)\
+                                ALPHA_BLEND_192_W(E[N11], PIXEL); \
+                                ALPHA_BLEND_192_W(E[N13], PIXEL); \
+                                ALPHA_BLEND_64_W( E[N10], PIXEL); \
+                                ALPHA_BLEND_64_W( E[N12], PIXEL); \
+                                E[N14] = PIXEL; \
+                                E[N15] = PIXEL; \
+
+#define UP_2(N15, N14, N11, N3, N7, N10, PIXEL)\
+                                ALPHA_BLEND_192_W(E[N14], PIXEL); \
+                                ALPHA_BLEND_192_W(E[N7 ], PIXEL); \
+                                ALPHA_BLEND_64_W( E[N10], PIXEL); \
+                                ALPHA_BLEND_64_W( E[N3 ], PIXEL); \
+                                E[N11] = PIXEL; \
+                                E[N15] = PIXEL; \
+
+#define DIA(N15, N14, N11, PIXEL)\
+                        ALPHA_BLEND_128_W(E[N11], PIXEL); \
+                        ALPHA_BLEND_128_W(E[N14], PIXEL); \
+                        E[N15] = PIXEL; \
+
+#define FILTRO(PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, N15, N14, N11, N3, N7, N10, N13, N12, N9, N6, N2, N1, N5, N8, N4, N0) \
+     ex   = (PE!=PH && PE!=PF); \
+     if ( ex )\
+     {\
+          e = (df(PE,PC)+df(PE,PG)+df(PI,H5)+df(PI,F4))+(df(PH,PF)<<2); \
+          i = (df(PH,PD)+df(PH,I5)+df(PF,I4)+df(PF,PB))+(df(PE,PI)<<2); \
+          if ((e<i)  && ( !eq(PF,PB) && !eq(PH,PD) || eq(PE,PI) && (!eq(PF,I4) && !eq(PH,I5)) || eq(PE,PG) || eq(PE,PC)) )\
+          {\
+              ke=df(PF,PG); ki=df(PH,PC); \
+              ex2 = (PE!=PC && PB!=PC); ex3 = (PE!=PG && PD!=PG); px = (df(PE,PF) <= df(PE,PH)) ? PF : PH; \
+              if ( ((ke<<1)<=ki) && ex3 && (ke>=(ki<<1)) && ex2 ) \
+              {\
+                     LEFT_UP_2(N15, N14, N11, N13, N12, N10, N7, N3, px)\
+              }\
+              else if ( ((ke<<1)<=ki) && ex3 ) \
+              {\
+                     LEFT_2(N15, N14, N11, N13, N12, N10, px)\
+              }\
+              else if ( (ke>=(ki<<1)) && ex2 ) \
+              {\
+                     UP_2(N15, N14, N11, N3, N7, N10, px)\
+              }\
+              else \
+              {\
+                     DIA(N15, N14, N11, px)\
+              }\
+          }\
+          else if (e<=i)\
+          {\
+               ALPHA_BLEND_128_W( E[N15], ((df(PE,PF) <= df(PE,PH)) ? PF : PH)); \
+          }\
+     }\
 
 void xbr4x(SDL_Surface * input, SDL_Surface * output){
+    initialize();
+
+    const int nl = output->pitch / 2;
+    const int nl1 = nl + nl;
+    const int nl2 = nl1 + nl;
+
+    for (int y = 0; y < input->h; y++){
+        unsigned short int * E = (unsigned short *)((char*) output->pixels + y * output->pitch * 4);
+
+        /* middle. the -4 just makes the offsets later on work out */
+        unsigned short int * sa2 = (unsigned short *)((char*) input->pixels + y * input->pitch - 4);
+        /* up one */
+        unsigned short int * sa1 = sa2 - input->pitch / 2;
+        /* up two */
+        unsigned short int * sa0 = sa1 - input->pitch / 2;
+        /* down one */
+        unsigned short int * sa3 = sa2 + input->pitch / 2;
+        /* down two */
+        unsigned short int * sa4 = sa3 + input->pitch / 2;
+
+        if (y <= 1){ 
+            sa0 = sa1;
+            if (y == 0){
+                sa0 = sa1 = sa2;
+            }
+        }
+
+        if (y >= input->h - 2){
+            sa4 = sa3;
+            if (y == input->h - 1){
+                sa4 = sa3 = sa2;
+            }
+        }
+
+        unsigned char pprev;
+        unsigned char pprev2;
+        pprev = pprev2 = 2;
+
+        for (int x = 0; x < input->w; x++){
+            unsigned short B1 = sa0[2];
+            unsigned short PB = sa1[2];
+            unsigned short PE = sa2[2];
+            unsigned short PH = sa3[2];
+            unsigned short H5 = sa4[2];
+
+            unsigned short A1 = sa0[pprev];
+            unsigned short PA = sa1[pprev];
+            unsigned short PD = sa2[pprev];
+            unsigned short PG = sa3[pprev];
+            unsigned short G5 = sa4[pprev];
+
+            unsigned short A0 = sa1[pprev2];
+            unsigned short D0 = sa2[pprev2];
+            unsigned short G0 = sa3[pprev2];
+
+            unsigned short C1 = 0;
+            unsigned short PC = 0;
+            unsigned short PF = 0;
+            unsigned short PI = 0;
+            unsigned short I5 = 0;
+
+            unsigned short C4 = 0;
+            unsigned short F4 = 0;
+            unsigned short I4 = 0;
+
+            if (x >= input->w - 2){
+                if (x == input->w - 1){
+                    C1 = sa0[2];
+                    PC = sa1[2];
+                    PF = sa2[2];
+                    PI = sa3[2];
+                    I5 = sa4[2];
+
+                    C4 = sa1[2];
+                    F4 = sa2[2];
+                    I4 = sa3[2];
+                } else {
+                    C1 = sa0[3];
+                    PC = sa1[3];
+                    PF = sa2[3];
+                    PI = sa3[3];
+                    I5 = sa4[3];
+                
+                    C4 = sa1[3];
+                    F4 = sa2[3];
+                    I4 = sa3[3];
+                }
+            } else {
+                C1 = sa0[3];
+                PC = sa1[3];
+                PF = sa2[3];
+                PI = sa3[3];
+                I5 = sa4[3];
+
+                C4 = sa1[4];
+                F4 = sa2[4];
+                I4 = sa3[4];
+            }
+
+            unsigned int e, i, p[10], px;
+            unsigned int ex, ex2, ex3;
+            unsigned int ke, ki;
+
+            E[0]   = E[1]     = E[2]     = E[3]     = PE;
+            E[nl]  = E[nl+1]  = E[nl+2]  = E[nl+3]  = PE; //  4,  5,  6,  7
+            E[nl1] = E[nl1+1] = E[nl1+2] = E[nl1+3] = PE; //  8,  9, 10, 11
+            E[nl2] = E[nl2+1] = E[nl2+2] = E[nl2+3] = PE; // 12, 13, 14, 15
+
+            FILTRO(PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, nl2+3, nl2+2, nl1+3,  3,  nl+3, nl1+2, nl2+1, nl2,  nl1+1,  nl+2, 2,  1, nl+1, nl1, nl, 0);
+            FILTRO(PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0,  3,  nl+3,  2,  0,  1,  nl+2, nl1+3, nl2+3, nl1+2,  nl+1, nl,  nl1, nl1+1,nl2+2,nl2+1,nl2);
+            FILTRO(PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5,  0,  1,  nl, nl2,  nl1,  nl+1,  2,  3,  nl+2,  nl1+1, nl2+1,nl2+2,nl1+2, nl+3,nl1+3,nl2+3);
+            FILTRO(PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, nl2,  nl1, nl2+1, nl2+3, nl2+2,  nl1+1,  nl,  0,  nl+1, nl1+2, nl1+3, nl+3, nl+2, 1, 2, 3);
+
+            sa0 += 1;
+            sa1 += 1;
+            sa2 += 1;
+            sa3 += 1;
+            sa4 += 1;
+
+            E += 4;
+
+            if (pprev2){
+                pprev2--;
+                pprev = 1;
+            }
+        }
+    }
 }
+#undef FILTRO
 
 }
 
