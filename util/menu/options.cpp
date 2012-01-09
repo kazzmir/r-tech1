@@ -452,6 +452,53 @@ bool OptionFullscreen::rightKey(){
     return true;
 }
 
+OptionQualityFilter::OptionQualityFilter(const Gui::ContextBox & parent, const Token * token):
+MenuOption(parent, token){
+    readName(token);
+}
+              
+std::string OptionQualityFilter::getText() const {
+    ostringstream out;
+    out << MenuOption::getText() << ": " << Configuration::getQualityFilter();
+    return out.str();
+}
+
+void OptionQualityFilter::logic(){
+}
+    
+bool OptionQualityFilter::leftKey(){
+    string quality = Configuration::getQualityFilter();
+    if (quality == "none"){
+        quality = "hqx";
+    } else if (quality == "hqx"){
+        quality = "xbr";
+    } else if (quality == "xbr"){
+        quality = "none";
+    }
+    Configuration::setQualityFilter(quality);
+    return true;
+}
+
+bool OptionQualityFilter::rightKey(){
+    string quality = Configuration::getQualityFilter();
+    if (quality == "none"){
+        quality = "xbr";
+    } else if (quality == "hqx"){
+        quality = "none";
+    } else if (quality == "xbr"){
+        quality = "hqx";
+    }
+    Configuration::setQualityFilter(quality);
+    return true;
+
+}
+
+void OptionQualityFilter::run(const Menu::Context & context){
+}
+
+OptionQualityFilter::~OptionQualityFilter(){
+}
+
 OptionInvincible::OptionInvincible(const Gui::ContextBox & parent, const Token *token):
 MenuOption(parent, token),
 lblue(255),
@@ -477,9 +524,7 @@ std::string OptionInvincible::getText() const {
     return out.str();
 }
 
-void OptionInvincible::logic()
-{
-
+void OptionInvincible::logic(){
 }
 
 void OptionInvincible::run(const Menu::Context & context){

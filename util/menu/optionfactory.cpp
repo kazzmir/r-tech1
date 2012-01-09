@@ -51,6 +51,8 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
         return new OptionMusic(parent, tok);
     } else if (*tok == "screen-size"){
         return new OptionScreenSize(parent, tok);
+    } else if (*tok == "quality-filter"){
+        return new OptionQualityFilter(parent, tok);
     } else if ( *tok == "npc" ){
         return new OptionNpcBuddies(parent, tok);
     } else if (*tok == "play-mode"){
