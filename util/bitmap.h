@@ -87,6 +87,8 @@ enum QualityFilter{
     XbrFilter
 };
 
+QualityFilter qualityFilterName(const std::string & type);
+
 class Bitmap{
 private:
 	

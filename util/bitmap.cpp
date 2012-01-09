@@ -39,6 +39,16 @@ static inline int max(int a, int b){
 	
 void initializeExtraStuff();
 
+QualityFilter qualityFilterName(const std::string & type){
+    if (type == "xbr"){
+        return XbrFilter;
+    }
+    if (type == "hqx"){
+        return HqxFilter;
+    }
+    return NoFilter;
+}
+
 Bitmap::~Bitmap(){
     if (mustResize){
         for (std::vector<Bitmap*>::iterator it = needResize.begin(); it != needResize.end(); it++){
