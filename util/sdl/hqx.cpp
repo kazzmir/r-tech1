@@ -6,7 +6,7 @@
  */
 
 #include <stdint.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 static void rgb555_to_rgb888(uint8_t red, uint8_t green, uint8_t blue,
                              uint8_t & red_output, uint8_t & green_output, uint8_t & blue_output){

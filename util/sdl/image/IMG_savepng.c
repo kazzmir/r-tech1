@@ -25,12 +25,12 @@
  * 11/08/2004 - Compr fix, levels -1,1-7 now work - Tyler Montbriand
  */
 #include <stdlib.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #if SDL_VERSION_ATLEAST(1, 3, 0)
-#include <SDL/SDL_endian.h>
-#include <SDL/SDL_pixels.h>
+#include <SDL_endian.h>
+#include <SDL_pixels.h>
 #else
-#include <SDL/SDL_byteorder.h>
+#include <SDL_byteorder.h>
 #endif
 #include <zlib.h>
 #include <png.h>

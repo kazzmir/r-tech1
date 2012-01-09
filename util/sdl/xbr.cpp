@@ -1,7 +1,7 @@
 #ifdef USE_SDL
 
 #include <stdint.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 namespace xbr{
 
