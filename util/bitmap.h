@@ -81,6 +81,12 @@ int getGreen(Color x);
 
 Color MaskColor();
 
+enum QualityFilter{
+    NoFilter,
+    HqxFilter,
+    XbrFilter
+};
+
 class Bitmap{
 private:
 	
@@ -96,8 +102,7 @@ public:
             virtual ~Filter(){
             }
         };
-
-	
+        	
 	/* default constructor makes 10x10 bitmap */
 	Bitmap();
 	Bitmap( int x, int y );

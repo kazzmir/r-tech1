@@ -7,7 +7,7 @@ namespace Graphics{
 
 class StretchedBitmap: public Bitmap {
 public:
-    StretchedBitmap(int width, int height, const Bitmap & where);
+    StretchedBitmap(int width, int height, const Bitmap & where, QualityFilter filter = NoFilter);
     void finish();
     void start();
     virtual int getWidth() const;
@@ -17,6 +17,7 @@ protected:
     double height;
     double scale_x, scale_y;
     const Bitmap & where;
+    const QualityFilter filter;
 };
 
 class TranslatedBitmap: public Bitmap {

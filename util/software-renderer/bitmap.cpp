@@ -37,18 +37,23 @@ Bitmap Bitmap::scaleTo(const int width, const int height) const {
     return scaled;
 }
 
-StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent):
+StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent, QualityFilter filter):
 Bitmap(width, height),
 width(width),
 height(height),
-where(parent){
+where(parent),
+filter(filter){
 }
 
 void StretchedBitmap::start(){
 }
 
 void StretchedBitmap::finish(){
-    Stretch(where);
+    switch (filter){
+        case NoFilter: Stretch(where); break;
+        case HqxFilter: StretchHqx(where); break;
+        case XbrFilter: StretchXbr(where); break;
+    }
 }
 
 Bitmap getScreenBuffer(){

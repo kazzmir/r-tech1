@@ -1069,11 +1069,12 @@ void Bitmap::shutdown(){
     */
 }
 
-StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent):
+StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent, QualityFilter filter):
 Bitmap(parent, 0, 0, parent.getWidth(), parent.getHeight()),
 width(width),
 height(height),
-where(parent){
+where(parent),
+filter(filter){
     scale_x = (double) parent.getWidth() / width;
     scale_y = (double) parent.getHeight() / height;
     ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
@@ -1087,6 +1088,8 @@ where(parent){
     al_set_target_bitmap(getData()->getBitmap());
     al_use_transform(&transform);
     al_set_target_bitmap(old_target);
+
+    /* TODO: handle filter */
 }
 
 void StretchedBitmap::start(){

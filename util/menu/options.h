@@ -330,6 +330,20 @@ public:
     virtual ~OptionReturn();
 };
 
+class OptionQualityFilter: public MenuOption {
+public:
+    OptionQualityFilter(const Gui::ContextBox & parent, const Token * token);
+    virtual void logic();
+    virtual void run(const Menu::Context &);
+    std::string getText() const;
+    virtual bool leftKey();
+    virtual bool rightKey();
+    virtual ~OptionQualityFilter();
+
+protected:
+    std::string filter;
+};
+
 /* continue the game */
 class OptionContinue: public MenuOption {
 public:
