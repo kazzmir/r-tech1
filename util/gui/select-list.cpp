@@ -503,11 +503,11 @@ unsigned int GridSelect::getCurrentIndex(unsigned int cursor) const{
     return cursors[cursor].getIndex();
 }
 
-void GridSelect::setCurrentState(unsigned int cursor, const SelectListInterface::CursorState & status){
+void GridSelect::setCurrentState(unsigned int cursor, const SelectListInterface::CursorState & state){
     if (checkCursor(cursor)){
         return;
     }
-    
+    cursors[cursor].setState(state);
 }
 
 const SelectListInterface::CursorState GridSelect::getCurrentState(unsigned int cursor) const{
