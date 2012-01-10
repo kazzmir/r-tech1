@@ -147,29 +147,27 @@ void Bitmap::updateOnResize(){
         needResize.push_back(this);
     }
 }
+        
+void Bitmap::updateSize(const int width, const int height){
+    if (getWidth() == width && getHeight() == height){
+        return;
+    }
+
+    Bitmap created(width, height);
+    *this = created;
+}
 
 /* resize the internal bitmap. not guaranteed to destroy the internal bitmap */
-void Bitmap::resize( const int width, const int height ){
+void Bitmap::resize(const int width, const int height){
 
     /* if internal bitmap is already the proper size, do nothing */
-    if ( getWidth() == width && getHeight() == height ){
+    if (getWidth() == width && getHeight() == height){
         return;
     }
 
     Bitmap created(width, height);
     Stretch(created);
     *this = created;
-
-    /*
-    BITMAP * b = create_bitmap( width, height );
-    ::stretch_blit( getData().getBitmap(), b, 0, 0, getData().getBitmap()->w, getData().getBitmap()->h, 0, 0, b->w, b->h );
-
-    releaseInternalBitmap();
-
-    own = new int;
-    getData().setBitmap( b );
-    *own = 1;
-    */
 }
 
 

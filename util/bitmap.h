@@ -203,7 +203,11 @@ public:
 
         void updateOnResize();
 
+        /* Resizes the bitmap and stretches the old pixels to the new bitmap */
 	void resize(const int width, const int height);
+
+        /* Just resizes the bitmap without copying pixels */
+        void updateSize(const int width, const int height);
 
 	void debugSelf() const;
 
@@ -460,7 +464,7 @@ protected:
 /* creates a bitmap that can be used as a buffer for the screen.
  * on opengl/allegro5 systems this will return the current backbuffer
  */
-Bitmap getScreenBuffer();
+Bitmap * getScreenBuffer();
 
 void blend_palette(Color * pal, int mp, Color sc, Color ec);
 // bool sameColors(Color color1, Color color2);

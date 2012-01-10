@@ -1,4 +1,5 @@
 #include "util/bitmap.h"
+#include "util/stretch-bitmap.h"
 
 #include "options.h"
 #include "util/token.h"
@@ -264,7 +265,9 @@ void OptionCredits::run(const Menu::Context & context){
         /* use Bitmap::temporaryBitmap here? no! BlitToScreen uses temporaryBitmap */
         Menu::Context & context;
 
-        void draw(const Graphics::Bitmap & work){
+        void draw(const Graphics::Bitmap & buffer){
+            Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+            work.start();
             //background.Blit(work);
             context.render(NULL, work);
             int y = (int) state.min_y;
@@ -284,9 +287,11 @@ void OptionCredits::run(const Menu::Context & context){
                     isTitle = true;
                 }
             }
+
+            work.finish();
             
             // state.fire.draw(work);
-            work.BlitToScreen();
+            buffer.BlitToScreen();
         }
     };
 

@@ -1,5 +1,6 @@
 #include "util/bitmap.h"
 #include "util/trans-bitmap.h"
+#include "util/stretch-bitmap.h"
 #include "menu.h"
 #include "menu_option.h"
 #include "util/funcs.h"
@@ -1438,14 +1439,18 @@ void Menu::Menu::run(const Context & parentContext){
             Menu & menu;
             Context & localContext;
 
-            void draw(const Graphics::Bitmap & work){
+            void draw(const Graphics::Bitmap & buffer){
+                Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
                 Util::Parameter<Util::ReferenceCount<FontInfo> > currentFont(menuFontParameter);
                 if (Configuration::hasMenuFont()){
                     currentFont.push(Configuration::getMenuFont());
                 }
-                menu.render(localContext, work);
 
-                work.BlitToScreen();
+                work.start();
+                menu.render(localContext, work);
+                work.finish();
+
+                buffer.BlitToScreen();
             }
         };
 

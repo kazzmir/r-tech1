@@ -38,27 +38,38 @@ Bitmap Bitmap::scaleTo(const int width, const int height) const {
 }
 
 StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent, QualityFilter filter):
-Bitmap(width, height),
-width(width),
-height(height),
+Bitmap(1, 1),
+width(1),
+height(1),
 where(parent),
 filter(filter){
+    if (width == parent.getWidth() && height == parent.getHeight()){
+        setData(parent.getData());
+    } else {
+        updateSize(width, height);
+    }
+    this->width = width;
+    this->height = height;
 }
 
 void StretchedBitmap::start(){
 }
 
 void StretchedBitmap::finish(){
-    switch (filter){
-        case NoFilter: Stretch(where); break;
-        case HqxFilter: StretchHqx(where); break;
-        case XbrFilter: StretchXbr(where); break;
+    if (getData() != where.getData()){
+        switch (filter){
+            case NoFilter: Stretch(where); break;
+            case HqxFilter: StretchHqx(where); break;
+            case XbrFilter: StretchXbr(where); break;
+        }
     }
 }
 
+/*
 Bitmap getScreenBuffer(){
     return Bitmap(GFX_X, GFX_Y);
 }
+*/
 
 RestoreState::RestoreState(){
 }

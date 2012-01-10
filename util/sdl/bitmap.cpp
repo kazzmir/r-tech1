@@ -558,10 +558,12 @@ int setGraphicsMode(int mode, int width, int height){
         Screen = NULL;
     }
 
+    /*
     if ( Scaler != NULL ){
         delete Scaler;
         Scaler = NULL;
     }
+    */
 
     if ( Buffer != NULL ){
         delete Buffer;
@@ -573,7 +575,12 @@ int setGraphicsMode(int mode, int width, int height){
         /* don't destroy the screen */
         Screen->getData()->destroy = false;
 
-        Scaler = new Bitmap(width, height);
+        /* Scaler is re-used as the screen buffer so don't destroy it */
+        if (Scaler == NULL){
+            Scaler = new Bitmap(width, height);
+        } else {
+            Scaler->updateSize(width, height);
+        }
         /*
         if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
             Scaler = new Bitmap(width, height);
@@ -589,7 +596,11 @@ int setGraphicsMode(int mode, int width, int height){
 
     return 0;
 }
-        
+
+Bitmap * getScreenBuffer(){
+    return Scaler;
+}
+
 void Bitmap::shutdown(){
     delete Screen;
     Screen = NULL;
