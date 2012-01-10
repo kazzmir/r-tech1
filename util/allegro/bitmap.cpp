@@ -436,6 +436,10 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     return bitmap;
 }
 
+Bitmap * getScreenBuffer(){
+    return Scaler;
+}
+
 void initializeExtraStuff(){
     /* nothing yet */
 }
@@ -655,10 +659,12 @@ int setGraphicsMode( int mode, int width, int height ){
             delete Screen;
             Screen = NULL;
         }
+        /*
         if ( Scaler != NULL ){
             delete Scaler;
             Scaler = NULL;
         }
+        */
         if ( Buffer != NULL ){
             delete Buffer;
             Buffer = NULL;
@@ -666,7 +672,11 @@ int setGraphicsMode( int mode, int width, int height ){
         if (width != 0 && height != 0){
             Screen = new Bitmap( ::screen );
             Screen->getData()->setDestroy(false);
-            Scaler = new Bitmap(width, height);
+            if (Scaler == NULL){
+                Scaler = new Bitmap(width, height);
+            } else {
+                Scaler->updateSize(width, height);
+            }
             /*
             if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
                 Scaler = new Bitmap(width, height);

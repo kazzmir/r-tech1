@@ -1141,8 +1141,8 @@ TranslatedBitmap::~TranslatedBitmap(){
     al_use_transform(&transform);
 }
 
-Bitmap getScreenBuffer(){
-    return *Screen;
+Bitmap * getScreenBuffer(){
+    return Screen;
 }
 
 RestoreState::RestoreState(){
