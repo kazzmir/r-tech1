@@ -223,7 +223,7 @@ static void handleResize(const ALLEGRO_EVENT & event){
     al_identity_transform(&transformation);
     // al_scale_transform(&transformation, (double) al_get_display_width(display) / (double) GFX_X, (double) al_get_display_height(display) / (double) GFX_Y);
     al_scale_transform(&transformation, (double) width / (double) GFX_X, (double) height / (double) GFX_Y);
-    al_set_target_bitmap(Graphics::getScreenBuffer().getData()->getBitmap());
+    al_set_target_bitmap(Graphics::getScreenBuffer()->getData()->getBitmap());
     al_use_transform(&transformation);
 }
 

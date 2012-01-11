@@ -252,7 +252,7 @@ class OptionMenu: public MenuOption {
         Menu::Menu *menu;
 };
 
-/*! Handles key reconfiguration */
+/* FIXME: should be moved to the paintown directory */
 class OptionNpcBuddies: public MenuOption {
 public:
 	OptionNpcBuddies(const Gui::ContextBox & parent, const Token *token );
@@ -276,7 +276,7 @@ private:
 	int rblue, rgreen;
 };
 
-/*! Handles key reconfiguration */
+/* FIXME: move to the paintown directory */
 class OptionPlayMode: public MenuOption {
 public:
     OptionPlayMode(const Gui::ContextBox & parent, const Token *token);
@@ -305,7 +305,6 @@ private:
     int rblue, rgreen;
 };
 
-/*! Handles key reconfiguration */
 class OptionQuit : public MenuOption {
 public:
 	OptionQuit(const Gui::ContextBox & parent, const Token *token);
@@ -330,6 +329,7 @@ public:
     virtual ~OptionReturn();
 };
 
+/* Sets the quality filter used to stretch the screen (xbr/hqx) */
 class OptionQualityFilter: public MenuOption {
 public:
     OptionQualityFilter(const Gui::ContextBox & parent, const Token * token);
@@ -342,6 +342,18 @@ public:
 
 protected:
     std::string filter;
+};
+
+/* Change the fps */
+class OptionFps: public MenuOption {
+public:
+    OptionFps(const Gui::ContextBox & parent, const Token * token);
+    virtual void logic();
+    virtual void run(const Menu::Context &);
+    std::string getText() const;
+    virtual bool leftKey();
+    virtual bool rightKey();
+    virtual ~OptionFps();
 };
 
 /* continue the game */

@@ -57,6 +57,8 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
         return new OptionNpcBuddies(parent, tok);
     } else if (*tok == "play-mode"){
         return new OptionPlayMode(parent, tok);
+    } else if (*tok == "fps"){
+        return new OptionFps(parent, tok);
     } else if ( *tok == "credits" ){
         // Credits mode
         return new OptionCredits(parent, tok);

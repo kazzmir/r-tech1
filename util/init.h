@@ -27,6 +27,9 @@ namespace Global{
      * TICS_PER_SECOND is.
      */
     double ticksPerSecond(int ticks);
+
+    /* Updates TICS_PER_SECOND */
+    void setTicksPerSecond(int ticks);
 }
 
 /*
