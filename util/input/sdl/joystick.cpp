@@ -73,25 +73,28 @@ public:
     }
 
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+        bool up = false;
+        bool down = false;
+        bool left = false;
+        bool right = false;
         if (axis == 0){
             if (motion < 0){
-                events.push_back(Joystick::Event(Joystick::Left, true));
+                left = true;
             } else if (motion > 0){
-                events.push_back(Joystick::Event(Joystick::Right, true));
-            } else {
-                events.push_back(Joystick::Event(Joystick::Left, false));
-                events.push_back(Joystick::Event(Joystick::Right, false));
+                right = true;
             }
         } else if (axis == 1){
             if (motion < 0){
-                events.push_back(Joystick::Event(Joystick::Up, true));
+                up = true;
             } else if (motion > 0){
-                events.push_back(Joystick::Event(Joystick::Down, true));
-            } else {
-                events.push_back(Joystick::Event(Joystick::Up, false));
-                events.push_back(Joystick::Event(Joystick::Down, false));
+                down = true;
             }
         }
+        
+        events.push_back(Joystick::Event(Joystick::Left, left));
+        events.push_back(Joystick::Event(Joystick::Right, right));
+        events.push_back(Joystick::Event(Joystick::Down, down));
+        events.push_back(Joystick::Event(Joystick::Up, up));
     }
 };
 
