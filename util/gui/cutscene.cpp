@@ -264,7 +264,7 @@ void CutScene::playScene(unsigned int scene){
         }
 
         double ticks(double system){
-            return system * Global::LOGIC_MULTIPLIER;
+            return system * Global::ticksPerSecond(90);
         }
     };
 

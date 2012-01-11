@@ -69,8 +69,12 @@ volatile unsigned int Global::second_counter = 0;
  * LOGIC_MULTIPLIER will be used to adjust the speed counter to its
  * original value.
  */
-const int Global::TICS_PER_SECOND = 40;
-const double Global::LOGIC_MULTIPLIER = (double) 90 / (double) Global::TICS_PER_SECOND;
+int Global::TICS_PER_SECOND = 40;
+// const double Global::LOGIC_MULTIPLIER = (double) 90 / (double) Global::TICS_PER_SECOND;
+
+double Global::ticksPerSecond(int ticks){
+    return (double) ticks / (double) TICS_PER_SECOND;
+}
 
 static volatile bool run_timer;
 Util::Thread::Lock run_timer_lock;

@@ -10,8 +10,8 @@ namespace Global{
     extern volatile int speed_counter4;
     extern volatile unsigned int second_counter;
 
-    extern const double LOGIC_MULTIPLIER;
-    extern const int TICS_PER_SECOND;
+    // extern const double LOGIC_MULTIPLIER;
+    extern int TICS_PER_SECOND;
 
     extern const int WINDOWED;
     extern const int FULLSCREEN;
@@ -22,6 +22,11 @@ namespace Global{
     bool init(int gfx);
     void close();
     bool initNoGraphics();
+
+    /* Returns a consistent number of ticks per second regardless of what
+     * TICS_PER_SECOND is.
+     */
+    double ticksPerSecond(int ticks);
 }
 
 /*

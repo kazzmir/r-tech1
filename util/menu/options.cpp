@@ -249,7 +249,7 @@ void OptionCredits::run(const Menu::Context & context){
         }
 
         double ticks(double system){
-            return system * Global::LOGIC_MULTIPLIER;
+            return system * Global::ticksPerSecond(90);
         }
     };
 
