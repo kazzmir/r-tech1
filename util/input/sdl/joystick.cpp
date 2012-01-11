@@ -73,23 +73,25 @@ public:
     }
 
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
-        /* FIXME */
-        /*
         if (axis == 0){
             if (motion < 0){
-                return Joystick::Left;
+                events.push_back(Joystick::Event(Joystick::Left, true));
             } else if (motion > 0){
-                return Joystick::Right;
+                events.push_back(Joystick::Event(Joystick::Right, true));
+            } else {
+                events.push_back(Joystick::Event(Joystick::Left, false));
+                events.push_back(Joystick::Event(Joystick::Right, false));
             }
         } else if (axis == 1){
             if (motion < 0){
-                return Joystick::Up;
+                events.push_back(Joystick::Event(Joystick::Up, true));
             } else if (motion > 0){
-                return Joystick::Down;
+                events.push_back(Joystick::Event(Joystick::Down, true));
+            } else {
+                events.push_back(Joystick::Event(Joystick::Up, false));
+                events.push_back(Joystick::Event(Joystick::Down, false));
             }
         }
-        */
-
     }
 };
 
@@ -679,6 +681,7 @@ void SDLJoystick::releaseButton(int button){
 }
 
 void SDLJoystick::hatMotion(int motion){
+    // Global::debug(0) << "Hat motion " << motion << std::endl;
     if (joystick){
         buttonMapping->hatMotionEvents(motion, events);
     }
