@@ -457,6 +457,36 @@ bool OptionFullscreen::rightKey(){
     return true;
 }
 
+OptionFps::OptionFps(const Gui::ContextBox & parent, const Token * token):
+MenuOption(parent, token){
+    readName(token);
+}
+
+void OptionFps::logic(){
+}
+
+void OptionFps::run(const Menu::Context & context){
+}
+
+std::string OptionFps::getText() const {
+    ostringstream out;
+    out << "Frames per second: " << Global::TICS_PER_SECOND;
+    return out.str();
+}
+
+bool OptionFps::leftKey(){
+    Global::setTicksPerSecond(Global::TICS_PER_SECOND - 1);
+    Configuration::setFps(Global::TICS_PER_SECOND);
+}
+
+bool OptionFps::rightKey(){
+    Global::setTicksPerSecond(Global::TICS_PER_SECOND + 1);
+    Configuration::setFps(Global::TICS_PER_SECOND);
+}
+
+OptionFps::~OptionFps(){
+}
+
 OptionQualityFilter::OptionQualityFilter(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token){
     readName(token);

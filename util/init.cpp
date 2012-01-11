@@ -75,7 +75,7 @@ int Global::TICS_PER_SECOND = 40;
 double Global::ticksPerSecond(int ticks){
     return (double) ticks / (double) TICS_PER_SECOND;
 }
-
+    
 static volatile bool run_timer;
 Util::Thread::Lock run_timer_lock;
 Util::ThreadBoolean run_timer_guard(run_timer, run_timer_lock);
@@ -244,7 +244,8 @@ static Util::Thread::Id start_timer(void (*func)(), int frequency){
     return thread;
 }
 
-static void startTimers(ostream & out){
+static void startTimers(){
+    run_timer_guard.set(true);
     running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
     running_timers.push_back(start_timer(inc_second_counter, 1));
 }
@@ -265,10 +266,9 @@ static void initSystem(ostream & out){
 #endif
 
 #ifdef USE_ALLEGRO
-static void startTimers(ostream & out){
-    /* set up the timers */
-    out<<"Install game timer: "<< install_int_ex(inc_speed_counter, BPS_TO_TIMER(Global::TICS_PER_SECOND))<<endl;
-    out<<"Install second timer: "<<install_int_ex(inc_second_counter, BPS_TO_TIMER(1))<<endl;
+static void startTimers(){
+    install_int_ex(inc_speed_counter, BPS_TO_TIMER(Global::TICS_PER_SECOND));
+    install_int_ex(inc_second_counter, BPS_TO_TIMER(1));
 }
 
 static void initSystem(ostream & out){
@@ -378,7 +378,8 @@ static void doSDLQuit(){
 }
 */
 
-static void startTimers(ostream & out){
+static void startTimers(){
+    run_timer_guard.set(true);
     running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
     running_timers.push_back(start_timer(inc_second_counter, 1));
 }
@@ -494,12 +495,17 @@ bool Global::initNoGraphics(){
     return true;
 }
 
-void Global::close(){
+static void closeTimers(){
     run_timer_guard.set(false);
     for (vector<Util::Thread::Id>::iterator it = running_timers.begin(); it != running_timers.end(); it++){
         Util::Thread::Id timer = *it;
         Util::Thread::joinThread(timer);
     }
+    running_timers.clear();
+}
+
+void Global::close(){
+    closeTimers();
 }
 
 #ifdef PS3
@@ -607,7 +613,8 @@ bool Global::init(int gfx){
 
     Util::Thread::initializeLock(&run_timer_lock);
     run_timer = true;
-    startTimers(out);
+    Global::TICS_PER_SECOND = Configuration::getFps();
+    startTimers();
 
     out << "-- END init --" << endl;
 
@@ -641,3 +648,19 @@ bool Global::init(int gfx){
 
     return true;
 }
+
+/* Restarts the timers */
+void Global::setTicksPerSecond(int ticks){
+    if (ticks < 1){
+        ticks = 1;
+    }
+    if (ticks > 90){
+        ticks = 90;
+    }
+    if (ticks != TICS_PER_SECOND){
+        TICS_PER_SECOND = ticks;
+        closeTimers();
+        startTimers();
+    }
+}
+
