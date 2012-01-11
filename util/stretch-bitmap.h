@@ -12,6 +12,10 @@ public:
     void start();
     virtual int getWidth() const;
     virtual int getHeight() const;
+
+    virtual double getScaleWidth() const;
+    virtual double getScaleHeight() const;
+
 protected:
     double width;
     double height;
