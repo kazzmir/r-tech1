@@ -494,6 +494,14 @@ int StretchedBitmap::getWidth() const {
 int StretchedBitmap::getHeight() const {
     return height;
 }
+    
+double StretchedBitmap::getScaleWidth() const {
+    return (double) where.getWidth() / (double) getWidth();
+}
+
+double StretchedBitmap::getScaleHeight() const {
+    return (double) where.getHeight() / (double) getHeight();
+}
 
 void blend_palette(Color * pal, int mp, Color startColor, Color endColor){
     /*
