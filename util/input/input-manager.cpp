@@ -57,6 +57,12 @@ void InputManager::checkJoysticks(){
 InputManager::~InputManager(){
 }
     
+void InputManager::deferResizeEvents(bool defer){
+    if (manager != NULL){
+        manager->eventManager.deferResizeEvents(defer);
+    }
+}
+
 bool InputManager::anyInput(){
     if (manager == 0){
         Global::debug(0) << "*BUG* Input manager not set up" << endl;

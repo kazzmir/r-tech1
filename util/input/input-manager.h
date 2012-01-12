@@ -52,6 +52,8 @@ public:
     static int readKey();
     static void waitForClear();
 
+    static void deferResizeEvents(bool defer);
+
     /*
     template <class X>
     static void observeKeyboard(InputMap<X> & input){
