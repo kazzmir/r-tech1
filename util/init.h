@@ -3,8 +3,10 @@
 
 /* global vars */
 
+/*
 #define GFX_X 640
 #define GFX_Y 480
+*/
 
 namespace Global{
     extern volatile int speed_counter4;

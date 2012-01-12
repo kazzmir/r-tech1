@@ -165,7 +165,7 @@ void EventManager::runSDL(Keyboard & keyboard, map<int, ReferenceCount<Joystick>
                 /* to keep the perspective correct
                  * 640/480 = 1.33333
                  */
-                double ratio = (double) GFX_X / (double) GFX_Y;
+                double ratio = (double) 640 / (double) 480;
                 if (width > height){
                     height = (int)((double) width / ratio);
                 } else {
@@ -200,16 +200,16 @@ static void handleKeyUp(Keyboard & keyboard, const ALLEGRO_EVENT & event){
 static void handleResize(const ALLEGRO_EVENT & event){
     double width = event.display.width;
     double height = event.display.height;
-    if (width < GFX_X){
-        width = GFX_X;
+    if (width < 640){
+        width = 640;
     }
-    if (height < GFX_Y){
-        height = GFX_Y;
+    if (height < 480){
+        height = 480;
     }
     /* to keep the perspective correct
      * 640/480 = 1.33333
      */
-    double ratio = (double) GFX_X / (double) GFX_Y;
+    double ratio = (double) 640 / (double) 480;
     if (width > height){
         height = width / ratio;
     } else {

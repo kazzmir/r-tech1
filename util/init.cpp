@@ -464,8 +464,10 @@ bool Global::initNoGraphics(){
 
     // Filesystem::initialize();
 
+    /*
     Graphics::SCALE_X = GFX_X;
     Graphics::SCALE_Y = GFX_Y;
+    */
 
     Configuration::loadConfigurations();
     const int sx = Configuration::getScreenWidth();
@@ -572,8 +574,10 @@ bool Global::init(int gfx){
 
     // Filesystem::initialize();
 
+    /*
     Graphics::SCALE_X = GFX_X;
     Graphics::SCALE_Y = GFX_Y;
+    */
 
     Configuration::loadConfigurations();
     const int sx = Configuration::getScreenWidth();

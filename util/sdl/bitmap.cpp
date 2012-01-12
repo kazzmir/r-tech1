@@ -27,6 +27,10 @@ static SDL_Surface * screen;
 
 static SDL_PixelFormat format565;
 
+/* FIXME: try to get rid of these two variables */
+static int SCALE_X;
+static int SCALE_Y;
+
 typedef unsigned int (*blender)(unsigned int color1, unsigned int color2, unsigned int alpha);
 
 /* taken from allegro 4.2: src/colblend.c, _blender_trans16 */
@@ -537,16 +541,7 @@ int setGraphicsMode(int mode, int width, int height){
 #endif
 
 
-    if (SCALE_X == 0){
-        SCALE_X = width;
-    }
-
     SCALE_X = width;
-
-    if (SCALE_Y == 0){
-        SCALE_Y = height;
-    }
-
     SCALE_Y = height;
 
     /* does this need to be here? I think configuration will set SCALE_ */

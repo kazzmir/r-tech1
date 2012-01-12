@@ -45,6 +45,10 @@ extern EXTERNAL_VARIABLE int _blender_alpha;
 
 namespace Graphics{
 
+/* FIXME: try to get rid of these variables */
+static int SCALE_X;
+static int SCALE_Y;
+
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter);
 static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int x, int y, const Bitmap::Filter & filter);
 static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
