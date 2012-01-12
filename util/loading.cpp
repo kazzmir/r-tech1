@@ -496,6 +496,7 @@ void loadScreen(LoadingContext & context, const Info & info, Kind kind){
         LoadingContext::load_it(&context);
         // throw LoadException(__FILE__, __LINE__, "Could not create loader thread");
     } else {
+        InputManager::deferResizeEvents(true);
         switch (kind){
             case Default: loadingScreen1(context, info); break;
             case SimpleCircle: loadingScreenSimpleX1(context, info); break;
@@ -503,6 +504,7 @@ void loadScreen(LoadingContext & context, const Info & info, Kind kind){
         }
 
         Util::Thread::joinThread(loadingThread);
+        InputManager::deferResizeEvents(false);
     }
 }
 

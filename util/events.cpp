@@ -26,6 +26,7 @@ namespace Util{
 
 EventManager::EventManager():
 bufferKeys(false){
+    resize.enable = false;
 #ifdef USE_ALLEGRO5
     queue = al_create_event_queue();
     if (al_is_keyboard_installed()){
@@ -380,14 +381,21 @@ void EventManager::dispatch(Event type, int arg1){
 void EventManager::dispatch(Event type, int arg1, int arg2){
     switch (type){
         case ResizeScreen : {
-            Global::debug(1) << "Resizing screen to " << arg1 << ", " << arg2 << std::endl;
-            if (Graphics::setGraphicsMode(0, arg1, arg2) == 0){
-                Configuration::setScreenWidth(arg1);
-                Configuration::setScreenHeight(arg2);
+            if (deferResize){
+                resize.type = ResizeScreen;
+                resize.width = arg1;
+                resize.height = arg2;
+                resize.enable = true;
+            } else {
+                Global::debug(1) << "Resizing screen to " << arg1 << ", " << arg2 << std::endl;
+                if (Graphics::setGraphicsMode(0, arg1, arg2) == 0){
+                    Configuration::setScreenWidth(arg1);
+                    Configuration::setScreenHeight(arg2);
+                }
             }
             break;
         }
-        default : break;
+        default: break;
     }
 }
 
@@ -397,6 +405,14 @@ void EventManager::dispatch(Event type){
             throw ShutdownException();
         }
         default : break;
+    }
+}
+    
+void EventManager::deferResizeEvents(bool defer){
+    deferResize = defer;
+    if (!deferResize && resize.enable){
+        dispatch(resize.type, resize.width, resize.height);
+        resize.enable = false;
     }
 }
 

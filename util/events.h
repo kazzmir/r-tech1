@@ -47,6 +47,8 @@ public:
         return keys;
     }
     
+    void deferResizeEvents(bool defer);
+
     void enableKeyBuffer();
     void disableKeyBuffer();
 
@@ -55,6 +57,13 @@ private:
         CloseWindow,
         ResizeScreen,
         Key
+    };
+
+    struct ResizeEvent{
+        Event type;
+        int width;
+        int height;
+        bool enable;
     };
 
     virtual void dispatch(Event type, int arg1, int arg2);
@@ -74,6 +83,9 @@ private:
 
     std::vector<KeyType> keys;
     bool bufferKeys;
+    bool deferResize;
+    /* Only need the last event */
+    ResizeEvent resize;
 };
 
 /* implement these classes to get the standard run loop */
