@@ -34,8 +34,10 @@ extern const int SPRITE_NO_FLIP;
 extern const int SPRITE_V_FLIP;
 extern const int SPRITE_H_FLIP;
         
+/*
 extern int SCALE_X;
 extern int SCALE_Y;
+*/
 
 class BitmapException: public Exception::Base {
 public:

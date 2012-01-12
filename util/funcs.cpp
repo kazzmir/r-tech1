@@ -308,7 +308,7 @@ void Util::showError(const Graphics::Bitmap & screen, const Exception::Base & ex
 }
 
 void Util::showError(const Exception::Base & exception, const std::string & info){
-    Graphics::Bitmap screen(GFX_X, GFX_Y);
+    Graphics::Bitmap screen(*Graphics::screenParameter.current());
     showError(screen, exception, info);
 }
 

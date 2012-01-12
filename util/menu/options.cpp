@@ -194,7 +194,8 @@ void OptionCredits::run(const Menu::Context & context){
 
     struct State{
         State(const Font & vFont, const vector<string> & credits, Graphics::Color color, Graphics::Color title):
-        min_y(GFX_Y),
+        /* FIXME: hard coded resolution */
+        min_y(480),
         maxCredits(credits.size()),
         font(vFont),
         credits(credits),
@@ -238,7 +239,8 @@ void OptionCredits::run(const Menu::Context & context){
 
             state.min_y -= 0.8;
             if (state.min_y < -(int)(state.maxCredits * state.font.getHeight() * 1.1)){
-                state.min_y = GFX_Y;
+                /* FIXME: hard coded resolution */
+                state.min_y = 480;
             }
             // state.fire.update();
             context.act();
@@ -266,6 +268,7 @@ void OptionCredits::run(const Menu::Context & context){
         Menu::Context & context;
 
         void draw(const Graphics::Bitmap & buffer){
+            /* FIXME: hard coded resolution */
             Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
             work.start();
             //background.Blit(work);
@@ -477,11 +480,13 @@ std::string OptionFps::getText() const {
 bool OptionFps::leftKey(){
     Global::setTicksPerSecond(Global::TICS_PER_SECOND - 1);
     Configuration::setFps(Global::TICS_PER_SECOND);
+    return true;
 }
 
 bool OptionFps::rightKey(){
     Global::setTicksPerSecond(Global::TICS_PER_SECOND + 1);
     Configuration::setFps(Global::TICS_PER_SECOND);
+    return true;
 }
 
 OptionFps::~OptionFps(){

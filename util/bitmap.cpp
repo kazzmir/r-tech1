@@ -20,8 +20,11 @@ Util::Parameter<Bitmap*> screenParameter;
 Bitmap * Bitmap::temporary_bitmap = NULL;
 Bitmap * Bitmap::temporary_bitmap2 = NULL;
 
+/*
 int SCALE_X = 0;
 int SCALE_Y = 0;
+*/
+
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
 	
