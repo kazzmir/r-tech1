@@ -270,7 +270,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
         }
 
         double ticks(double system){
-            return system;
+            return system * Global::ticksPerSecond(30);
         }
 
         bool done(){
