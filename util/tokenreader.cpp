@@ -84,6 +84,20 @@ TokenReader::~TokenReader(){
     }
 }
 
+static inline bool is_alpha(char c){
+    // const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:*";
+    const char * alpha = "./-_!:*";
+    return (c >= 'a' && c <= 'z') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c >= '0' && c <= '9') ||
+           strchr(alpha, c) != NULL;
+}
+
+static inline bool is_nonalpha(char c){
+    const char * nonalpha = " ;()#\"";
+    return strchr(nonalpha, c) != NULL;
+}
+
 void TokenReader::readTokens(istream & input) throw (TokenException){
 
     /*
@@ -140,8 +154,6 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
         // printf("Read character '%c' %d at %d\n", n, n, input.tellg());
         // cout << "Read character '" << n << "' " << (int) n << " at " << input.tellg() << endl;
 
-        const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:*";
-        const char * nonalpha = " ;()#\"";
         // cout<<"Alpha char: "<<n<<endl;
 
         if (escaped){
@@ -189,9 +201,9 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
 
             if (n == '"'){
                 in_quote = true;
-            } else if (strchr(alpha, n) != NULL){
+            } else if (is_alpha(n)){
                 cur_string += n;
-            } else if (cur_string != "" && strchr(nonalpha, n) != NULL){
+            } else if (cur_string != "" && is_nonalpha(n)){
                 // cout<<"Made new token "<<cur_string<<endl;
                 Token * sub = new Token(cur_string, false);
                 if (currentToken != NULL){
