@@ -213,7 +213,6 @@ protected:
     }
 
     std::string lowerCase(const std::string & s) const;
-    void finalize();
 
     unsigned int num_token;
     std::vector< Token * > tokens;
