@@ -277,8 +277,10 @@ void TokenReader::readTokens(istream & input) throw (TokenException){
         throw TokenException(__FILE__, __LINE__, failure.str());
     }
 
+    /*
     for (vector<Token*>::iterator it = my_tokens.begin(); it != my_tokens.end(); it++){
         Token * token = *it;
         token->finalize();
     }
+    */
 }

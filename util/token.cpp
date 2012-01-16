@@ -459,18 +459,20 @@ Token * Token::copy() const {
  * character in the name, e.g:
  * (!a_token (child_token 2))
  */
+/*
 void Token::finalize(){
-	for ( vector< Token * >::iterator it = tokens.begin(); it != tokens.end(); ){
-		Token * t = *it;
-		if ( t->getName().find('!') == 0 ){
-			delete t;
-			it = tokens.erase( it );
-		} else {
-			t->finalize();
-			it++;
-		}
-	}
+    for ( vector< Token * >::iterator it = tokens.begin(); it != tokens.end(); ){
+        Token * t = *it;
+        if ( t->getName().find('!') == 0 ){
+            delete t;
+            it = tokens.erase( it );
+        } else {
+            t->finalize();
+            it++;
+        }
+    }
 }
+*/
 
 Token::~Token(){
     if (own){
