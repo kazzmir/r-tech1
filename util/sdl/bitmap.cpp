@@ -1370,8 +1370,206 @@ static SDL_Color pcxMaskColor(unsigned char * data, const int length){
     color.b = 255;
     return color;
 }
+
+struct PCXheader {
+    Uint8 Manufacturer;
+    Uint8 Version;
+    Uint8 Encoding;
+    Uint8 BitsPerPixel;
+    Sint16 Xmin, Ymin, Xmax, Ymax;
+    Sint16 HDpi, VDpi;
+    Uint8 Colormap[48];
+    Uint8 Reserved;
+    Uint8 NPlanes;
+    Sint16 BytesPerLine;
+    Sint16 PaletteInfo;
+    Sint16 HscreenSize;
+    Sint16 VscreenSize;
+    Uint8 Filler[54];
+};
+
+static SDL_Surface * fast_load_pcx(unsigned char * const memory, const unsigned int length){
+    int start;
+    struct PCXheader pcxh;
+    Uint32 Rmask;
+    Uint32 Gmask;
+    Uint32 Bmask;
+    Uint32 Amask;
+    SDL_Surface *surface = NULL;
+    int width, height;
+    int y, bpl;
+    Uint8 *row, *buf = NULL;
+    const char *error = NULL;
+    int bits, src_bits;
+    Uint8 * data = memory;
+
+    if (length < sizeof(pcxh)){
+        goto done;
+    }
+
+    memcpy(&pcxh, data, sizeof(pcxh));
+    data += sizeof(pcxh);
+
+    pcxh.Xmin = SDL_SwapLE16(pcxh.Xmin);
+    pcxh.Ymin = SDL_SwapLE16(pcxh.Ymin);
+    pcxh.Xmax = SDL_SwapLE16(pcxh.Xmax);
+    pcxh.Ymax = SDL_SwapLE16(pcxh.Ymax);
+    pcxh.BytesPerLine = SDL_SwapLE16(pcxh.BytesPerLine);
+
+    /* Create the surface of the appropriate type */
+    width = (pcxh.Xmax - pcxh.Xmin) + 1;
+    height = (pcxh.Ymax - pcxh.Ymin) + 1;
+    Rmask = Gmask = Bmask = Amask = 0;
+    src_bits = pcxh.BitsPerPixel * pcxh.NPlanes;
+    if((pcxh.BitsPerPixel == 1 && pcxh.NPlanes >= 1 && pcxh.NPlanes <= 4)
+       || (pcxh.BitsPerPixel == 8 && pcxh.NPlanes == 1)) {
+        bits = 8;
+    } else if(pcxh.BitsPerPixel == 8 && pcxh.NPlanes == 3) {
+        bits = 24;
+        if (SDL_BYTEORDER == SDL_LIL_ENDIAN){
+            Rmask = 0x000000FF;
+            Gmask = 0x0000FF00;
+            Bmask = 0x00FF0000;
+        } else {
+            Rmask = 0xFF0000;
+            Gmask = 0x00FF00;
+            Bmask = 0x0000FF;
+        }
+    } else {
+        error = "unsupported PCX format";
+        goto done;
+    }
+    surface = SDL_AllocSurface(SDL_SWSURFACE, width, height,
+                               bits, Rmask, Gmask, Bmask, Amask);
+    if ( surface == NULL )
+        goto done;
+
+    bpl = pcxh.NPlanes * pcxh.BytesPerLine;
+    if (bpl > surface->pitch) {
+        error = "bytes per line is too large (corrupt?)";
+    }
+    buf = (Uint8*) malloc(bpl);
+    row = (Uint8*) surface->pixels;
+    for ( y=0; y<surface->h; ++y ) {
+        /* decode a scan line to a temporary buffer first */
+        int i, count = 0;
+        Uint8 *dst = (src_bits == 8) ? row : buf;
+        if (pcxh.Encoding == 0){
+            if (bpl + data - memory < length){
+                memcpy(dst, data, bpl);
+                data += bpl;
+            } else {
+                error = "file truncated";
+                goto done;
+            }
+        } else {
+            Uint8 ch = 0;
+            for (i = 0; i < bpl; i++) {
+                if (!count) {
+                    if (data - memory >= length){
+                        error = "file truncated";
+                        goto done;
+                    } else {
+                        ch = *data;
+                        data += 1;
+                    }
+
+                    if ((ch & 0xc0) == 0xc0){
+                        count = ch & 0x3f;
+                        if (data - memory >= length){
+                            error = "file truncated";
+                            goto done;
+                        } else {
+                            ch = *data;
+                            data += 1;
+                        }
+                    } else
+                        count = 1;
+                }
+                dst[i] = ch;
+                count--;
+            }
+        }
+
+        if (src_bits <= 4){
+            /* expand planes to 1 byte/pixel */
+            Uint8 *src = buf;
+            int plane;
+            for(plane = 0; plane < pcxh.NPlanes; plane++) {
+                int i, j, x = 0;
+                for(i = 0; i < pcxh.BytesPerLine; i++) {
+                    Uint8 byte = *src++;
+                    for(j = 7; j >= 0; j--) {
+                        unsigned bit = (byte >> j) & 1;
+                        /* skip padding bits */
+                        if (i * 8 + j >= width)
+                            continue;
+                        row[x++] |= bit << plane;
+                    }
+                }
+            }
+        } else if(src_bits == 24) {
+            /* de-interlace planes */
+            Uint8 *src = buf;
+            int plane;
+            for(plane = 0; plane < pcxh.NPlanes; plane++) {
+                int x;
+                dst = row + plane;
+                for(x = 0; x < width; x++) {
+                    *dst = *src++;
+                    dst += pcxh.NPlanes;
+                }
+            }
+        }
+
+        row += surface->pitch;
+    }
+
+    if(bits == 8) {
+        SDL_Color *colors = surface->format->palette->colors;
+        int nc = 1 << src_bits;
+        int i;
+
+        surface->format->palette->ncolors = nc;
+        if(src_bits == 8) {
+            /* look for a 256-colour palette */
+            while (data - memory < length && *data != 12){
+                data += 1;
+            }
+            data += 1;
+
+            if (data - memory >= length){
+                goto done;
+            }
+
+            for (i = 0; i < 256; i++) {
+                colors[i].r = *data; data += 1;
+                colors[i].g = *data; data += 1;
+                colors[i].b = *data; data += 1;
+            }
+        } else {
+            for(i = 0; i < nc; i++) {
+                colors[i].r = pcxh.Colormap[i * 3];
+                colors[i].g = pcxh.Colormap[i * 3 + 1];
+                colors[i].b = pcxh.Colormap[i * 3 + 2];
+            }
+        }
+    }
+
+done:
+    free(buf);
+    if (error){
+        if (surface){
+            SDL_FreeSurface(surface);
+            surface = NULL;
+        }
+    }
+
+    return surface;
+}
         
 Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
+    /*
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
     SDL_FreeRW(ops);
@@ -1380,8 +1578,10 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
         out << "Could not load PCX file at " << (void*) data << " length " << length;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
+    */
+    SDL_Surface * pcx = fast_load_pcx(data, length);
     SDL_Surface * display = optimizedSurface(pcx);
-    Bitmap out(display, true);
+    Bitmap out(display, false);
 
     if (pcx->format->BitsPerPixel == 8){
 #if SDL_VERSION_ATLEAST(1, 3, 0)
@@ -1397,7 +1597,7 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     }
 
     SDL_FreeSurface(pcx);
-    SDL_FreeSurface(display);
+    // SDL_FreeSurface(display);
     // out.floodfill(0, 0, makeColor(255, 0, 255));
 
     return out;
@@ -1600,12 +1800,54 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
         SDL_LockSurface(dst);
     }
 
-    for (int y = y1; y < y2; y++) {
+    /* Another failed attempt at loop unrolling. */
+    /*
+    int y2_4 = y2 & (~3);
+
+    for (int y = y1; y < y2_4; y += 4) {
+        Uint8 * source1 = computeOffset(dst, x1, y);
+        Uint8 * source2 = computeOffset(dst, x1, y + 1);
+        Uint8 * source3 = computeOffset(dst, x1, y + 2);
+        Uint8 * source4 = computeOffset(dst, x1, y + 3);
+        for (int x = x2 - 1; x >= x1; source1 += bpp, source2 += bpp, source3 += bpp, source4 += bpp, x--) {
+            Uint16 sourcePixel = *(Uint16*) source1;
+            Uint16 sourcePixel2 = *(Uint16*) source2;
+            Uint16 sourcePixel3 = *(Uint16*) source3;
+            Uint16 sourcePixel4 = *(Uint16*) source4;
+            if (sourcePixel == original){
+                *(Uint16 *)source1 = replace;
+            }
+            if (sourcePixel2 == original){
+                *(Uint16 *)source2 = replace;
+            }
+            if (sourcePixel3 == original){
+                *(Uint16 *)source3 = replace;
+            }
+            if (sourcePixel4 == original){
+                *(Uint16 *)source4 = replace;
+            }
+        }
+    }
+
+    for (int y = y2_4; y < y2; y++) {
         Uint8 * sourceLine = computeOffset(dst, x1, y);
 
         for (int x = x2 - 1; x >= x1; sourceLine += bpp, x--) {
-            unsigned long sourcePixel = *(Uint16*) sourceLine;
-            if ((int) sourcePixel == original){
+            Uint16 sourcePixel = *(Uint16*) sourceLine;
+            if (sourcePixel == original){
+                *(Uint16 *)sourceLine = replace;
+            }
+        }
+    }
+    */
+
+    /* Original */
+    for (int y = y1; y < y2; y++){
+        Uint8 * sourceLine = computeOffset(dst, x1, y);
+
+        for (int x = x2 - 1; x >= x1; sourceLine += bpp, x--) {
+            Uint16 sourcePixel = *(Uint16*) sourceLine;
+            if (sourcePixel == original){
                 *(Uint16 *)sourceLine = replace;
             }
         }
