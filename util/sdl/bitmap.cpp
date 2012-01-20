@@ -1580,6 +1580,11 @@ Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const boo
     }
     */
     SDL_Surface * pcx = fast_load_pcx(data, length);
+    if (pcx == NULL){
+        std::ostringstream out;
+        out << "Could not load PCX file from " << (void*) data << " length " << length;
+        throw BitmapException(__FILE__, __LINE__, out.str());
+    }
     SDL_Surface * display = optimizedSurface(pcx);
     Bitmap out(display, false);
 
