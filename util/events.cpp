@@ -20,6 +20,8 @@
 #include "input/input-manager.h"
 #include "input/input-source.h"
 
+#include "system.h"
+
 using std::map;
 
 namespace Util{
@@ -492,6 +494,11 @@ static void doStandardLoop(Logic & logic, Draw & draw){
     Global::speed_counter4 = 0;
     double runCounter = 0;
     try{
+        const int maxCount = 20;
+        int frameCount = 0;
+        uint64_t frameTime = 0;
+        int logicCount = 0;
+        uint64_t logicTime = 0;
         while (!logic.done()){
             if (Global::speed_counter4 > 0){
                 // Global::debug(0) << "Speed counter " << Global::speed_counter4 << std::endl;
@@ -503,7 +510,17 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     InputManager::poll();
                     checkFullscreen();
                     runCounter -= 1;
+                    logicCount += 1;
+                    uint64_t now = System::currentMicroseconds();
                     logic.run();
+                    uint64_t later = System::currentMicroseconds();
+                    logicTime += (later - now);
+
+                    if (logicCount >= maxCount){
+                        // Global::debug(0) << "Logic average " << (logicTime / logicCount / 1000.0) << "ms" << std::endl;
+                        logicCount = 0;
+                        logicTime = 0;
+                    }
 
                     if (Global::shutdown()){
                         throw ShutdownException();
@@ -516,8 +533,18 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 }
 
                 if (need_draw){
+                    frameCount += 1;
                     draw.updateFrames();
+                    uint64_t now = System::currentMicroseconds();
                     draw.draw(screen);
+                    uint64_t later = System::currentMicroseconds();
+                    frameTime += (later - now);
+
+                    if (frameCount >= maxCount){
+                        // Global::debug(0) << "Draw average " << (frameTime / frameCount / 1000.0) << "ms" << std::endl;
+                        frameCount = 0;
+                        frameTime = 0;
+                    }
                 }
             }
 
