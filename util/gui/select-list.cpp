@@ -562,9 +562,11 @@ bool GridSelect::up(unsigned int cursor){
                         location = items.size()-1;
                     }
                     cursors[cursor].setIndex(location);
+                    return true;
                 }
             } else {
                 cursors[cursor].setIndex(cursors[cursor].getIndex() - gridX);
+                return true;
             }
             break;
         }
@@ -620,6 +622,7 @@ bool GridSelect::down(unsigned int cursor){
                 if (allowWrap){
                     unsigned int location = cursors[cursor].getIndex() - (gridX * (gridY-1));
                     cursors[cursor].setIndex(location);
+                    return true;
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex() + gridX;
@@ -627,6 +630,7 @@ bool GridSelect::down(unsigned int cursor){
                     location = items.size()-1;
                 }
                 cursors[cursor].setIndex(location);
+                return true;
             }
             break;
         }
@@ -682,9 +686,11 @@ bool GridSelect::left(unsigned int cursor){
                         location = items.size()-1;
                     }
                     cursors[cursor].setIndex(location);
+                    return true;
                 }
             } else {
                 cursors[cursor].decrement();
+                return true;
             }
             break;
         }
@@ -743,6 +749,7 @@ bool GridSelect::right(unsigned int cursor){
                         location = 0;
                     }
                     cursors[cursor].setIndex(location);
+                    return true;
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex()+1;
@@ -754,6 +761,7 @@ bool GridSelect::right(unsigned int cursor){
                     }
                 }
                 cursors[cursor].setIndex(location);
+                return true;
             }
             break;
         }
