@@ -40,6 +40,7 @@ struct BitmapData{
 
 namespace Graphics{
     typedef ALLEGRO_COLOR Color;
+    /* events.cpp needs this */
     extern ALLEGRO_DISPLAY * the_display;
 
     class RestoreState{

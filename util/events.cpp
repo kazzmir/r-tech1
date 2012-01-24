@@ -203,12 +203,14 @@ static void handleKeyUp(Keyboard & keyboard, const ALLEGRO_EVENT & event){
 static void handleResize(const ALLEGRO_EVENT & event){
     double width = event.display.width;
     double height = event.display.height;
+    /*
     if (width < 640){
         width = 640;
     }
     if (height < 480){
         height = 480;
     }
+    */
     /* to keep the perspective correct
      * 640/480 = 1.33333
      */
@@ -222,12 +224,14 @@ static void handleResize(const ALLEGRO_EVENT & event){
     ALLEGRO_DISPLAY * display = event.display.source;
     al_acknowledge_resize(display);
     al_resize_display(display, (int) width, (int) height);
+    /*
     ALLEGRO_TRANSFORM transformation;
     al_identity_transform(&transformation);
     // al_scale_transform(&transformation, (double) al_get_display_width(display) / (double) GFX_X, (double) al_get_display_height(display) / (double) GFX_Y);
     al_scale_transform(&transformation, (double) width / (double) GFX_X, (double) height / (double) GFX_Y);
     al_set_target_bitmap(Graphics::getScreenBuffer()->getData()->getBitmap());
     al_use_transform(&transformation);
+    */
 }
 
 void EventManager::runAllegro5(Keyboard & keyboard, map<int, ReferenceCount<Joystick> > joystick){
