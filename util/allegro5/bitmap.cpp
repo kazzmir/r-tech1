@@ -394,7 +394,15 @@ height(height){
     al_set_target_bitmap(old_target);
 }
 
+static bool isBackBuffer(ALLEGRO_BITMAP * bitmap){
+    return bitmap == al_get_backbuffer(the_display);
+}
+
 int Bitmap::getWidth() const {
+    /* Always return the true dimensions of the backbuffer */
+    if (isBackBuffer(getData()->getBitmap())){
+        return al_get_bitmap_width(getData()->getBitmap());
+    }
     return width;
     /*
     if (getData()->getBitmap() != NULL){
@@ -428,6 +436,9 @@ Color makeColor(int red, int blue, int green){
 }
 
 int Bitmap::getHeight() const {
+    if (isBackBuffer(getData()->getBitmap())){
+        return al_get_bitmap_height(getData()->getBitmap());
+    }
     return height;
     /*
     if (getData()->getBitmap() != NULL){
