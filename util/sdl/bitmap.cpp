@@ -185,8 +185,8 @@ static int drawingAlpha(){
 
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_replace16(SDL_Surface * dst, const int original, const int replace);
-static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter);
-static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int x, int y, Bitmap::Filter * filter);
+static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long long dx, long long dy, int mode, int flip, Bitmap::Filter * filter);
+static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, long long x, long long y, Bitmap::Filter * filter);
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
 int MaskColor(){
@@ -1863,7 +1863,7 @@ static void paintown_replace16(SDL_Surface * dst, const int original, const int 
     }
 }
 
-static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, Bitmap::Filter * filter){
+static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, long long dx, long long dy, Bitmap::Filter * filter){
     int x, y, w, h;
     int x_dir = 1, y_dir = 1;
     int dxbeg, dybeg;
@@ -1874,7 +1874,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
     }
 
     if (true /* dst->clip*/ ) {
-        int tmp;
+        long long tmp;
 
         tmp = dst->clip_rect.x - dx;
         sxbeg = ((tmp < 0) ? 0 : tmp);
@@ -1916,7 +1916,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
     }
 }
 
-static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter){
+static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long long dx, long long dy, int mode, int flip, Bitmap::Filter * filter){
     int x, y, w, h;
     int x_dir = 1, y_dir = 1;
     int dxbeg, dybeg;
@@ -1947,7 +1947,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, int 
     }
 
     if (true /* dst->clip*/ ) {
-        int tmp;
+        long long tmp;
 
         tmp = dst->clip_rect.x - dx;
         sxbeg = ((tmp < 0) ? 0 : tmp);
