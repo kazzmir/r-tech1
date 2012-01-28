@@ -98,9 +98,9 @@ static inline unsigned int alphaBlender(unsigned int x, unsigned int y, unsigned
     Uint8 blueY = 0;
     SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
 
-    int r = (redY * dest + redX * source) / 256;
-    int g = (greenY * dest + greenX * source) / 256;
-    int b = (blueY * dest + blueX * source) / 256;
+    int r = ((int) redY * dest + (int) redX * source) / 256;
+    int g = ((int) greenY * dest + (int) greenX * source) / 256;
+    int b = ((int) blueY * dest + (int) blueX * source) / 256;
 
     r = Util::min(r, 255);
     g = Util::min(g, 255);
@@ -108,8 +108,8 @@ static inline unsigned int alphaBlender(unsigned int x, unsigned int y, unsigned
 
     // return transBlender(makeColor(r, g, b), y, dest);
 
-    // return makeColor(r, g, b);
-    return y;
+    return makeColor(r, g, b);
+    // return y;
 }
 
 static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned int n){
