@@ -1031,6 +1031,10 @@ bool Bitmap::getError(){
     return false;
 }
 
+void Bitmap::alphaBlender(int source, int dest){
+    /* TODO */
+}
+
 void Bitmap::transBlender(int r, int g, int b, int a){
     globalBlend.red = r;
     globalBlend.green = g;
