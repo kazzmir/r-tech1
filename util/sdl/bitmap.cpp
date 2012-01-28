@@ -74,6 +74,44 @@ static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsig
     return transBlender(makeColor(r, g, b), y, n);
 }
 
+static inline unsigned int alphaBlender(unsigned int x, unsigned int y, unsigned int n){
+    Uint8 source = n >> 8;
+    Uint8 dest = n & 0xff;
+
+    /*
+    unsigned long result;
+
+    x = ((x & 0xFFFF) | (x << 16)) & 0x7E0F81F;
+    y = ((y & 0xFFFF) | (y << 16)) & 0x7E0F81F;
+
+    result = ((x * source / 255) + (y * dest / 255)) & 0x7E0F81F;
+
+    return ((result & 0xFFFF) | (result >> 16));
+    */
+
+    Uint8 redX = 0;
+    Uint8 greenX = 0;
+    Uint8 blueX = 0;
+    SDL_GetRGB(x, &format565, &redX, &greenX, &blueX);
+    Uint8 redY = 0;
+    Uint8 greenY = 0;
+    Uint8 blueY = 0;
+    SDL_GetRGB(y, &format565, &redY, &greenY, &blueY);
+
+    int r = (redY * dest + redX * source) / 256;
+    int g = (greenY * dest + greenX * source) / 256;
+    int b = (blueY * dest + blueX * source) / 256;
+
+    r = Util::min(r, 255);
+    g = Util::min(g, 255);
+    b = Util::min(b, 255);
+
+    // return transBlender(makeColor(r, g, b), y, dest);
+
+    // return makeColor(r, g, b);
+    return y;
+}
+
 static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned int n){
     Uint8 redX = 0;
     Uint8 greenX = 0;
@@ -653,7 +691,22 @@ int setGfxModeWindowed( int x, int y ){
 void Bitmap::drawingMode(int type){
     Graphics::drawingMode = type;
 }
-	
+
+void Bitmap::alphaBlender(int source, int dest){
+    globalBlend.red = 0;
+    globalBlend.green = 0;
+    globalBlend.blue = 0;
+    /* Shove values into alpha */
+    if (source > 255){
+        source = 255;
+    }
+    if (dest > 255){
+        dest = 255;
+    }
+    globalBlend.alpha = ((source & 0xff) << 8) + (dest & 0xff);
+    globalBlend.currentBlender = Graphics::alphaBlender;
+}
+
 void Bitmap::transBlender( int r, int g, int b, int a ){
     globalBlend.red = r;
     globalBlend.green = g;

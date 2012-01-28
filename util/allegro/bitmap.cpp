@@ -573,6 +573,10 @@ void Bitmap::drawCharacter( const int x, const int y, const int color, const int
 	::draw_character_ex( where.getData()->getBitmap(), getData()->getBitmap(), x, y, color, background );
 }
 
+void Bitmap::alphaBlender(int source, int dest){
+    /* TODO */
+}
+
 void Bitmap::transBlender( int r, int g, int b, int a ){
 	set_trans_blender( r, g, b, a );
 }

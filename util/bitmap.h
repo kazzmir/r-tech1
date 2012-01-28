@@ -173,6 +173,12 @@ public:
         void set8BitMaskColor(const Color & color);
         Color get8BitMaskColor();
 
+        /* Blend between source pixel and destination pixel.
+         * Source and dest should be 0-255.
+         * source = 64, dest = 128
+         * pixel = source_pixel * source / 255 + dest_pixel * dest / 255
+         */
+	static void alphaBlender(int source, int dest);
 	static void transBlender( int r, int g, int b, int a );
 	static void multiplyBlender( int r, int g, int b, int a );
 	static void dissolveBlender( int r, int g, int b, int a );
