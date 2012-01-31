@@ -266,7 +266,7 @@
 #       define __STRICT_ANSI__
 #   endif
 #   include <fcntl.h>
-#ifndef PS3
+#if !defined(PS3) && !defined(XENON)
 #   include <netdb.h>
 #endif
 #   include <unistd.h>
@@ -275,14 +275,17 @@
 #   include <grp.h>
 #   include <sys/types.h>
 #   include <sys/param.h>
+#ifndef XENON
 #   include <sys/socket.h>
+#endif
 #   include <sys/time.h>
 #   include <sys/stat.h>
-#ifndef PS3
+#if !defined(PS3) && !defined(XENON)
 #   include <sys/ioctl.h>
 #endif
 #   include <sys/file.h>
 #   include <sys/wait.h>
+#if !defined(XENON)
 #   include <netinet/in.h>              /*  Must come before arpa/inet.h     */
 #   if (!defined (__UTYPE_BEOS))
 #       include <arpa/inet.h>
@@ -290,6 +293,7 @@
 #           include <netinet/tcp.h>
 #       endif
 #   endif
+#endif
 /*  Specific #include's for UNIX varieties                                   */
 #   if (defined (__UTYPE_IBMAIX) || defined(__UTYPE_QNX))
 #       include <sys/select.h>

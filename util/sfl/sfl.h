@@ -276,7 +276,7 @@
 
 /*  These include files are for non-PC systems                               */
 
-#if (defined (__UNIX__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS) && !defined(NACL)
+#if (defined (__UNIX__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS) && !defined(NACL) && !defined(XENON)
 #   if defined (__GNUC__) && (__GNUC__ >= 2)
 #       define __STRICT_ANSI__
 #   endif
@@ -307,7 +307,7 @@
 #   endif
 #endif
 
-#if defined(WII) || defined(MINPSPW) || defined(PS3) || defined(NDS) || defined(NACL)
+#if defined(WII) || defined(MINPSPW) || defined(PS3) || defined(NDS) || defined(NACL) || defined(XENON)
 #define AF_INET 1
 #include <dirent.h>
 #endif
@@ -598,7 +598,7 @@ void  sys_assert  (const char *filename, unsigned line_number);
                                         { sizeof (value) - 1, 14, 1, value }
 #endif
 
-#if (defined (__UNIX__) || defined (__VMS__) || defined (__DJGPP__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS)
+#if (defined (__UNIX__) || defined (__VMS__) || defined (__DJGPP__)) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS) && !defined(XENON)
     extern char **environ;              /*  Not defined in include files     */
 #endif
 
@@ -3009,7 +3009,7 @@ typedef int argsize_t;                  /*  Traditional: size for sock func  */
  *  time.h file.  We also define some useful structures.
  */
 
-#if (!defined (DOES_SOCKETS))
+#if (!defined (DOES_SOCKETS) && !defined(XENON))
 #   define INADDR_ANY       0
 
     /*  If FAKE_SOCKETS is set, sflsock will fake basic socket i/o           */

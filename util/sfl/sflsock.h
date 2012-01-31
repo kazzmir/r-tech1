@@ -88,7 +88,7 @@ typedef int argsize_t;                  /*  Traditional: size for sock func  */
  *  time.h file.  We also define some useful structures.
  */
 
-#if (!defined (DOES_SOCKETS))
+#if (!defined (DOES_SOCKETS) && !defined(XENON))
 #   define INADDR_ANY       0
 
     /*  If FAKE_SOCKETS is set, sflsock will fake basic socket i/o           */
