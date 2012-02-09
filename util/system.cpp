@@ -106,3 +106,8 @@ void System::makeAllDirectory(const std::string & path){
     }
     makeDirectory(path);
 }
+ 
+uint64_t System::currentSeconds(){
+    return currentMicroseconds() / (1000 * 1000);
+}
+
