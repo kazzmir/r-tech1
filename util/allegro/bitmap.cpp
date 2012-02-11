@@ -384,7 +384,7 @@ void Bitmap::save( const string & str ) const {
     save_bitmap( str.c_str(), getData()->getBitmap(), NULL );
 }
 
-Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
+Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask){
     PACKFILE_VTABLE table = Memory::makeTable();
     Memory::memory memory(data, length);
 

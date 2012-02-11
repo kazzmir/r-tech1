@@ -1621,7 +1621,7 @@ done:
     return surface;
 }
         
-Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
+Bitmap Graphics::memoryPCX(unsigned char * const data, const int length, const bool mask){
     /*
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     SDL_Surface * pcx = IMG_LoadPCX_RW(ops);
