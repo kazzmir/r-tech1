@@ -164,8 +164,6 @@ public:
 	}
 	*/
 
-        static Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask = true);
-
 	void detach();
 
         /* replace all pixels that have value `original' with `replaced' */
@@ -468,6 +466,18 @@ protected:
         /* only used by allegro5 for now */
         int width, height;
 };
+
+/* 8-bit bitmap that supports a palette */
+class PaletteBitmap: public Bitmap {
+public:
+    PaletteBitmap();
+    virtual ~PaletteBitmap();
+
+protected:
+    Color palette[256];
+};
+
+Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask = true);
 
 /* creates a bitmap that can be used as a buffer for the screen.
  * on opengl/allegro5 systems this will return the current backbuffer

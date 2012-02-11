@@ -238,7 +238,7 @@ Color pcxMaskColor(unsigned char * data, const int length){
     return makeColorAlpha(255, 255, 255, 255);
 }
 
-Bitmap Bitmap::memoryPCX(unsigned char * const data, const int length, const bool mask){
+Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask){
     ALLEGRO_FILE * memory = al_open_memfile((void *) data, length, "r");
     ALLEGRO_BITMAP * pcx = al_load_bitmap_f(memory, ".pcx");
     al_fclose(memory);
