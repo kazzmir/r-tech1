@@ -86,24 +86,26 @@ public:
     }
     
     InputMap(const InputMap & copy){
-        for (typename std::map<Keyboard::KeyType, KeyState<X>* >::const_iterator it = copy.key_states.begin(); it != copy.key_states.end(); it++){
-            key_states[(*it).first] = new KeyState<X>(*(*it).second);
-        }
-        for (typename std::map<typename Joystick::Key, JoystickState<X>* >::const_iterator it = copy.joy_states.begin(); it != copy.joy_states.end(); it++){
-            joy_states[(*it).first] = new JoystickState<X>(*(*it).second);
-        }
-        last_read = copy.last_read;
+        copyMap(copy);
     }
 
     InputMap & operator=(const InputMap & copy){
+        copyMap(copy);
+        return *this;
+    }
+
+    void copyMap(const InputMap & copy){
         for (typename std::map<Keyboard::KeyType, KeyState<X>* >::const_iterator it = copy.key_states.begin(); it != copy.key_states.end(); it++){
-            key_states[(*it).first] = new KeyState<X>(*(*it).second);
+            if (it->second != NULL){
+                key_states[(*it).first] = new KeyState<X>(*(*it).second);
+            }
         }
         for (typename std::map<typename Joystick::Key, JoystickState<X>* >::const_iterator it = copy.joy_states.begin(); it != copy.joy_states.end(); it++){
-            joy_states[(*it).first] = new JoystickState<X>(*(*it).second);
+            if (it->second != NULL){
+                joy_states[(*it).first] = new JoystickState<X>(*(*it).second);
+            }
         }
         last_read = copy.last_read;
-        return *this;
     }
 
     virtual ~InputMap(){
@@ -123,6 +125,7 @@ public:
      * out: user defined value to set if this key is pressed
      */
     void set(Keyboard::KeyType key, int delay, bool block, X out){
+        delete key_states[key];
         key_states[key] = new KeyState<X>(delay, block, out, last_read);
     }
 
@@ -142,6 +145,7 @@ public:
     /* mostly the same stuff but for joysticks.
      */
     void set(typename Joystick::Key key, int delay, bool block, X out){
+        delete joy_states[key];
         joy_states[key] = new JoystickState<X>(delay, block, out, last_read);
     }
 
@@ -176,7 +180,7 @@ public:
         for (std::vector<int>::const_iterator it = keys.begin(); it != keys.end(); it++){
             Keyboard::KeyType key = *it;
             KeyState<X> * state = key_states[key];
-            if (state != 0){
+            if (state != NULL){
                 if (state->out == out){
                     return true;
                 }
@@ -278,7 +282,7 @@ public:
 
 protected:
     void doJoyState(JoystickState<X> * state, Output * output){
-        if (state != 0){
+        if (state != NULL){
             bool use = false;
             if (state->block){
                 if (last_read - state->last_read > 1){
