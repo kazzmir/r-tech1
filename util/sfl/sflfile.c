@@ -568,6 +568,8 @@ file_delete (
     Synopsis: Returns TRUE if the file exists, or FALSE if it does not.
     ---------------------------------------------------------------------[>]-*/
 
+/* Allegro4 already has this function which works the same way */
+#ifndef USE_ALLEGRO
 Bool
 file_exists (
     const char *filename)
@@ -575,6 +577,7 @@ file_exists (
     ASSERT (filename);
     return (file_mode (filename) > 0);
 }
+#endif
 
 
 /*  -------------------------------------------------------------------------
