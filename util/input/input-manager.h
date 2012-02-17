@@ -205,7 +205,7 @@ protected:
             const std::vector<typename Keyboard::KeyData> & buffer = keyboard.getBufferedKeys();
             for (std::vector<Keyboard::KeyData>::const_iterator it = buffer.begin(); it != buffer.end(); it++){
                 const Keyboard::KeyData & data = *it;
-                KeyState<X> * state = input.getState(data.key);
+                Util::ReferenceCount<KeyState<X> > state = input.getState(data.key);
                 if (state != NULL){
                     events.push_back(typename InputMap<X>::InputEvent(state->out, data.unicode, data.enabled));
                 }
@@ -218,7 +218,7 @@ protected:
                 const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();
                 for (std::vector<Joystick::Event>::const_iterator it = joystickEvents.begin(); it != joystickEvents.end(); it++){
                     Joystick::Event event = *it;
-                    JoystickState<X> * state = input.getJoystickState(event.key);
+                    Util::ReferenceCount<JoystickState<X> > state = input.getJoystickState(event.key);
                     if (state != NULL){
                         events.push_back(typename InputMap<X>::InputEvent(state->out, -1, event.enabled));
                     }
