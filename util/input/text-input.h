@@ -54,8 +54,8 @@ public:
     void backspace();
     void deleteLastWord();
     
-    virtual KeyState<unsigned char> * getState(int key){
-        KeyState<unsigned char> * state = InputMap<unsigned char>::getState(key);
+    virtual Util::ReferenceCount<KeyState<unsigned char> > getState(int key){
+        Util::ReferenceCount<KeyState<unsigned char> > state = InputMap<unsigned char>::getState(key);
         if (state == NULL){
             if (blockingKeys){
                 set(key, 0, true, key);
