@@ -11,6 +11,9 @@
 #include <allegro.h>
 #include "loadpng.h"
 
+#if (PNG_LIBPNG_VER_MAJOR == 1) && (PNG_LIBPNG_VER_MINOR < 4)
+#define LIBPNG_VERSION_12
+#endif
 
 
 /* write_data:
@@ -190,7 +193,12 @@ static int really_save_png(PACKFILE *fp, BITMAP *bmp, AL_CONST RGB *pal)
 	goto Error;
 
     /* Set error handling. */
-    if (setjmp(png_ptr->jmpbuf)) {
+#ifndef LIBPNG_VERSION_12
+    if ( setjmp(png_set_longjmp_fn(png_ptr, longjmp, sizeof (jmp_buf))) )
+#else
+    if ( setjmp(png_ptr->jmpbuf) )
+#endif
+    {
 	/* If we get here, we had a problem reading the file. */
 	goto Error;
     }
