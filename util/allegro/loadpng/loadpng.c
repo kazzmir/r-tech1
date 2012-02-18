@@ -19,6 +19,9 @@
  * compatibility.
  */
 
+#if (PNG_LIBPNG_VER_MAJOR == 1) && (PNG_LIBPNG_VER_MINOR < 4)
+#define LIBPNG_VERSION_12
+#endif
 
 
 double _png_screen_gamma = -1.0;
@@ -279,7 +282,12 @@ BITMAP *load_png_pf(PACKFILE *fp, RGB *pal)
      * the normal method of doing things with libpng).  REQUIRED unless you
      * set up your own error handlers in the png_create_read_struct() earlier.
      */
-    if (setjmp(png_ptr->jmpbuf)) {
+#ifndef LIBPNG_VERSION_12
+    if ( setjmp(png_set_longjmp_fn(png_ptr, longjmp, sizeof (jmp_buf))) )
+#else
+    if ( setjmp(png_ptr->jmpbuf) )
+#endif
+    {
 	/* Free all of the memory associated with the png_ptr and info_ptr */
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 	/* If we get here, we had a problem reading the file */
@@ -375,7 +383,12 @@ BITMAP *load_memory_png(AL_CONST void *buffer, int bufsize, RGB *pal)
      * the normal method of doing things with libpng).  REQUIRED unless you
      * set up your own error handlers in the png_create_read_struct() earlier.
      */
-    if (setjmp(png_ptr->jmpbuf)) {
+#ifndef LIBPNG_VERSION_12
+    if ( setjmp(png_set_longjmp_fn(png_ptr, longjmp, sizeof (jmp_buf))) )
+#else
+    if ( setjmp(png_ptr->jmpbuf) )
+#endif
+    {
 	/* Free all of the memory associated with the png_ptr and info_ptr */
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 	/* If we get here, we had a problem reading the file */
