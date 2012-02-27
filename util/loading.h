@@ -16,6 +16,8 @@ public:
 
     Info();
     Info(const Info & info);
+
+    virtual ~Info();
     
     virtual void setBackground(const Graphics::Bitmap * background);
     virtual void setLoadingMessage(const std::string & str);
