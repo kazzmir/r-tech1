@@ -70,6 +70,9 @@ Info::Info(const Info & info){
     this->_loadingBackground = info._loadingBackground;
 }
     
+Info::~Info(){
+}
+    
 void Info::setBackground(const Graphics::Bitmap * background){
     this->background = background;
 }
