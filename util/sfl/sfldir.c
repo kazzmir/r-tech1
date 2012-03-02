@@ -247,7 +247,7 @@ populate_entry (DIRST *dir)
         /* might be a broken symbolic link, in that case just read it. the
          * application will fail when it tries to read data from the file.
          */
-#if !defined(WII) && !defined(MINPSPW) && !defined(PS3)
+#if !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(XENON)
         rc = lstat(full_path, &stat_buf);
 #endif
     }
@@ -260,7 +260,7 @@ populate_entry (DIRST *dir)
     dir-> file_mode  = stat_buf.st_mode;    /*  UNIX-ish permissions         */
     dir-> file_nlink = stat_buf.st_nlink;   /*  Number of links to file      */
 
-#if !defined(WII) && !defined(MINPSPW) && !defined(PS3)
+#if !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(XENON)
     /*  Get owner and group names                                            */
     dir-> owner = get_uid_name (stat_buf.st_uid);
     dir-> group = get_gid_name (stat_buf.st_gid);
