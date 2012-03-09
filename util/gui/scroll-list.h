@@ -47,7 +47,7 @@ public:
     virtual void render(const Graphics::Bitmap &, const Font & font) const = 0;
 
     //! Add item
-    virtual void addItem(const Util::ReferenceCount<ScrollItem> & item) = 0;
+    virtual void addItem(const Util::ReferenceCount<ScrollItem> item) = 0;
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items) = 0;
@@ -99,7 +99,7 @@ public:
     virtual void render(const Graphics::Bitmap &, const Font & font) const;
 
     //! Add item
-    virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
+    virtual void addItem(const Util::ReferenceCount<ScrollItem> item);
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);
@@ -238,7 +238,7 @@ public:
     virtual void render(const Graphics::Bitmap &, const Font & font) const;
 
     //! Add item
-    virtual void addItem(const Util::ReferenceCount<ScrollItem> & item);
+    virtual void addItem(const Util::ReferenceCount<ScrollItem> item);
 
     //! Add vector of text
     virtual void addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & items);

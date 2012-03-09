@@ -151,8 +151,8 @@ void ScrollList::render(const Graphics::Bitmap & where, const Font & font) const
     doDraw(0, y - font.getHeight() / FONT_SPACER, min_y, max_y, font, currentIndex - 1, currentIndex, where, -1);
 }
 
-void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> & text){
-    this->text.push_back(text);
+void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> item){
+    this->text.push_back(item);
 }
     
 void ScrollList::addItems(const std::vector<Util::ReferenceCount<ScrollItem> > & texts){
@@ -286,7 +286,7 @@ void NormalList::render(const Graphics::Bitmap & work, const Font & font) const 
     }
 }
 
-void NormalList::addItem(const Util::ReferenceCount<ScrollItem> & item){
+void NormalList::addItem(const Util::ReferenceCount<ScrollItem> item){
     text.push_back(item);
 }
 
