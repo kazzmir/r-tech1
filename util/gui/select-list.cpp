@@ -561,12 +561,21 @@ bool GridSelect::up(unsigned int cursor){
                     if (location >= items.size()){
                         location = items.size()-1;
                     }
-                    cursors[cursor].setIndex(location);
-                    return true;
+                    if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                        cursors[cursor].setIndex(location);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             } else {
-                cursors[cursor].setIndex(cursors[cursor].getIndex() - gridX);
-                return true;
+                unsigned int location = cursors[cursor].getIndex() - gridX;
+                if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                    cursors[cursor].setIndex(location);
+                    return true;
+                } else {
+                    return false;
+                }
             }
             break;
         }
@@ -621,16 +630,24 @@ bool GridSelect::down(unsigned int cursor){
             if (inRange(cursors[cursor].getIndex(), gridX * (gridY-1), gridX * gridY)){
                 if (allowWrap){
                     unsigned int location = cursors[cursor].getIndex() - (gridX * (gridY-1));
-                    cursors[cursor].setIndex(location);
-                    return true;
+                    if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                        cursors[cursor].setIndex(location);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex() + gridX;
                 if (location >= items.size()){
                     location = items.size()-1;
                 }
-                cursors[cursor].setIndex(location);
-                return true;
+                if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                    cursors[cursor].setIndex(location);
+                    return true;
+                } else {
+                    return false;
+                }
             }
             break;
         }
@@ -685,11 +702,19 @@ bool GridSelect::left(unsigned int cursor){
                     if (location >= items.size()){
                         location = items.size()-1;
                     }
-                    cursors[cursor].setIndex(location);
-                    return true;
+                    if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                        cursors[cursor].setIndex(location);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             } else {
                 cursors[cursor].decrement();
+                if (items[cursors[cursor].getIndex()]->isEmpty() && !accessEmpty){
+                    cursors[cursor].increment();
+                    return false;
+                }
                 return true;
             }
             break;
@@ -748,8 +773,12 @@ bool GridSelect::right(unsigned int cursor){
                     if (location < 0){
                         location = 0;
                     }
-                    cursors[cursor].setIndex(location);
-                    return true;
+                    if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                        cursors[cursor].setIndex(location);
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex()+1;
@@ -760,8 +789,12 @@ bool GridSelect::right(unsigned int cursor){
                         location = items.size()-1;
                     }
                 }
-                cursors[cursor].setIndex(location);
-                return true;
+                if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
+                    cursors[cursor].setIndex(location);
+                    return true;
+                } else {
+                    return false;
+                }
             }
             break;
         }
