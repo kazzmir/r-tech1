@@ -8,6 +8,7 @@
 # Source directories containing all the necessary .cpp files
 # -------------------------------------------------------
 set(UTIL_SRC
+argument.cpp
 network/network.cpp
 token.cpp
 token_exception.cpp
