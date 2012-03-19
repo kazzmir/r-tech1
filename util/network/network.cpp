@@ -318,6 +318,16 @@ char * dump16(char * where, int16_t bytes){
     return where + sizeof(uint16_t);
 }
 
+char * parse16(char * where, uint16_t * out){
+    *out = ntohs(*(uint16_t*) where);
+    return where + sizeof(uint16_t);
+}
+
+char * parseString(char * where, string * out, uint16_t length){
+    *out = string(where);
+    return where + length;
+}
+
 char * dumpStr(char * where, const std::string & str){
     memcpy(where, str.c_str(), str.size() + 1);
     return where + str.size() + 1;

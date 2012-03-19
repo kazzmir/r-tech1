@@ -122,6 +122,8 @@ void sendStr(Socket socket, const std::string & str );
 void sendBytes(Socket socket, const uint8_t * data, int length);
 void readBytes(Socket socket, uint8_t * data, int length);
 char * dumpStr(char * where, const std::string & str);
+char * parse16(char * where, uint16_t * out);
+char * parseString(char * where, std::string * out, uint16_t length);
 void init();
 void shutdown();
 void blocking(bool b);
