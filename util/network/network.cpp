@@ -312,6 +312,17 @@ void send16(Socket socket, int16_t bytes){
     sendBytes(socket, (uint8_t *) &bytes, sizeof(bytes));
 }
 
+char * dump16(char * where, int16_t bytes){
+    bytes = htons(bytes);
+    *(uint16_t*) where = bytes;
+    return where + sizeof(uint16_t);
+}
+
+char * dumpStr(char * where, const std::string & str){
+    memcpy(where, str.c_str(), str.size() + 1);
+    return where + str.size() + 1;
+}
+
 string readStr(Socket socket, const uint16_t length){
     char buffer[length + 1];
     NLint bytes = nlRead(socket, buffer, length);
