@@ -115,11 +115,13 @@ void sendAllMessages(const std::vector<Message*> & messages, Socket socket);
 
 int16_t read16(Socket socket);
 int32_t read32(Socket socket);
+char * dump16(char * where, int16_t length);
 void send16(Socket socket, int16_t length);
 std::string readStr(Socket socket, const uint16_t length);
 void sendStr(Socket socket, const std::string & str );
 void sendBytes(Socket socket, const uint8_t * data, int length);
 void readBytes(Socket socket, uint8_t * data, int length);
+char * dumpStr(char * where, const std::string & str);
 void init();
 void shutdown();
 void blocking(bool b);
