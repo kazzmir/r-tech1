@@ -126,7 +126,10 @@ char * parse16(char * where, uint16_t * out);
 char * parseString(char * where, std::string * out, uint16_t length);
 void init();
 void shutdown();
+/* Whether or not blocking is enabled by default for new sockets */
 void blocking(bool b);
+/* Enable/disable blocking for a specific socket */
+void blocking(Socket s, bool b);
 
 void listen(Socket s) throw (NetworkException);
 Socket accept(Socket s) throw (NetworkException);
