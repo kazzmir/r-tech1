@@ -444,6 +444,10 @@ void init(){
     // nlDisable( NL_BLOCKING_IO );
 }
 
+void blocking(Socket s, bool b){
+    nlSetSocketOpt(s, NL_BLOCKING_IO, b);
+}
+
 void blocking(bool b){
     if (b){
         nlEnable(NL_BLOCKING_IO);
