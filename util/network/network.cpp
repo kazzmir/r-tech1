@@ -444,8 +444,8 @@ void init(){
     // nlDisable( NL_BLOCKING_IO );
 }
 
-void blocking(Socket s, bool b){
-    nlSetSocketOpt(s, NL_BLOCKING_IO, b);
+bool blocking(Socket s, bool b){
+    return nlSetSocketOpt(s, NL_BLOCKING_IO, b) == NL_TRUE;
 }
 
 void blocking(bool b){
@@ -454,6 +454,10 @@ void blocking(bool b){
     } else {
         nlDisable(NL_BLOCKING_IO);
     }
+}
+
+bool noDelay(Socket s, bool b){
+    return nlSetSocketOpt(s, NL_TCP_NO_DELAY, b) == NL_TRUE;
 }
 
 void listen( Socket s ) throw( NetworkException ){

@@ -129,7 +129,9 @@ void shutdown();
 /* Whether or not blocking is enabled by default for new sockets */
 void blocking(bool b);
 /* Enable/disable blocking for a specific socket */
-void blocking(Socket s, bool b);
+bool blocking(Socket s, bool b);
+/* Enable/disable NODELAY -- the Nagle algorithm for TCP */
+bool noDelay(Socket s, bool b);
 
 void listen(Socket s) throw (NetworkException);
 Socket accept(Socket s) throw (NetworkException);
