@@ -22,6 +22,7 @@ protected:
     double scale_x, scale_y;
     const Bitmap & where;
     const QualityFilter filter;
+    Bitmap scaleToFilter;
 };
 
 class TranslatedBitmap: public Bitmap {
