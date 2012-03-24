@@ -299,4 +299,15 @@ void Console::clear(){
     lines.clear();
 }
 
+vector<Util::ReferenceCount<Command> > Console::getCommands() const {
+    vector<Util::ReferenceCount<Command> > out;
+    for (map<std::string, Util::ReferenceCount<Command> >::const_iterator it = commands.begin(); it != commands.end(); it++){
+        Util::ReferenceCount<Command> command = it->second;
+        if (command != NULL){
+            out.push_back(command);
+        }
+    }
+    return out;
+}
+
 }

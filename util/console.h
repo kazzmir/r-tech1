@@ -31,6 +31,7 @@ public:
     }
 
     virtual std::string act(const std::string & line) = 0;
+    virtual std::string getDescription() const = 0;
 
     virtual ~Command(){
     }
@@ -77,6 +78,8 @@ public:
         // textInput << x;
         return *this;
     }
+
+    std::vector<Util::ReferenceCount<Command> > getCommands() const;
 
     void addCommand(const std::string & name, const Util::ReferenceCount<Command> & command);
 
