@@ -1067,9 +1067,10 @@ void Bitmap::multiplyBlender( int r, int g, int b, int a ){
     globalBlend.type = Multiply;
 }
 
+/*
 void Bitmap::drawingMode(int type){
-    /* TODO */
 }
+*/
 
 void Bitmap::shutdown(){
     delete Screen;

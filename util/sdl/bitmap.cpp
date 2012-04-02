@@ -209,8 +209,9 @@ BitmapData::~BitmapData(){
 }
 
 static BlendingData globalBlend;
-static int drawingMode = Bitmap::MODE_SOLID;
+// static int drawingMode = Bitmap::MODE_SOLID;
 
+/*
 static int drawingAlpha(){
     if (drawingMode == Bitmap::MODE_SOLID){
         return 255;
@@ -220,6 +221,7 @@ static int drawingAlpha(){
     }
     return 255;
 }
+*/
 
 static void paintown_applyTrans16(SDL_Surface * dst, const int color);
 static void paintown_replace16(SDL_Surface * dst, const int original, const int replace);
@@ -687,10 +689,12 @@ int setGfxModeFullscreen(int x, int y){
 int setGfxModeWindowed( int x, int y ){
     return setGraphicsMode(WINDOWED, x, y);
 }
-	
+
+/*
 void Bitmap::drawingMode(int type){
     Graphics::drawingMode = type;
 }
+*/
 
 void Bitmap::alphaBlender(int source, int dest){
     globalBlend.red = 0;
@@ -845,12 +849,16 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
     // Uint8 red, green, blue;
     // SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
     // int alpha = 255;
+    
+    SPG_Circle(getData()->getSurface(), x, y, radius, color);
+    /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Circle(getData()->getSurface(), x, y, radius, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
         SPG_CircleBlend(getData()->getSurface(), x, y, radius, color, alpha);
     }
+    */
 
     // circleRGBA(getData().getSurface(), x, y, radius, red, green, blue, alpha);
 }
@@ -1257,21 +1265,27 @@ void Bitmap::save(const std::string & str) const {
 	
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
 
+    SPG_TrigonFilled(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color);
+    /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_TrigonFilled(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
         SPG_TrigonFilledBlend(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color, alpha);
     }
+    */
 }
 
 void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+    SPG_Ellipse(getData()->getSurface(), x, y, rx, ry, color);
+    /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Ellipse(getData()->getSurface(), x, y, rx, ry, color);
     } else if (Graphics::drawingMode == MODE_TRANS){
         int alpha = globalBlend.alpha;
         SPG_EllipseBlend(getData()->getSurface(), x, y, rx, ry, color, alpha);
     }
+    */
 }
 
 void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const {

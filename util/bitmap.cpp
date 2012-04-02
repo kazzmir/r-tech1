@@ -25,8 +25,10 @@ int SCALE_X = 0;
 int SCALE_Y = 0;
 */
 
+/*
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
+*/
 	
 const int SPRITE_NO_FLIP = 0;
 const int SPRITE_V_FLIP = 1;

@@ -45,6 +45,11 @@ extern EXTERNAL_VARIABLE int _blender_alpha;
 
 namespace Graphics{
 
+enum DrawingModes{
+    MODE_TRANS,
+    MODE_SOLID
+};
+
 /* FIXME: try to get rid of these variables */
 static int SCALE_X;
 static int SCALE_Y;
@@ -60,6 +65,21 @@ int MaskColor(){
 
 static Bitmap * Scaler = NULL;
 static Bitmap * Buffer = NULL;
+
+static void drawingMode(int mode){
+    // drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+    switch( mode ){
+        case MODE_TRANS : {
+            drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
+            break;
+        }
+        case MODE_SOLID : {
+            drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
+            break;
+        }
+    }
+}
+
 
 Bitmap::Bitmap():
 mustResize(false),
@@ -638,20 +658,6 @@ void Bitmap::replaceColor(const Color & original, const Color & replaced){
             }
         }
     }
-}
-
-void Bitmap::drawingMode( int mode ){
-	// drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
-	switch( mode ){
-		case MODE_TRANS : {
-			drawing_mode( DRAW_MODE_TRANS, NULL, 0, 0 );
-			break;
-		}
-		case MODE_SOLID : {
-			drawing_mode( DRAW_MODE_SOLID, NULL, 0, 0 );
-			break;
-		}
-	}
 }
 
 int setGraphicsMode( int mode, int width, int height ){
