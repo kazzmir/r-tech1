@@ -326,14 +326,14 @@ class Manager{
 public:
     Manager(pp::Instance * instance, pp::Core * core):
     instance(instance),
-    core(core),
-    factory(this){
+    core(core){
+    // factory(this){
     }
 
     pp::Instance * instance;
     pp::Core * core;
     Util::ReferenceCount<NaclRequest> request;
-    pp::CompletionCallbackFactory<Manager> factory;
+    // pp::CompletionCallbackFactory<Manager> factory;
 
     struct OpenFileData{
         const char * path;

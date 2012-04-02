@@ -58,6 +58,7 @@ protected:
     Directory parseDirectory(const AbsolutePath & path);
     */
     unsigned int fileSize(Manager & manager, const Filesystem::AbsolutePath & path);
+    using System::open;
     Util::ReferenceCount<FileHandle> open(const Util::ReferenceCount<OpenHandle> & handle);
 
 protected:
