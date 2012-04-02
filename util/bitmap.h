@@ -195,7 +195,7 @@ public:
         /* clean up any remaining state */
         static void shutdown();
 
-	static void drawingMode( int type );
+	// static void drawingMode( int type );
 
         virtual Color blendColor(const Color & input) const;
         /* sets the blend state. try not to use these function unless
@@ -428,8 +428,10 @@ public:
 	*/
 
 	// static const int MaskColor = MASK_COLOR_16;
+        /*
 	static const int MODE_TRANS;
 	static const int MODE_SOLID;
+        */
 
 #ifdef USE_ALLEGRO5
         void convertToVideo();
