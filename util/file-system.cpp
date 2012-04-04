@@ -454,6 +454,33 @@ int File::readLine(char * output, int size){
     return 0;
 }
 
+class NormalFile: public File {
+public:
+    NormalFile(const Path::AbsolutePath & path, Access mode = Read):
+    File(path, mode){
+        ios_base::openmode iosMode = fstream::in;
+        switch (mode){
+            case Read: iosMode = fstream::in; break;
+            case Write: iosMode = fstream::out; break;
+            case ReadWrite: iosMode = fstream::in | fstream::out; break;
+        }
+
+        in.open(path.path().c_str(), iosMode | fstream::binary);
+    }
+        
+    virtual int readLine(char * output, int size){
+        in.read(output, size);
+        return in.gcount();
+    }
+
+    virtual ~NormalFile(){
+        in.close();
+    }
+
+protected:
+    std::fstream in;
+};
+
 /* overlays:
  * add x/y.zip
  * y.zip contains
