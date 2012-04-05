@@ -443,43 +443,74 @@ System & instance(){
     return *self;
 }
         
-File::File(const Path::AbsolutePath & path, Access mode):
-path(path){
+File::File(){
 }
         
 File::~File(){
 }
         
-int File::readLine(char * output, int size){
-    return 0;
+NormalFile::NormalFile(const Path::AbsolutePath & path, Access mode):
+path(path){
+    ios_base::openmode iosMode = fstream::in;
+    switch (mode){
+        case Read: iosMode = fstream::in; break;
+        case Write: iosMode = fstream::out; break;
+        case ReadWrite: iosMode = fstream::in | fstream::out; break;
+    }
+
+    in.open(path.path().c_str(), iosMode | fstream::binary);
+    in >> noskipws;
+}
+        
+bool NormalFile::eof(){
+    return in.eof();
 }
 
-class NormalFile: public File {
-public:
-    NormalFile(const Path::AbsolutePath & path, Access mode = Read):
-    File(path, mode){
-        ios_base::openmode iosMode = fstream::in;
-        switch (mode){
-            case Read: iosMode = fstream::in; break;
-            case Write: iosMode = fstream::out; break;
-            case ReadWrite: iosMode = fstream::in | fstream::out; break;
-        }
+bool NormalFile::good(){
+    return in.good();
+}
 
-        in.open(path.path().c_str(), iosMode | fstream::binary);
-    }
-        
-    virtual int readLine(char * output, int size){
-        in.read(output, size);
-        return in.gcount();
-    }
+File & NormalFile::operator>>(unsigned char & c){
+    in >> c;
+    return *this;
+}
 
-    virtual ~NormalFile(){
-        in.close();
-    }
+int NormalFile::readLine(char * output, int size){
+    in.read(output, size);
+    return in.gcount();
+}
 
-protected:
-    std::fstream in;
-};
+NormalFile::~NormalFile(){
+    in.close();
+}
+
+
+StringFile::StringFile(const std::string & start):
+data(start),
+stream(start){
+    stream >> noskipws;
+}
+
+int StringFile::readLine(char * output, int size){
+    stream.read(output, size);
+    return stream.gcount();
+}
+
+bool StringFile::eof(){
+    return stream.eof();
+}
+
+bool StringFile::good(){
+    return stream.good();
+}
+
+File & StringFile::operator>>(unsigned char & c){
+    stream >> c;
+    return *this;
+}
+
+StringFile::~StringFile(){
+}
 
 /* overlays:
  * add x/y.zip
@@ -593,14 +624,30 @@ protected:
     vector<string> files;
 };
 
+
 ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
-File(path, Read),
+path(path),
 zip(zip){
     zip->open(path);
 }
 
 ZipFile::~ZipFile(){
     zip->close();
+}
+        
+bool ZipFile::eof(){
+    /* FIXME */
+    return false;
+}
+
+bool ZipFile::good(){
+    /* FIXME */
+    return false;
+}
+
+File & ZipFile::operator>>(unsigned char & c){
+    /* FIXME */
+    return *this;
 }
         
 int ZipFile::readLine(char * output, int size){
@@ -626,7 +673,7 @@ Util::ReferenceCount<File> System::open(const AbsolutePath & path, File::Access 
     if (overlays[path] != NULL){
         return Util::ReferenceCount<File>(new ZipFile(path, overlays[path]));
     } else {
-        return Util::ReferenceCount<File>(new File(path, mode));
+        return Util::ReferenceCount<File>(new NormalFile(path, mode));
     }
 }
 

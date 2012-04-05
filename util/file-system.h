@@ -5,8 +5,10 @@
 #include "pointer.h"
 #include "thread.h"
 #include <string>
+#include <sstream>
 #include <vector>
 #include <map>
+#include <fstream>
 #include <stdint.h>
 
 struct stat;
@@ -248,14 +250,20 @@ namespace Storage{
             ReadWrite
         };
 
-        File(const Path::AbsolutePath & path, Access mode = Read);
+        File();
         virtual ~File();
 
         /* Returns the number of bytes read */
-        virtual int readLine(char * output, int size);
+        virtual int readLine(char * output, int size) = 0;
 
-    protected:
-        const Path::AbsolutePath path;
+        /* if the file is at eof and can't read anymore */
+        virtual bool eof() = 0;
+
+        /* if the file can still be read */
+        virtual bool good() = 0;
+
+        /* read one unsigned byte */
+        virtual File & operator>>(unsigned char &) = 0;
     };
     
     class ZipContainer;
@@ -263,11 +271,45 @@ namespace Storage{
     public:
         ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & container);
         virtual ~ZipFile();
+        virtual bool eof();
+        virtual bool good();
+        virtual File & operator>>(unsigned char &);
         
         virtual int readLine(char * output, int size);
 
     protected:
+        const Path::AbsolutePath path;
         const Util::ReferenceCount<ZipContainer> zip;
+    };
+
+    class NormalFile: public File {
+    public:
+        NormalFile(const Path::AbsolutePath & path, Access mode = Read);
+
+        virtual int readLine(char * output, int size);
+        virtual bool eof();
+        virtual bool good();
+        virtual File & operator>>(unsigned char &);
+
+        virtual ~NormalFile();
+
+    protected:
+        const Path::AbsolutePath path;
+        std::fstream in;
+    };
+
+    class StringFile: public File {
+    public:
+        StringFile(const std::string & start);
+        virtual int readLine(char * output, int size);
+        virtual bool eof();
+        virtual bool good();
+        virtual File & operator>>(unsigned char &);
+        virtual ~StringFile();
+
+    protected:
+        std::string data;
+        std::istringstream stream;
     };
 
     class System{

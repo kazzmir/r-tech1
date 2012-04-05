@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 
+#include "file-system.h"
 #include "token.h"
 #include "token_exception.h"
 #include "tokenreader.h"
@@ -32,6 +33,7 @@ TokenReader::TokenReader(const string & file){
 }
 
 Token * TokenReader::readTokenFromFile(const std::string & path){
+    /*
     ifstream file(path.c_str());
     if (!file){
         ostringstream out;
@@ -39,8 +41,11 @@ Token * TokenReader::readTokenFromFile(const std::string & path){
         throw TokenException(__FILE__, __LINE__, out.str());
     }
     file >> noskipws;
+    */
+    Filesystem::AbsolutePath realPath(path);
+    Storage::NormalFile file(realPath);
     readTokens(file);
-    file.close();
+    // file.close();
     if (my_tokens.size() > 0){
         my_tokens[0]->setFile(path);
         return my_tokens[0];
@@ -57,17 +62,20 @@ Token * TokenReader::readToken(){
     throw TokenException(__FILE__, __LINE__, "No tokens read");
 }
     
-Token * TokenReader::readToken(const string & path) throw (TokenException){
+Token * TokenReader::readToken(const string & path){
     return readTokenFromFile(path);
 }
 
-Token * TokenReader::readToken(const char * path) throw (TokenException){
+Token * TokenReader::readToken(const char * path){
     return readTokenFromFile(path);
 }
     
-Token * TokenReader::readTokenFromString(const string & stuff) throw (TokenException){
+Token * TokenReader::readTokenFromString(const string & stuff){
+    /*
     istringstream input(stuff);
     input >> noskipws;
+    */
+    Storage::StringFile input(stuff);
     readTokens(input);
     if (my_tokens.size() > 0){
         return my_tokens[0];
@@ -98,7 +106,7 @@ static inline bool is_nonalpha(char c){
     return strchr(nonalpha, c) != NULL;
 }
 
-void TokenReader::readTokens(istream & input) throw (TokenException){
+void TokenReader::readTokens(Storage::File & input){
 
     /*
     if ( !ifile ){
