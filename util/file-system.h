@@ -280,6 +280,7 @@ namespace Storage{
     protected:
         const Path::AbsolutePath path;
         const Util::ReferenceCount<ZipContainer> zip;
+        bool atEof;
     };
 
     class NormalFile: public File {
