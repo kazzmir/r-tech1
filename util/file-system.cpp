@@ -627,7 +627,8 @@ protected:
 
 ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
 path(path),
-zip(zip){
+zip(zip),
+atEof(false){
     zip->open(path);
 }
 
@@ -636,22 +637,25 @@ ZipFile::~ZipFile(){
 }
         
 bool ZipFile::eof(){
-    /* FIXME */
-    return false;
+    return atEof;
 }
 
 bool ZipFile::good(){
     /* FIXME */
-    return false;
+    return true;
 }
 
 File & ZipFile::operator>>(unsigned char & c){
-    /* FIXME */
+    readLine((char*) &c, 1);
     return *this;
 }
         
 int ZipFile::readLine(char * output, int size){
-    return zip->read(output, size);
+    try{
+        return zip->read(output, size);
+    } catch (const Exception & nomore){
+        atEof = true;
+    }
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
