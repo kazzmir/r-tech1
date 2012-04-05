@@ -1,20 +1,23 @@
-#ifndef _tokenreader_h
-#define _tokenreader_h
+#ifndef _paintown_tokenreader_h
+#define _paintown_tokenreader_h
 
-#include <fstream>
 #include <string>
 #include <vector>
 #include "token_exception.h"
 
 class Token;
 
+namespace Storage{
+    class File;
+}
+
 class TokenReader{
 public:
     TokenReader();
 
-    virtual Token * readToken(const std::string & path) throw (TokenException);
-    virtual Token * readToken(const char * path) throw (TokenException);
-    virtual Token * readTokenFromString(const std::string & stuff) throw (TokenException);
+    virtual Token * readToken(const std::string & path);
+    virtual Token * readToken(const char * path);
+    virtual Token * readTokenFromString(const std::string & stuff);
     virtual Token * readTokenFromFile(const std::string & path);
 
     virtual ~TokenReader();
@@ -25,7 +28,7 @@ protected:
     TokenReader( const char * filename );
     virtual Token * readToken();
 
-    virtual void readTokens(std::istream & stream) throw (TokenException);
+    virtual void readTokens(Storage::File & stream);
     /*
     std::ifstream ifile;
     std::string myfile;
