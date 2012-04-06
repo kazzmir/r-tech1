@@ -18,6 +18,10 @@
 #include "allegro5/bitmap.h"
 #endif
 
+namespace Storage{
+    class File;
+}
+
 namespace Graphics{
 
 class TranslucentBitmap;
@@ -114,6 +118,9 @@ public:
         Bitmap(const char * data, int length);
 	Bitmap( const std::string & load_file );
 	Bitmap( const char * load_file, int sx, int sy );
+
+        /* Load a bitmap from an abstract file */
+        Bitmap(Storage::File & file);
 
         /* 4/24/2010: remove this at some point */
 #ifdef USE_ALLEGRO
@@ -451,6 +458,8 @@ protected:
             _my_bitmap = bitmap;
         }
         */
+
+        void loadFromMemory(const char * data, int length);
 
         void internalLoadFile( const char * load_file );
 

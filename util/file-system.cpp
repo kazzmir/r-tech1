@@ -466,6 +466,14 @@ bool NormalFile::eof(){
     return in.eof();
 }
 
+int NormalFile::getSize(){
+    streampos here = in.tellg();
+    in.seekg(0, ios::end);
+    int length = in.tellg();
+    in.seekg(here, ios::beg);
+    return length;
+}
+
 bool NormalFile::good(){
     return in.good();
 }
@@ -494,6 +502,10 @@ stream(start){
 int StringFile::readLine(char * output, int size){
     stream.read(output, size);
     return stream.gcount();
+}
+
+int StringFile::getSize(){
+    return data.size();
 }
 
 bool StringFile::eof(){
@@ -589,6 +601,13 @@ public:
         }
     }
 
+    int currentFileSize(){
+        char filename[1024];
+        unz_file_info fileInfo;
+        unzGetCurrentFileInfo(zipFile, &fileInfo, filename, sizeof(filename), NULL, 0, NULL, 0);
+        return fileInfo.uncompressed_size;
+    }
+
     int read(char * buffer, int size){
         int got = unzReadCurrentFile(zipFile, buffer, size);
         if (got <= 0){
@@ -648,6 +667,10 @@ bool ZipFile::good(){
 File & ZipFile::operator>>(unsigned char & c){
     readLine((char*) &c, 1);
     return *this;
+}
+        
+int ZipFile::getSize(){
+    return zip->currentFileSize();
 }
         
 int ZipFile::readLine(char * output, int size){

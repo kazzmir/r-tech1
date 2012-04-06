@@ -347,6 +347,11 @@ bit8MaskColor(makeColor(0, 0, 0)){
     height = al_get_bitmap_height(getData()->getBitmap());
 }
 
+void Bitmap::loadFromMemory(const char * data, int length){
+    /* TODO */
+    throw BitmapException(__FILE__, __LINE__, "Implement this constructor");
+}
+
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor),

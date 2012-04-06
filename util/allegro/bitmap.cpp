@@ -190,6 +190,12 @@ bit8MaskColor(0){
     setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
 }
 
+void Bitmap::loadFromMemory(const char * data, int length){
+    /* FIXME: detect the format type */
+    Format type = GIF;
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
+}
+
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
 Bitmap::Bitmap( BITMAP * who, bool deep_copy ):
 mustResize(false),
