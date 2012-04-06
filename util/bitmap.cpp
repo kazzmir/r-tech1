@@ -3,6 +3,7 @@
 #include "trans-bitmap.h"
 #include "stretch-bitmap.h"
 #include "lit_bitmap.h"
+#include "file-system.h"
 #include <string>
 #include <stdio.h>
 #include <math.h>
@@ -43,6 +44,21 @@ static inline int max(int a, int b){
 }
 	
 void initializeExtraStuff();
+        
+Bitmap::Bitmap(Storage::File & file):
+mustResize(false),
+bit8MaskColor(makeColor(0, 0, 0)){
+    int length = file.getSize();
+    char * data = new char[length];
+    file.readLine(data, length);
+    try{
+        loadFromMemory(data, length);
+        delete[] data;
+    } catch (const BitmapException & fail){
+        delete[] data;
+        throw;
+    }
+}
 
 QualityFilter qualityFilterName(const std::string & type){
     if (type == "xbr"){

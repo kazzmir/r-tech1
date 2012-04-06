@@ -256,6 +256,8 @@ namespace Storage{
         /* Returns the number of bytes read */
         virtual int readLine(char * output, int size) = 0;
 
+        virtual int getSize() = 0;
+
         /* if the file is at eof and can't read anymore */
         virtual bool eof() = 0;
 
@@ -273,6 +275,7 @@ namespace Storage{
         virtual ~ZipFile();
         virtual bool eof();
         virtual bool good();
+        virtual int getSize();
         virtual File & operator>>(unsigned char &);
         
         virtual int readLine(char * output, int size);
@@ -290,6 +293,7 @@ namespace Storage{
         virtual int readLine(char * output, int size);
         virtual bool eof();
         virtual bool good();
+        virtual int getSize();
         virtual File & operator>>(unsigned char &);
 
         virtual ~NormalFile();
@@ -305,6 +309,7 @@ namespace Storage{
         virtual int readLine(char * output, int size);
         virtual bool eof();
         virtual bool good();
+        virtual int getSize();
         virtual File & operator>>(unsigned char &);
         virtual ~StringFile();
 

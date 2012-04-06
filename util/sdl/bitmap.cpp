@@ -296,16 +296,7 @@ bit8MaskColor(0){
 Bitmap::Bitmap(const char * data, int length):
 mustResize(false),
 bit8MaskColor(0){
-    SDL_RWops * ops = SDL_RWFromConstMem(data, length);
-    SDL_Surface * loaded = IMG_Load_RW(ops, 1);
-    if (loaded){
-        setData(Util::ReferenceCount<BitmapData>(new BitmapData(optimizedSurface(loaded))));
-        SDL_FreeSurface(loaded);
-    } else {
-        std::ostringstream out;
-        out << "Could not load surface from memory " << (void*) data << " length " << length;
-        throw BitmapException(__FILE__, __LINE__, out.str());
-    }
+    loadFromMemory(data, length);
 }
 
 Bitmap::Bitmap(SDL_Surface * who, bool deep_copy):
@@ -413,6 +404,20 @@ Bitmap::Bitmap( const Bitmap & copy, int sx, int sy, double accuracy ):
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor){
     /* TODO */
+}
+
+void Bitmap::loadFromMemory(const char * data, int length){
+    SDL_RWops * ops = SDL_RWFromConstMem(data, length);
+    SDL_Surface * loaded = IMG_Load_RW(ops, 1);
+    if (loaded){
+        setData(Util::ReferenceCount<BitmapData>(new BitmapData(optimizedSurface(loaded))));
+        SDL_FreeSurface(loaded);
+    } else {
+        std::ostringstream out;
+        out << "Could not load surface from memory " << (void*) data << " length " << length;
+        throw BitmapException(__FILE__, __LINE__, out.str());
+    }
+
 }
 
 static inline Uint8* computeOffset(SDL_Surface * surface, int x, int y){
