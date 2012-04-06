@@ -591,7 +591,7 @@ public:
 
     int read(char * buffer, int size){
         int got = unzReadCurrentFile(zipFile, buffer, size);
-        if (got < 0){
+        if (got <= 0){
             throw Exception(__FILE__, __LINE__, "Could not read bytes from zip");
         }
         return got;
@@ -655,6 +655,7 @@ int ZipFile::readLine(char * output, int size){
         return zip->read(output, size);
     } catch (const Exception & nomore){
         atEof = true;
+        return 0;
     }
 }
 
@@ -804,7 +805,7 @@ Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
     bool first = true;
     for (vector<Filesystem::AbsolutePath>::iterator it = places.begin(); it != places.end(); it++){
         Filesystem::AbsolutePath & final = *it;
-        if (::System::readable(final.path())){
+        if (overlays[final] != NULL || ::System::readable(final.path())){
             return final;
         }
         if (!first){
