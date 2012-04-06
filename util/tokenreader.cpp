@@ -54,6 +54,19 @@ Token * TokenReader::readTokenFromFile(const std::string & path){
     out << "No tokens read from " << path;
     throw TokenException(__FILE__, __LINE__, out.str());
 }
+    
+Token * TokenReader::readTokenFromFile(Storage::File & file){
+    readTokens(file);
+    // file.close();
+    if (my_tokens.size() > 0){
+        my_tokens[0]->setFile("");
+        return my_tokens[0];
+    }
+    ostringstream out;
+    out << "No tokens read from file";
+    throw TokenException(__FILE__, __LINE__, out.str());
+
+}
 
 Token * TokenReader::readToken(){
     if (my_tokens.size() > 0){

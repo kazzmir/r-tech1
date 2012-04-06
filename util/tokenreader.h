@@ -19,6 +19,7 @@ public:
     virtual Token * readToken(const char * path);
     virtual Token * readTokenFromString(const std::string & stuff);
     virtual Token * readTokenFromFile(const std::string & path);
+    virtual Token * readTokenFromFile(Storage::File & file);
 
     virtual ~TokenReader();
 
