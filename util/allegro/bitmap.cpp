@@ -113,11 +113,6 @@ bit8MaskColor(0){
 	}
 }
 
-enum Format{
-    PNG,
-    GIF,
-};
-
 static BITMAP * memoryGIF(const char * data, int length){
     PACKFILE_VTABLE table = Memory::makeTable();
     Memory::memory memory((unsigned char *) data, length);
@@ -168,12 +163,18 @@ static BITMAP * memoryGIF(const char * data, int length){
     return out;
 }
 
-static BITMAP * load_bitmap_from_memory(const char * data, int length, Format type){
+static BITMAP * load_bitmap_from_memory(const char * data, int length, ImageFormat type){
     switch (type){
-        case PNG : {
+        case FormatBMP:
+        case FormatJPG:
+        case FormatPCX:
+        case FormatTGA:
+        case FormatTIF:
+        case FormatXPM:
+        case FormatPNG: {
             break;
         }
-        case GIF : {
+        case FormatGIF: {
             return memoryGIF(data, length);
             break;
         }
@@ -185,15 +186,11 @@ Bitmap::Bitmap(const char * data, int length):
 mustResize(false),
 error(false),
 bit8MaskColor(0){
-    /* FIXME: pass the type in */
-    Format type = GIF;
-    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage(data, length)))));
 }
 
 void Bitmap::loadFromMemory(const char * data, int length){
-    /* FIXME: detect the format type */
-    Format type = GIF;
-    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage(data, length)))));
 }
 
 /* If a BITMAP is given to us, we didn't make it so we don't own it */

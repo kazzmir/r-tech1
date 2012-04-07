@@ -214,11 +214,6 @@ void changeTarget(const Bitmap * from, const Bitmap * who){
     changeTarget(*from, *who);
 }
 
-enum Format{
-    PNG,
-    GIF,
-};
-
 void dumpColor(const Color & color){
     unsigned char red, green, blue, alpha;
     al_unmap_rgba(color, &red, &green, &blue, &alpha);
@@ -320,12 +315,18 @@ void Bitmap::internalLoadFile(const char * path){
     setData(Util::ReferenceCount<BitmapData>(new BitmapData(loaded)));
 }
 
-static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, Format type){
+static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, ImageFormat type){
     switch (type){
-        case PNG : {
+        case FormatBMP:
+        case FormatJPG:
+        case FormatPCX:
+        case FormatTGA:
+        case FormatTIF:
+        case FormatXPM:
+        case FormatPNG: {
             break;
         }
-        case GIF : {
+        case FormatGIF : {
             return memoryGIF(data, length);
             break;
         }
@@ -336,8 +337,11 @@ static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, F
 Bitmap::Bitmap(const char * data, int length):
 mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
-    Format type = GIF;
-    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, type))));
+    loadFromMemory(data, length);
+}
+
+void Bitmap::loadFromMemory(const char * data, int length){
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage(data, length)))));
     if (getData()->getBitmap() == NULL){
         std::ostringstream out;
         out << "Could not create bitmap from memory";
@@ -345,11 +349,6 @@ bit8MaskColor(makeColor(0, 0, 0)){
     }
     width = al_get_bitmap_width(getData()->getBitmap());
     height = al_get_bitmap_height(getData()->getBitmap());
-}
-
-void Bitmap::loadFromMemory(const char * data, int length){
-    /* TODO */
-    throw BitmapException(__FILE__, __LINE__, "Implement this constructor");
 }
 
 Bitmap::Bitmap( const Bitmap & copy, int x, int y, int width, int height ):
