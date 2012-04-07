@@ -25,6 +25,7 @@ input/keyboard.cpp
 loading.cpp
 messages.cpp
 bitmap.cpp
+image.cpp
 events.cpp
 font.cpp
 fire.cpp
