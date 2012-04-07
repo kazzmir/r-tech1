@@ -24,6 +24,20 @@ namespace Storage{
 
 namespace Graphics{
 
+enum ImageFormat{
+    FormatPNG,
+    FormatBMP,
+    FormatJPG,
+    FormatPCX,
+    FormatTGA,
+    FormatTIF,
+    FormatXPM,
+    FormatGIF,
+    FormatUnknown
+};
+
+ImageFormat identifyImage(const char * data, int length);
+
 class TranslucentBitmap;
 class LitBitmap;
 class Bitmap;
