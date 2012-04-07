@@ -9,6 +9,7 @@
 #endif
 
 #include "configuration.h"
+#include "file-system.h"
         
 Sound::SoundInfo Sound::Info;
 
@@ -19,6 +20,20 @@ own( NULL ){
         *own += 1;
     }
     data = copy.data;
+}
+
+Sound::Sound(Storage::File & file):
+own(NULL){
+    int length = file.getSize();
+    char * data = new char[length];
+    file.readLine(data, length);
+    try{
+        loadFromMemory(data, length);
+        delete[] data;
+    } catch (const LoadException & fail){
+        delete[] data;
+        throw;
+    }
 }
 
 Sound & Sound::operator=( const Sound & rhs ){

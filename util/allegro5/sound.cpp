@@ -11,6 +11,10 @@ own(NULL){
 /* create from wav file (riff header + pcm) */
 Sound::Sound(const char * data, int length):
 own(NULL){
+    loadFromMemory(data, length);
+}
+
+void Sound::loadFromMemory(const char * data, int length){
     ALLEGRO_FILE * memory = al_open_memfile((void*) data, length, "r");
     this->data.sample = al_load_sample_f(memory, ".wav");
     al_fclose(memory);
@@ -20,7 +24,7 @@ own(NULL){
 }
 
 /* load from path */
-Sound::Sound(const std::string & path) throw (LoadException):
+Sound::Sound(const std::string & path):
 own(NULL){
     data.sample = al_load_sample(path.c_str());
     if (data.sample == NULL){

@@ -16,6 +16,10 @@ own(NULL){
 
 Sound::Sound(const char * data, int length):
 own(NULL){
+    loadFromMemory(data, length);
+}
+
+void Sound::loadFromMemory(const char * data, int length){
     PACKFILE_VTABLE table = Memory::makeTable();
     Memory::memory memory((unsigned char *) data, length);
 
@@ -30,7 +34,7 @@ own(NULL){
     *own = 1;
 }
 
-Sound::Sound(const string & path) throw( LoadException ):
+Sound::Sound(const string & path):
 own(NULL){
     data.sample = load_sample( path.c_str() );
 

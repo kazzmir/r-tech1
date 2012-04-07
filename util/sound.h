@@ -16,14 +16,20 @@
 
 struct SAMPLE;
 
+namespace Storage{
+    class File;
+}
+
 /* a sound! */
 class Sound{
 public:
     Sound();
     /* create from wav file (riff header + pcm) */
     Sound(const char * data, int length);
+    /* load from abstract file */
+    Sound(Storage::File & file);
     /* load from path */
-    Sound(const std::string & path) throw (LoadException);
+    Sound(const std::string & path);
     Sound(const Sound & copy);
 
     /* do any global initialization necessary */
@@ -58,6 +64,8 @@ public:
     static SoundInfo Info;
 
 protected:
+
+    void loadFromMemory(const char * data, int length);
 
     /* scale to the configuration sound level */
     static double scale(double in);
