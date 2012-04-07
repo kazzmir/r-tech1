@@ -315,17 +315,22 @@ void Bitmap::internalLoadFile(const char * path){
     setData(Util::ReferenceCount<BitmapData>(new BitmapData(loaded)));
 }
 
+static ALLEGRO_BITMAP * do_load_from_memory(const char * data, int length, const char * type){
+    ALLEGRO_FILE * memory = al_open_memfile((void*) data, length, "r");
+    ALLEGRO_BITMAP * bitmap = al_load_bitmap_f(memory, type);
+    al_fclose(memory);
+    return bitmap;
+}
+
 static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, ImageFormat type){
     switch (type){
-        case FormatBMP:
-        case FormatJPG:
-        case FormatPCX:
-        case FormatTGA:
-        case FormatTIF:
-        case FormatXPM:
-        case FormatPNG: {
-            break;
-        }
+        case FormatBMP: return do_load_from_memory(data, length, ".bmp");
+        case FormatPNG: return do_load_from_memory(data, length, ".png");
+        case FormatJPG: return do_load_from_memory(data, length, ".jpg");
+        case FormatPCX: return do_load_from_memory(data, length, ".pcx");
+        case FormatTGA: return do_load_from_memory(data, length, ".tga");
+        case FormatTIF: return do_load_from_memory(data, length, ".tif");
+        case FormatXPM: return do_load_from_memory(data, length, ".xpm");
         case FormatGIF : {
             return memoryGIF(data, length);
             break;
