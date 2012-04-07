@@ -10,6 +10,10 @@ own(NULL){
 /* create from wav file (riff header + pcm) */
 Sound::Sound(const char * data, int length):
 own(NULL){
+    loadFromMemory(data, length);
+}
+
+void Sound::loadFromMemory(const char * data, int length){
     SDL_RWops * ops = SDL_RWFromConstMem(data, length);
     this->data.chunk = Mix_LoadWAV_RW(ops, 1);
     own = new int;
@@ -17,7 +21,7 @@ own(NULL){
 }
 
 /* load from path */
-Sound::Sound(const std::string & path) throw (LoadException):
+Sound::Sound(const std::string & path):
 own(NULL){
     data.chunk = Mix_LoadWAV(path.c_str());
     if (!data.chunk){
