@@ -686,6 +686,10 @@ void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipCon
     overlays[where] = zip;
 }
 
+void System::unoverlayFile(const AbsolutePath & where){
+    overlays.erase(where);
+}
+
 void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
     Global::debug(1) << "Opening zip file " << container.path() << std::endl;
     Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), where));
@@ -696,7 +700,17 @@ void System::addOverlay(const AbsolutePath & container, const AbsolutePath & whe
         overlayFile(where.join(Filesystem::RelativePath(path)), zip);
     }
 }
-        
+
+void System::removeOverlay(const AbsolutePath & container, const AbsolutePath & where){
+    Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), where));
+    vector<string> files = zip->getFiles();
+    for (vector<string>::const_iterator it = files.begin(); it != files.end(); it++){
+        string path = *it;
+        Global::debug(0) << "Add overlay to " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
+        unoverlayFile(where.join(Filesystem::RelativePath(path)));
+    }
+}
+
 Util::ReferenceCount<File> System::open(const AbsolutePath & path, File::Access mode){
     if (overlays[path] != NULL){
         return Util::ReferenceCount<File>(new ZipFile(path, overlays[path]));
