@@ -88,6 +88,14 @@ namespace Path{
 
         virtual AbsolutePath getDirectory() const;
         virtual AbsolutePath getFilename() const;
+
+        /* If the filename is empty then get the name of the directory.
+         * a/b -> b
+         * a/b/ -> b
+         *
+         * Otherwise (a/b/).getFilename() will be ""
+         */
+        virtual std::string getLastComponent() const;
         
         AbsolutePath join(const RelativePath & path) const;
     };
