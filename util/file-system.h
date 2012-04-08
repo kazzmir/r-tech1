@@ -335,7 +335,9 @@ namespace Storage{
         /* search for a pattern of a single file within a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
 
+        /* Container should be a path to a zip file */
         virtual void addOverlay(const AbsolutePath & container, const AbsolutePath & where);
+        virtual void removeOverlay(const AbsolutePath & container, const AbsolutePath & where);
 
         /* search for some path which may contain wildcards in a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const RelativePath & find, bool caseInsensitive);
@@ -348,6 +350,8 @@ namespace Storage{
         virtual Util::ReferenceCount<File> open(const AbsolutePath & path, File::Access mode = File::Read);
     protected:
         void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
+        void unoverlayFile(const AbsolutePath & where);
+
         std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
     };
 
