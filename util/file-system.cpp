@@ -57,6 +57,23 @@ string sanitize(string path){
         path.erase(double_slash, 1);
         double_slash = path.find("//");
     }
+
+    /* Remove /./ from paths because its redundant */
+    size_t useless = path.find("/./");
+    while (useless != string::npos){
+        path.erase(useless, 2);
+        useless = path.find("/./");
+    }
+
+    return path;
+}
+
+static string removeEndSlashes(string path){
+    size_t last = path.rfind("/");
+    while (path.size() > 0 && last == path.size() - 1){
+        path.erase(last, 1);
+        last = path.rfind("/");
+    }
     return path;
 }
 
@@ -268,7 +285,7 @@ AbsolutePath & AbsolutePath::operator=(const AbsolutePath & copy){
 }
 
 bool AbsolutePath::operator==(const AbsolutePath & path) const {
-    return this->path() == path.path();
+    return removeEndSlashes(this->path()) == removeEndSlashes(path.path());
 }
         
 bool AbsolutePath::operator!=(const AbsolutePath & path) const {
@@ -294,6 +311,13 @@ AbsolutePath AbsolutePath::getDirectory() const {
 
 AbsolutePath AbsolutePath::getFilename() const {
     return AbsolutePath(stripDir(path()));
+}
+        
+std::string AbsolutePath::getLastComponent() const {
+    if (getFilename().path() == ""){
+        return stripDir(removeEndSlashes(path()));
+    }
+    return getFilename().path();
 }
         
 AbsolutePath AbsolutePath::join(const RelativePath & path) const {
@@ -597,7 +621,7 @@ public:
         if (unzLocateFile(zipFile, find.path().c_str(), 2) != UNZ_OK){
             Global::debug(0) << "Could not find " << find.path() << std::endl;
         } else {
-            Global::debug(0) << "Found " << find.path() << " in zip file " << path << std::endl;
+            Global::debug(1) << "Found " << find.path() << " in zip file " << path << std::endl;
         }
     }
 
@@ -642,6 +666,7 @@ protected:
     unzFile zipFile;
     vector<string> files;
 };
+
 
 
 ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
@@ -696,7 +721,7 @@ void System::addOverlay(const AbsolutePath & container, const AbsolutePath & whe
     vector<string> files = zip->getFiles();
     for (vector<string>::const_iterator it = files.begin(); it != files.end(); it++){
         string path = *it;
-        Global::debug(0) << "Add overlay to " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
+        Global::debug(1) << "Add overlay to " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
         overlayFile(where.join(Filesystem::RelativePath(path)), zip);
     }
 }
@@ -842,7 +867,7 @@ Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
     bool first = true;
     for (vector<Filesystem::AbsolutePath>::iterator it = places.begin(); it != places.end(); it++){
         Filesystem::AbsolutePath & final = *it;
-        if (overlays[final] != NULL || ::System::readable(final.path())){
+        if (overlays.find(final) != overlays.end() || ::System::readable(final.path())){
             return final;
         }
         if (!first){
@@ -985,6 +1010,20 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
         ok = read_dir(&sflEntry);
     }
     close_dir(&sflEntry);
+
+    for (map<AbsolutePath, Util::ReferenceCount<Storage::ZipContainer> >::iterator it = overlays.begin(); it != overlays.end(); it++){
+        AbsolutePath path = it->first;
+        if (it->second == NULL){
+            continue;
+        }
+        // Global::debug(0) << "Check " << path.path() << " (" << path.getDirectory().path() << ") vs directory " << dataPath.path() << " wildcard " << find << " to " << path.getFilename().path() << std::endl;
+        if (path.getDirectory() == dataPath &&
+            file_matches(path.getLastComponent().c_str(), find.c_str())){
+            // Global::debug(0) << "Found overlay " << path.path() << " in " << dataPath.path() << " for wildcard " << find << std::endl;
+            files.push_back(path);
+        }
+    }
+
     // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
     return files;
 #endif
@@ -1080,7 +1119,7 @@ bool Filesystem::exists(const RelativePath & path){
 }
 
 bool Filesystem::exists(const AbsolutePath & path){
-    return ::System::readable(path.path());
+    return overlays.find(path) != overlays.end() || ::System::readable(path.path());
 }
 
 Filesystem::RelativePath Filesystem::cleanse(const AbsolutePath & path){
