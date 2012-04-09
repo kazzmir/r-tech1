@@ -75,12 +75,13 @@ void Sound::uninitialize(){
 void Sound::stop(){
     if (data.sample){
         stop_sample(data.sample);
+        data.voice = -1;
     }
 }
 
 void Sound::play(){
     if (data.sample){
-        play_sample(data.sample, (int)(scale(1.0) * MAX_VOLUME), 128, 1000, false);
+        data.voice = play_sample(data.sample, (int)(scale(1.0) * MAX_VOLUME), 128, 1000, false);
     }
 }
 
@@ -98,12 +99,18 @@ void Sound::play(double volume, int pan){
             v = 1;
         }
 
-        play_sample( data.sample, (int)(scale(v) * MAX_VOLUME), pan, 1000, false );
+        data.voice = play_sample( data.sample, (int)(scale(v) * MAX_VOLUME), pan, 1000, false );
     }
 }
-	
+
 void Sound::playLoop(){
-    if ( data.sample ){
-        play_sample( data.sample, 255, 128, 1000, true );
+    if (data.sample){
+        data.voice = play_sample(data.sample, 255, 128, 1000, true);
+    }
+}
+
+void Sound::setVolume(double volume){
+    if (data.voice != -1){
+        voice_set_volume(data.voice, (int)(scale(volume) * MAX_VOLUME));
     }
 }

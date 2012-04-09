@@ -44,6 +44,8 @@ public:
     void playLoop();
     void stop();
 
+    void setVolume(double volume);
+
     virtual ~Sound();
 
     /* global frequency to use */
