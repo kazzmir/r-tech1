@@ -82,6 +82,12 @@ void Sound::playLoop(){
     }
 }
 
+void Sound::setVolume(double volume){
+    if (data.chunk != NULL){
+        Mix_VolumeChunk(data.chunk, (int) scale(volume * MIX_MAX_VOLUME));
+    }
+}
+
 void Sound::destroy(){
     if (own){
         *own -= 1;

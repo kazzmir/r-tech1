@@ -73,6 +73,13 @@ void Sound::playLoop(){
     }
 }
 
+void Sound::setVolume(double volume){
+    if (data.sample != NULL){
+        /* FIXME */
+        // al_set_sample_instance_gain(data.sample, scale(volume));
+    }
+}
+
 void Sound::stop(){
     /* TODO */
 }
