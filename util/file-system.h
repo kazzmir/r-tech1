@@ -326,6 +326,19 @@ namespace Storage{
         std::istringstream stream;
     };
 
+    class Directory{
+    public:
+        Directory();
+        virtual ~Directory();
+
+        /* Might return NULL if the path can't be found */
+        Util::ReferenceCount<File> lookup(const Path::AbsolutePath & path);
+
+    protected:
+        std::map<std::string, Util::ReferenceCount<Directory> > directories;
+        std::map<std::string, Util::ReferenceCount<File> > files;
+    };
+
     class System{
     public:
         System();
@@ -432,6 +445,7 @@ protected:
 protected:
     Util::Thread::LockObject lock;
     AbsolutePath dataPath;
+    Util::ReferenceCount<Storage::Directory> virtualDirectory;
 };
 
 #endif

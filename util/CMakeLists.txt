@@ -31,6 +31,7 @@ font.cpp
 fire.cpp
 ftalleg.cpp
 funcs.cpp
+directory.cpp
 file-system.cpp
 gradient.cpp
 music-player.cpp
