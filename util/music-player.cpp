@@ -440,7 +440,7 @@ DUH * DumbPlayer::loadDumbFile(string path){
         }
         
         if (what != NULL){
-            Global::debug(0) << "Loaded " << path << " type " << typeToExtension(i) << "(" << i << ")" << std::endl;
+            Global::debug(1) << "Loaded " << path << " type " << typeToExtension(i) << "(" << i << ")" << std::endl;
             return what;
         }
     }
@@ -455,7 +455,7 @@ emulator(NULL){
         throw MusicException(__FILE__, __LINE__, "Could not load GME file");
     }
     emulator->start_track(0);
-    Global::debug(0) << "Loaded GME file " << path << std::endl;
+    Global::debug(1) << "Loaded GME file " << path << std::endl;
 }
     
 void GMEPlayer::render(void * stream, int length){

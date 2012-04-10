@@ -399,14 +399,14 @@ bool Music::internal_loadSong(string path){
         return false;
     }
 
-    Global::debug(1) << "Trying to load '" << path << "'" << endl;
-
     // Check current song and/or set it
     if (currentSong.compare(path)==0){
         return true;
     } else {
         currentSong = path;
     }
+    
+    Global::debug(0) << "Trying to load '" << path << "'" << endl;
 
     /*
     if (musicPlayer != NULL){
