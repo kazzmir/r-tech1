@@ -125,6 +125,12 @@ protected:
 #ifdef HAVE_OGG
 struct OggPage{
     struct Page{
+        Page():
+            position(0),
+            max(0),
+            buffer(NULL){
+            }
+
         int position;
         int max;
         char * buffer;
