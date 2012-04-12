@@ -89,6 +89,10 @@ namespace Path{
         virtual AbsolutePath getDirectory() const;
         virtual AbsolutePath getFilename() const;
 
+        AbsolutePath removeFirstDirectory() const;
+        std::string firstDirectory() const;
+        bool isFile() const;
+
         /* If the filename is empty then get the name of the directory.
          * a/b -> b
          * a/b/ -> b
@@ -445,7 +449,7 @@ protected:
 protected:
     Util::Thread::LockObject lock;
     AbsolutePath dataPath;
-    Util::ReferenceCount<Storage::Directory> virtualDirectory;
+    Storage::Directory virtualDirectory;
 };
 
 #endif
