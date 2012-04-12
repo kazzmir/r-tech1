@@ -284,6 +284,10 @@ AbsolutePath & AbsolutePath::operator=(const AbsolutePath & copy){
     return *this;
 }
 
+AbsolutePath AbsolutePath::removeFirstDirectory() const {
+    return AbsolutePath(stripFirstDir(path()));
+}
+
 bool AbsolutePath::operator==(const AbsolutePath & path) const {
     return removeEndSlashes(this->path()) == removeEndSlashes(path.path());
 }
@@ -294,6 +298,19 @@ bool AbsolutePath::operator!=(const AbsolutePath & path) const {
         
 bool AbsolutePath::operator<(const AbsolutePath & path) const {
     return this->path() < path.path();
+}
+
+string AbsolutePath::firstDirectory() const {
+    vector<string> paths = splitPath(path());
+    if (paths.size() > 1){
+        return paths[0];
+    }
+    return "";
+}
+        
+bool AbsolutePath::isFile() const {
+    vector<string> paths = splitPath(path());
+    return paths.size() == 1;
 }
         
 RelativePath AbsolutePath::remove(const AbsolutePath & what) const {
