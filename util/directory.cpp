@@ -33,19 +33,23 @@ Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
             return Util::ReferenceCount<File>(NULL);
         }
     } else {
-        try{
-            string name = path.firstDirectory();
-            if (name == "."){
+        string name = path.firstDirectory();
+        if (name == "."){
+            try{
                 return lookup(path.removeFirstDirectory());
-            } else if (name == ".."){
-                throw UpDirectory(path.removeFirstDirectory());
+            } catch (const UpDirectory & up){
+                return lookup(up.path);
             }
-            Util::ReferenceCount<Directory> directory = directories[path.firstDirectory()];
-            if (directory != NULL){
+        } else if (name == ".."){
+            throw UpDirectory(path.removeFirstDirectory());
+        }
+        Util::ReferenceCount<Directory> directory = directories[path.firstDirectory()];
+        if (directory != NULL){
+            try{
                 return directory->lookup(path.removeFirstDirectory());
+            } catch (const UpDirectory & up){
+                return lookup(up.path);
             }
-        } catch (const UpDirectory & up){
-            return lookup(up.path);
         }
     }
     return Util::ReferenceCount<File>(NULL);
