@@ -290,7 +290,10 @@ void BitmapData::setSurface(SDL_Surface * surface){
 Bitmap::Bitmap():
 mustResize(false),
 bit8MaskColor(0){
-    /* TODO */
+    int width = 1;
+    int height = 1;
+    SDL_Surface * surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, SCREEN_DEPTH, format565.Rmask, format565.Gmask, format565.Bmask, format565.Amask);
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(surface)));
 }
 
 Bitmap::Bitmap(const char * data, int length):
