@@ -236,6 +236,11 @@ public:
         /* Just resizes the bitmap without copying pixels */
         void updateSize(const int width, const int height);
 
+        /* Makes this bitmap the same as the parameter.
+         * Width/height is copied and then a Blit is called.
+         */
+        void copy(const Bitmap & him);
+
 	void debugSelf() const;
 
         /* convert to a grey scale version */

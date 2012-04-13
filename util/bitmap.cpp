@@ -430,6 +430,11 @@ int Bitmap::getScreenHeight(){
 void Bitmap::clear() const {
     fill(makeColor(0, 0, 0));
 }
+        
+void Bitmap::copy(const Bitmap & him){
+    resize(him.getWidth(), him.getHeight());
+    him.Blit(*this);
+}
 
 void Bitmap::Stretch( const Bitmap & where ) const {
     if (getWidth() == where.getWidth() && getHeight() == where.getHeight()){
