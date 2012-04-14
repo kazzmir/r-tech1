@@ -24,8 +24,7 @@ public:
     Path::AbsolutePath path;
 };
 
-/* Might return NULL if the path can't be found */
-Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
+Util::ReferenceCount<File> Directory::doLookup(const Path::AbsolutePath & path){
     if (path.isFile()){
         if (files[path.path()] != NULL){
             return files[path.path()];
@@ -36,9 +35,9 @@ Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
         string name = path.firstDirectory();
         if (name == "."){
             try{
-                return lookup(path.removeFirstDirectory());
+                return doLookup(path.removeFirstDirectory());
             } catch (const UpDirectory & up){
-                return lookup(up.path);
+                return doLookup(up.path);
             }
         } else if (name == ".."){
             throw UpDirectory(path.removeFirstDirectory());
@@ -46,13 +45,29 @@ Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
         Util::ReferenceCount<Directory> directory = directories[path.firstDirectory()];
         if (directory != NULL){
             try{
-                return directory->lookup(path.removeFirstDirectory());
+                return directory->doLookup(path.removeFirstDirectory());
             } catch (const UpDirectory & up){
-                return lookup(up.path);
+                return doLookup(up.path);
             }
         }
     }
     return Util::ReferenceCount<File>(NULL);
+}
+
+/* Might return NULL if the path can't be found */
+Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
+    Path::AbsolutePath use = path;
+
+    /* The path might contain .. paths that would go out of this directory
+     * so just ignore those paths and use the rest of the path.
+     */
+    while (true){
+        try{
+            return doLookup(use);
+        } catch (const UpDirectory & up){
+            use = up.path;
+        }
+    }
 }
 
 }
