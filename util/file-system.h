@@ -339,6 +339,8 @@ namespace Storage{
         Util::ReferenceCount<File> lookup(const Path::AbsolutePath & path);
 
     protected:
+        Util::ReferenceCount<File> doLookup(const Path::AbsolutePath & path);
+
         std::map<std::string, Util::ReferenceCount<Directory> > directories;
         std::map<std::string, Util::ReferenceCount<File> > files;
     };
