@@ -751,12 +751,12 @@ public:
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
     virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)).convert<Descriptor>());
-    overlays[where] = zip;
+    // overlays[where] = zip;
 }
 
 void System::unoverlayFile(const AbsolutePath & where){
     virtualDirectory.removeFile(where);
-    overlays.erase(where);
+    // overlays.erase(where);
 }
 
 void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
@@ -781,8 +781,9 @@ void System::removeOverlay(const AbsolutePath & container, const AbsolutePath & 
 }
 
 Util::ReferenceCount<File> System::open(const AbsolutePath & path, File::Access mode){
-    if (overlays[path] != NULL){
-        return Util::ReferenceCount<File>(new ZipFile(path, overlays[path]));
+    Util::ReferenceCount<Descriptor> descriptor = virtualDirectory.lookup(path);
+    if (descriptor != NULL){
+        return descriptor->open(mode);
     } else {
         return Util::ReferenceCount<File>(new NormalFile(path, mode));
     }
@@ -911,7 +912,7 @@ Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
     bool first = true;
     for (vector<Filesystem::AbsolutePath>::iterator it = places.begin(); it != places.end(); it++){
         Filesystem::AbsolutePath & final = *it;
-        if (overlays.find(final) != overlays.end() || ::System::readable(final.path())){
+        if (virtualDirectory.lookup(final) != NULL || ::System::readable(final.path())){
             return final;
         }
         if (!first){
@@ -1055,6 +1056,9 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
     }
     close_dir(&sflEntry);
 
+    vector<AbsolutePath> more = virtualDirectory.findFiles(dataPath, find, caseInsensitive);
+    files.insert(files.end(), more.begin(), more.end());
+    /*
     for (map<AbsolutePath, Util::ReferenceCount<Storage::ZipContainer> >::iterator it = overlays.begin(); it != overlays.end(); it++){
         AbsolutePath path = it->first;
         if (it->second == NULL){
@@ -1067,6 +1071,7 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
             files.push_back(path);
         }
     }
+    */
 
     // Global::debug(0) << "Warning: Filesystem::getFiles() is not implemented yet for SDL" << endl;
     return files;
@@ -1163,7 +1168,7 @@ bool Filesystem::exists(const RelativePath & path){
 }
 
 bool Filesystem::exists(const AbsolutePath & path){
-    return overlays.find(path) != overlays.end() || ::System::readable(path.path());
+    return virtualDirectory.lookup(path) != NULL || ::System::readable(path.path());
 }
 
 Filesystem::RelativePath Filesystem::cleanse(const AbsolutePath & path){
