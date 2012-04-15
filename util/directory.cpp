@@ -1,4 +1,5 @@
 #include "file-system.h"
+#include "debug.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -76,9 +77,11 @@ vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataP
         return out;
     }
 
+    Global::debug(1) << "Search in " << dataPath.path() << " for " << find << std::endl;
     vector<string> names = lastDirectory.last->filenames();
 #ifndef USE_ALLEGRO
     for (vector<string>::iterator it = names.begin(); it != names.end(); it++){
+        Global::debug(1) << "Check if " << *it << " matches " << find << std::endl;
         if (file_matches(it->c_str(), find.c_str())){
             out.push_back(dataPath.join(Path::RelativePath(*it)));
         }
@@ -230,6 +233,7 @@ void Directory::addFile(const Path::AbsolutePath & path, const Util::ReferenceCo
         }
     };
 
+    Global::debug(1) << "Add file " << path.path() << std::endl;
     AddPath adder(file);
     traverse(path, adder);
 }
