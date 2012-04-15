@@ -1,7 +1,16 @@
 #include "file-system.h"
 #include <string>
+#include <vector>
+#include <map>
+
+#ifndef USE_ALLEGRO
+#include "sfl/sfl.h"
+#include "sfl/sfldir.h"
+#endif
 
 using std::string;
+using std::vector;
+using std::map;
 
 namespace Storage{
 
@@ -35,6 +44,63 @@ public:
     virtual ~Traverser(){
     }
 };
+        
+vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
+    vector<Path::AbsolutePath> out;
+
+    class FindDirectory: public Traverser {
+    public:
+        FindDirectory():
+        failed(false){
+        }
+
+        bool failed;
+        Util::ReferenceCount<Directory> last;
+
+        virtual void traverseFile(Directory & directory, const string & file){
+        }
+
+        virtual void traverseDirectory(Directory & directory, const string & path){
+            if (directory.directories[path] != NULL){
+                last = directory.directories[path];
+            } else {
+                failed = true;
+            }
+        }
+    };
+
+    FindDirectory lastDirectory;
+    traverse(dataPath, lastDirectory);
+
+    if (lastDirectory.failed || lastDirectory.last == NULL){
+        return out;
+    }
+
+    vector<string> names = lastDirectory.last->filenames();
+#ifndef USE_ALLEGRO
+    for (vector<string>::iterator it = names.begin(); it != names.end(); it++){
+        if (file_matches(it->c_str(), find.c_str())){
+            out.push_back(dataPath.join(Path::RelativePath(*it)));
+        }
+    }
+#endif
+
+    return out;
+}
+        
+vector<string> Directory::filenames() const {
+    vector<string> out;
+
+    for (map<string, Util::ReferenceCount<Descriptor> >::const_iterator it = files.begin(); it != files.end(); it++){
+        out.push_back(it->first);
+    }
+
+    for (map<string, Util::ReferenceCount<Directory> >::const_iterator it = directories.begin(); it != directories.end(); it++){
+        out.push_back(it->first);
+    }
+    
+    return out;
+}
 
 void Directory::doTraverse(const Path::AbsolutePath & path, Traverser & traverser){
     if (path.isFile()){

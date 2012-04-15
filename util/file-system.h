@@ -345,9 +345,13 @@ namespace Storage{
     public:
         Directory();
         virtual ~Directory();
+    
+        std::vector<Path::AbsolutePath> findFiles(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive);
 
         void addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<Descriptor> & file);
         void removeFile(const Path::AbsolutePath & path);
+
+        std::vector<std::string> filenames() const;
 
         /* Might return NULL if the path can't be found */
         Util::ReferenceCount<Descriptor> lookup(const Path::AbsolutePath & path);
@@ -396,7 +400,7 @@ namespace Storage{
         void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
         void unoverlayFile(const AbsolutePath & where);
 
-        std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
+        // std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
         Storage::Directory virtualDirectory;
     };
 
