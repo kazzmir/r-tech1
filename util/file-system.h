@@ -330,26 +330,36 @@ namespace Storage{
         std::istringstream stream;
     };
 
+    /* Contains information about an abstract File. */
+    class Descriptor{
+    public:
+        Descriptor();
+
+        virtual Util::ReferenceCount<File> open(File::Access mode) = 0;
+
+        virtual ~Descriptor();
+    };
+
     class Traverser;
     class Directory{
     public:
         Directory();
         virtual ~Directory();
 
-        void addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<File> & file);
+        void addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<Descriptor> & file);
         void removeFile(const Path::AbsolutePath & path);
 
         /* Might return NULL if the path can't be found */
-        Util::ReferenceCount<File> lookup(const Path::AbsolutePath & path);
+        Util::ReferenceCount<Descriptor> lookup(const Path::AbsolutePath & path);
 
     protected:
         void doTraverse(const Path::AbsolutePath & path, Traverser & traverser);
         void traverse(const Path::AbsolutePath & path, Traverser & traverser);
 
-        Util::ReferenceCount<File> doLookup(const Path::AbsolutePath & path);
+        // Util::ReferenceCount<File> doLookup(const Path::AbsolutePath & path);
 
         std::map<std::string, Util::ReferenceCount<Directory> > directories;
-        std::map<std::string, Util::ReferenceCount<File> > files;
+        std::map<std::string, Util::ReferenceCount<Descriptor> > files;
     };
 
     class System{
@@ -387,6 +397,7 @@ namespace Storage{
         void unoverlayFile(const AbsolutePath & where);
 
         std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
+        Storage::Directory virtualDirectory;
     };
 
     System & instance();
@@ -458,7 +469,6 @@ protected:
 protected:
     Util::Thread::LockObject lock;
     AbsolutePath dataPath;
-    Storage::Directory virtualDirectory;
 };
 
 #endif

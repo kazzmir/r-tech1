@@ -77,6 +77,7 @@ void Directory::traverse(const Path::AbsolutePath & path, Traverser & traverser)
     }
 }
 
+/*
 Util::ReferenceCount<File> Directory::doLookup(const Path::AbsolutePath & path){
     if (path.isFile()){
         if (files[path.path()] != NULL){
@@ -106,9 +107,10 @@ Util::ReferenceCount<File> Directory::doLookup(const Path::AbsolutePath & path){
     }
     return Util::ReferenceCount<File>(NULL);
 }
+*/
 
 /* Might return NULL if the path can't be found */
-Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
+Util::ReferenceCount<Descriptor> Directory::lookup(const Path::AbsolutePath & path){
     class FindIt: public Traverser {
     public:
 
@@ -119,7 +121,7 @@ Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
         virtual void traverseDirectory(Directory & directory, const string & path){
         }
 
-        Util::ReferenceCount<File> found;
+        Util::ReferenceCount<Descriptor> found;
     };
 
     FindIt find;
@@ -142,14 +144,14 @@ Util::ReferenceCount<File> Directory::lookup(const Path::AbsolutePath & path){
 #endif
 }
 
-void Directory::addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<File> & file){
+void Directory::addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<Descriptor> & file){
     class AddPath: public Traverser {
     public:
-        AddPath(const Util::ReferenceCount<File> & file):
+        AddPath(const Util::ReferenceCount<Descriptor> & file):
         file(file){
         }
 
-        const Util::ReferenceCount<File> & file;
+        const Util::ReferenceCount<Descriptor> & file;
 
         virtual void traverseFile(Directory & directory, const string & path){
             directory.files[path] = file;
@@ -167,7 +169,7 @@ void Directory::addFile(const Path::AbsolutePath & path, const Util::ReferenceCo
 }
         
 void Directory::removeFile(const Path::AbsolutePath & path){
-    addFile(path, Util::ReferenceCount<File>(NULL));
+    addFile(path, Util::ReferenceCount<Descriptor>(NULL));
 }
 
 }
