@@ -723,12 +723,39 @@ int ZipFile::readLine(char * output, int size){
         return 0;
     }
 }
+        
+Descriptor::Descriptor(){
+}
+
+Descriptor::~Descriptor(){
+}
+
+class ZipDescriptor: public Descriptor {
+public:
+    ZipDescriptor(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & container):
+    path(path),
+    container(container){
+    }
+
+    Path::AbsolutePath path;
+    Util::ReferenceCount<ZipContainer> container;
+
+    using Descriptor::open;
+    virtual Util::ReferenceCount<File> open(File::Access mode){
+        return Util::ReferenceCount<File>(new ZipFile(path, container));
+    }
+
+    virtual ~ZipDescriptor(){
+    }
+};
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
+    virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)).convert<Descriptor>());
     overlays[where] = zip;
 }
 
 void System::unoverlayFile(const AbsolutePath & where){
+    virtualDirectory.removeFile(where);
     overlays.erase(where);
 }
 
