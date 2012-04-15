@@ -507,7 +507,7 @@ bool NetworkSystem::exists(const RelativePath & path){
     }
 }
 
-bool NetworkSystem::exists(const AbsolutePath & path){
+bool NetworkSystem::systemExists(const AbsolutePath & path){
     Util::Thread::ScopedLock scoped(existsLock);
     if (existsCache.find(path) != existsCache.end()){
         return existsCache[path];

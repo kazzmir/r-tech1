@@ -33,8 +33,8 @@ public:
 
     virtual AbsolutePath find(const RelativePath & path);
     virtual RelativePath cleanse(const AbsolutePath & path);
+    using System::exists;
     virtual bool exists(const RelativePath & path);
-    virtual bool exists(const AbsolutePath & path);
     virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
     using Storage::System::getFiles;
     virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
@@ -53,6 +53,7 @@ public:
     virtual int libcAccess(const char *filename, int mode);
 
 protected:
+    virtual bool systemExists(const AbsolutePath & path);
     /*
     string readFileAsString(const AbsolutePath & path);
     Directory parseDirectory(const AbsolutePath & path);
