@@ -582,7 +582,8 @@ class ZipContainer{
 public:
     ZipContainer(const string & path, const Filesystem::AbsolutePath & start):
     path(path),
-    start(start){
+    start(start),
+    locked(false){
         zipFile = unzOpen(path.c_str());
         if (zipFile == NULL){
             throw Exception(__FILE__, __LINE__, "Could not open zip file");
@@ -659,16 +660,26 @@ public:
     }
 
     void open(const Path::AbsolutePath & file){
+        if (locked){
+            std::ostringstream out;
+            char filename[1024];
+            unz_file_info fileInfo;
+            unzGetCurrentFileInfo(zipFile, &fileInfo, filename, sizeof(filename), NULL, 0, NULL, 0);
+            out << "Could not open zip file entry " << file.path() << " because a zip file is already open: " << filename;
+            throw Exception(__FILE__, __LINE__, out.str());
+        }
         findFile(file);
         if (unzOpenCurrentFile(zipFile) != UNZ_OK){
             std::ostringstream out;
             out << "Could not open zip file entry " << file.path();
             throw Exception(__FILE__, __LINE__, out.str());
         }
+        locked = true;
     }
 
     void close(){
         unzCloseCurrentFile(zipFile);
+        locked = false;
     }
 
     vector<string> getFiles() const {
@@ -683,6 +694,10 @@ protected:
 
     unzFile zipFile;
     vector<string> files;
+    /* Only one file can be opened at a time, so if another file is opened
+     * while locked=true then throw an error
+     */
+    bool locked;
 };
 
 
@@ -749,6 +764,10 @@ public:
     virtual ~ZipDescriptor(){
     }
 };
+
+bool System::exists(const AbsolutePath & path){
+    return virtualDirectory.lookup(path) != NULL || systemExists(path);
+}
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
     virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)).convert<Descriptor>());
@@ -912,8 +931,8 @@ Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
     out << "Cannot find " << path.path() << ". I looked in ";
     bool first = true;
     for (vector<Filesystem::AbsolutePath>::iterator it = places.begin(); it != places.end(); it++){
-        Filesystem::AbsolutePath & final = *it;
-        if (virtualDirectory.lookup(final) != NULL || ::System::readable(final.path())){
+        const Filesystem::AbsolutePath & final = *it;
+        if (exists(final)){
             return final;
         }
         if (!first){
@@ -1168,8 +1187,8 @@ bool Filesystem::exists(const RelativePath & path){
     }
 }
 
-bool Filesystem::exists(const AbsolutePath & path){
-    return virtualDirectory.lookup(path) != NULL || ::System::readable(path.path());
+bool Filesystem::systemExists(const AbsolutePath & path){
+    return ::System::readable(path.path());
 }
 
 Filesystem::RelativePath Filesystem::cleanse(const AbsolutePath & path){

@@ -377,7 +377,7 @@ namespace Storage{
         virtual AbsolutePath find(const RelativePath & path) = 0;
         virtual RelativePath cleanse(const AbsolutePath & path) = 0;
         virtual bool exists(const RelativePath & path) = 0;
-        virtual bool exists(const AbsolutePath & path) = 0;
+        virtual bool exists(const AbsolutePath & path);
         virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
 
         /* search for a pattern of a single file within a directory */
@@ -397,8 +397,10 @@ namespace Storage{
 
         virtual Util::ReferenceCount<File> open(const AbsolutePath & path, File::Access mode = File::Read);
     protected:
-        void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
-        void unoverlayFile(const AbsolutePath & where);
+        virtual bool systemExists(const AbsolutePath & path) = 0;
+
+        virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
+        virtual void unoverlayFile(const AbsolutePath & where);
 
         // std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
         Storage::Directory virtualDirectory;
@@ -438,8 +440,8 @@ public:
     // void initialize();
 
     /* whether the file exists at all */
+    using System::exists;
     bool exists(const RelativePath & path);
-    bool exists(const AbsolutePath & path);
 
     /* remove the data path from a string
      * data/sounds/arrow.png -> sounds/arrow.png
@@ -466,6 +468,7 @@ public:
     std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
 
 protected:
+    virtual bool systemExists(const AbsolutePath & path);
     AbsolutePath lookup(const RelativePath path);
     std::vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path);
     std::vector<AbsolutePath> getAllDirectories(const AbsolutePath & path);
