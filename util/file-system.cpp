@@ -305,12 +305,13 @@ string AbsolutePath::firstDirectory() const {
     if (paths.size() > 1){
         return paths[0];
     }
-    return "";
+    return removeEndSlashes(path());
 }
         
 bool AbsolutePath::isFile() const {
     vector<string> paths = splitPath(path());
-    return paths.size() == 1;
+    return path().find("/") == string::npos;
+    // paths.size() == 1;
 }
         
 RelativePath AbsolutePath::remove(const AbsolutePath & what) const {
