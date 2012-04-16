@@ -115,7 +115,7 @@ static const unsigned short int pg_lbmask = PG_LBMASK565;
              ALPHA_BLEND_128_W(E[N3], PIXEL); \
 
 #define df(A, B)\
-        abs(RGBtoYUV[A] - RGBtoYUV[B])\
+        abs((int)(RGBtoYUV[A] - RGBtoYUV[B]))\
 
 #define eq(A, B)\
         (df(A, B) < 155)\
