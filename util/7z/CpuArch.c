@@ -50,6 +50,7 @@ static UInt32 CheckFlag(UInt32 flag)
 
 static void MyCPUID(UInt32 function, UInt32 *a, UInt32 *b, UInt32 *c, UInt32 *d)
 {
+    /*
   #ifdef USE_ASM
 
   #ifdef _MSC_VER
@@ -92,14 +93,18 @@ static void MyCPUID(UInt32 function, UInt32 *a, UInt32 *b, UInt32 *c, UInt32 *d)
   *d = CPUInfo[3];
 
   #endif
+  */
 }
 
 Bool x86cpuid_CheckAndRead(Cx86cpuid *p)
 {
+    return False;
+    /*
   CHECK_CPUID_IS_SUPPORTED
   MyCPUID(0, &p->maxFunc, &p->vendor[0], &p->vendor[2], &p->vendor[1]);
   MyCPUID(1, &p->ver, &p->b, &p->c, &p->d);
   return True;
+  */
 }
 
 static UInt32 kVendors[][3] =
