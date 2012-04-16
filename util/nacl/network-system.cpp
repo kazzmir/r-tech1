@@ -730,6 +730,12 @@ std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath,
     return paths;
 }
 
+std::vector<Filesystem::AbsolutePath> Filesystem::getFiles(const RelativePath & path, const RelativePath & find, bool caseInsensitive){
+    vector<AbsolutePath> files;
+    /* TODO */
+    return files;
+}
+
 std::vector<AbsolutePath> NetworkSystem::getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
     vector<AbsolutePath> files = readDirectory(*this, dataPath);
     vector<AbsolutePath> paths;

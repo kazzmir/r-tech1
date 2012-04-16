@@ -1146,7 +1146,7 @@ type(type){
     try{
         Global::debug(1,"menu") << "Loading menu " << filename.path() << endl;
         TokenReader tr;
-        Token * token = tr.readTokenFromFile(filename.path());
+        Token * token = tr.readTokenFromFile(*Storage::instance().open(filename));
         OptionFactory defaultFactory;
         load(token, defaultFactory);
     } catch (const TokenException & e){
@@ -1161,7 +1161,7 @@ type(type){
     try{
         Global::debug(1,"menu") << "Loading menu " << filename.path() << endl;
         TokenReader tr;
-        Token * token = tr.readTokenFromFile(filename.path());
+        Token * token = tr.readTokenFromFile(*Storage::instance().open(filename));
         load(token, factory);
     } catch (const TokenException & e){
         throw LoadException(__FILE__, __LINE__, e, "Error loading menu");
