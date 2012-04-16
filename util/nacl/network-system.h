@@ -38,6 +38,7 @@ public:
     virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
     using Storage::System::getFiles;
     virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+    virtual std::vector<AbsolutePath> getFiles(const RelativePath & path, const RelativePath & find, bool caseInsensitive);
     virtual AbsolutePath configFile();
     virtual AbsolutePath userDirectory();
     virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path);

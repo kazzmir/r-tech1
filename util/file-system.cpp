@@ -484,7 +484,7 @@ System & instance(){
     self = new Filesystem(Util::getDataPath2());
     return *self;
 }
-        
+
 File::File(){
 }
         
@@ -779,6 +779,11 @@ void System::unoverlayFile(const AbsolutePath & where){
     // overlays.erase(where);
 }
 
+vector<string> System::containerFileList(const AbsolutePath & container){
+    Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), Filesystem::AbsolutePath()));
+    return zip->getFiles();
+}
+
 void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
     Global::debug(1) << "Opening zip file " << container.path() << std::endl;
     Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), where));
@@ -795,7 +800,7 @@ void System::removeOverlay(const AbsolutePath & container, const AbsolutePath & 
     vector<string> files = zip->getFiles();
     for (vector<string>::const_iterator it = files.begin(); it != files.end(); it++){
         string path = *it;
-        Global::debug(0) << "Add overlay to " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
+        Global::debug(1) << "Remove overlay from " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
         unoverlayFile(where.join(Filesystem::RelativePath(path)));
     }
 }
@@ -1097,6 +1102,24 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
     return files;
 #endif
 }
+
+std::vector<Filesystem::AbsolutePath> Filesystem::getFiles(const RelativePath & path, const RelativePath & find, bool caseInsensitive){
+    vector<AbsolutePath> directories;
+    directories.push_back(dataPath.join(path));
+    directories.push_back(userDirectory().join(path));
+    directories.push_back(Filesystem::AbsolutePath(path.path()));
+
+    vector<AbsolutePath> files;
+    for (vector<AbsolutePath>::iterator it = directories.begin(); it != directories.end(); it++){
+        Global::debug(0) << "Search for " << find.path() << " in " << it->path() << std::endl;
+        vector<AbsolutePath> found = getFiles(*it, find, caseInsensitive);
+        files.insert(files.end(), found.begin(), found.end());
+    }
+    return files;
+}
+
+
+
 
 template <class X>
 static void append(vector<X> & destination, const vector<X> & source){

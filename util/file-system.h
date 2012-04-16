@@ -386,9 +386,14 @@ namespace Storage{
         /* Container should be a path to a zip file */
         virtual void addOverlay(const AbsolutePath & container, const AbsolutePath & where);
         virtual void removeOverlay(const AbsolutePath & container, const AbsolutePath & where);
+        virtual std::vector<std::string> containerFileList(const AbsolutePath & container);
 
         /* search for some path which may contain wildcards in a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const RelativePath & find, bool caseInsensitive);
+        
+        /* Gets all the files in all directories matched by the relative path */
+        virtual std::vector<AbsolutePath> getFiles(const RelativePath & dataPath, const RelativePath & find, bool caseInsensitive) = 0;
+
         virtual AbsolutePath configFile() = 0;
         virtual AbsolutePath userDirectory() = 0;
         virtual std::vector<AbsolutePath> findDirectories(const RelativePath & path) = 0;
@@ -462,7 +467,8 @@ public:
 
     using Storage::System::getFiles;
     /* search a directory for some files matching pattern `find' */
-    std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+    virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
+    virtual std::vector<AbsolutePath> getFiles(const RelativePath & dataPath, const RelativePath & find, bool caseInsensitive);
 
     /* same as getFiles but search directories recursively */
     std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false);
