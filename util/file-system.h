@@ -268,6 +268,16 @@ namespace Storage{
         /* Returns the number of bytes read */
         virtual int readLine(char * output, int size) = 0;
 
+        /* true if the underlying object can be streamed. generally
+         * this should be true if the object can be kept around for a while.
+         * zip files aren't streamable because only one zip entry can be
+         * open at a time so it must be closed as soon as possible.
+         */
+        virtual bool canStream() = 0;
+
+        /* seek to an absolute position */
+        virtual void seek(int position) = 0;
+
         virtual int getSize() = 0;
 
         /* if the file is at eof and can't read anymore */
@@ -288,6 +298,8 @@ namespace Storage{
         virtual bool eof();
         virtual bool good();
         virtual int getSize();
+        virtual bool canStream();
+        virtual void seek(int position);
         virtual File & operator>>(unsigned char &);
         
         virtual int readLine(char * output, int size);
@@ -306,6 +318,8 @@ namespace Storage{
         virtual bool eof();
         virtual bool good();
         virtual int getSize();
+        virtual bool canStream();
+        virtual void seek(int position);
         virtual File & operator>>(unsigned char &);
 
         virtual ~NormalFile();
@@ -322,6 +336,8 @@ namespace Storage{
         virtual bool eof();
         virtual bool good();
         virtual int getSize();
+        virtual bool canStream();
+        virtual void seek(int position);
         virtual File & operator>>(unsigned char &);
         virtual ~StringFile();
 

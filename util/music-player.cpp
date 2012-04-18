@@ -12,6 +12,7 @@
 #include "dumb/include/dumb.h"
 #include "gme/Music_Emu.h"
 #include "exceptions/exception.h"
+#include "file-system.h"
 #include <sstream>
 #include <stdio.h>
 
@@ -507,7 +508,7 @@ GMEPlayer::~GMEPlayer(){
 
 #ifdef HAVE_MP3_MPG123
 /* initialize the mpg123 library and open up an mp3 file for reading */
-static void initializeMpg123(mpg123_handle ** mp3, string path){
+static void initializeMpg123(mpg123_handle ** mp3, const Filesystem::AbsolutePath & path){
     /* Initialize */
     if (mpg123_init() != MPG123_OK){
 	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
@@ -529,10 +530,10 @@ static void initializeMpg123(mpg123_handle ** mp3, string path){
         }
         
         /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
-        error = mpg123_open(*mp3, (char*) path.c_str());
+        error = mpg123_open(*mp3, (char*) path.path().c_str());
         if (error == -1){
             std::ostringstream error;
-            error << "Could not open mpg123 file " << path << " error code " << error;
+            error << "Could not open mpg123 file " << path.path() << " error code " << error;
             throw MusicException(__FILE__,__LINE__, error.str());
         }
         
@@ -544,16 +545,16 @@ static void initializeMpg123(mpg123_handle ** mp3, string path){
         error = mpg123_read(*mp3, tempBuffer, sizeof(tempBuffer), &dont_care);
 	if (!(error == MPG123_OK || error == MPG123_NEW_FORMAT)){
             std::ostringstream error;
-            error << "Could not read mpg123 file " << path << " error code " << error;
+            error << "Could not read mpg123 file " << path.path() << " error code " << error;
             throw MusicException(__FILE__,__LINE__, error.str());
         }
 	mpg123_close(*mp3);
 	
         /* stream has progressed a little bit so reset it by opening it again */
-	error = mpg123_open(*mp3, (char*) path.c_str());
+	error = mpg123_open(*mp3, (char*) path.path().c_str());
         if (error == -1){
             std::ostringstream error;
-            error << "Could not open mpg123 file " << path << " error code " << error;
+            error << "Could not open mpg123 file " << path.path() << " error code " << error;
             throw MusicException(__FILE__,__LINE__, error.str());
         }
         /* FIXME end */
@@ -564,7 +565,7 @@ static void initializeMpg123(mpg123_handle ** mp3, string path){
         error = mpg123_decoder(*mp3, "generic");
         if (error != MPG123_OK){
             std::ostringstream error;
-            error << "Could not use 'generic' mpg123 decoder for " << path << " error code " << error;
+            error << "Could not use 'generic' mpg123 decoder for " << path.path() << " error code " << error;
             throw MusicException(__FILE__,__LINE__, error.str());
         }
         // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
@@ -592,7 +593,7 @@ static void initializeMpg123(mpg123_handle ** mp3, string path){
 }
 
 static const int MPG123_BUFFER_SIZE = 1 << 11;
-Mp3Player::Mp3Player(string path):
+Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path):
 mp3(NULL){
     initializeMpg123(&mp3, path);
     long rate = 0;
@@ -727,15 +728,15 @@ OggPlayer::~OggPlayer(){
 #endif /* OGG */
 
 #ifdef HAVE_MP3_MAD
-Mp3Player::Mp3Player(string path):
+Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path):
 available(NULL),
 bytesLeft(0),
 position(0),
 raw(NULL){
-    FILE * handle = fopen(path.c_str(), "rb");
+    FILE * handle = fopen(path.path().c_str(), "rb");
     if (!handle){
         std::ostringstream out;
-        out << "Could not open mp3 file " << path;
+        out << "Could not open mp3 file " << path.path();
         throw MusicException(__FILE__, __LINE__, out.str());
     }
 
@@ -756,7 +757,7 @@ raw(NULL){
     discoverInfo(raw, rawLength, &rate, &channels);
     setRenderer(Util::ReferenceCount<MusicRenderer>(new MusicRenderer(rate, channels)));
 
-    Global::debug(0) << "Opened mp3 file " << path << " rate " << rate << " channels " << channels << std::endl;
+    Global::debug(0) << "Opened mp3 file " << path.path() << " rate " << rate << " channels " << channels << std::endl;
 
     mad_stream_init(&stream);
     mad_frame_init(&frame);

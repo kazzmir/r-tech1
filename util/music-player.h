@@ -24,6 +24,10 @@
 #include <mad.h>
 #endif
 
+namespace Path{
+    class AbsolutePath;
+}
+
 #include "pointer.h"
 
 struct DUH;
@@ -171,7 +175,7 @@ protected:
 /* Interface for mp3s */
 class Mp3Player: public MusicPlayer {
 public:
-    Mp3Player(std::string path);
+    Mp3Player(const Path::AbsolutePath & path);
     virtual void setVolume(double volume);
     virtual void render(void * data, int length);
 

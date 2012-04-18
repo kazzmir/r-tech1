@@ -504,6 +504,14 @@ path(path){
     in >> noskipws;
 }
         
+bool NormalFile::canStream(){
+    return true;
+}
+        
+void NormalFile::seek(int position){
+    in.seekg(position, ios::beg);
+}
+
 bool NormalFile::eof(){
     return in.eof();
 }
@@ -546,8 +554,16 @@ int StringFile::readLine(char * output, int size){
     return stream.gcount();
 }
 
+bool StringFile::canStream(){
+    return true;
+}
+
 int StringFile::getSize(){
     return data.size();
+}
+
+void StringFile::seek(int position){
+    /* TODO */
 }
 
 bool StringFile::eof(){
@@ -652,7 +668,9 @@ public:
     }
 
     int read(char * buffer, int size){
+        Global::debug(0) << "offset before read " << unzGetOffset(zipFile) << " tell " << unztell(zipFile) << std::endl;
         int got = unzReadCurrentFile(zipFile, buffer, size);
+        Global::debug(0) << "offset after read " << unzGetOffset(zipFile) << " tell " << unztell(zipFile) << std::endl;
         if (got <= 0){
             throw Exception(__FILE__, __LINE__, "Could not read bytes from zip");
         }
@@ -700,8 +718,6 @@ protected:
     bool locked;
 };
 
-
-
 ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
 path(path),
 zip(zip),
@@ -713,8 +729,20 @@ ZipFile::~ZipFile(){
     zip->close();
 }
         
+void ZipFile::seek(int position){
+    /* TODO:
+     * It seems that minizip is not capable of seeking in a specific file in a zip
+     * container so we have to re-open the file and read `position' bytes to
+     * emulate the seek behavior.
+     */
+}
+        
 bool ZipFile::eof(){
     return atEof;
+}
+
+bool ZipFile::canStream(){
+    return false;
 }
 
 bool ZipFile::good(){
