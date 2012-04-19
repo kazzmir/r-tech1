@@ -607,7 +607,11 @@ void Mpg123Handler::read(void * data, int samples){
         mpg123_seek(mp3, 0, SEEK_SET);
         /* Don't get into an infinite loop */
         if (out != 0){
-            read((char*) data + out, samples * 4 - out);
+            /* samples left = (total bytes - bytes read) / 4
+             * total bytes = samples * 4
+             * bytes read = out
+             */
+            read((char*) data + out, (samples * 4 - out) / 4);
         }
     }
 }
