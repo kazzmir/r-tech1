@@ -172,6 +172,21 @@ protected:
 #endif
 
 #if defined (HAVE_MP3_MPG123) || defined (HAVE_MP3_MAD)
+
+#ifdef HAVE_MP3_MPG123
+class Mpg123Handler{
+public:
+    Mpg123Handler(const Path::AbsolutePath & path);
+    ~Mpg123Handler();
+
+    void read(void * data, int samples);
+    void setVolume(double volume);
+
+protected:
+    mpg123_handle * mp3;
+    double base_volume;
+};
+#endif
 /* Interface for mp3s */
 class Mp3Player: public MusicPlayer {
 public:
@@ -182,8 +197,7 @@ public:
     virtual ~Mp3Player();
 protected:    
 #ifdef HAVE_MP3_MPG123
-    mpg123_handle * mp3;
-    double base_volume;
+    Mpg123Handler handler;
 #elif HAVE_MP3_MAD
     void output(mad_header const * header, mad_pcm * pcm);
     static mad_flow error(void * data, mad_stream * stream, mad_frame * frame);
