@@ -592,8 +592,7 @@ static void initializeMpg123(mpg123_handle ** mp3, const Filesystem::AbsolutePat
     }
 }
 
-static const int MPG123_BUFFER_SIZE = 1 << 11;
-Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path):
+Mpg123Handler::Mpg123Handler(const Path::AbsolutePath & path):
 mp3(NULL){
     initializeMpg123(&mp3, path);
     long rate = 0;
@@ -601,10 +600,34 @@ mp3(NULL){
     mpg123_getformat(mp3, &rate, &channels, &encoding);
 }
 
-void Mp3Player::render(void * data, int samples){
+void Mpg123Handler::read(void * data, int samples){
     /* buffer * 4 for 16 bits per sample * 2 samples for stereo */
     size_t out = 0;
-    mpg123_read(mp3, (unsigned char *) data, samples * 4, &out);
+    if (mpg123_read(mp3, (unsigned char *) data, samples * 4, &out) == MPG123_DONE){
+        mpg123_seek(mp3, 0, SEEK_SET);
+        /* Don't get into an infinite loop */
+        if (out != 0){
+            read((char*) data + out, samples * 4 - out);
+        }
+    }
+}
+
+void Mpg123Handler::setVolume(double volume){
+    mpg123_volume(mp3, volume);
+}
+
+Mpg123Handler::~Mpg123Handler(){
+    mpg123_close(mp3);
+    mpg123_exit();
+}
+
+static const int MPG123_BUFFER_SIZE = 1 << 11;
+Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path):
+handler(path){
+}
+
+void Mp3Player::render(void * data, int samples){
+    handler.read(data, samples);
 
     /*
        long rate;
@@ -615,7 +638,7 @@ void Mp3Player::render(void * data, int samples){
 }
 
 void Mp3Player::setVolume(double volume){
-    mpg123_volume(mp3, volume);
+    handler.setVolume(volume);
     /*
     this->volume = volume;
     // mpg123_volume(mp3, volume * base_volume / 5000);
@@ -625,8 +648,6 @@ void Mp3Player::setVolume(double volume){
 }
 
 Mp3Player::~Mp3Player(){
-    mpg123_close(mp3);
-    mpg123_exit();
 }
 
 #endif /* MP3_MPG123 */
