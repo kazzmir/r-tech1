@@ -73,7 +73,6 @@ template <class M>
 void dump(const std::vector<M> & messages, uint8_t * buffer );
 */
 
-#ifdef HAVE_NETWORKING
 int16_t read16(Socket socket);
 int32_t read32(Socket socket);
 char * dump16(char * where, int16_t length);
@@ -103,7 +102,6 @@ void close(Socket);
 void closeAll();
 
 static std::vector<Socket> open_sockets;
-#endif
 
 }
 

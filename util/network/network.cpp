@@ -294,6 +294,32 @@ void shutdown(){
     nlShutdown();
 }
 
+#else
+
+/* Dummy implementations */
+char * dump16(char * where, int16_t length){
+    return where;
+}
+
+int16_t read16(Socket socket){
+    return 0;
+}
+
+char * dumpStr(char * where, const std::string & str){
+    return where;
+}
+
+void readBytes(Socket socket, uint8_t * data, int length){
+}
+
+void sendBytes(Socket socket, const uint8_t * data, int length){
+}
+
+char * parseString(char * where, std::string * out, uint16_t length){
+    return where;
+}
+
 #endif
+
 
 }
