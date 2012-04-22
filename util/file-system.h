@@ -268,6 +268,11 @@ namespace Storage{
         /* Returns the number of bytes read */
         virtual int readLine(char * output, int size) = 0;
 
+        /* Mostly for normal files, reset their error flags so
+         * we can seek after eof
+         */
+        virtual void reset() = 0;
+
         /* true if the underlying object can be streamed. generally
          * this should be true if the object can be kept around for a while.
          * zip files aren't streamable because only one zip entry can be
@@ -276,7 +281,7 @@ namespace Storage{
         virtual bool canStream() = 0;
 
         /* seek to an absolute position */
-        virtual void seek(int position) = 0;
+        virtual off_t seek(off_t position, int whence) = 0;
 
         virtual int getSize() = 0;
 
@@ -299,7 +304,8 @@ namespace Storage{
         virtual bool good();
         virtual int getSize();
         virtual bool canStream();
-        virtual void seek(int position);
+        virtual void reset();
+        virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
         
         virtual int readLine(char * output, int size);
@@ -319,7 +325,8 @@ namespace Storage{
         virtual bool good();
         virtual int getSize();
         virtual bool canStream();
-        virtual void seek(int position);
+        virtual void reset();
+        virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
 
         virtual ~NormalFile();
@@ -337,7 +344,8 @@ namespace Storage{
         virtual bool good();
         virtual int getSize();
         virtual bool canStream();
-        virtual void seek(int position);
+        virtual void reset();
+        virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
         virtual ~StringFile();
 

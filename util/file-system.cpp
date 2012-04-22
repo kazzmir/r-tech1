@@ -508,8 +508,17 @@ bool NormalFile::canStream(){
     return true;
 }
         
-void NormalFile::seek(int position){
-    in.seekg(position, ios::beg);
+void NormalFile::reset(){
+    in.clear();
+}
+
+off_t NormalFile::seek(off_t position, int whence){
+    switch (whence){
+        case SEEK_SET: in.seekg(position, ios::beg); break;
+        case SEEK_CUR: in.seekg(position, ios::cur); break;
+        case SEEK_END: in.seekg(position, ios::end); break;
+    }
+    return in.tellg();
 }
 
 bool NormalFile::eof(){
@@ -549,6 +558,10 @@ stream(start){
     stream >> noskipws;
 }
 
+void StringFile::reset(){
+    /* TODO or nothing..? */
+}
+
 int StringFile::readLine(char * output, int size){
     stream.read(output, size);
     return stream.gcount();
@@ -562,8 +575,9 @@ int StringFile::getSize(){
     return data.size();
 }
 
-void StringFile::seek(int position){
+off_t StringFile::seek(off_t position, int whence){
     /* TODO */
+    return -1;
 }
 
 bool StringFile::eof(){
@@ -729,16 +743,21 @@ ZipFile::~ZipFile(){
     zip->close();
 }
         
-void ZipFile::seek(int position){
+off_t ZipFile::seek(off_t position, int whence){
     /* TODO:
      * It seems that minizip is not capable of seeking in a specific file in a zip
      * container so we have to re-open the file and read `position' bytes to
      * emulate the seek behavior.
      */
+    return -1;
 }
         
 bool ZipFile::eof(){
     return atEof;
+}
+
+void ZipFile::reset(){
+    /* TODO or nothing..? */
 }
 
 bool ZipFile::canStream(){

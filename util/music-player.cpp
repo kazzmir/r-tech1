@@ -507,6 +507,129 @@ GMEPlayer::~GMEPlayer(){
 }
 
 #ifdef HAVE_MP3_MPG123
+struct Mpg123FileIO{
+    ssize_t (*read)(void *, void *, size_t);
+    off_t (*seek)(void *, off_t, int);
+    void (*close)(void *);
+};
+
+static void openMpg123(mpg123_handle ** mp3, const Mpg123FileIO & fileIO, Mpg123Handler * handler){
+    int error = mpg123_replace_reader_handle(*mp3, fileIO.read, fileIO.seek, fileIO.close);
+    /* stream has progressed a little bit so reset it by opening it again */
+    error = mpg123_open_handle(*mp3, handler);
+    if (error == -1){
+        std::ostringstream fail;
+        fail << "Could not open mpg123 file " << handler->name() << " error code " << error;
+        throw MusicException(__FILE__,__LINE__, fail.str());
+    }
+    // error = mpg123_replace_reader_handle(*mp3, fileIO.read, fileIO.seek, fileIO.close);
+    /* FIXME end */
+
+    /* some of the native decoders aren't stable in older versions of mpg123
+     * so just use generic for now. 1.13.1 should work better
+     */
+    error = mpg123_decoder(*mp3, "generic");
+    if (error != MPG123_OK){
+        std::ostringstream fail;
+        fail << "Could not use 'generic' mpg123 decoder for " << handler->name() << " error code " << error;
+        throw MusicException(__FILE__,__LINE__, fail.str());
+    }
+}
+
+static void initializeMpg123(mpg123_handle ** mp3, const Mpg123FileIO & fileIO, Mpg123Handler * handler){
+    /* Initialize */
+    if (mpg123_init() != MPG123_OK){
+	throw MusicException(__FILE__, __LINE__, "Could not initialize mpg123");
+    }
+
+    try{
+        *mp3 = mpg123_new(NULL, NULL);
+        if (*mp3 == NULL){
+            throw MusicException(__FILE__,__LINE__, "Could not allocate mpg handle");
+        }
+        mpg123_format_none(*mp3);
+
+        /* allegro wants unsigned samples but mpg123 can't actually provide unsigned
+         * samples even though it has an enum for it, MPG123_ENC_UNSIGNED_16. this
+         * was rectified in 1.13.0 or something, but for now signed samples are ok.
+         */
+        int error = mpg123_format(*mp3, Sound::Info.frequency, MPG123_STEREO, MPG123_ENC_SIGNED_16);
+        if (error != MPG123_OK){
+            Global::debug(0) << "Could not set format for mpg123 handle" << std::endl;
+        }
+
+        error = mpg123_replace_reader_handle(*mp3, fileIO.read, fileIO.seek, fileIO.close);
+        if (error == -1){
+            std::ostringstream fail;
+            fail << "Could not open mpg123 file " << handler->name() << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, fail.str());
+        }
+        
+        /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
+        error = mpg123_open_handle(*mp3, handler);
+        if (error == -1){
+            std::ostringstream fail;
+            fail << "Could not open mpg123 file " << handler->name() << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, fail.str());
+        }
+        
+        /* reading a frame is the only surefire way to get mpg123 to set the
+         * sampling_frequency which it needs to set the decoder a few lines below
+         */
+        size_t dont_care;
+        unsigned char tempBuffer[4096];
+        error = mpg123_read(*mp3, tempBuffer, sizeof(tempBuffer), &dont_care);
+	if (!(error == MPG123_OK || error == MPG123_NEW_FORMAT)){
+            std::ostringstream fail;
+            fail << "Could not read mpg123 file " << handler->name() << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, fail.str());
+        }
+	mpg123_close(*mp3);
+	
+        error = mpg123_replace_reader_handle(*mp3, fileIO.read, fileIO.seek, fileIO.close);
+        /* stream has progressed a little bit so reset it by opening it again */
+        error = mpg123_open_handle(*mp3, handler);
+        if (error == -1){
+            std::ostringstream fail;
+            fail << "Could not open mpg123 file " << handler->name() << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, fail.str());
+        }
+        // error = mpg123_replace_reader_handle(*mp3, fileIO.read, fileIO.seek, fileIO.close);
+        /* FIXME end */
+
+        /* some of the native decoders aren't stable in older versions of mpg123
+         * so just use generic for now. 1.13.1 should work better
+         */
+        error = mpg123_decoder(*mp3, "generic");
+        if (error != MPG123_OK){
+            std::ostringstream fail;
+            fail << "Could not use 'generic' mpg123 decoder for " << handler->name() << " error code " << error;
+            throw MusicException(__FILE__,__LINE__, fail.str());
+        }
+        // Global::debug(0) << "mpg support " << mpg123_format_support(mp3, Sound::FREQUENCY, MPG123_ENC_SIGNED_16) << std::endl;
+
+        /*
+        double base, really, rva;
+        mpg123_getvolume(*mp3, &base, &really, &rva);
+        // Global::debug(0) << "mpg volume base " << base << " really " << really << " rva " << rva << std::endl;
+        base_volume = base;
+
+        long rate;
+        int channels, encoding;
+        mpg123_getformat(*mp3, &rate, &channels, &encoding);
+        // Global::debug(0) << path << " rate " << rate << " channels " << channels << " encoding " << encoding << std::endl;
+        */
+    } catch (const MusicException & fail){
+        if (*mp3 != NULL){
+            mpg123_close(*mp3);
+            mpg123_delete(*mp3);
+            *mp3 = NULL;
+        }
+        mpg123_exit();
+        throw;
+    }
+}
+
 /* initialize the mpg123 library and open up an mp3 file for reading */
 static void initializeMpg123(mpg123_handle ** mp3, const Filesystem::AbsolutePath & path){
     /* Initialize */
@@ -592,19 +715,167 @@ static void initializeMpg123(mpg123_handle ** mp3, const Filesystem::AbsolutePat
     }
 }
 
-Mpg123Handler::Mpg123Handler(const Path::AbsolutePath & path):
+class StreamMpg123Handler: public Mpg123Handler {
+public:
+    StreamMpg123Handler(const Util::ReferenceCount<Storage::File> & file):
+    file(file){
+        initializeMpg123(&mp3, mpg123IO(), this);
+        long rate = 0;
+        int channels = 0, encoding = 0;
+        mpg123_getformat(mp3, &rate, &channels, &encoding);
+    }
+    
+    /* Keep a reference to the file so it doesn't close */
+    Util::ReferenceCount<Storage::File> file;
+    
+    virtual void reopen(){
+        file->reset();
+        openMpg123(&mp3, mpg123IO(), this);
+    }
+
+    ssize_t doRead(char * buffer, size_t bytes){
+        return file->readLine(buffer, bytes);
+    }
+
+    static ssize_t read(void * handle, void * buffer, size_t bytes){
+        StreamMpg123Handler * self = (StreamMpg123Handler*) handle;
+        return self->doRead((char*) buffer, bytes);
+    }
+
+    off_t doSeek(off_t offset, int whence){
+        return file->seek(offset, whence);
+    }
+
+    static off_t seek(void * handle, off_t offset, int whence){
+        StreamMpg123Handler * self = (StreamMpg123Handler*) handle;
+        return self->doSeek(offset, whence);
+    }
+
+    void doClose(){
+        file->seek(0, SEEK_SET);
+    }
+
+    static void close(void * handle){
+        StreamMpg123Handler * self = (StreamMpg123Handler*) handle;
+        return self->doClose();
+    }
+
+    Mpg123FileIO mpg123IO(){
+        Mpg123FileIO io;
+        io.read = read;
+        io.seek = seek;
+        io.close = close;
+        return io;
+    }
+    
+    virtual std::string name() const {
+        return "stream mp3";
+    }
+};
+
+class MemoryMpg123Handler: public Mpg123Handler {
+public:
+    MemoryMpg123Handler(const Util::ReferenceCount<Storage::File> & file):
+    memory(NULL){
+        initializeMemory(file);
+        initializeMpg123(&mp3, mpg123IO(), this);
+        long rate = 0;
+        int channels = 0, encoding = 0;
+        mpg123_getformat(mp3, &rate, &channels, &encoding);
+    }
+
+    virtual ~MemoryMpg123Handler(){
+        delete[] memory;
+    }
+    
+    virtual void reopen(){
+        position = 0;
+        openMpg123(&mp3, mpg123IO(), this);
+    }
+
+    void initializeMemory(const Util::ReferenceCount<Storage::File> & file){
+        length = file->getSize();
+        if (length == 0){
+            throw MusicException(__FILE__, __LINE__, "Length of file was 0");
+        }
+        memory = new char[length];
+        if (file->readLine(memory, length) != length){
+            throw MusicException(__FILE__, __LINE__, "Could not read entire file");
+        }
+        position = 0;
+    }
+
+    ssize_t doRead(char * buffer, size_t bytes){
+        int actual = bytes;
+        if (actual + position >= length){
+            actual = length - position;
+        }
+        memcpy(buffer, memory + position, actual);
+        position += actual;
+        return actual;
+    }
+
+    static ssize_t read(void * handle, void * buffer, size_t bytes){
+        MemoryMpg123Handler * self = (MemoryMpg123Handler*) handle;
+        return self->doRead((char*) buffer, bytes);
+    }
+
+    off_t doSeek(off_t offset, int whence){
+        switch (whence){
+            case SEEK_SET: position = offset; break;
+            case SEEK_CUR: position += offset; break;
+            case SEEK_END: position = length + offset; break;
+        }
+        if (position < 0){
+            position = 0;
+        }
+        if (position >= length){
+            position = length - 1;
+        }
+        return position;
+    }
+
+    static off_t seek(void * handle, off_t offset, int whence){
+        MemoryMpg123Handler * self = (MemoryMpg123Handler*) handle;
+        return self->doSeek(offset, whence);
+    }
+
+    void doClose(){
+        position = 0;
+    }
+
+    static void close(void * handle){
+        MemoryMpg123Handler * self = (MemoryMpg123Handler*) handle;
+        return self->doClose();
+    }
+
+    Mpg123FileIO mpg123IO(){
+        Mpg123FileIO io;
+        io.read = read;
+        io.seek = seek;
+        io.close = close;
+        return io;
+    }
+ 
+    virtual std::string name() const {
+        return "memory mp3";
+    }
+
+    char * memory;
+    int length;
+    int position;
+};
+
+Mpg123Handler::Mpg123Handler():
 mp3(NULL){
-    initializeMpg123(&mp3, path);
-    long rate = 0;
-    int channels = 0, encoding = 0;
-    mpg123_getformat(mp3, &rate, &channels, &encoding);
 }
 
 void Mpg123Handler::read(void * data, int samples){
     /* buffer * 4 for 16 bits per sample * 2 samples for stereo */
     size_t out = 0;
     if (mpg123_read(mp3, (unsigned char *) data, samples * 4, &out) == MPG123_DONE){
-        mpg123_seek(mp3, 0, SEEK_SET);
+        reopen();
+
         /* Don't get into an infinite loop */
         if (out != 0){
             /* samples left = (total bytes - bytes read) / 4
@@ -625,13 +896,19 @@ Mpg123Handler::~Mpg123Handler(){
     mpg123_exit();
 }
 
-static const int MPG123_BUFFER_SIZE = 1 << 11;
-Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path):
-handler(path){
+// static const int MPG123_BUFFER_SIZE = 1 << 11;
+Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path){
+    Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
+    if (file->canStream()){
+        handler = new StreamMpg123Handler(file);
+    } else {
+        handler = new MemoryMpg123Handler(file);
+    }
+    // handler = new MemoryMpg123Handler(file);
 }
 
 void Mp3Player::render(void * data, int samples){
-    handler.read(data, samples);
+    handler->read(data, samples);
 
     /*
        long rate;
@@ -642,7 +919,7 @@ void Mp3Player::render(void * data, int samples){
 }
 
 void Mp3Player::setVolume(double volume){
-    handler.setVolume(volume);
+    handler->setVolume(volume);
     /*
     this->volume = volume;
     // mpg123_volume(mp3, volume * base_volume / 5000);
