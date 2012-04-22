@@ -513,6 +513,9 @@ struct Mpg123FileIO{
     void (*close)(void *);
 };
 
+/* TODO: review this method, I'm not sure we need to reset the decoder after opening.
+ * Also do we need to close or will open_handle do it for us?
+ */
 static void openMpg123(mpg123_handle ** mp3, const Mpg123FileIO & fileIO, Mpg123Handler * handler){
     int error = mpg123_replace_reader_handle(*mp3, fileIO.read, fileIO.seek, fileIO.close);
     /* stream has progressed a little bit so reset it by opening it again */
@@ -874,6 +877,7 @@ void Mpg123Handler::read(void * data, int samples){
     /* buffer * 4 for 16 bits per sample * 2 samples for stereo */
     size_t out = 0;
     if (mpg123_read(mp3, (unsigned char *) data, samples * 4, &out) == MPG123_DONE){
+        /* What if reopening fails? */
         reopen();
 
         /* Don't get into an infinite loop */
@@ -899,6 +903,10 @@ Mpg123Handler::~Mpg123Handler(){
 // static const int MPG123_BUFFER_SIZE = 1 << 11;
 Mp3Player::Mp3Player(const Filesystem::AbsolutePath & path){
     Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
+    if (file == NULL){
+        throw MusicException(__FILE__, __LINE__, "Could not open mp3 " + path.path());
+    }
+
     if (file->canStream()){
         handler = new StreamMpg123Handler(file);
     } else {
