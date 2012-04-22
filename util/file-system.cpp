@@ -682,9 +682,9 @@ public:
     }
 
     int read(char * buffer, int size){
-        Global::debug(0) << "offset before read " << unzGetOffset(zipFile) << " tell " << unztell(zipFile) << std::endl;
+        // Global::debug(0) << "offset before read " << unzGetOffset(zipFile) << " tell " << unztell(zipFile) << std::endl;
         int got = unzReadCurrentFile(zipFile, buffer, size);
-        Global::debug(0) << "offset after read " << unzGetOffset(zipFile) << " tell " << unztell(zipFile) << std::endl;
+        // Global::debug(0) << "offset after read " << unzGetOffset(zipFile) << " tell " << unztell(zipFile) << std::endl;
         if (got <= 0){
             throw Exception(__FILE__, __LINE__, "Could not read bytes from zip");
         }
