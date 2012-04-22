@@ -176,13 +176,17 @@ protected:
 #ifdef HAVE_MP3_MPG123
 class Mpg123Handler{
 public:
-    Mpg123Handler(const Path::AbsolutePath & path);
-    ~Mpg123Handler();
+    Mpg123Handler();
+    virtual ~Mpg123Handler();
 
-    void read(void * data, int samples);
-    void setVolume(double volume);
+    virtual void read(void * data, int samples);
+    virtual void setVolume(double volume);
+
+    virtual std::string name() const = 0;
 
 protected:
+    virtual void reopen() = 0;
+
     mpg123_handle * mp3;
     double base_volume;
 };
@@ -197,7 +201,7 @@ public:
     virtual ~Mp3Player();
 protected:    
 #ifdef HAVE_MP3_MPG123
-    Mpg123Handler handler;
+    Util::ReferenceCount<Mpg123Handler> handler;
 #elif HAVE_MP3_MAD
     void output(mad_header const * header, mad_pcm * pcm);
     static mad_flow error(void * data, mad_stream * stream, mad_frame * frame);
