@@ -569,6 +569,16 @@ static void initializeMpg123(mpg123_handle ** mp3, const Mpg123FileIO & fileIO, 
         }
         
         /* FIXME workaround for libmpg issues with "generic" decoder frequency not being set */
+
+        /* These next two lines work around an uninitialized memory problem in mpg123 1.12.1. The issue does not exist in later versions of mpg123.
+         * Specifically in parse.c is the following code
+         *    unsigned char *newbuf = fr->bsspace[fr->bsnum]+512;
+         * Without a call to frame_reset, fr->bsnum will be uninitialized. mpg123 1.12.1 did not call frame_reset() any time between mpg123_open_handle and mpg123_read().
+         * mpg123_open_fd on the other hand will call frame_reset() so we call mpg123_open_fd to force it. We make an extra mpg123_close call to undo the state changes associated with mpg123_open_fd.
+         */
+        error = mpg123_open_fd(*mp3, 0);
+        mpg123_close(*mp3);
+
         error = mpg123_open_handle(*mp3, handler);
         if (error == -1){
             std::ostringstream fail;
@@ -832,8 +842,8 @@ public:
         if (position < 0){
             position = 0;
         }
-        if (position >= length){
-            position = length - 1;
+        if (position > length){
+            position = length;
         }
         return position;
     }

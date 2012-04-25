@@ -156,7 +156,7 @@ void TokenReader::readTokens(Storage::File & input){
     /* when a ;@ is seen, read the next s-expression but throw it away */
     bool do_ignore = false;
 
-    unsigned char n;
+    unsigned char n = 0;
     string cur_string = "";
 
     /* in_quote is true if a " is read and before another " is read */
