@@ -1053,26 +1053,17 @@ available(NULL),
 bytesLeft(0),
 position(0),
 raw(NULL){
-    FILE * handle = fopen(path.path().c_str(), "rb");
-    if (!handle){
-        std::ostringstream out;
-        out << "Could not open mp3 file " << path.path();
-        throw MusicException(__FILE__, __LINE__, out.str());
+    Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
+    if (file == NULL){
+        throw MusicException(__FILE__, __LINE__, "Could not open mp3 " + path.path());
     }
 
-    fseek(handle, 0, SEEK_END);
-    rawLength = ftell(handle);
-    fseek(handle, 0, SEEK_SET);
+    rawLength = file->getSize();
     raw = new unsigned char[rawLength];
-    
-    int toRead = rawLength;
-    int where =0;
-    while (toRead > 0){
-        int got = fread(raw + where, 1, toRead, handle);
-        toRead -= got;
+    if (file->readLine((char*) raw, rawLength) != rawLength){
+        throw MusicException(__FILE__, __LINE__, "Could not read entire mp3 " + path.path());
     }
-    fclose(handle);
-
+   
     int rate = 44100, channels = 2;
     discoverInfo(raw, rawLength, &rate, &channels);
     setRenderer(Util::ReferenceCount<MusicRenderer>(new MusicRenderer(rate, channels)));
