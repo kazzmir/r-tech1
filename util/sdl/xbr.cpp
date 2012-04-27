@@ -30,6 +30,8 @@ static unsigned int RGBtoYUV[65536];
 static unsigned int tbl_5_to_8[32]={0, 8, 16, 25, 33, 41, 49,  58, 66, 74, 82, 90, 99, 107, 115, 123, 132, 140, 148, 156, 165, 173, 181, 189,  197, 206, 214, 222, 230, 239, 247, 255};
 static unsigned int tbl_6_to_8[64]={0, 4, 8, 12, 16, 20, 24,  28, 32, 36, 40, 45, 49, 53, 57, 61, 65, 69, 73, 77, 81, 85, 89, 93, 97, 101,  105, 109, 113, 117, 121, 125, 130, 134, 138, 142, 146, 150, 154, 158, 162, 166,  170, 174, 178, 182, 186, 190, 194, 198, 202, 206, 210, 215, 219, 223, 227, 231,  235, 239, 243, 247, 251, 255};
 
+#define RGB_MASK 0x07E0F81F
+#define RED_BLUE_MASK565 0xF81F
 #define RED_MASK565   0xF800
 #define GREEN_MASK565 0x07E0
 #define BLUE_MASK565  0x001F
@@ -41,6 +43,7 @@ static unsigned int tbl_6_to_8[64]={0, 4, 8, 12, 16, 20, 24,  28, 32, 36, 40, 45
 #define PG_LBMASK565 0xF7DE
 #define PG_LBMASK555 0x7BDE
 
+static const unsigned short int pg_red_blue_mask = RED_BLUE_MASK565;
 static const unsigned short int pg_red_mask = RED_MASK565;
 static const unsigned short int pg_green_mask = GREEN_MASK565;
 static const unsigned short int pg_blue_mask = BLUE_MASK565;
@@ -48,6 +51,55 @@ static const unsigned short int pg_lbmask = PG_LBMASK565;
 
 #define ALPHA_BLEND_128_W(dst, src) dst = ((src & pg_lbmask) >> 1) + ((dst & pg_lbmask) >> 1)
 
+#define ALPHA_BLEND_32_W(dst, src) \
+        dst = ( \
+                    (pg_red_blue_mask & ((dst & pg_red_blue_mask) + \
+                                                 ((((src & pg_red_blue_mask) - \
+                                                            (dst & pg_red_blue_mask))) >>3))) | \
+                    (pg_green_mask & ((dst & pg_green_mask) + \
+                                              ((((src & pg_green_mask) - \
+                                                         (dst & pg_green_mask))) >>3))))
+ 
+#define ALPHA_BLEND_64_W(dst, src) \
+        dst = ( \
+                    (pg_red_blue_mask & ((dst & pg_red_blue_mask) + \
+                                                 ((((src & pg_red_blue_mask) - \
+                                                            (dst & pg_red_blue_mask))) >>2))) | \
+                    (pg_green_mask & ((dst & pg_green_mask) + \
+                                              ((((src & pg_green_mask) - \
+                                                         (dst & pg_green_mask))) >>2))))
+
+#define ALPHA_BLEND_X_W(dst, src, alpha) \
+   ts = src; td = dst;\
+   td = ((td|(td<<16)) & RGB_MASK); ts = ((ts|(ts<<16)) & RGB_MASK);\
+   td = ((( ( (ts-td)*alpha ) >> 5 ) + td ) & RGB_MASK); \
+   dst= (td|(td>>16));
+
+#define ALPHA_BLEND_192_W(dst, src) ALPHA_BLEND_X_W(dst, src, 24)
+#define ALPHA_BLEND_224_W(dst, src) ALPHA_BLEND_X_W(dst, src, 28)
+ 
+/*
+#define ALPHA_BLEND_192_W(dst, src) \
+        dst = ( \
+                    (pg_red_blue_mask & ((dst & pg_red_blue_mask) + \
+                                                 ((((src & pg_red_blue_mask) - \
+                                                            (dst & pg_red_blue_mask)) * 3) >>2))) | \
+                    (pg_green_mask & ((dst & pg_green_mask) + \
+                                              ((((src & pg_green_mask) - \
+                                                         (dst & pg_green_mask)) * 3) >>2))))
+ 
+#define ALPHA_BLEND_224_W(dst, src) \
+        dst = ( \
+                    (pg_red_blue_mask & ((dst & pg_red_blue_mask) + \
+                                                 ((((src & pg_red_blue_mask) - \
+                                                            (dst & pg_red_blue_mask)) * 7) >>3))) | \
+                    (pg_green_mask & ((dst & pg_green_mask) + \
+                                              ((((src & pg_green_mask) - \
+                                                         (dst & pg_green_mask)) * 7) >>3))))
+*/
+
+/* Old alpha blend for separate red/green/blue components */
+/*
 #define ALPHA_BLEND_32_W(dst, src) \
 	dst = ( \
     (pg_red_mask & ((dst & pg_red_mask) + \
@@ -95,6 +147,7 @@ static const unsigned short int pg_lbmask = PG_LBMASK565;
     (pg_blue_mask & ((dst & pg_blue_mask) + \
         ((((src & pg_blue_mask) - \
         (dst & pg_blue_mask)) * 224) >>8))) );
+*/
 
 
 #define LEFT_UP_2_2X(N3, N2, N1, PIXEL)\
@@ -192,6 +245,7 @@ void xbr2x(SDL_Surface * input, SDL_Surface * output){
     unsigned int e, i, p[10], px;
     unsigned int ex, ex2, ex3;
     unsigned int ke, ki;
+    unsigned int ts, td;
 
     int nextOutputLine = output->pitch / 2;
 
@@ -381,6 +435,7 @@ void xbr3x(SDL_Surface * input, SDL_Surface * output){
 
     const int nl = output->pitch / 2;
     const int nl1 = nl + nl;
+    unsigned int ts, td;
 
     for (int y = 0; y < input->h; y++){
         unsigned short int * E = (unsigned short *)((char*) output->pixels + y * output->pitch * 3);
@@ -572,6 +627,7 @@ void xbr4x(SDL_Surface * input, SDL_Surface * output){
     const int nl = output->pitch / 2;
     const int nl1 = nl + nl;
     const int nl2 = nl1 + nl;
+    unsigned int ts, td;
 
     for (int y = 0; y < input->h; y++){
         unsigned short int * E = (unsigned short *)((char*) output->pixels + y * output->pitch * 4);

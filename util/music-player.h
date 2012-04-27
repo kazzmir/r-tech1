@@ -24,14 +24,12 @@
 #include <mad.h>
 #endif
 
-namespace Path{
-    class AbsolutePath;
-}
-
 #include "pointer.h"
+#include "file-system.h"
 
 struct DUH;
 struct DUH_SIGRENDERER;
+struct DUMBFILE;
 #ifdef USE_ALLEGRO
 struct AUDIOSTREAM;
 #endif
@@ -243,18 +241,26 @@ protected:
 /* interface to DUMB, plays mod/s3m/xm/it */
 class DumbPlayer: public MusicPlayer {
 public:
-    DumbPlayer(std::string path);
+    DumbPlayer(const Filesystem::AbsolutePath & path);
     virtual void setVolume(double volume);
     virtual void render(void * data, int samples);
 
     virtual ~DumbPlayer();
 
 protected:
+    class DumbSystem{
+    public:
+        DumbSystem(const Util::ReferenceCount<Storage::File> & file);
+        DUH * loadDumbFile();
+        virtual ~DumbSystem();
+    };
+
     DUH * loadDumbFile(std::string path);
 
 protected:
     DUH * music_file;
     DUH_SIGRENDERER * renderer;
+    Util::ReferenceCount<DumbSystem> system;
 };
 
 }
