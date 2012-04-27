@@ -418,7 +418,7 @@ bool Music::internal_loadSong(string path){
 
     try {
         if (isDumbFile(path)){
-            musicPlayer = new Util::DumbPlayer(path);
+            musicPlayer = new Util::DumbPlayer(Filesystem::AbsolutePath(path));
             musicPlayer->play();
             playing = true;
         } else if (isGMEFile(path)){

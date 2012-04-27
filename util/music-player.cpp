@@ -383,11 +383,11 @@ static const char * typeToExtension( int i ){
 }
 
 /* expects each sample to be 4 bytes, 2 bytes per sample * 2 channels */
-DumbPlayer::DumbPlayer(string path){
-    music_file = loadDumbFile(path);
+DumbPlayer::DumbPlayer(const Filesystem::AbsolutePath & path){
+    music_file = loadDumbFile(path.path());
     if (music_file == NULL){
         std::ostringstream error;
-        error << "Could not load DUMB file " << path;
+        error << "Could not load DUMB file " << path.path();
         throw MusicException(__FILE__, __LINE__, error.str());
     }
     
