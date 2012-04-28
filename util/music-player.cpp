@@ -382,9 +382,277 @@ static const char * typeToExtension( int i ){
     }
 }
 
+DumbPlayer::DumbSystem::DumbSystem(){
+}
+
+DumbPlayer::DumbSystem::~DumbSystem(){
+}
+
+class StreamingSystem: public DumbPlayer::DumbSystem {
+public:
+    StreamingSystem(const Util::ReferenceCount<Storage::File> & file):
+    file(file),
+    dumb(NULL){
+        system.open = NULL;
+        system.skip = skip;
+        system.getc = getc;
+        system.getnc = getnc;
+        system.close = close;
+    }
+
+    int doSkip(long n){
+        file->seek(n, SEEK_CUR);
+        return 0;
+    }
+
+    static int skip(void *f, long n){
+        StreamingSystem * self = (StreamingSystem*) f;
+        return self->doSkip(n);
+    }
+
+    int doGetc(){
+        unsigned char x = 0;
+        file->readLine((char*) &x, 1);
+        return x;
+    }
+
+    static int getc(void *f){
+        StreamingSystem * self = (StreamingSystem*) f;
+        return self->doGetc();
+    }
+
+    int doGetnc(unsigned char * ptr, long n){
+        return file->readLine((char*) ptr, n);
+    }
+
+    static long getnc(unsigned char *ptr, long n, void *f){
+        StreamingSystem * self = (StreamingSystem*) f;
+        return self->doGetnc(ptr, n);
+    }
+
+    void doClose(){
+    }
+
+    static void close(void *f){
+        StreamingSystem * self = (StreamingSystem*) f;
+        return self->doClose();
+    }
+
+    void closeDumb(){
+        if (dumb != NULL){
+            dumbfile_close(dumb);
+            dumb = NULL;
+        }
+    }
+
+    void reset(){
+        file->reset();
+        file->seek(0, SEEK_SET);
+    }
+
+    DUH * load(DUH * (*reader)(DUMBFILE *)){
+        closeDumb();
+        reset();
+        dumb = dumbfile_open_ex(this, &system);
+        return reader(dumb);
+    }
+
+    virtual ~StreamingSystem(){
+        closeDumb();
+    }
+
+    /* Keep a reference so the file doesn't close */
+    Util::ReferenceCount<Storage::File> file;
+
+    DUMBFILE_SYSTEM system;
+    DUMBFILE * dumb;
+
+    DUH * loadDumbFile(){
+        DUH * what = NULL;
+        for (int i = 0; i < 4; i++){
+            /* the order of trying xm/s3m/it/mod matters because mod could be
+             * confused with one of the other formats, so load it last.
+             */
+            switch (i){
+                case 0: {
+                    what = load(dumb_read_xm_quick);
+                    break;
+                }
+                case 1: {
+                    what = load(dumb_read_s3m_quick);
+                    break;
+                }
+                case 2: {
+                    what = load(dumb_read_it_quick);
+                    break;
+                }
+                case 3: {
+                    what = load(dumb_read_mod_quick);
+                    break;
+                }
+            }
+            if (what != NULL){
+                return what;
+            }
+        }
+
+        return NULL;
+    }
+
+};
+
+class MemorySystem: public DumbPlayer::DumbSystem {
+public:
+    MemorySystem(const Util::ReferenceCount<Storage::File> & file):
+    memory(NULL),
+    position(0),
+    dumb(NULL){
+        length = file->getSize();
+        if (length == 0){
+            throw MusicException(__FILE__, __LINE__, "Length was 0");
+        }
+        memory = new unsigned char[length];
+        if (file->readLine((char*) memory, length) != length){
+            throw MusicException(__FILE__, __LINE__, "Could not read entire file");
+        }
+
+        system.open = NULL;
+        system.skip = skip;
+        system.getc = getc;
+        system.getnc = getnc;
+        system.close = close;
+    }
+
+    virtual ~MemorySystem(){
+        closeDumb();
+        delete[] memory;
+    }
+
+    unsigned char * memory;
+    int length;
+    int position;
+
+    DUMBFILE_SYSTEM system;
+    DUMBFILE * dumb;
+
+    int doSkip(long n){
+        position += n;
+        if (position > length){
+            position = length;
+        }
+        if (position < 0){
+            position = 0;
+        }
+        return 0;
+    }
+
+    static int skip(void *f, long n){
+        MemorySystem * self = (MemorySystem*) f;
+        return self->doSkip(n);
+    }
+
+    int doGetc(){
+        if (position < length){
+            unsigned char out = memory[position];
+            position += 1;
+            return out;
+        }
+        return -1;
+    }
+
+    static int getc(void *f){
+        MemorySystem * self = (MemorySystem*) f;
+        return self->doGetc();
+    }
+
+    int doGetnc(unsigned char * ptr, long n){
+        int actual = n;
+        if (actual + position >= length){
+            actual = length - position;
+        }
+        memcpy(ptr, memory + position, actual);
+        position += actual;
+        return actual;
+    }
+
+    static long getnc(unsigned char *ptr, long n, void *f){
+        MemorySystem * self = (MemorySystem*) f;
+        return self->doGetnc(ptr, n);
+    }
+
+    void doClose(){
+    }
+
+    static void close(void *f){
+        MemorySystem * self = (MemorySystem*) f;
+        return self->doClose();
+    }
+
+    void closeDumb(){
+        if (dumb != NULL){
+            dumbfile_close(dumb);
+            dumb = NULL;
+        }
+    }
+
+    void reset(){
+        position = 0;
+    }
+
+    DUH * load(DUH * (*reader)(DUMBFILE *)){
+        closeDumb();
+        reset();
+        dumb = dumbfile_open_ex(this, &system);
+        return reader(dumb);
+    }
+
+    DUH * loadDumbFile(){
+        DUH * what = NULL;
+        for (int i = 0; i < 4; i++){
+            /* the order of trying xm/s3m/it/mod matters because mod could be
+             * confused with one of the other formats, so load it last.
+             */
+            switch (i){
+                case 0: {
+                    what = load(dumb_read_xm_quick);
+                    break;
+                }
+                case 1: {
+                    what = load(dumb_read_s3m_quick);
+                    break;
+                }
+                case 2: {
+                    what = load(dumb_read_it_quick);
+                    break;
+                }
+                case 3: {
+                    what = load(dumb_read_mod_quick);
+                    break;
+                }
+            }
+            if (what != NULL){
+                return what;
+            }
+        }
+
+        return NULL;
+    }
+};
+
 /* expects each sample to be 4 bytes, 2 bytes per sample * 2 channels */
 DumbPlayer::DumbPlayer(const Filesystem::AbsolutePath & path){
-    music_file = loadDumbFile(path.path());
+    Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
+    if (file == NULL){
+        throw MusicException(__FILE__, __LINE__, "Could not open " + path.path());
+    }
+
+    if (file->canStream()){
+        system = Util::ReferenceCount<DumbSystem>(new StreamingSystem(file));
+    } else {
+        system = Util::ReferenceCount<DumbSystem>(new MemorySystem(file));
+    }
+
+    music_file = system->loadDumbFile();
     if (music_file == NULL){
         std::ostringstream error;
         error << "Could not load DUMB file " << path.path();
@@ -415,6 +683,7 @@ DumbPlayer::~DumbPlayer(){
     unload_duh(music_file);
 }
 
+#if 0
 DUH * DumbPlayer::loadDumbFile(string path){
     DUH * what;
     for (int i = 0; i < 4; i++){
@@ -447,6 +716,7 @@ DUH * DumbPlayer::loadDumbFile(string path){
     }
     return NULL;
 }
+#endif
 
 GMEPlayer::GMEPlayer(string path):
 emulator(NULL){

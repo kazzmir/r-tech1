@@ -247,15 +247,14 @@ public:
 
     virtual ~DumbPlayer();
 
-protected:
     class DumbSystem{
     public:
-        DumbSystem(const Util::ReferenceCount<Storage::File> & file);
-        DUH * loadDumbFile();
+        DumbSystem();
+        virtual DUH * loadDumbFile() = 0;
         virtual ~DumbSystem();
     };
 
-    DUH * loadDumbFile(std::string path);
+    // DUH * loadDumbFile(std::string path);
 
 protected:
     DUH * music_file;
