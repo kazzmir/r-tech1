@@ -5,13 +5,6 @@
 #include <vector>
 #include <stdio.h>
 
-#ifdef USE_SDL
-/* for Uint8 */
-#include <SDL.h>
-#include "sdl/mixer/SDL_mixer.h"
-#include "audio.h"
-#endif
-
 #ifdef HAVE_MP3_MPG123
 #include <mpg123.h>
 #endif
@@ -30,52 +23,12 @@
 struct DUH;
 struct DUH_SIGRENDERER;
 struct DUMBFILE;
-#ifdef USE_ALLEGRO
-struct AUDIOSTREAM;
-#endif
 struct LOGG_Stream;
 class Music_Emu;
 
-#ifdef USE_ALLEGRO5
-struct ALLEGRO_AUDIO_STREAM;
-struct ALLEGRO_EVENT_QUEUE;
-#endif
-
 namespace Util{
 
-class MusicPlayer;
-/* implemented by some backend: allegro4/sdl/allergo5 */
-class MusicRenderer{
-public:
-    MusicRenderer();
-    MusicRenderer(int frequency, int channels);
-    virtual ~MusicRenderer();
-    void poll(MusicPlayer & player);
-    void play(MusicPlayer & player);
-    void pause();
-
-protected:
-    void create(int frequency, int channels);
-#ifdef USE_SDL
-    static void mixer(void * arg, Uint8 * stream, int length);
-    void fill(MusicPlayer * player);
-    void read(MusicPlayer * player, Uint8 * stream, int bytes);
-    AudioConverter convert;
-    // SDL_AudioCVT convert;
-    Uint8 * data;
-    int position;
-    int converted;
-#endif
-
-#ifdef USE_ALLEGRO
-    AUDIOSTREAM * stream;
-#endif
-
-#ifdef USE_ALLEGRO5
-    ALLEGRO_AUDIO_STREAM * stream;
-    ALLEGRO_EVENT_QUEUE * queue;
-#endif
-};
+class MusicRenderer;
 
 class MusicPlayer{
 public:
@@ -155,6 +108,7 @@ public:
 
     virtual ~OggPlayer();
 protected:
+    void openOgg();
     void fillPage(OggPage::Page * page);
     void doRender(char * data, int bytes);
     FILE* file;
@@ -199,7 +153,7 @@ public:
     virtual ~Mp3Player();
 protected:    
 #ifdef HAVE_MP3_MPG123
-    Util::ReferenceCount<Mpg123Handler> handler;
+    ReferenceCount<Mpg123Handler> handler;
 #elif HAVE_MP3_MAD
     void output(mad_header const * header, mad_pcm * pcm);
     static mad_flow error(void * data, mad_stream * stream, mad_frame * frame);
@@ -259,7 +213,7 @@ public:
 protected:
     DUH * music_file;
     DUH_SIGRENDERER * renderer;
-    Util::ReferenceCount<DumbSystem> system;
+    ReferenceCount<DumbSystem> system;
 };
 
 }

@@ -35,6 +35,7 @@ directory.cpp
 file-system.cpp
 gradient.cpp
 music-player.cpp
+music-renderer.cpp
 ebox.cpp
 regex.cpp
 language-string.cpp
