@@ -427,7 +427,7 @@ bool Music::internal_loadSong(string path){
             playing = true;
 #ifdef HAVE_OGG
         } else if (isOggFile(path)){
-            musicPlayer = new Util::OggPlayer(path);
+            musicPlayer = new Util::OggPlayer(Filesystem::AbsolutePath(path));
             musicPlayer->play();
             playing = true;
 #endif
@@ -447,7 +447,7 @@ bool Music::internal_loadSong(string path){
         }
     } catch (const Exception::Base & ex){
         Global::debug(0) << "Could not open music file '" << path << "' because " << ex.getTrace() << endl;
-        //! FIXME Change from Base exception in the futer
+        //! FIXME Change from Base exception in the future
         return false;
     }
 

@@ -102,19 +102,37 @@ struct OggPage{
 /* Maybe have some common sdl mixer class that this can inherit? */
 class OggPlayer: public MusicPlayer {
 public:
-    OggPlayer(std::string path);
+    OggPlayer(const Filesystem::AbsolutePath & path);
     virtual void setVolume(double volume);
     virtual void render(void * stream, int length);
 
     virtual ~OggPlayer();
+
+    class Stream{
+    public:
+        Stream();
+        virtual void reset() = 0;
+        virtual size_t doRead(void *ptr, size_t size, size_t nmemb) = 0;
+        virtual int doSeek(ogg_int64_t offset, int whence) = 0;
+        virtual int doClose() = 0;
+        virtual long doTell() = 0;
+
+        static size_t read(void *ptr, size_t size, size_t nmemb, void *datasource);
+        static int seek(void *datasource, ogg_int64_t offset, int whence);
+        static int close(void *datasource);
+        static long tell(void *datasource);
+        virtual ~Stream();
+    };
+
 protected:
     void openOgg();
     void fillPage(OggPage::Page * page);
     void doRender(char * data, int bytes);
     FILE* file;
-    std::string path;
+    Filesystem::AbsolutePath path;
     OggVorbis_File ogg;
     ReferenceCount<OggPage> buffer;
+    ReferenceCount<Stream> stream;
 
     int frequency;
     int channels;
