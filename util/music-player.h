@@ -117,6 +117,8 @@ public:
         virtual int doClose() = 0;
         virtual long doTell() = 0;
 
+        virtual ov_callbacks oggCallbacks() = 0;
+
         static size_t read(void *ptr, size_t size, size_t nmemb, void *datasource);
         static int seek(void *datasource, ogg_int64_t offset, int whence);
         static int close(void *datasource);
@@ -125,10 +127,11 @@ public:
     };
 
 protected:
+    Stream * createStream(const ReferenceCount<Storage::File> & path);
     void openOgg();
     void fillPage(OggPage::Page * page);
     void doRender(char * data, int bytes);
-    FILE* file;
+    // FILE* file;
     Filesystem::AbsolutePath path;
     OggVorbis_File ogg;
     ReferenceCount<OggPage> buffer;

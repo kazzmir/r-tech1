@@ -507,6 +507,10 @@ path(path){
 bool NormalFile::canStream(){
     return true;
 }
+
+long NormalFile::tell(){
+    return in.tellg();
+}
         
 void NormalFile::reset(){
     in.clear();
@@ -575,9 +579,17 @@ int StringFile::getSize(){
     return data.size();
 }
 
+long StringFile::tell(){
+    return stream.tellg();
+}
+
 off_t StringFile::seek(off_t position, int whence){
-    /* TODO */
-    return -1;
+    switch (whence){
+        case SEEK_SET: stream.seekg(position, ios::beg); break;
+        case SEEK_CUR: stream.seekg(position, ios::cur); break;
+        case SEEK_END: stream.seekg(position, ios::end); break;
+    }
+    return stream.tellg();
 }
 
 bool StringFile::eof(){
@@ -691,6 +703,10 @@ public:
         return got;
     }
 
+    long tell(){
+        return unztell(zipFile);
+    }
+
     void open(const Path::AbsolutePath & file){
         if (locked){
             std::ostringstream out;
@@ -754,6 +770,10 @@ off_t ZipFile::seek(off_t position, int whence){
         
 bool ZipFile::eof(){
     return atEof;
+}
+        
+long ZipFile::tell(){
+    return zip->tell();
 }
 
 void ZipFile::reset(){

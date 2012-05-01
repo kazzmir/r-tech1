@@ -285,6 +285,8 @@ namespace Storage{
 
         virtual int getSize() = 0;
 
+        virtual long tell() = 0;
+
         /* if the file is at eof and can't read anymore */
         virtual bool eof() = 0;
 
@@ -305,6 +307,7 @@ namespace Storage{
         virtual int getSize();
         virtual bool canStream();
         virtual void reset();
+        virtual long tell();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
         
@@ -326,6 +329,7 @@ namespace Storage{
         virtual int getSize();
         virtual bool canStream();
         virtual void reset();
+        virtual long tell();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
 
@@ -345,6 +349,7 @@ namespace Storage{
         virtual int getSize();
         virtual bool canStream();
         virtual void reset();
+        virtual long tell();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
         virtual ~StringFile();

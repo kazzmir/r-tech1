@@ -949,8 +949,8 @@ long OggPlayer::Stream::tell(void *datasource){
 
 int OGG_BUFFER_SIZE = 1024 * 32;
 OggPlayer::OggPlayer(const Filesystem::AbsolutePath & path):
-file(NULL),
 path(path){
+    stream = createStream(Storage::instance().open(path));
     openOgg();
 
     vorbis_info * info = ov_info(&ogg, -1);
@@ -969,7 +969,55 @@ path(path){
     fillPage(&buffer->buffer1);
 }
 
+class OggFileStream: public OggPlayer::Stream {
+public:
+    OggFileStream(const ReferenceCount<Storage::File> & file):
+    file(file){
+    }
+
+    ReferenceCount<Storage::File> file;
+        
+    ov_callbacks oggCallbacks(){
+        ov_callbacks out;
+        out.read_func = read;
+        out.seek_func = seek;
+        out.close_func = NULL;
+        out.tell_func = tell;
+        return out;
+    }
+
+    virtual void reset(){
+        file->reset();
+        file->seek(0, SEEK_SET);
+    }
+
+    virtual size_t doRead(void *ptr, size_t size, size_t nmemb){
+        return file->readLine((char*) ptr, size * nmemb) / size;
+    }
+
+    virtual int doSeek(ogg_int64_t offset, int whence){
+        return file->seek(offset, whence);
+    }
+
+    virtual int doClose(){
+        return 0;
+    }
+
+    virtual long doTell(){
+        return file->tell();
+    }
+};
+
+OggPlayer::Stream * OggPlayer::createStream(const ReferenceCount<Storage::File> & file){
+    if (file->canStream()){
+        return new OggFileStream(file);
+    } else {
+        throw MusicException(__FILE__, __LINE__, "Can only handle streaming sources");
+    }
+}
+
 void OggPlayer::openOgg(){
+    /*
     if (file != NULL){
         fclose(file);
         file = NULL;
@@ -978,10 +1026,10 @@ void OggPlayer::openOgg(){
     if (!file){
         throw MusicException(__FILE__, __LINE__, "Could not open file");
     }
-    int ok = ov_open_callbacks(file, &ogg, 0, 0, OV_CALLBACKS_DEFAULT);
+    */
+    stream->reset();
+    int ok = ov_open_callbacks(stream.raw(), &ogg, 0, 0, stream->oggCallbacks());
     if (ok != 0){
-        fclose(file);
-        file = NULL;
         throw MusicException(__FILE__, __LINE__, "Could not open ogg");
     }
 }
@@ -1040,9 +1088,11 @@ void OggPlayer::setVolume(double volume){
 OggPlayer::~OggPlayer(){
     /* ov_clear will close the file */
     ov_clear(&ogg);
+    /*
     if (file != NULL){
         fclose(file);
     }
+    */
 }
 #endif /* OGG */
 
