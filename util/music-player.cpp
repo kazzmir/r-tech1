@@ -921,8 +921,34 @@ Mp3Player::~Mp3Player(){
 #endif /* MP3_MPG123 */
 
 #ifdef HAVE_OGG
+OggPlayer::Stream::Stream(){
+}
+        
+OggPlayer::Stream::~Stream(){
+}
+        
+size_t OggPlayer::Stream::read(void *ptr, size_t size, size_t nmemb, void *datasource){
+    Stream * self = (Stream*) datasource;
+    return self->doRead(ptr, size, nmemb);
+}
+
+int OggPlayer::Stream::seek(void *datasource, ogg_int64_t offset, int whence){
+    Stream * self = (Stream*) datasource;
+    return self->doSeek(offset, whence);
+}
+
+int OggPlayer::Stream::close(void *datasource){
+    Stream * self = (Stream*) datasource;
+    return self->doClose();
+}
+
+long OggPlayer::Stream::tell(void *datasource){
+    Stream * self = (Stream*) datasource;
+    return self->doTell();
+}
+
 int OGG_BUFFER_SIZE = 1024 * 32;
-OggPlayer::OggPlayer(string path):
+OggPlayer::OggPlayer(const Filesystem::AbsolutePath & path):
 file(NULL),
 path(path){
     openOgg();
@@ -948,7 +974,7 @@ void OggPlayer::openOgg(){
         fclose(file);
         file = NULL;
     }
-    file = fopen(path.c_str(), "rb");
+    file = fopen(path.path().c_str(), "rb");
     if (!file){
         throw MusicException(__FILE__, __LINE__, "Could not open file");
     }
@@ -1230,6 +1256,5 @@ Mp3Player::~Mp3Player(){
     // mad_decoder_finish(&decoder);
 }
 #endif /* MP3_MAD */
-
 
 }
