@@ -82,7 +82,7 @@ DumbPlayer::DumbSystem::DumbSystem(){
 DumbPlayer::DumbSystem::~DumbSystem(){
 }
 
-/* Some code duplication between StreamingSystem and MemorySystem */
+/* FIXME: Some code duplication between StreamingSystem and MemorySystem */
 namespace DumbSystems{
 
 class StreamingSystem: public DumbPlayer::DumbSystem {
@@ -382,43 +382,9 @@ DumbPlayer::~DumbPlayer(){
     unload_duh(music_file);
 }
 
-#if 0
-DUH * DumbPlayer::loadDumbFile(string path){
-    DUH * what;
-    for (int i = 0; i < 4; i++){
-        /* the order of trying xm/s3m/it/mod matters because mod could be
-         * confused with one of the other formats, so load it last.
-         */
-        switch (i){
-            case 0 : {
-                what = dumb_load_xm_quick(path.c_str());
-                break;
-            }
-            case 1 : {
-                what = dumb_load_s3m_quick(path.c_str());
-                break;
-            }
-            case 2 : {
-                what = dumb_load_it_quick(path.c_str());
-                break;
-            }
-            case 3 : {
-                what = dumb_load_mod_quick(path.c_str());
-                break;
-            }
-        }
-        
-        if (what != NULL){
-            Global::debug(1) << "Loaded " << path << " type " << typeToExtension(i) << "(" << i << ")" << std::endl;
-            return what;
-        }
-    }
-    return NULL;
-}
-#endif
-
 GMEPlayer::GMEPlayer(string path):
 emulator(NULL){
+    /* TODO: Put the gme thing in a class and use gme_open_data to load from raw memory */
     gme_err_t fail = gme_open_file(path.c_str(), &emulator, Sound::Info.frequency);
     if (fail != NULL){
         Global::debug(0) << "GME load error for " << path << ": " << fail << std::endl;
