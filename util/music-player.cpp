@@ -1008,11 +1008,88 @@ public:
     }
 };
 
+class OggMemoryStream: public OggPlayer::Stream {
+public:
+    OggMemoryStream(const ReferenceCount<Storage::File> & file):
+    memory(NULL),
+    length(0),
+    position(0){
+        initializeMemory(file);
+    }
+
+    char * memory;
+    int length;
+    int position;
+
+    void initializeMemory(const ReferenceCount<Storage::File> & file){
+        length = file->getSize();
+        if (length == 0){
+            throw MusicException(__FILE__, __LINE__, "File had 0 length");
+        }
+        memory = new char[length];
+        if (file->readLine(memory, length) != length){
+            throw MusicException(__FILE__, __LINE__, "Could not read entire file");
+        }
+        position = 0;
+    }
+
+    virtual ~OggMemoryStream(){
+        delete[] memory;
+    }
+
+    ov_callbacks oggCallbacks(){
+        ov_callbacks out;
+        out.read_func = read;
+        out.seek_func = seek;
+        out.close_func = NULL;
+        out.tell_func = tell;
+        return out;
+    }
+
+    virtual void reset(){
+        position = 0;
+    }
+
+    virtual size_t doRead(void *ptr, size_t size, size_t nmemb){
+        int bytes = size * nmemb;
+        int actual = bytes;
+        if (actual + position >= length){
+            actual = length - position;
+        }
+        memcpy(ptr, memory + position, actual);
+        position += actual;
+        return actual / size;
+    }
+
+    virtual int doSeek(ogg_int64_t offset, int whence){
+        switch (whence){
+            case SEEK_SET: position = offset; break;
+            case SEEK_CUR: position += offset; break;
+            case SEEK_END: position = length + offset; break;
+        }
+        if (position < 0){
+            position = 0;
+        }
+        if (position > length){
+            position = length;
+        }
+        return position;
+    }
+
+    virtual int doClose(){
+        return 0;
+    }
+
+    virtual long doTell(){
+        return position;
+    }
+};
+
 OggPlayer::Stream * OggPlayer::createStream(const ReferenceCount<Storage::File> & file){
     if (file->canStream()){
         return new OggFileStream(file);
     } else {
-        throw MusicException(__FILE__, __LINE__, "Can only handle streaming sources");
+        return new OggMemoryStream(file);
     }
 }
 
