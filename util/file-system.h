@@ -372,9 +372,16 @@ namespace Storage{
         virtual int readLine(char * output, int size);
 
     protected:
+        /* skips `bytes'.
+         * returns number of bytes skipped (may be less than bytes)
+         */
+        int skipBytes(int bytes);
+
         const Path::AbsolutePath path;
         const Util::ReferenceCount<ZipContainer> zip;
         bool atEof;
+        /* keep track of bytes read so we can seek easier */
+        int position;
     };
 
     class NormalFile: public File {

@@ -758,14 +758,55 @@ atEof(false){
 ZipFile::~ZipFile(){
     zip->close();
 }
+
+int ZipFile::skipBytes(int bytes){
+    char dummy[1024];
+    int total = 0;
+    while (bytes > 0){
+        int read = readLine(dummy, bytes > 1024 ? 1024 : bytes);
+        total += read;
+        if (read == 0){
+            return total;
+        }
+        bytes -= read;
+    }
+    return total;
+}
         
-off_t ZipFile::seek(off_t position, int whence){
+off_t ZipFile::seek(off_t where, int whence){
     /* TODO:
      * It seems that minizip is not capable of seeking in a specific file in a zip
      * container so we have to re-open the file and read `position' bytes to
      * emulate the seek behavior.
      */
-    return -1;
+    switch (whence){
+        case SEEK_SET: {
+            if (where >= position){
+                /* Read bytes until we hit the offset */
+                position += skipBytes(where - position);
+            } else {
+                zip->close();
+                zip->open(path);
+                /* re-open file and read where bytes */
+                position = skipBytes(where);
+            }
+            break;
+        }
+        case SEEK_CUR: {
+            position += skipBytes(where);
+            break;
+        }
+        case SEEK_END: {
+            return seek(getSize() - where, SEEK_SET);
+            break;
+        }
+    }
+    if (position > getSize()){
+        position = getSize();
+    }
+    atEof = position == getSize();
+    
+    return position;
 }
         
 bool ZipFile::eof(){
@@ -790,7 +831,8 @@ bool ZipFile::good(){
 }
 
 File & ZipFile::operator>>(unsigned char & c){
-    readLine((char*) &c, 1);
+    int read = readLine((char*) &c, 1);
+    position += read;
     return *this;
 }
         
@@ -800,7 +842,9 @@ int ZipFile::getSize(){
         
 int ZipFile::readLine(char * output, int size){
     try{
-        return zip->read(output, size);
+        int read = zip->read(output, size);
+        position += read;
+        return read;
     } catch (const Exception & nomore){
         atEof = true;
         return 0;
@@ -1186,11 +1230,19 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
 #else
     Util::Thread::ScopedLock scoped(lock);
     vector<AbsolutePath> files;
+
+    vector<AbsolutePath> more = virtualDirectory.findFiles(dataPath, find, caseInsensitive);
+    files.insert(files.end(), more.begin(), more.end());
+
     DIRST sflEntry;
     // bool ok = open_dir(&sflEntry, removeTrailingSlash(dataPath.path()).c_str());
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
     if (!ok){
-        close_dir(&sflEntry);
+        /* sfldir.c claims that you have to call close_dir even if
+         * open_dir fails but close_dir will do ASSERT(dir->handle) which will
+         * be 0 if open_dir fails, so I don't think we can really call close_dir
+         */
+        // close_dir(&sflEntry);
         return files;
     }
     while (ok){
@@ -1201,8 +1253,6 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
     }
     close_dir(&sflEntry);
 
-    vector<AbsolutePath> more = virtualDirectory.findFiles(dataPath, find, caseInsensitive);
-    files.insert(files.end(), more.begin(), more.end());
     /*
     for (map<AbsolutePath, Util::ReferenceCount<Storage::ZipContainer> >::iterator it = overlays.begin(); it != overlays.end(); it++){
         AbsolutePath path = it->first;
