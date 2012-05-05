@@ -59,6 +59,9 @@ vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataP
         Util::ReferenceCount<Directory> last;
 
         virtual void traverseFile(Directory & directory, const string & file){
+            if (directory.directories[file] != NULL){
+                last = directory.directories[file];
+            }
         }
 
         virtual void traverseDirectory(Directory & directory, const string & path){
