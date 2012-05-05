@@ -183,76 +183,6 @@ namespace Storage{
             }
     };
 
-    class EndianReader{
-        public:
-            EndianReader(std::ifstream & stream):
-                stream(stream){
-                }
-
-            virtual ~EndianReader(){
-            }
-
-            virtual int8_t readByte1(){
-                return convert(readBytes(sizeof(int8_t)));
-            }
-
-            virtual int16_t readByte2(){
-                return convert(readBytes(sizeof(int16_t)));
-            }
-
-            virtual int32_t readByte4(){
-                return convert(readBytes(sizeof(int32_t)));
-            }
-
-            virtual std::string readStringX(int length);
-            virtual std::string readString2(int length);
-            virtual void readBytes(uint8_t * out, int length);
-
-            virtual void seekEnd(std::streamoff where);
-            virtual void seek(std::streampos where);
-
-            virtual int position();
-
-        protected:
-            virtual int32_t convert(const std::vector<uint8_t> & bytes) = 0;
-
-            std::vector<uint8_t> readBytes(int length);
-                
-            std::ifstream & stream;
-    };
-
-    /* combines bytes b0 b1 b2 b3 as b0 + b1*2^8 + b2*2^16 + b3*2^24 */
-    class LittleEndianReader: public EndianReader {
-        public:
-            LittleEndianReader(std::ifstream & stream):
-                EndianReader(stream){
-                }
-        protected:
-            virtual int32_t convert(const std::vector<uint8_t> & bytes){
-                uint32_t out = 0;
-                for (std::vector<uint8_t>::const_reverse_iterator it = bytes.rbegin(); it != bytes.rend(); it++){
-                    out = (out << 8) + *it;
-                }
-                return out;
-            }
-    };
-
-    /* combines bytes b0 b1 b2 b3 as b0*2^24 + b1*2^16 + b2*2^8 + b3 */
-    class BigEndianReader: public EndianReader {
-        public:
-            BigEndianReader(std::ifstream & stream):
-                EndianReader(stream){
-                }
-        protected:
-            virtual int32_t convert(const std::vector<uint8_t> & bytes){
-                uint32_t out = 0;
-                for (std::vector<uint8_t>::const_iterator it = bytes.begin(); it != bytes.end(); it++){
-                    out = (out << 8) + *it;
-                }
-                return out;
-            }
-    };
-
     /* Abstraction for files. Should be used instead of FILE, ifstream, SDL_RWOps, anything else */
     class File{
     public:
@@ -297,6 +227,134 @@ namespace Storage{
         virtual File & operator>>(unsigned char &) = 0;
     };
     
+    class EndianReader{
+        public:
+            EndianReader(const Util::ReferenceCount<Storage::File> & file){
+                internal = new FileInternal(file);
+            }
+            
+            EndianReader(std::ifstream & stream){
+                internal = new StreamInternal(stream);
+            }
+
+            class Internal{
+            public:
+                Internal();
+                virtual bool eof() = 0;
+                virtual int read(char * data, int length) = 0;
+                virtual void seekEnd(std::streamoff where) = 0;
+                virtual void seek(std::streamoff where) = 0;
+                virtual int tell() = 0;
+                virtual ~Internal();
+            };
+
+            class StreamInternal: public Internal {
+            public:
+                StreamInternal(std::ifstream & stream):
+                stream(stream){
+                }
+                
+                virtual bool eof();
+                virtual int read(char * data, int length);
+                virtual void seekEnd(std::streamoff where);
+                virtual void seek(std::streamoff where);
+                virtual int tell();
+                virtual ~StreamInternal();
+
+                /* Yes, use a reference here */
+                std::ifstream & stream;
+            };
+
+            class FileInternal: public Internal {
+            public:
+                FileInternal(const Util::ReferenceCount<Storage::File> & file):
+                file(file){
+                }
+
+                virtual bool eof();
+                virtual void seekEnd(std::streamoff where);
+                virtual void seek(std::streamoff where);
+                virtual int read(char * data, int length);
+                virtual int tell();
+                virtual ~FileInternal();
+
+                Util::ReferenceCount<Storage::File> file;
+            };
+
+            virtual ~EndianReader(){
+            }
+
+            virtual int8_t readByte1(){
+                return convert(readBytes(sizeof(int8_t)));
+            }
+
+            virtual int16_t readByte2(){
+                return convert(readBytes(sizeof(int16_t)));
+            }
+
+            virtual int32_t readByte4(){
+                return convert(readBytes(sizeof(int32_t)));
+            }
+
+            virtual std::string readStringX(int length);
+            virtual std::string readString2(int length);
+            virtual void readBytes(uint8_t * out, int length);
+
+            virtual void seekEnd(std::streamoff where);
+            virtual void seek(std::streampos where);
+
+            virtual int position();
+
+        protected:
+            virtual int32_t convert(const std::vector<uint8_t> & bytes) = 0;
+
+            std::vector<uint8_t> readBytes(int length);
+                
+            Util::ReferenceCount<Internal> internal;
+    };
+
+    /* combines bytes b0 b1 b2 b3 as b0 + b1*2^8 + b2*2^16 + b3*2^24 */
+    class LittleEndianReader: public EndianReader {
+        public:
+            LittleEndianReader(const Util::ReferenceCount<Storage::File> & file):
+            EndianReader(file){
+            }
+
+            LittleEndianReader(std::ifstream & stream):
+            EndianReader(stream){
+            }
+
+        protected:
+            virtual int32_t convert(const std::vector<uint8_t> & bytes){
+                uint32_t out = 0;
+                for (std::vector<uint8_t>::const_reverse_iterator it = bytes.rbegin(); it != bytes.rend(); it++){
+                    out = (out << 8) + *it;
+                }
+                return out;
+            }
+    };
+
+    /* combines bytes b0 b1 b2 b3 as b0*2^24 + b1*2^16 + b2*2^8 + b3 */
+    class BigEndianReader: public EndianReader {
+        public:
+            BigEndianReader(const Util::ReferenceCount<Storage::File> & file):
+            EndianReader(file){
+            }
+            
+            BigEndianReader(std::ifstream & stream):
+            EndianReader(stream){
+            }
+
+        protected:
+            virtual int32_t convert(const std::vector<uint8_t> & bytes){
+                uint32_t out = 0;
+                for (std::vector<uint8_t>::const_iterator it = bytes.begin(); it != bytes.end(); it++){
+                    out = (out << 8) + *it;
+                }
+                return out;
+            }
+    };
+
     class ZipContainer;
     class ZipFile: public File {
     public:
