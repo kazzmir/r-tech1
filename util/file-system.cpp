@@ -918,33 +918,86 @@ std::string EndianReader::readString2(int length){
 }
             
 void EndianReader::seekEnd(streamoff where){
-    stream.seekg(where, ios::end);
+    internal->seekEnd(where);
 }
 
 void EndianReader::seek(streampos where){
-    stream.seekg(where);
+    internal->seek(where);
 }
 
 int EndianReader::position(){
-    return stream.tellg();
+    return internal->tell();
 }
             
 void EndianReader::readBytes(uint8_t * out, int length){
-    stream.read((char*) out, length);
+    internal->read((char*) out, length);
 }
 
 vector<uint8_t> EndianReader::readBytes(int length){
     vector<uint8_t> bytes;
     for (int i = 0; i < length; i++){
         uint8_t byte = 0;
-        stream.read((char*) &byte, 1);
-        if (stream.eof()){
+        internal->read((char*) &byte, 1);
+        if (internal->eof()){
             throw Eof();
         } else {
         }
         bytes.push_back(byte);
     }
     return bytes;
+}
+
+EndianReader::Internal::Internal(){
+}
+
+EndianReader::Internal::~Internal(){
+}
+
+bool EndianReader::StreamInternal::eof(){
+    return stream.eof();
+}
+
+int EndianReader::StreamInternal::read(char * data, int length){
+    stream.read(data, length);
+    return stream.gcount();
+}
+
+void EndianReader::StreamInternal::seekEnd(std::streamoff where){
+    stream.seekg(where, ios::end);
+}
+
+void EndianReader::StreamInternal::seek(std::streamoff where){
+    stream.seekg(where);
+}
+
+int EndianReader::StreamInternal::tell(){
+    return stream.tellg();
+}
+
+EndianReader::StreamInternal::~StreamInternal(){
+}
+
+bool EndianReader::FileInternal::eof(){
+    return file->eof();
+}
+
+void EndianReader::FileInternal::seekEnd(std::streamoff where){
+    file->seek(where, SEEK_END);
+}
+
+void EndianReader::FileInternal::seek(std::streamoff where){
+    file->seek(where, SEEK_SET);
+}
+
+int EndianReader::FileInternal::read(char * data, int length){
+    return file->readLine(data, length);
+}
+
+int EndianReader::FileInternal::tell(){
+    return file->tell();
+}
+
+EndianReader::FileInternal::~FileInternal(){
 }
 
 }
