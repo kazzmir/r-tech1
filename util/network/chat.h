@@ -21,6 +21,7 @@ public:
         Unknown,
     };
     Message();
+    Message(const Type &);
     Message(Socket socket);
     Message(const Type &, const std::string &, const std::string &);
     Message(const Message &);
@@ -48,8 +49,21 @@ protected:
     std::string message;
     std::vector<std::string> parameters;
 };
+
+class Threadable{
+public:
+    Threadable();
+    virtual ~Threadable();
+    
+    virtual void start();
+    virtual void run() = 0;
+    virtual void join();
+protected:
+    ::Util::Thread::Id thread;
+    ::Util::Thread::LockObject lock;
+};
    
-class Client{
+class Client : public Threadable{
 public:
     Client(int id, Network::Socket socket);
     
@@ -59,11 +73,11 @@ public:
     
     virtual int getId() const;
     
-    virtual void sendMessage(const Message &);
+    virtual void sendMessage(Message &);
     
     virtual bool hasMessages() const;
     
-    virtual Message nextMessage() const;
+    virtual Message nextMessage();
     
     virtual void shutdown();
     
@@ -72,11 +86,37 @@ public:
 private:
     int id;
     Network::Socket socket;
-    ::Util::Thread::Id thread;
-    ::Util::Thread::LockObject lock;
     bool end;
     mutable std::queue<Message> messages;
     bool valid;
+};
+
+class Server : public Threadable{
+public:
+    Server(int port);
+    virtual ~Server();
+    
+    virtual void run();
+    
+    virtual void poll();
+    
+    virtual void cleanup();
+    
+    virtual bool hasMessages() const;
+    
+    virtual Message nextMessage();
+    
+    virtual void global(Message &);
+    
+    virtual void relay(int id, Message &);
+    
+    virtual void shutdown();
+    
+private:
+    Network::Socket remote;
+    std::vector< Util::ReferenceCount<Client> > clients;
+    mutable std::queue<Message> messages;
+    bool end;
 };
 
 }
