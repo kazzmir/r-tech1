@@ -98,11 +98,15 @@ vector<string> Directory::filenames() const {
     vector<string> out;
 
     for (map<string, Util::ReferenceCount<Descriptor> >::const_iterator it = files.begin(); it != files.end(); it++){
-        out.push_back(it->first);
+        if (it->second != NULL){
+            out.push_back(it->first);
+        }
     }
 
     for (map<string, Util::ReferenceCount<Directory> >::const_iterator it = directories.begin(); it != directories.end(); it++){
-        out.push_back(it->first);
+        if (it->second != NULL){
+            out.push_back(it->first);
+        }
     }
     
     return out;
