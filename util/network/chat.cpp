@@ -7,6 +7,10 @@ Message::Message():
 type(Unknown){
 }
 
+Message::Message(const Message::Type & type):
+type(type){
+}
+
 Message::Message(Socket socket):
 type(Unknown){
     read(socket);
@@ -79,6 +83,7 @@ void Message::read(Socket socket){
     std::string typeString;
     position = ::Network::parse16(position, &nextSize);
     position = ::Network::parseString(position, &typeString, nextSize + 1);
+    type = convertType(typeString);
     nextSize = 0;
     position = ::Network::parse16(position, &nextSize);
     position = ::Network::parseString(position, &sender, nextSize + 1);
@@ -144,4 +149,166 @@ void Message::setParameters(const std::vector<std::string> & parameters){
 
 const std::vector<std::string> & Message::getParameters() const{
     return parameters;
+}
+
+Threadable::Threadable(){
+}
+
+Threadable::~Threadable(){
+}
+
+static void * run_thread(void * t){
+    Threadable * thread = (Threadable *)t;
+    thread->run();
+    return NULL;
+}
+
+void Threadable::start(){
+    ::Util::Thread::createThread(&thread, NULL, (::Util::Thread::ThreadFunction) run_thread, this);
+}
+
+void Threadable::join(){
+    ::Util::Thread::joinThread(thread);
+}
+
+Client::Client(int id, Network::Socket socket):
+id(id),
+socket(socket),
+end(false),
+valid(true){
+}
+
+Client::~Client(){
+}
+
+void Client::run(){
+    while (!end){
+        try {
+            Message message(socket);
+            lock.acquire();
+            messages.push(message);
+            lock.signal();
+            lock.release();
+        } catch (const Network::MessageEnd & ex){
+            end = true;
+        }
+    }
+    valid = false;
+}
+
+int Client::getId() const {
+    return id;
+}
+
+void Client::sendMessage(Message & message){
+    ::Util::Thread::ScopedLock scope(lock);
+    try{
+        message.send(socket);
+    } catch (const ::Network::NetworkException & ex){
+        valid = false;
+    }
+}
+
+bool Client::hasMessages() const{
+    ::Util::Thread::ScopedLock scope(lock);
+    return !messages.empty();
+}
+
+Message Client::nextMessage() {
+    ::Util::Thread::ScopedLock scope(lock);
+    Message message = messages.front();
+    messages.pop();
+    return message;
+}
+
+void Client::shutdown(){
+    ::Util::Thread::ScopedLock scope(lock);
+    end = true;
+    Network::close(socket);
+    join();
+}
+
+bool Client::isValid() const {
+    ::Util::Thread::ScopedLock scope(lock);
+    return valid;
+}
+
+Server::Server(int port):
+end(false){
+    remote = Network::open(port);
+    Network::listen(remote);
+    Global::debug(0) << "Waiting for a connection on port " << port << std::endl;
+}
+
+Server::~Server(){
+}
+
+void Server::run(){
+    int idList = 0;
+    while (!end){
+        Util::ReferenceCount<Client> client = Util::ReferenceCount<Client>(new Client(idList++, Network::accept(remote)));
+        client->start();
+        clients.push_back(client);
+        Global::debug(0) << "Got a connection" << std::endl;
+    }
+}
+
+void Server::poll(){
+    for (std::vector< Util::ReferenceCount<Client> >::iterator i = clients.begin(); i != clients.end(); ++i){
+        Util::ReferenceCount<Client> client = *i;
+        while(client->hasMessages()){
+            Message message = client->nextMessage();
+            relay(client->getId(), message);
+            messages.push(message);
+        }
+    }
+}
+
+void Server::cleanup(){
+    for (std::vector< Util::ReferenceCount<Client> >::iterator i = clients.begin(); i != clients.end(); ++i){
+        Util::ReferenceCount<Client> client = *i;
+        Message ping(Message::Ping);
+        client->sendMessage(ping);
+        if (!client->isValid()){
+            client->shutdown();
+            i = clients.erase(i);
+        }
+    }
+}
+
+bool Server::hasMessages() const{
+    return !messages.empty();
+}
+
+Message Server::nextMessage() {
+    Message message = messages.front();
+    messages.pop();
+    return message;
+}
+    
+void Server::global(Message & message){
+    for (std::vector< Util::ReferenceCount<Client> >::iterator i = clients.begin(); i != clients.end(); ++i){
+        Util::ReferenceCount<Client> client = *i;
+        client->sendMessage(message);
+    }
+}
+    
+void Server::relay(int id, Message & message){
+    for (std::vector< Util::ReferenceCount<Client> >::iterator i = clients.begin(); i != clients.end(); ++i){
+        Util::ReferenceCount<Client> client = *i;
+        if (client->getId() != id){
+            client->sendMessage(message);
+        }
+    }
+}
+    
+void Server::shutdown(){
+    ::Util::Thread::ScopedLock scope(lock);
+    end = true;
+    for (std::vector< Util::ReferenceCount<Client> >::iterator i = clients.begin(); i != clients.end(); ++i){
+        Util::ReferenceCount<Client> client = *i;
+        client->shutdown();
+    }
+    Network::close(remote);
+    join();
 }
