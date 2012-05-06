@@ -751,7 +751,8 @@ protected:
 ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
 path(path),
 zip(zip),
-atEof(false){
+atEof(false),
+position(0){
     zip->open(path);
 }
 
@@ -763,7 +764,8 @@ int ZipFile::skipBytes(int bytes){
     char dummy[1024];
     int total = 0;
     while (bytes > 0){
-        int read = readLine(dummy, bytes > 1024 ? 1024 : bytes);
+        /* Calls the zip file directly here so we don't mess up position */
+        int read = zip->read(dummy, bytes > sizeof(dummy) ? sizeof(dummy) : bytes);
         total += read;
         if (read == 0){
             return total;
@@ -774,8 +776,8 @@ int ZipFile::skipBytes(int bytes){
 }
         
 off_t ZipFile::seek(off_t where, int whence){
-    /* TODO:
-     * It seems that minizip is not capable of seeking in a specific file in a zip
+    Global::debug(0) << "Seek to " << where << " from " << position << " whence " << whence << std::endl;
+    /* It seems that minizip is not capable of seeking in a specific file in a zip
      * container so we have to re-open the file and read `position' bytes to
      * emulate the seek behavior.
      */
@@ -797,7 +799,7 @@ off_t ZipFile::seek(off_t where, int whence){
             break;
         }
         case SEEK_END: {
-            return seek(getSize() - where, SEEK_SET);
+            return seek(getSize() + where, SEEK_SET);
             break;
         }
     }
@@ -831,8 +833,7 @@ bool ZipFile::good(){
 }
 
 File & ZipFile::operator>>(unsigned char & c){
-    int read = readLine((char*) &c, 1);
-    position += read;
+    readLine((char*) &c, 1);
     return *this;
 }
         
