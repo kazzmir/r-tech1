@@ -210,6 +210,8 @@ namespace Storage{
          */
         virtual bool canStream() = 0;
 
+        virtual long getModificationTime() = 0;
+
         /* seek to an absolute position */
         virtual off_t seek(off_t position, int whence) = 0;
 
@@ -366,6 +368,7 @@ namespace Storage{
         virtual bool canStream();
         virtual void reset();
         virtual long tell();
+        virtual long getModificationTime();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
         
@@ -393,6 +396,7 @@ namespace Storage{
         virtual bool good();
         virtual int getSize();
         virtual bool canStream();
+        virtual long getModificationTime();
         virtual void reset();
         virtual long tell();
         virtual off_t seek(off_t position, int whence);
@@ -412,6 +416,7 @@ namespace Storage{
         virtual bool eof();
         virtual bool good();
         virtual int getSize();
+        virtual long getModificationTime();
         virtual bool canStream();
         virtual void reset();
         virtual long tell();

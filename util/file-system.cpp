@@ -503,6 +503,10 @@ path(path){
     in.open(path.path().c_str(), iosMode | fstream::binary);
     in >> noskipws;
 }
+
+long NormalFile::getModificationTime(){
+    return ::System::getModificationTime(path.path());
+}
         
 bool NormalFile::canStream(){
     return true;
@@ -560,6 +564,11 @@ StringFile::StringFile(const std::string & start):
 data(start),
 stream(start){
     stream >> noskipws;
+}
+
+long StringFile::getModificationTime(){
+    /* FIXME: maybe return INT_MAX or something? */
+    return 0;
 }
 
 void StringFile::reset(){
@@ -677,6 +686,23 @@ public:
         }
     }
 
+    long modificationTime(){
+        char filename[1024];
+        unz_file_info fileInfo;
+        unzGetCurrentFileInfo(zipFile, &fileInfo, filename, sizeof(filename), NULL, 0, NULL, 0);
+        struct tm outTime;
+        memset(&outTime, 0, sizeof(outTime));
+        outTime.tm_sec = fileInfo.tmu_date.tm_sec;
+        outTime.tm_min = fileInfo.tmu_date.tm_min;
+        outTime.tm_hour = fileInfo.tmu_date.tm_hour;
+        outTime.tm_mday = fileInfo.tmu_date.tm_mday;
+        outTime.tm_mon = fileInfo.tmu_date.tm_mon;
+        /* tm_year The number of years since 1900. */
+        outTime.tm_year = fileInfo.tmu_date.tm_year - 1900;
+        outTime.tm_isdst = -1;
+        return mktime(&outTime);
+    }
+
     void findFile(const Path::AbsolutePath & file){
         Path::RelativePath find(file.remove(start));
         if (unzLocateFile(zipFile, find.path().c_str(), 2) != UNZ_OK){
@@ -759,6 +785,10 @@ position(0){
 ZipFile::~ZipFile(){
     zip->close();
 }
+        
+long ZipFile::getModificationTime(){
+    return zip->modificationTime();
+}
 
 int ZipFile::skipBytes(int bytes){
     char dummy[1024];
@@ -776,7 +806,6 @@ int ZipFile::skipBytes(int bytes){
 }
         
 off_t ZipFile::seek(off_t where, int whence){
-    Global::debug(0) << "Seek to " << where << " from " << position << " whence " << whence << std::endl;
     /* It seems that minizip is not capable of seeking in a specific file in a zip
      * container so we have to re-open the file and read `position' bytes to
      * emulate the seek behavior.
