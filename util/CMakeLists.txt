@@ -11,6 +11,7 @@ set(UTIL_SRC
 argument.cpp
 network/network.cpp
 network/chat.cpp
+network/irc.cpp
 token.cpp
 token_exception.cpp
 resource.cpp
