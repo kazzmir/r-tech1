@@ -101,6 +101,10 @@ static X readX(Socket socket){
     return data;
 }
 
+int8_t read8(Socket socket){
+    return readX<uint8_t>(socket);
+}
+
 int16_t read16(Socket socket){
     return ntohs(readX<uint16_t>(socket));
 }
@@ -299,6 +303,10 @@ void shutdown(){
 /* Dummy implementations */
 char * dump16(char * where, int16_t length){
     return where;
+}
+
+int8_t read8(Socket socket){
+    return 0;
 }
 
 int16_t read16(Socket socket){

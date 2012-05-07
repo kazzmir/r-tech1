@@ -73,6 +73,7 @@ template <class M>
 void dump(const std::vector<M> & messages, uint8_t * buffer );
 */
 
+int8_t read8(Socket socket);
 int16_t read16(Socket socket);
 int32_t read32(Socket socket);
 char * dump16(char * where, int16_t length);
