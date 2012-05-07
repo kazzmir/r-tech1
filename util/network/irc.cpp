@@ -346,6 +346,8 @@ std::string Client::readMessage(){
     bool foundReturn = false;
     while (true){
         try {
+            char nextCharacter = Network::read8(socket);
+            /*
             std::string nextCharacter;
             char * buffer = new char[1];
             char * position = buffer;
@@ -353,14 +355,15 @@ std::string Client::readMessage(){
             Network::readBytes(socket, (uint8_t*) buffer, 1);
             Network::parseString(position, &nextCharacter, 1);
             delete buffer;
-            if (nextCharacter.at(0) == '\r'){
+            */
+            if (nextCharacter == '\r'){
                 foundReturn = true;
                 continue;
-            } else if ((nextCharacter.at(0) == '\n') && foundReturn){
+            } else if ((nextCharacter == '\n') && foundReturn){
                 // Should be the end of the message assumin \r is before it
                 break;
             }
-            received+=nextCharacter;
+            received += nextCharacter;
         } catch (const Network::MessageEnd & ex){
             // end of message get out
             throw ex;
