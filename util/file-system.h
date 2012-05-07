@@ -110,6 +110,12 @@ namespace Path{
     /* remove extension. foo.txt -> foo */
     std::string removeExtension(const std::string & str);
 
+    /* Replace the extension on `input' with `extension'. Don't put the . on the extension,
+     * so call it as replaceExtension(path, "foo")
+     * instead of replaceExtension(path, ".foo")
+     */
+    AbsolutePath replaceExtension(const AbsolutePath & input, const std::string & extension);
+
     /* basename, just get the filename and remove the directory part */
     std::string stripDir(const std::string & str);
     
@@ -463,6 +469,8 @@ namespace Storage{
 
         std::map<std::string, Util::ReferenceCount<Directory> > directories;
         std::map<std::string, Util::ReferenceCount<Descriptor> > files;
+
+        Util::Thread::LockObject lock;
     };
 
     class System{

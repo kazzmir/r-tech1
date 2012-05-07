@@ -356,6 +356,10 @@ std::string removeExtension(const std::string & str){
     }
     return str;
 }
+    
+AbsolutePath replaceExtension(const Filesystem::AbsolutePath & input, const std::string & extension){
+    return AbsolutePath(removeExtension(input.path()) + "." + extension);
+}
 
 /* a/b/c/d -> d */
 std::string stripDir(const std::string & str){

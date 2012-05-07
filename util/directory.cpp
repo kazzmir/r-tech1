@@ -1,5 +1,6 @@
 #include "file-system.h"
 #include "debug.h"
+#include "thread.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -47,6 +48,7 @@ public:
 };
         
 vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
+    Util::Thread::ScopedLock scoped(lock);
     vector<Path::AbsolutePath> out;
 
     class FindDirectory: public Traverser {
@@ -95,6 +97,7 @@ vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataP
 }
         
 vector<string> Directory::filenames() const {
+    Util::Thread::ScopedLock scoped(lock);
     vector<string> out;
 
     for (map<string, Util::ReferenceCount<Descriptor> >::const_iterator it = files.begin(); it != files.end(); it++){
@@ -153,40 +156,9 @@ void Directory::traverse(const Path::AbsolutePath & path, Traverser & traverser)
     }
 }
 
-/*
-Util::ReferenceCount<File> Directory::doLookup(const Path::AbsolutePath & path){
-    if (path.isFile()){
-        if (files[path.path()] != NULL){
-            return files[path.path()];
-        } else {
-            return Util::ReferenceCount<File>(NULL);
-        }
-    } else {
-        string name = path.firstDirectory();
-        if (name == "."){
-            try{
-                return doLookup(path.removeFirstDirectory());
-            } catch (const UpDirectory & up){
-                return doLookup(up.path);
-            }
-        } else if (name == ".."){
-            throw UpDirectory(path.removeFirstDirectory());
-        }
-        Util::ReferenceCount<Directory> directory = directories[path.firstDirectory()];
-        if (directory != NULL){
-            try{
-                return directory->doLookup(path.removeFirstDirectory());
-            } catch (const UpDirectory & up){
-                return doLookup(up.path);
-            }
-        }
-    }
-    return Util::ReferenceCount<File>(NULL);
-}
-*/
-
 /* Might return NULL if the path can't be found */
 Util::ReferenceCount<Descriptor> Directory::lookup(const Path::AbsolutePath & path){
+    Util::Thread::ScopedLock scoped(lock);
     class FindIt: public Traverser {
     public:
 
@@ -221,6 +193,7 @@ Util::ReferenceCount<Descriptor> Directory::lookup(const Path::AbsolutePath & pa
 }
 
 void Directory::addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<Descriptor> & file){
+    Util::Thread::ScopedLock scoped(lock);
     class AddPath: public Traverser {
     public:
         AddPath(const Util::ReferenceCount<Descriptor> & file):
