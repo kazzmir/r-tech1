@@ -208,6 +208,9 @@ Command::Command(const std::string & message){
     }
     // Next is the actual command
     type = convertCommand(*current);
+    if (type == Unknown){
+        Global::debug(0) << "Got unhandled response: " << *current << std::endl;
+    }
     current++;
     // Parameters
     bool concactenate = false;
@@ -253,12 +256,17 @@ const Command & Command::operator=(const Command & copy){
 std::string Command::getSendable() const {
     std::string sendable;
     // Name
-    sendable+=":" + owner + " ";
+    if (!owner.empty()){
+        sendable+=":" + owner + " ";
+    }
     // Command
-    sendable+=convertCommand(type);
+    sendable+=convertCommand(type) + " ";
     // Params
-    for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i){
+    /*for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i){
         sendable+= *i + " ";
+    }*/
+    for (unsigned int i = 0; i < parameters.size(); ++i){
+        sendable+=parameters[i] + (i < parameters.size()-1 ? " " : "");
     }
     // End
     sendable+="\r\n";
@@ -285,7 +293,7 @@ void Client::connect(){
     start();
     setName("paintown-test");
     Command user(username, Command::User);
-    user.setParameters(username, "0", "*", ":"+username);
+    user.setParameters(username, "*", "*", ":"+username);
     sendCommand(user);
     joinChannel("#paintown");
     
@@ -307,6 +315,7 @@ Command Client::nextCommand() const {
 }
 
 void Client::sendCommand(const Command & command){
+    Global::debug(0) << "Sending Message: " << command.getSendable() << std::endl;
     Network::sendStr(socket, command.getSendable());
 }
 
