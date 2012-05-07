@@ -119,36 +119,6 @@ private:
     bool end;
 };
 
-class IRCClient : public Threadable{
-public:
-    IRCClient(const std::string &, int port);
-    virtual ~IRCClient();
-    
-    virtual void connect();
-    
-    virtual void run();
-    
-    virtual bool hasMessages() const;
-
-    virtual std::vector< std::string > nextMessage() const;
-    
-    virtual void sendMessage(const std::string &);
-    
-    virtual inline void setName(const std::string & name){
-        this->username = name;
-    }
-    
-protected:
-    std::vector< std::string > readMessage();
-    
-    Network::Socket socket;
-    std::string username;
-    std::string hostname;
-    int port;
-    bool end;
-    mutable std::queue< std::vector<std::string> > messages;
-};
-
-}
+}// end chat
 }
 #endif
