@@ -1,5 +1,7 @@
 #include "chat.h"
 
+#include <stdexcept>
+
 using namespace Network;
 using namespace Chat;
 
@@ -311,4 +313,118 @@ void Server::shutdown(){
     }
     Network::close(remote);
     join();
+}
+
+IRCClient::IRCClient(const std::string & hostname, int port):
+hostname(hostname),
+port(port),
+end(false){
+}
+
+IRCClient::~IRCClient(){
+}
+
+void IRCClient::connect(){
+    if (username.empty()){
+        throw NetworkException("Set username first.");
+    }
+    Global::debug(0) << "Connecting to " << hostname << " on port " << port << std::endl;
+    socket = Network::connect(hostname, port);
+    start();
+    sendMessage("NICK " + username);
+    sendMessage("USER " + username + " 0 *:"+username);
+    sendMessage("JOIN #paintown");
+    // Check for ok from Server
+    /* ignore for now
+    while (true){
+        if (hasMessages()){
+            std::vector< std::string > message = nextMessage();
+            try {
+                Global::debug(0) << "Got message: " << message.at(1) << std::endl;
+                if (message.at(1) == "004"){
+                    // ok we are connected break
+                    break;
+                } else if (message.at(1) == "433"){
+                    throw Network::NetworkException("Nickname is already in use.");
+                }
+            } catch (const std::out_of_range & ex){
+            }
+        }
+    }*/
+    Global::debug(0) << "Connected" << std::endl;
+}
+
+
+
+bool IRCClient::hasMessages() const{
+    ::Util::Thread::ScopedLock scope(lock);
+    return !messages.empty();
+}
+
+std::vector< std::string > IRCClient::nextMessage() const {
+    ::Util::Thread::ScopedLock scope(lock);
+    std::vector< std::string > message = messages.front();
+    messages.pop();
+    return message;
+}
+
+void IRCClient::sendMessage(const std::string & message){
+    Network::sendStr(socket, ":" + username + " " + message + " \r\n");
+}
+
+static std::vector<std::string> split(std::string str, char splitter){
+    std::vector<std::string> strings;
+    size_t next = str.find(splitter);
+    while (next != std::string::npos){
+        strings.push_back(str.substr(0, next));
+        str = str.substr(next+1);
+        next = str.find(splitter);
+    }
+    if (str != ""){
+        strings.push_back(str);
+    }
+
+    return strings;
+}
+
+std::vector< std::string > IRCClient::readMessage(){
+    std::string received;
+    bool foundReturn = false;
+    while (true){
+        try {
+            std::string nextCharacter;
+            char * buffer = new char[1];
+            char * position = buffer;
+            // Read a byte at a time
+            Network::readBytes(socket, (uint8_t*) buffer, 1);
+            Network::parseString(position, &nextCharacter, 1);
+            delete buffer;
+            if (nextCharacter.at(0) == '\r'){
+                foundReturn = true;
+                continue;
+            } else if ((nextCharacter.at(0) == '\n') && foundReturn){
+                // Should be the end of the message assumin \r is before it
+                break;
+            }
+            received+=nextCharacter;
+        } catch (const Network::MessageEnd & ex){
+            // end of message get out
+            throw ex;
+        }
+    }
+    return split(received, ' ');
+}
+
+void IRCClient::run(){
+    while (!end){
+        try {
+            std::vector< std::string > message = readMessage();
+            lock.acquire();
+            messages.push(message);
+            lock.signal();
+            lock.release();
+        } catch (const Network::MessageEnd & ex){
+            end = true;
+        }
+    }
 }
