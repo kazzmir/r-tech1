@@ -133,6 +133,7 @@ namespace IRC{
         virtual void sendPong(const Command &);
         
     protected:
+        //std::vector<std::string> readMessage();
         std::string readMessage();
         
         Network::Socket socket;
