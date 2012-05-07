@@ -292,9 +292,10 @@ void Client::connect(){
     socket = Network::connect(hostname, port);
     start();
     setName("paintown-test");
-    Command user(username, Command::User);
+    Command user("AUTH", Command::User);
     user.setParameters(username, "*", "*", ":"+username);
     sendCommand(user);
+    //  ^^^^^^^^ Should get a response from this crap!
     joinChannel("#paintown");
     
     Global::debug(0) << "Connected" << std::endl;
@@ -356,16 +357,11 @@ std::string Client::readMessage(){
     while (true){
         try {
             char nextCharacter = Network::read8(socket);
-            /*
-            std::string nextCharacter;
-            char * buffer = new char[1];
-            char * position = buffer;
-            // Read a byte at a time
-            Network::readBytes(socket, (uint8_t*) buffer, 1);
-            Network::parseString(position, &nextCharacter, 1);
-            delete buffer;
-            */
+            /* NOTE the latest RFC says that either \r or \n is the end of the message
+             * http://www.irchelp.org/irchelp/rfc/chapter8.html
+             */
             if (nextCharacter == '\r'){
+                // Found return
                 foundReturn = true;
                 continue;
             } else if ((nextCharacter == '\n') && foundReturn){
@@ -378,17 +374,22 @@ std::string Client::readMessage(){
             throw ex;
         }
     }
+    //Global::debug(0) << "Read next string: " << received << std::endl;
     return received;
 }
 
 void Client::run(){
     while (!end){
         try {
-            Command command(readMessage());
-            lock.acquire();
-            commands.push(command);
-            lock.signal();
-            lock.release();
+            const std::string & message = readMessage();
+            // Check if the message is empty it might be because of (\n)
+            if (!message.empty()){
+                Command command(message);
+                lock.acquire();
+                commands.push(command);
+                lock.signal();
+                lock.release();
+            }
         } catch (const Network::MessageEnd & ex){
             end = true;
         }
