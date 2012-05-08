@@ -127,7 +127,16 @@ namespace IRC{
         
         virtual void sendCommand(const Command &);
         
+        virtual void sendCommand(const Command::Type &, const std::string &);
+        virtual void sendCommand(const Command::Type &, const std::string &, const std::string &);
+        virtual void sendCommand(const Command::Type &, const std::string &, const std::string &, const std::string &);
+        virtual void sendCommand(const Command::Type &, const std::string &, const std::string &, const std::string &, const std::string &);
+        
         virtual void setName(const std::string &);
+        
+        virtual inline const std::string & getName() const {
+            return this->username;
+        }
         
         virtual void joinChannel(const std::string &);
         
@@ -136,7 +145,6 @@ namespace IRC{
         virtual void sendPong(const Command &);
         
     protected:
-        //std::vector<std::string> readMessage();
         std::string readMessage();
         
         Network::Socket socket;
