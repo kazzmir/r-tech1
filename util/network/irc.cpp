@@ -273,6 +273,11 @@ void Client::sendCommand(const Command & command){
     Network::sendBytes(socket, (uint8_t *) sendable.c_str(), sendable.size());
 }
 
+void Client::sendCommand(const Command::Type & type){
+    Command command(username, type);
+    sendCommand(command);
+}
+
 void Client::sendCommand(const Command::Type & type, const std::string & param1){
     Command command(username, type);
     command.setParameters(param1);
