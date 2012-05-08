@@ -73,6 +73,12 @@ static Command::Type convertCommand(const std::string & cmd){
         command = Command::Pong;
     } else if (cmd == "ERROR"){
         command = Command::Error;
+    } else if (cmd == "332"){
+        command = Command::ReplyTopic;
+    } else if (cmd == "353"){
+        command = Command::ReplyNames;
+    } else if (cmd == "372"){
+        command = Command::ReplyMOTD;
     }
     return command;
     
@@ -204,6 +210,11 @@ Command::Command(const std::string & message){
     std::vector< std::string >::iterator current = messageSplit.begin();
     if (Util::matchRegex(*current, "^:.*")){
         // Found owner (":") indicates the user, otherwise it's going to be the command
+        // Grab just the username, ignore everything else
+        try{
+            owner = split(*current, '!').at(0).substr(1);
+        } catch (const std::out_of_range & ex){
+        }
         current++;
     }
     // Next is the actual command
@@ -220,6 +231,12 @@ Command::Command(const std::string & message){
         // If there is a colon in the parameter the rest of split string is the whole parameter rejoin
         if (Util::matchRegex(parameter, "^:.*") && !concactenate){
             concactenate = true;
+            // Drop the ':'
+            concactenated += parameter.substr(1) + " ";
+            continue;
+        } else if (Util::matchRegex(parameter, "=")){
+            // Ignore
+            continue;
         }
         if (concactenate){
             concactenated += parameter + " ";
@@ -293,7 +310,7 @@ void Client::connect(){
     start();
     setName("paintown-test");
     Command user("AUTH", Command::User);
-    user.setParameters(username, "*", "*", ":"+username);
+    user.setParameters(username, "*", "0", ":auth");
     sendCommand(user);
     //  ^^^^^^^^ Should get a response from this crap!
     joinChannel("#paintown");
@@ -316,8 +333,9 @@ Command Client::nextCommand() const {
 }
 
 void Client::sendCommand(const Command & command){
-    Global::debug(0) << "Sending Message: " << command.getSendable() << std::endl;
-    Network::sendStr(socket, command.getSendable());
+    //Global::debug(0) << "Sending Message: " << command.getSendable() << std::endl;
+    const std::string & sendable = command.getSendable();
+    Network::sendBytes(socket, (uint8_t *) sendable.c_str(), sendable.size());
 }
 
 void Client::setName(const std::string & name){

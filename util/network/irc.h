@@ -49,6 +49,9 @@ namespace IRC{
             Ping,
             Pong,
             Error,
+            ReplyNames,
+            ReplyTopic,
+            ReplyMOTD,
         };
         // Initializes it from an incoming message off of socket
         Command(const std::string &);
