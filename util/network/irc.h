@@ -106,10 +106,19 @@ namespace IRC{
             return this->parameters;
         }
         
+        virtual inline bool hasCtcp() {
+            return !this->ctcp.empty();
+        }
+        
+        virtual inline const std::vector< std::string > & getCtcp() const {
+            return this->ctcp;
+        }
+        
     protected:
         std::string owner;
         Type type;
         std::vector< std::string > parameters;
+        std::vector< std::string > ctcp;
     };
 
     class Client : public Chat::Threadable{

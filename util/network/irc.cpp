@@ -160,12 +160,23 @@ Command::Command(const std::string & message){
     }
     current++;
     // Parameters
+    bool foundCtcp = false;
     bool concactenate = false;
     std::string concactenated;
     for (std::vector< std::string >::iterator i = current; i != messageSplit.end(); ++i){
         const std::string & parameter = *i;
         // If there is a colon in the parameter the rest of split string is the whole parameter rejoin
-        if (Util::matchRegex(parameter, "^:.*") && !concactenate){
+        if (Util::matchRegex(parameter, "^:\001.*") && !foundCtcp){
+            foundCtcp = true;
+            // Drop the ':\001'
+            ctcp.push_back(parameter.substr(2));
+            continue;
+        } else if (Util::matchRegex(parameter, ".*\001") && foundCtcp){
+            foundCtcp = false;
+            // Drop the '\001'
+            ctcp.push_back(parameter.substr(0, parameter.size()-1));
+            continue;
+        } else if (Util::matchRegex(parameter, "^:.*") && !concactenate){
             concactenate = true;
             // Drop the ':'
             concactenated += parameter.substr(1) + " ";
@@ -177,7 +188,11 @@ Command::Command(const std::string & message){
         if (concactenate){
             concactenated += parameter + " ";
         } else {
-            parameters.push_back(parameter);
+            if (!foundCtcp){
+                parameters.push_back(parameter);
+            } else {
+                ctcp.push_back(parameter);
+            }
         }
     }
     if (concactenate){
@@ -193,7 +208,8 @@ type(type){
 Command::Command(const Command & copy):
 owner(copy.owner),
 type(copy.type),
-parameters(copy.parameters){
+parameters(copy.parameters),
+ctcp(copy.ctcp){
 }
 
 Command::~Command(){
@@ -203,6 +219,7 @@ const Command & Command::operator=(const Command & copy){
     owner = copy.owner;
     type = copy.type;
     parameters = copy.parameters;
+    ctcp = copy.ctcp;
     return *this;
 }
 
