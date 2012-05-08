@@ -156,7 +156,7 @@ Command::Command(const std::string & message){
     // Next is the actual command
     type = convertCommand(*current);
     if (type == Unknown){
-        Global::debug(0) << "Got unhandled response: " << *current << std::endl;
+        Global::debug(0) << "Got unhandled response: " << message << std::endl;
     }
     current++;
     // Parameters
@@ -269,34 +269,48 @@ Command Client::nextCommand() const {
 }
 
 void Client::sendCommand(const Command & command){
-    //Global::debug(0) << "Sending Message: " << command.getSendable() << std::endl;
     const std::string & sendable = command.getSendable();
     Network::sendBytes(socket, (uint8_t *) sendable.c_str(), sendable.size());
 }
 
-void Client::setName(const std::string & name){
-    Command command(username, Command::Nick);
-    command.setParameters(name);
+void Client::sendCommand(const Command::Type & type, const std::string & param1){
+    Command command(username, type);
+    command.setParameters(param1);
     sendCommand(command);
-    username = name;
+}
+
+void Client::sendCommand(const Command::Type & type, const std::string & param1, const std::string & param2){
+    Command command(username, type);
+    command.setParameters(param1, param2);
+    sendCommand(command);
+}
+
+void Client::sendCommand(const Command::Type & type, const std::string & param1, const std::string & param2, const std::string & param3){
+    Command command(username, type);
+    command.setParameters(param1, param2, param3);
+    sendCommand(command);
+}
+
+void Client::sendCommand(const Command::Type & type, const std::string & param1, const std::string & param2, const std::string & param3, const std::string & param4){
+    Command command(username, type);
+    command.setParameters(param1, param2, param3, param4);
+    sendCommand(command);
+}
+
+void Client::setName(const std::string & name){
+    sendCommand(Command::Nick, name);
 }
 
 void Client::joinChannel(const std::string & chan){
     if (!channel.empty()){
-        Command command(username, Command::Part);
-        command.setParameters(channel);
-        sendCommand(command);
+        sendCommand(Command::Part, channel);
     }
     channel = chan;
-    Command command(username, Command::Join);
-    command.setParameters(channel);
-    sendCommand(command);
+    sendCommand(Command::Join, channel);
 }
 
 void Client::sendMessage(const std::string & msg){
-    Command message(username, Command::PrivateMessage);
-    message.setParameters(channel, ":" + msg);
-    sendCommand(message);
+    sendCommand(Command::PrivateMessage, channel, ":" + msg);
 }
 
 void Client::sendPong(const Command & ping){
