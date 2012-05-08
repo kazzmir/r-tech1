@@ -4,8 +4,8 @@
 
 #include <stdexcept>
 
-using namespace Network;
-using namespace IRC;
+namespace Network{
+namespace IRC{
 
 static Command::Type convertCommand(const std::string & cmd){
     Command::Type command = Command::Unknown;
@@ -85,109 +85,45 @@ static Command::Type convertCommand(const std::string & cmd){
 }
 
 static std::string convertCommand(const Command::Type & cmd){
-    std::string command;
     switch (cmd){
-        case Command::Pass:
-            command = "PASS";
-            break;
-        case Command::Nick:
-            command = "NICK";
-            break;
-        case Command::User:
-            command = "USER";
-            break;
-        case Command::Server:
-            command = "SERVER";
-            break;
-        case Command::Oper:
-            command = "OPER";
-            break;
-        case Command::Quit:
-            command = "QUIT";
-            break;
-        case Command::Squit:
-            command = "SQUIT";
-            break;
-        case Command::Join:
-            command = "JOIN";
-            break;
-        case Command::Part:
-            command = "PART";
-            break;
-        case Command::Mode:
-            command = "MODE";
-            break;
-        case Command::Topic:
-            command = "TOPIC";
-            break;
-        case Command::Names:
-            command = "NAMES";
-            break;
-        case Command::List:
-            command = "LIST";
-            break;
-        case Command::Invite:
-            command = "INVITE";
-            break;
-        case Command::Kick:
-            command = "KICK";
-            break;
-        case Command::Version:
-            command = "VERSION";
-            break;
-        case Command::Stats:
-            command = "STATS";
-            break;
-        case Command::Links:
-            command = "LINKS";
-            break;
-        case Command::Time:
-            command = "TIME";
-            break;
-        case Command::Connect:
-            command = "CONNECT";
-            break;
-        case Command::Trace:
-            command = "TRACE";
-            break;
-        case Command::Admin:
-            command = "ADMIN";
-            break;
-        case Command::Info:
-            command = "INFO";
-            break;
-        case Command::PrivateMessage:
-            command = "PRIVMSG";
-            break;
-        case Command::Notice:
-            command = "NOTICE";
-            break;
-        case Command::Who:
-            command = "WHO";
-            break;
-        case Command::Whois:
-            command = "WHOIS";
-            break;
-        case Command::Whowas:
-            command = "WHOAS";
-            break;
-        case Command::Kill:
-            command = "KILL";
-            break;
-        case Command::Ping:
-            command = "PING";
-            break;
-        case Command::Pong:
-            command = "PONG";
-            break;
-        case Command::Error:
-            command = "ERROR";
-            break;
+        case Command::Pass: return "PASS";
+        case Command::Nick: return "NICK";
+        case Command::User: return "USER";
+        case Command::Server: return "SERVER";
+        case Command::Oper: return "OPER";
+        case Command::Quit: return "QUIT";
+        case Command::Squit: return "SQUIT";
+        case Command::Join: return "JOIN";
+        case Command::Part: return "PART";
+        case Command::Mode: return "MODE";
+        case Command::Topic: return "TOPIC";
+        case Command::Names: return "NAMES";
+        case Command::List: return "LIST";
+        case Command::Invite: return "INVITE";
+        case Command::Kick: return "KICK";
+        case Command::Version: return "VERSION";
+        case Command::Stats: return "STATS";
+        case Command::Links: return "LINKS";
+        case Command::Time: return "TIME";
+        case Command::Connect: return "CONNECT";
+        case Command::Trace: return "TRACE";
+        case Command::Admin: return "ADMIN";
+        case Command::Info: return "INFO";
+        case Command::PrivateMessage: return "PRIVMSG";
+        case Command::Notice: return "NOTICE";
+        case Command::Who: return "WHO";
+        case Command::Whois: return "WHOIS";
+        case Command::Whowas: return "WHOAS";
+        case Command::Kill: return "KILL";
+        case Command::Ping: return "PING";
+        case Command::Pong: return "PONG";
+        case Command::Error: return "ERROR";
         case Command::Unknown:
         default:
             break;
     }
-    return command;
+
+    return "";
 }
 
 static std::vector<std::string> split(std::string str, char splitter){
@@ -274,19 +210,19 @@ std::string Command::getSendable() const {
     std::string sendable;
     // Name
     if (!owner.empty()){
-        sendable+=":" + owner + " ";
+        sendable += ":" + owner + " ";
     }
     // Command
-    sendable+=convertCommand(type) + " ";
+    sendable += convertCommand(type) + " ";
     // Params
     /*for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i){
         sendable+= *i + " ";
     }*/
     for (unsigned int i = 0; i < parameters.size(); ++i){
-        sendable+=parameters[i] + (i < parameters.size()-1 ? " " : "");
+        sendable += parameters[i] + (i < parameters.size()-1 ? " " : "");
     }
     // End
-    sendable+="\r\n";
+    sendable += "\r\n";
     return sendable;
 }
 
@@ -383,7 +319,7 @@ std::string Client::readMessage(){
                 foundReturn = true;
                 continue;
             } else if ((nextCharacter == '\n') && foundReturn){
-                // Should be the end of the message assumin \r is before it
+                // Should be the end of the message assuming \r is before it
                 break;
             }
             received += nextCharacter;
@@ -412,4 +348,7 @@ void Client::run(){
             end = true;
         }
     }
+}
+
+}
 }
