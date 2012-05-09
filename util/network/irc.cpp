@@ -73,12 +73,26 @@ static Command::Type convertCommand(const std::string & cmd){
         command = Command::Pong;
     } else if (cmd == "ERROR"){
         command = Command::Error;
+    } else if (cmd == "433"){
+        command = Command::ErrorNickInUse;
+    } else if (cmd == "401"){
+        command = Command::ErrorNoSuchNick;
+    } else if (cmd == "403"){
+        command = Command::ErrorNoSuchChannel;
+    } else if (cmd == "331"){
+        command = Command::ReplyNoTopic;
     } else if (cmd == "332"){
         command = Command::ReplyTopic;
     } else if (cmd == "353"){
         command = Command::ReplyNames;
+    } else if (cmd == "366"){
+        command = Command::ReplyNamesEndOf;
     } else if (cmd == "372"){
         command = Command::ReplyMOTD;
+    } else if (cmd == "375"){
+        command = Command::ReplyMOTDStart;
+    } else if (cmd == "376"){
+        command = Command::ReplyMOTDEndOf;
     }
     return command;
     
@@ -245,6 +259,7 @@ std::string Command::getSendable() const {
 
 
 Client::Client(const std::string & hostname, int port):
+previousUsername("AUTH"),
 username("AUTH"),
 hostname(hostname),
 port(port),
@@ -320,6 +335,8 @@ void Client::sendCommand(const Command::Type & type, const std::string & param1,
 }
 
 void Client::setName(const std::string & name){
+    previousUsername = username;
+    username = name;
     sendCommand(Command::Nick, name);
 }
 
@@ -368,6 +385,17 @@ std::string Client::readMessage(){
     return received;
 }
 
+void Client::checkErrorAndHandle(const Command & command){
+    // Checks for username or channel errors
+    if (command.getType() == Command::ErrorNickInUse){
+        // Change the username back to what it was
+        lock.acquire();
+        username = previousUsername;
+        lock.signal();
+        lock.release();
+    }
+}
+
 void Client::run(){
     while (!end){
         try {
@@ -376,6 +404,7 @@ void Client::run(){
             if (!message.empty()){
                 Command command(message);
                 lock.acquire();
+                checkErrorAndHandle(command);
                 commands.push(command);
                 lock.signal();
                 lock.release();

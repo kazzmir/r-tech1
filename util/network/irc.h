@@ -49,9 +49,16 @@ namespace IRC{
             Ping,
             Pong,
             Error,
+            ErrorNickInUse,
+            ErrorNoSuchNick,
+            ErrorNoSuchChannel,
             ReplyNames,
+            ReplyNamesEndOf,
+            ReplyNoTopic,
             ReplyTopic,
             ReplyMOTD,
+            ReplyMOTDStart,
+            ReplyMOTDEndOf,
         };
         // Initializes it from an incoming message off of socket
         Command(const std::string &);
@@ -150,6 +157,10 @@ namespace IRC{
         
         virtual void joinChannel(const std::string &);
         
+        virtual inline const std::string & getChannel() const {
+            return this->channel;
+        }
+        
         virtual void sendMessage(const std::string &);
         
         virtual void sendPong(const Command &);
@@ -157,7 +168,11 @@ namespace IRC{
     protected:
         std::string readMessage();
         
+        //! Doesn't do anything to the command just handle some internal changes like username and channel stuff
+        void checkErrorAndHandle(const Command &);
+        
         Network::Socket socket;
+        std::string previousUsername;
         std::string username;
         std::string channel;
         std::string hostname;
