@@ -52,10 +52,16 @@ namespace IRC{
             ErrorNickInUse,
             ErrorNoSuchNick,
             ErrorNoSuchChannel,
+            ErrorNeedMoreParams,
+            ErrorBannedFromChannel,
+            ErrorInviteOnlyChannel,
+            ErrorBadChannelKey,
+            ErrorChannelIsFull,
             ReplyNames,
             ReplyNamesEndOf,
             ReplyNoTopic,
             ReplyTopic,
+            ReplyTopicAuthor,
             ReplyMOTD,
             ReplyMOTDStart,
             ReplyMOTDEndOf,
@@ -127,6 +133,44 @@ namespace IRC{
         std::vector< std::string > parameters;
         std::vector< std::string > ctcp;
     };
+    
+    class Channel{
+    public:
+        Channel();
+        Channel(const std::string &);
+        Channel(const Channel &);
+        ~Channel();
+        
+        const Channel & operator=(const Channel &);
+        
+        void addUser(const std::string &);
+        void removeUser(const std::string &);
+        void addUsers(const std::vector<std::string> &);
+        
+        inline const std::vector<std::string> & getUsers() const{
+            return this->users;
+        }
+        
+        inline const std::string & getName() const {
+            return this->name;
+        }
+        
+        inline void setTopic(const std::string & topic){
+            this->topic = topic;
+        }
+        
+        inline void setTopicAuthor(const std::string & topicAuthor, uint64_t topicDate){
+            this->topicAuthor = topicAuthor;
+            this->topicDate = topicDate;
+        }
+        
+    protected:
+        std::string name;
+        std::string topic;
+        std::string topicAuthor;
+        uint64_t topicDate;
+        std::vector<std::string> users;
+    };
 
     class Client : public Chat::Threadable{
     public:
@@ -157,7 +201,7 @@ namespace IRC{
         
         virtual void joinChannel(const std::string &);
         
-        virtual inline const std::string & getChannel() const {
+        virtual inline const Channel & getChannel() const {
             return this->channel;
         }
         
@@ -169,12 +213,13 @@ namespace IRC{
         std::string readMessage();
         
         //! Doesn't do anything to the command just handle some internal changes like username and channel stuff
-        void checkErrorAndHandle(const Command &);
+        void checkResponseAndHandle(const Command &);
         
         Network::Socket socket;
         std::string previousUsername;
         std::string username;
-        std::string channel;
+        Channel previousChannel;
+        Channel channel;
         std::string hostname;
         int port;
         bool end;
