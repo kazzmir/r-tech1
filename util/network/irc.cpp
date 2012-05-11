@@ -79,10 +79,22 @@ static Command::Type convertCommand(const std::string & cmd){
         command = Command::ErrorNoSuchNick;
     } else if (cmd == "403"){
         command = Command::ErrorNoSuchChannel;
+    } else if (cmd == "461"){
+        command = Command::ErrorNeedMoreParams;
+    } else if (cmd == "473"){
+        command = Command::ErrorInviteOnlyChannel;
+    } else if (cmd == "474"){
+        command = Command::ErrorBannedFromChannel;
+    } else if (cmd == "475"){
+        command = Command::ErrorBadChannelKey;
+    } else if (cmd == "471"){
+        command = Command::ErrorChannelIsFull;
     } else if (cmd == "331"){
         command = Command::ReplyNoTopic;
     } else if (cmd == "332"){
         command = Command::ReplyTopic;
+    } else if (cmd == "333"){
+        command = Command::ReplyTopicAuthor;
     } else if (cmd == "353"){
         command = Command::ReplyNames;
     } else if (cmd == "366"){
@@ -195,7 +207,8 @@ Command::Command(const std::string & message){
             // Drop the ':'
             concactenated += parameter.substr(1) + " ";
             continue;
-        } else if (Util::matchRegex(parameter, "=")){
+        } else if (Util::matchRegex(parameter, "=") ||
+                   Util::matchRegex(parameter, "@")){
             // Ignore
             continue;
         }
@@ -257,6 +270,60 @@ std::string Command::getSendable() const {
     return sendable;
 }
 
+Channel::Channel(){
+}
+
+Channel::Channel(const std::string & name):
+name(name){
+}
+
+Channel::Channel(const Channel & copy):
+name(copy.name),
+topic(copy.topic),
+topicAuthor(copy.topicAuthor),
+topicDate(copy.topicDate),
+users(copy.users){
+}
+
+Channel::~Channel(){
+}
+
+const Channel & Channel::operator=(const Channel & copy){
+    name = copy.name;
+    topic = copy.topic;
+    topicAuthor = copy.topicAuthor;
+    topicDate = copy.topicDate;
+    users = copy.users;
+    return *this;
+}
+
+void Channel::addUser(const std::string & user){
+    // Can't add same user twice
+    for (std::vector<std::string>::iterator i = users.begin(); i != users.end(); ++i){
+        const std::string & name = *i;
+        if (name == user){
+            return;
+        }
+    }
+    users.push_back(user);
+}
+
+void Channel::removeUser(const std::string & user){
+    for (std::vector<std::string>::iterator i = users.begin(); i != users.end(); ++i){
+        const std::string & name = *i;
+        if (name == user){
+            users.erase(i);
+            break;
+        }
+    }
+}
+
+void Channel::addUsers(const std::vector<std::string> & list){
+    for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i){
+        const std::string & name = *i;
+        addUser(name);
+    }
+}
 
 Client::Client(const std::string & hostname, int port):
 previousUsername("AUTH"),
@@ -336,20 +403,25 @@ void Client::sendCommand(const Command::Type & type, const std::string & param1,
 
 void Client::setName(const std::string & name){
     previousUsername = username;
+    // Update channel list
+    channel.removeUser(username);
+    channel.addUser(name);
     username = name;
     sendCommand(Command::Nick, name);
 }
 
 void Client::joinChannel(const std::string & chan){
-    if (!channel.empty()){
-        sendCommand(Command::Part, channel);
+    previousChannel = channel;
+    Channel newChannel(chan);
+    if (!channel.getName().empty()){
+        sendCommand(Command::Part, channel.getName());
     }
-    channel = chan;
-    sendCommand(Command::Join, channel);
+    channel = newChannel;
+    sendCommand(Command::Join, channel.getName());
 }
 
 void Client::sendMessage(const std::string & msg){
-    sendCommand(Command::PrivateMessage, channel, ":" + msg);
+    sendCommand(Command::PrivateMessage, channel.getName(), ":" + msg);
 }
 
 void Client::sendPong(const Command & ping){
@@ -385,14 +457,49 @@ std::string Client::readMessage(){
     return received;
 }
 
-void Client::checkErrorAndHandle(const Command & command){
+void Client::checkResponseAndHandle(const Command & command){
     // Checks for username or channel errors
     if (command.getType() == Command::ErrorNickInUse){
         // Change the username back to what it was
         lock.acquire();
+        channel.removeUser(username);
         username = previousUsername;
+        channel.addUser(username);
         lock.signal();
         lock.release();
+    } else if (command.getType() == Command::ErrorBannedFromChannel ||
+               command.getType() == Command::ErrorInviteOnlyChannel ||
+               command.getType() == Command::ErrorBadChannelKey ||
+               command.getType() == Command::ErrorChannelIsFull ||
+               command.getType() == Command::ErrorNoSuchChannel){
+        // Revert old channel
+        lock.acquire();
+        channel = previousChannel;
+        lock.signal();
+        lock.release();
+    } else if (command.getType() == Command::ReplyTopic){
+        // Set topic
+        lock.acquire();
+        channel.setTopic(command.getParameters().at(2));
+        lock.signal();
+        lock.release();
+    } else if (command.getType() == Command::ReplyTopicAuthor){
+        // Set topic and author
+        const std::vector<std::string> & params = command.getParameters();
+        lock.acquire();
+        channel.setTopicAuthor(split(params.at(1), '!').at(0), atoi(params.at(2).c_str()));
+        lock.signal();
+        lock.release();
+    } else if (command.getType() == Command::ReplyNames){
+        // Add names
+        const std::vector<std::string> & params = command.getParameters();
+        if (params.at(1) == channel.getName()){
+            const std::vector<std::string> & names = split(params.at(2), ' ');
+            lock.acquire();
+            channel.addUsers(names);
+            lock.signal();
+            lock.release();
+        }
     }
 }
 
@@ -404,7 +511,7 @@ void Client::run(){
             if (!message.empty()){
                 Command command(message);
                 lock.acquire();
-                checkErrorAndHandle(command);
+                checkResponseAndHandle(command);
                 commands.push(command);
                 lock.signal();
                 lock.release();
