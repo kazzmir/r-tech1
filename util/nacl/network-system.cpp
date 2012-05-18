@@ -727,6 +727,10 @@ std::vector<AbsolutePath> NetworkSystem::getFiles(const AbsolutePath & dataPath,
             paths.push_back(check);
         }
     }
+    
+    vector<AbsolutePath> more = virtualDirectory.findFiles(dataPath, find, caseInsensitive);
+    paths.insert(paths.end(), more.begin(), more.end());
+
     return paths;
 }
 
