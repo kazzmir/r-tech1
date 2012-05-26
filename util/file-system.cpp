@@ -910,6 +910,11 @@ public:
     }
 };
 
+/* Keep this updated with all the supported container types */
+bool isContainer(const Path::AbsolutePath & path){
+    return path.getExtension() == "zip";
+}
+
 bool System::exists(const AbsolutePath & path){
     return virtualDirectory.lookup(path) != NULL || systemExists(path);
 }
@@ -923,7 +928,7 @@ void System::unoverlayFile(const AbsolutePath & where){
     virtualDirectory.removeFile(where);
     // overlays.erase(where);
 }
-
+        
 vector<string> System::containerFileList(const AbsolutePath & container){
     Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), Filesystem::AbsolutePath()));
     return zip->getFiles();
