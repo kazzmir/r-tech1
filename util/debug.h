@@ -5,6 +5,10 @@
 #include <sstream>
 #include <stdint.h>
 
+/* Enable this if you can't get regular debug output but have networking
+ */
+// #define NETWORK_DEBUG
+
 namespace Global{
 
 #ifdef ANDROID
@@ -58,6 +62,37 @@ wii_ostream & operator<<(wii_ostream & stream, const unsigned long int);
 wii_ostream & operator<<(wii_ostream & stream, const void *);
 wii_ostream & operator<<(wii_ostream & stream, uint64_t); 
 wii_ostream & operator<<(wii_ostream & stream, std::ostream & (*f)(std::ostream &));
+#elif defined(NETWORK_DEBUG)
+class network_ostream: public std::ostream {
+public:
+    network_ostream(const std::string & host, int port, bool enabled = true);
+    static network_ostream stream;
+    /* make these private at some point */
+public:
+    std::string host;
+    int port;
+    bool enabled;
+    std::ostringstream buffer;
+};
+
+typedef network_ostream stream_type;
+stream_type & operator<<(stream_type & stream, const std::string & input);
+stream_type & operator<<(stream_type & stream, const char * input);
+stream_type & operator<<(stream_type & stream, const char);
+stream_type & operator<<(stream_type & stream, const double);
+stream_type & operator<<(stream_type & stream, const int);
+stream_type & operator<<(stream_type & stream, const short int);
+stream_type & operator<<(stream_type & stream, const short unsigned int);
+stream_type & operator<<(stream_type & stream, const unsigned int);
+stream_type & operator<<(stream_type & stream, const bool);
+stream_type & operator<<(stream_type & stream, const long int);
+#ifndef PS3
+stream_type & operator<<(stream_type & stream, const unsigned long int);
+#endif
+stream_type & operator<<(stream_type & stream, const void *);
+stream_type & operator<<(stream_type & stream, uint64_t); 
+stream_type & operator<<(stream_type & stream, std::ostream & (*f)(std::ostream &));
+
 #else
 typedef std::ostream stream_type;
 #endif
