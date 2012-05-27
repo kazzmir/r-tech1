@@ -636,9 +636,9 @@ bool Global::init(int gfx){
     white.fill(Graphics::makeColor(128, 128, 128));
     white.BlitToScreen();
     if (!Storage::instance().exists(Util::getDataPath2())){
-        Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
         white.fill(Graphics::makeColor(255, 0, 0));
         white.BlitToScreen();
+        Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
         Util::restSeconds(1);
         return false;
     } else {
