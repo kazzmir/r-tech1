@@ -250,7 +250,7 @@ static void startTimers(){
     running_timers.push_back(start_timer(inc_second_counter, 1));
 }
 
-static void initSystem(ostream & out){
+static void initSystem(Global::stream_type & out){
     out << "Allegro5 initialize " << (al_init() ? "Ok" : "Failed") << endl;
     uint32_t version = al_get_allegro_version();
     int major = version >> 24;
@@ -258,9 +258,9 @@ static void initSystem(ostream & out){
     int revision = (version >> 8) & 255;
     int release = version & 255;
     out << "Allegro5 version " << major << "." << minor << "." << revision << "." << release << endl;
-    al_init_image_addon();
-    al_init_primitives_addon();
-    al_install_keyboard();
+    out << "Init image: " << (al_init_image_addon() ? "Ok" : "Failed") << endl;
+    out << "Init primitives " << (al_init_primitives_addon() ? "Ok" : "Failed") << endl;
+    out << "Init keyboard " << (al_install_keyboard() ? "Ok" : "Failed") << endl;
     al_set_app_name("Paintown");
 }
 #endif
@@ -271,7 +271,7 @@ static void startTimers(){
     install_int_ex(inc_second_counter, BPS_TO_TIMER(1));
 }
 
-static void initSystem(ostream & out){
+static void initSystem(Global::stream_type & out){
     out << "Allegro version: " << ALLEGRO_VERSION_STR << endl;
     out << "Allegro init: " <<allegro_init()<<endl;
     out << "Install timer: " <<install_timer()<<endl;
@@ -384,7 +384,7 @@ static void startTimers(){
     running_timers.push_back(start_timer(inc_second_counter, 1));
 }
     
-static void initSystem(ostream & out){
+static void initSystem(Global::stream_type & out){
 #ifdef ANDROID
     /* opengles2 is the default renderer but it doesn't work */
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles");
@@ -431,7 +431,7 @@ static void initSystem(ostream & out){
 /* mostly used for testing purposes */
 bool Global::initNoGraphics(){
     /* copy/pasting the init code isn't ideal, maybe fix it later */
-    ostream & out = Global::debug(0);
+    Global::stream_type & out = Global::debug(0);
     out << "-- BEGIN init --" << endl;
     out << "Data path is " << Util::getDataPath2().path() << endl;
     out << "Paintown version " << Global::getVersionString() << endl;
@@ -542,7 +542,7 @@ static void maybeSetWorkingDirectory(){
 }
 
 bool Global::init(int gfx){
-    ostream & out = Global::debug(0);
+    Global::stream_type & out = Global::debug(0);
     out << "-- BEGIN init --" << endl;
     out << "Data path is " << Util::getDataPath2().path() << endl;
     out << "Paintown version " << Global::getVersionString() << endl;
