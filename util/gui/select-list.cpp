@@ -92,6 +92,12 @@ void SimpleSelect::act(){
         viewable = items.size()-1;
     }
 }
+    
+void SimpleSelect::getDrawLocation(const Util::ReferenceCount<SelectItem> & item, int * x, int * y) const {
+    /* TODO */
+    *x = 0;
+    *y = 0;
+}
 
 void SimpleSelect::render(const Graphics::Bitmap & work, const Font & font) const{
     int x = startOffsetX + cellMarginX;
@@ -338,7 +344,93 @@ GridSelect::~GridSelect(){
 void GridSelect::act(){
 }
 
-void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const{
+void GridSelect::getDrawLocation(const Util::ReferenceCount<SelectItem> & find, int * findX, int * findY) const {
+    /* FIXME: this code is a direct copy/paste of render. share some code */
+    std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
+    switch (layout){
+        case Static:{
+            int x = startOffsetX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
+            int y = startOffsetY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
+            for (int row = 0; row < gridY; ++row){
+                int x_spacing_mod = x;
+                int y_spacing_mod = y;
+                for (int column = 0; column < gridX; ++column){
+                    if (item_iterator != items.end()){
+                        Util::ReferenceCount<SelectItem> item = *item_iterator;
+                        if (item == find){
+                            *findX = x_spacing_mod;
+                            *findY = y_spacing_mod;
+                            return;
+                        }
+                        item_iterator++;
+                    }
+                    x_spacing_mod+= cellSpacingX + cellWidth + cellMarginX;
+                    y_spacing_mod+= cellSpacingY;
+                }
+                x+= cellSpacingX;
+                y+= cellHeight + cellMarginY;
+            }
+            break;
+        }
+        case InfiniteHorizontal:{
+            int x = startOffsetX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
+            int y = startOffsetY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
+            // Start off on offset
+            item_iterator += offset * gridY;
+            for (int column = 0; column < gridX; ++column){
+                int x_spacing_mod = x;
+                int y_spacing_mod = y;
+                for (int row = 0; row < gridY; ++row){
+                    if (item_iterator != items.end()){
+                        Util::ReferenceCount<SelectItem> item = *item_iterator;
+                        if (item == find){
+                            *findX = x_spacing_mod;
+                            *findY = y_spacing_mod;
+                            return;
+                        }
+                        item_iterator++;
+                    }
+                    x_spacing_mod+= cellSpacingX;
+                    y_spacing_mod+= cellSpacingY + cellHeight + cellMarginY;
+                }
+                x+= cellWidth + cellMarginX;
+                y+= cellSpacingY;
+            }
+            break;
+        }
+        case InfiniteVertical:{
+            int x = startOffsetX + (cellSpacingX * gridY < 0 ? abs(cellSpacingX * gridY) : 0);
+            int y = startOffsetY + (cellSpacingY * gridX < 0 ? abs(cellSpacingY * gridX) : 0);
+            // Start off on offset
+            item_iterator += offset * gridX;
+            for (int row = 0; row < gridY; ++row){
+                int x_spacing_mod = x;
+                int y_spacing_mod = y;
+                for (int column = 0; column < gridX; ++column){
+                    if (item_iterator != items.end()){
+                        Util::ReferenceCount<SelectItem> item = *item_iterator;
+                        if (item == find){
+                            *findX = x_spacing_mod;
+                            *findY = y_spacing_mod;
+                            return;
+                        }
+                        item_iterator++;
+                    }
+                    x_spacing_mod+=cellSpacingX + cellWidth + cellMarginX;
+                    y_spacing_mod+=cellSpacingY;
+                }
+                x+= cellSpacingX;
+                y+= cellHeight + cellMarginY;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+}
+
+void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const {
     std::vector<Util::ReferenceCount<SelectItem> >::const_iterator item_iterator = items.begin();
     switch (layout){
         case Static:{

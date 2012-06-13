@@ -64,6 +64,9 @@ public:
         Done,
         Invalid,
     };
+
+    /* Get the location in pixels of an item where it would be drawn */
+    virtual void getDrawLocation(const Util::ReferenceCount<SelectItem> & item, int * x, int * y) const = 0;
     
     virtual void setCurrentIndex(unsigned int cursor, unsigned int location) = 0;
     virtual unsigned int getCurrentIndex(unsigned int cursor) const = 0;
@@ -163,6 +166,7 @@ public:
     virtual unsigned int getCurrentIndex(unsigned int cursor) const;
     virtual void setCurrentState(unsigned int cursor, const SelectListInterface::CursorState &);
     virtual const SelectListInterface::CursorState getCurrentState(unsigned int cursor) const;
+    virtual void getDrawLocation(const Util::ReferenceCount<SelectItem> & item, int * x, int * y) const;
     virtual bool up(unsigned int cursor);
     virtual bool down(unsigned int cursor);
     virtual bool left(unsigned int cursor);
@@ -241,6 +245,7 @@ public:
     virtual unsigned int getCurrentIndex(unsigned int cursor) const;
     virtual void setCurrentState(unsigned int cursor, const SelectListInterface::CursorState &);
     virtual const SelectListInterface::CursorState getCurrentState(unsigned int cursor) const;
+    virtual void getDrawLocation(const Util::ReferenceCount<SelectItem> & item, int * x, int * y) const;
     virtual bool up(unsigned int cursor);
     virtual bool down(unsigned int cursor);
     virtual bool left(unsigned int cursor);
