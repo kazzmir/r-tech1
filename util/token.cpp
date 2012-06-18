@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string.h>
+#include "debug.h"
 
 using namespace std;
 
@@ -44,7 +45,7 @@ own(false){
 
 /* Dump token to the screen */
 void Token::print( const string space ) const {
-    cout<<space<<"Token: "<< getName() << endl;
+    Global::debug(0) <<space<<"Token: "<< getName() << endl;
     for ( signed int i = 0; i < numTokens(); i++ ){
         Token * x = getToken( i );
         x->print( space + " |--" );
@@ -160,7 +161,7 @@ vector<const Token *> Token::findTokens(const string & path) const {
         if (find == string::npos){
             found.push_back(this);
             if (found[0] != this){
-                cout << "internal consistency error!!!!" << endl;
+                Global::debug(0) << "internal consistency error!!!!" << endl;
                 throw exception();
             }
         } else {
