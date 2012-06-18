@@ -1,5 +1,6 @@
 #include "debug.h"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdio.h>
 
@@ -277,6 +278,7 @@ network_ostream & operator<<(network_ostream & stream, std::ostream & (*f)(std::
     return stream;
 }
 
+/* IP address and port are arbitrary */
 network_ostream network_ostream::stream("192.168.1.100", 5670);
 static network_ostream nullcout("", 0, false);
 #else
@@ -298,27 +300,97 @@ static nullcout_t nullcout;
 #endif
 
 #ifdef ANDROID
-stream_type & default_stream = android_ostream::stream;
+static stream_type & defaultStream(){
+    return android_ostream::stream;
+}
+
+static stream_type & getStream(){
+    return defaultStream();
+}
+
+void logToFile(){
+}
+
+void closeLog(){
+}
 #elif defined(WII) && defined(DEBUG)
-stream_type & default_stream = wii_ostream::stream;
+static stream_type & defaultStream(){
+    return wii_ostream::stream;
+}
+
+static stream_type & getStream(){
+    return defaultStream();
+}
+
+void logToFile(){
+}
+
+void closeLog(){
+}
 #elif defined(NETWORK_DEBUG)
-stream_type & default_stream = network_ostream::stream;
+static stream_type & defaultStream(){
+    return network_ostream::stream;
+}
+
+static stream_type & getStream(){
+    return defaultStream();
+}
+
+void logToFile(){
+}
+
+void closeLog(){
+}
 #else
-stream_type & default_stream = std::cout;
+static stream_type & defaultStream(){
+    return std::cout;
+}
+
+static std::ofstream log;
+static bool useFile = false;
+static stream_type & fileStream(){
+    static bool init = false;
+    if (!init){
+        log.open("paintown.log");
+        init = true;
+    }
+
+    return log;
+}
+
+static void closeFileStream(){
+    log.close();
+}
+
+static stream_type & getStream(){
+    if (useFile){
+        return fileStream();
+    } else {
+        return defaultStream();
+    }
+}
+
+void logToFile(){
+    useFile = true;
+}
+
+void closeLog(){
+    closeFileStream();
+}
 #endif
 
 }
 
 Global::stream_type & Global::debug(int i, const string & context){
     if (global_debug_level >= i){
-        Global::stream_type & out = default_stream;
+        Global::stream_type & out = getStream();
         out << "[" << i << ":" << context << "] ";
         return out;
     }
     return nullcout;
 }
 
-void Global::setDebug( int i ){
+void Global::setDebug(int i){
     global_debug_level = i;
 }
 

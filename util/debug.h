@@ -97,7 +97,9 @@ stream_type & operator<<(stream_type & stream, std::ostream & (*f)(std::ostream 
 typedef std::ostream stream_type;
 #endif
 
-void setDebug( int i );
+void logToFile();
+void closeLog();
+void setDebug(int i);
 int getDebug();
 stream_type & debug(int i, const std::string & context = "paintown");
 
