@@ -480,7 +480,16 @@ vector<Filesystem::AbsolutePath> System::getFiles(const Filesystem::AbsolutePath
     return out;
 }
 
-Util::ReferenceCount<System> self;
+vector<Filesystem::AbsolutePath> System::getContainerFilesRecursive(const Filesystem::AbsolutePath & dataPath){
+    vector<Filesystem::AbsolutePath> out;
+
+    vector<Filesystem::AbsolutePath> zips = getFilesRecursive(dataPath, "*.zip");
+    out.insert(out.end(), zips.begin(), zips.end());
+
+    return out;
+}
+
+static Util::ReferenceCount<System> self;
 System & instance(){
     if (self != NULL){
         return *self;
@@ -916,7 +925,7 @@ bool isContainer(const Path::AbsolutePath & path){
 }
 
 bool System::exists(const AbsolutePath & path){
-    return virtualDirectory.lookup(path) != NULL || systemExists(path);
+    return virtualDirectory.exists(path) != NULL || systemExists(path);
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
@@ -1207,7 +1216,8 @@ Filesystem::AbsolutePath Filesystem::lookupInsensitive(const Filesystem::Absolut
 }
 
 vector<Filesystem::AbsolutePath> Filesystem::findDirectoriesIn(const Filesystem::AbsolutePath & path){
-    vector<Filesystem::AbsolutePath> dirs;
+    vector<Filesystem::AbsolutePath> dirs = virtualDirectory.findDirectories(path, "*", false);
+
     DIR * dir = opendir(path.path().c_str());
     if (dir == NULL){
         return dirs;
