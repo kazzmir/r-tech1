@@ -451,15 +451,27 @@ namespace Storage{
         Directory();
         virtual ~Directory();
     
+        /* Finds any path in the given directory that matches find, files and directories */
         std::vector<Path::AbsolutePath> findFiles(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive);
+        /* Only finds directories */
+        std::vector<Path::AbsolutePath> findDirectories(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive);
 
         void addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<Descriptor> & file);
         void removeFile(const Path::AbsolutePath & path);
 
+        /* FIXME: maybe filenames() should just return files? */
+        /* Files + directories */
         std::vector<std::string> filenames() const;
+        /* Just directories */
+        std::vector<std::string> directoryNames() const;
 
-        /* Might return NULL if the path can't be found */
+        /* Finds a file with the given path. Will not find directories.
+         * Might return NULL if the path can't be found
+         */
         Util::ReferenceCount<Descriptor> lookup(const Path::AbsolutePath & path);
+
+        /* true if the path (either file or directory) exists */
+        bool exists(const Path::AbsolutePath & path);
 
     protected:
         void doTraverse(const Path::AbsolutePath & path, Traverser & traverser);
@@ -486,6 +498,11 @@ namespace Storage{
         virtual bool exists(const RelativePath & path) = 0;
         virtual bool exists(const AbsolutePath & path);
         virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
+
+        /* Finds all supported container files. Currently
+         *  .zip
+         */
+        virtual std::vector<AbsolutePath> getContainerFilesRecursive(const AbsolutePath & dataPath);
 
         /* search for a pattern of a single file within a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;

@@ -46,7 +46,57 @@ public:
     virtual ~Traverser(){
     }
 };
-        
+
+/* FIXME: this shares a lot of code with findFiles */
+vector<Path::AbsolutePath> Directory::findDirectories(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
+    Util::Thread::ScopedLock scoped(lock);
+    vector<Path::AbsolutePath> out;
+
+    class FindDirectory: public Traverser {
+    public:
+        FindDirectory():
+        failed(false){
+        }
+
+        bool failed;
+        Util::ReferenceCount<Directory> last;
+
+        virtual void traverseFile(Directory & directory, const string & file){
+            if (directory.directories[file] != NULL){
+                last = directory.directories[file];
+            }
+        }
+
+        virtual void traverseDirectory(Directory & directory, const string & path){
+            if (directory.directories[path] != NULL){
+                last = directory.directories[path];
+            } else {
+                failed = true;
+            }
+        }
+    };
+
+    FindDirectory lastDirectory;
+    traverse(dataPath, lastDirectory);
+
+    if (lastDirectory.failed || lastDirectory.last == NULL){
+        return out;
+    }
+
+    Global::debug(1) << "Search in " << dataPath.path() << " for " << find << std::endl;
+    vector<string> names = lastDirectory.last->directoryNames();
+#ifndef USE_ALLEGRO
+    for (vector<string>::iterator it = names.begin(); it != names.end(); it++){
+        Global::debug(1) << "Check if " << *it << " matches " << find << std::endl;
+        if (file_matches(it->c_str(), find.c_str())){
+            out.push_back(dataPath.join(Path::RelativePath(*it)));
+        }
+    }
+#endif
+
+    return out;
+}
+
 vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataPath, const std::string & find, bool caseInsensitive){
     Util::Thread::ScopedLock scoped(lock);
     vector<Path::AbsolutePath> out;
@@ -96,6 +146,19 @@ vector<Path::AbsolutePath> Directory::findFiles(const Path::AbsolutePath & dataP
     return out;
 }
         
+vector<std::string> Directory::directoryNames() const {
+    Util::Thread::ScopedLock scoped(lock);
+    vector<string> out;
+
+    for (map<string, Util::ReferenceCount<Directory> >::const_iterator it = directories.begin(); it != directories.end(); it++){
+        if (it->second != NULL){
+            out.push_back(it->first);
+        }
+    }
+    
+    return out;
+}
+
 vector<string> Directory::filenames() const {
     Util::Thread::ScopedLock scoped(lock);
     vector<string> out;
@@ -155,6 +218,35 @@ void Directory::traverse(const Path::AbsolutePath & path, Traverser & traverser)
         }
     }
 }
+        
+bool Directory::exists(const Path::AbsolutePath & path){
+    Util::Thread::ScopedLock scoped(lock);
+    class FindIt: public Traverser {
+    public:
+        FindIt():
+        found(false){
+        }
+
+        virtual void traverseFile(Directory & directory, const string & file){
+            if (directory.files[file] != NULL){
+                found = true;
+            } else if (directory.directories[file] != NULL){
+                found = true;
+            } else {
+                found = false;
+            }
+        }
+
+        virtual void traverseDirectory(Directory & directory, const string & path){
+        }
+
+        bool found;
+    };
+
+    FindIt find;
+    traverse(path, find);
+    return find.found;
+}
 
 /* Might return NULL if the path can't be found */
 Util::ReferenceCount<Descriptor> Directory::lookup(const Path::AbsolutePath & path){
@@ -175,21 +267,6 @@ Util::ReferenceCount<Descriptor> Directory::lookup(const Path::AbsolutePath & pa
     FindIt find;
     traverse(path, find);
     return find.found;
-
-#if 0
-    Path::AbsolutePath use = path;
-
-    /* The path might contain .. paths that would go out of this directory
-     * so just ignore those paths and use the rest of the path.
-     */
-    while (true){
-        try{
-            return doLookup(use);
-        } catch (const UpDirectory & up){
-            use = up.path;
-        }
-    }
-#endif
 }
 
 void Directory::addFile(const Path::AbsolutePath & path, const Util::ReferenceCount<Descriptor> & file){
