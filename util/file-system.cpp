@@ -21,6 +21,7 @@
 #include <string>
 #include <fstream>
 #include <ostream>
+#include "token.h"
 
 #include "zip/unzip.h"
 #include "zip/ioapi.h"
@@ -517,6 +518,12 @@ path(path){
     in >> noskipws;
 }
 
+Token * NormalFile::location(){
+    Token * head = new Token();
+    *head << path.path();
+    return head;
+}
+
 long NormalFile::getModificationTime(){
     return ::System::getModificationTime(path.path());
 }
@@ -577,6 +584,12 @@ StringFile::StringFile(const std::string & start):
 data(start),
 stream(start){
     stream >> noskipws;
+}
+
+Token * StringFile::location(){
+    Token * head = new Token();
+    *head << "<string file>";
+    return head;
 }
 
 long StringFile::getModificationTime(){
@@ -699,6 +712,14 @@ public:
         }
     }
 
+    string getPath() const {
+        return path;
+    }
+
+    string getMount() const {
+        return start.path();
+    }
+
     long modificationTime(){
         char filename[1024];
         unz_file_info fileInfo;
@@ -801,6 +822,16 @@ ZipFile::~ZipFile(){
         
 long ZipFile::getModificationTime(){
     return zip->modificationTime();
+}
+        
+Token * ZipFile::location(){
+    Token * head = new Token();
+    *head << "container";
+    /* container zipfile mount-point file-inside-zip */
+    *head << zip->getPath();
+    *head << zip->getMount();
+    *head << path.path();
+    return head;
 }
 
 int ZipFile::skipBytes(int bytes){

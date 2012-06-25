@@ -11,6 +11,7 @@
 #include <fstream>
 #include <stdint.h>
 
+class Token;
 struct stat;
 /* path utilities */
 namespace Path{
@@ -210,7 +211,8 @@ namespace Storage{
         virtual void reset() = 0;
 
         /* true if the underlying object can be streamed. generally
-         * this should be true if the object can be kept around for a while.
+         * this should be true if the object can be kept around while other files
+         * of the same type can be opened.
          * zip files aren't streamable because only one zip entry can be
          * open at a time so it must be closed as soon as possible.
          */
@@ -224,6 +226,12 @@ namespace Storage{
         virtual int getSize() = 0;
 
         virtual long tell() = 0;
+
+        /* Returns a token that represents the path. For normal files it will just be
+         * a single string containing the path -- "data/x/y/z.txt"
+         * For zip files it will be (container "x/y/z.zip" "mount/point" "a.txt")
+         */
+        virtual Token * location() = 0;
 
         /* if the file is at eof and can't read anymore */
         virtual bool eof() = 0;
@@ -374,6 +382,7 @@ namespace Storage{
         virtual bool canStream();
         virtual void reset();
         virtual long tell();
+        virtual Token * location();
         virtual long getModificationTime();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
@@ -405,6 +414,7 @@ namespace Storage{
         virtual long getModificationTime();
         virtual void reset();
         virtual long tell();
+        virtual Token * location();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
 
@@ -426,6 +436,7 @@ namespace Storage{
         virtual bool canStream();
         virtual void reset();
         virtual long tell();
+        virtual Token * location();
         virtual off_t seek(off_t position, int whence);
         virtual File & operator>>(unsigned char &);
         virtual ~StringFile();
