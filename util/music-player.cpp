@@ -672,6 +672,17 @@ public:
         int channels = 0, encoding = 0;
         mpg123_getformat(mp3, &rate, &channels, &encoding);
     }
+
+    virtual ~StreamMpg123Handler(){
+        /* Close the mp3 here because the close hook in the mp3 structure
+         * will eventually call StreamMpg123Handler->doClose(). if the mp3
+         * is destroyed in the base class, Mpg123Handler, then the doClose
+         * method will be run after the StreamMpg123Handler class has
+         * already been destroyed and a segfault will occur when file->seek()
+         * is called.
+         */
+        mpg123_close(mp3);
+    }
     
     /* Keep a reference to the file so it doesn't close */
     Util::ReferenceCount<Storage::File> file;
@@ -733,6 +744,7 @@ public:
     }
 
     virtual ~MemoryMpg123Handler(){
+        mpg123_close(mp3);
         delete[] memory;
     }
     
@@ -841,7 +853,6 @@ void Mpg123Handler::setVolume(double volume){
 }
 
 Mpg123Handler::~Mpg123Handler(){
-    mpg123_close(mp3);
     mpg123_exit();
 }
 
