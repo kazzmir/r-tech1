@@ -1275,14 +1275,22 @@ public:
 
     static vector<string> putEnglishFirst(vector<string> languages){
         vector<string> out;
+        bool haveEnglish = false;
         for (vector<string>::iterator it = languages.begin(); it != languages.end(); it++){
             const string & name = *it;
             if (name == "English"){
                 out.insert(out.begin(), name);
+                haveEnglish = true;
             } else {
                 out.push_back(name);
             }
         }
+
+        /* We should always have at least english available */
+        if (!haveEnglish){
+            out.insert(out.begin(), "English");
+        }
+
         return out;
     }
 

@@ -80,6 +80,12 @@ void Token::toString(ostream & stream, const string & space) const {
         stream << ")";
     }
 }
+    
+std::string Token::toString() const {
+    std::ostringstream out;
+    toString(out, "");
+    return out.str();
+}
 
 /* helper function */
 string Token::lowerCase( const string & s ) const {
@@ -184,6 +190,15 @@ TokenMatcher Token::getMatcher(const std::string & subject) const {
     return matcher;
 }
 
+Token * Token::findToken(const string & path){
+    vector<const Token *> all = findTokens(path);
+    if (all.size() == 0){
+        return NULL;
+    }
+    return (Token*) all[0];
+
+}
+
 const Token * Token::findToken(const string & path) const {
     vector<const Token *> all = findTokens(path);
     if (all.size() == 0){
@@ -247,6 +262,10 @@ const string & Token::getName() const {
 const Token * Token::getParent() const {
     return this->parent;
 }
+    
+Token * Token::getParent(){
+    return parent;
+}
 
 const Token * Token::getRootParent() const {
     if (getParent() != NULL){
@@ -256,11 +275,11 @@ const Token * Token::getRootParent() const {
 }
 
 const string Token::getLineage() const {
-	if ( getParent() != NULL ){
-		return getParent()->getLineage() + " -> " + getName();
-	}
+    if (getParent() != NULL){
+        return getParent()->getLineage() + " -> " + getName();
+    }
 
-	return getName();
+    return getName();
 }
 
 /* A token's identity is its name 
@@ -273,16 +292,32 @@ bool Token::operator!=(const string & rhs) const {
     return !(*this == rhs);
 }
 
-void Token::setFile( const string & s ){
-	filename = s;
+void Token::setFile(const string & s){
+    filename = s;
 }
-
+    
+void Token::removeToken(Token * token){
+    for (vector<Token*>::iterator it = tokens.begin(); it != tokens.end(); it++){
+        Token * what = *it;
+        if (token == what){
+            /* Found the token. If we own it then delete it, otherwise just
+             * remove it from the list and return.
+             */
+            if (own){
+                delete what;
+            }
+            it = tokens.erase(it);
+            return;
+        }
+    }
+}
+    
 const string Token::getFileName() const {
-	if ( parent ){
-		return parent->getFileName();
-	} else {
-		return filename;
-	}
+    if (parent){
+        return parent->getFileName();
+    } else {
+        return filename;
+    }
 }
 
 /*
@@ -361,7 +396,8 @@ void Token::addToken(Token * t){
         throw TokenException(__FILE__, __LINE__, "This token does not own its own tokens, so you cannot add tokens to it");
     }
     */
-    tokens.push_back( t );
+    t->setParent(this);
+    tokens.push_back(t);
 }
 
 Token * Token::newToken(){
