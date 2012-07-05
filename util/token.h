@@ -82,6 +82,7 @@ public:
        */
     const std::string & getName() const;
     const Token * getParent() const;
+    Token * getParent();
     /* get the original parent, the parent with no parents */
     const Token * getRootParent() const;
 
@@ -96,6 +97,9 @@ public:
     const std::string getLineage() const;
 
     void print( const std::string space ) const;
+
+    std::string toString() const;
+
     /* a pretty printed s-expression */
     void toString(std::ostream & stream, const std::string & space) const;
     /* no extra whitespace */
@@ -152,16 +156,20 @@ public:
 
     TokenMatcher getMatcher(const std::string & subject) const;
 
-    Token * getToken( unsigned int n ) const;
+    Token * getToken(unsigned int n) const;
 
     /* xpath-esque searching for tokens
      * '/' delimits tokens
      * <literal> matches a token
      */
     const Token * findToken(const std::string & path) const;
+    Token * findToken(const std::string & path);
 
     /* find all tokens. special characters _ and * */
     std::vector<const Token *> findTokens(const std::string & path) const;
+
+    /* Removes the given token if the current one contains it */
+    void removeToken(Token * token);
 
     inline signed int numTokens() const {
         return tokens.size() - 1;
@@ -171,7 +179,7 @@ public:
         return numTokens() == -1;
     }
 
-    inline const std::vector< Token * > * getTokens() const{
+    inline const std::vector< Token * > * getTokens() const {
         return &tokens;
     }
 
@@ -208,7 +216,7 @@ protected:
         return name;
     }
 
-    virtual inline void setParent( const Token * const parent ){
+    virtual inline void setParent(Token * parent){
         this->parent = parent;
     }
 
@@ -217,7 +225,7 @@ protected:
     unsigned int num_token;
     std::vector< Token * > tokens;
     std::string filename;
-    Token const * parent;
+    Token * parent;
     std::string name;
     bool own;
 };
