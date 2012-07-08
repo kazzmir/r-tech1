@@ -634,37 +634,37 @@ static Configuration::JoystickInput getKey(int player, OptionJoystick::JoystickT
 static void setKey(int player, OptionJoystick::JoystickType k, Configuration::JoystickInput key){
     switch(k){
         case OptionJoystick::Up:
-            Configuration::setJoystickUp(key);
+            Configuration::setJoystickUp(player, key);
             break;
         case OptionJoystick::Down:
-            Configuration::setJoystickDown(key);
+            Configuration::setJoystickDown(player, key);
             break;
         case OptionJoystick::Left:
-            Configuration::setJoystickLeft(key);
+            Configuration::setJoystickLeft(player, key);
             break;
         case OptionJoystick::Right:
-            Configuration::setJoystickRight( key );
+            Configuration::setJoystickRight(player, key);
             break;
         case OptionJoystick::Jump:
-            Configuration::setJoystickJump( key );
+            Configuration::setJoystickJump(player, key);
             break;
         case OptionJoystick::Attack1:
-            Configuration::setJoystickAttack1( key );
+            Configuration::setJoystickAttack1(player, key);
             break;
         case OptionJoystick::Attack2:
-            Configuration::setJoystickAttack2( key );
+            Configuration::setJoystickAttack2(player, key);
             break;
         case OptionJoystick::Attack3:
-            Configuration::setJoystickAttack3( key );
+            Configuration::setJoystickAttack3(player, key);
             break;
         case OptionJoystick::Attack4:
-            Configuration::setJoystickAttack4( key );
+            Configuration::setJoystickAttack4(player, key);
             break;
         case OptionJoystick::Attack5:
-            Configuration::setJoystickAttack5( key );
+            Configuration::setJoystickAttack5(player, key);
             break;
         case OptionJoystick::Attack6:
-            Configuration::setJoystickAttack6( key );
+            Configuration::setJoystickAttack6(player, key);
             break;
         default:
             break;
@@ -920,37 +920,37 @@ static int getKey(int player, OptionKey::keyType k){
 static void setKey(int player, OptionKey::keyType k, int key){
     switch(k){
         case OptionKey::up:
-            Configuration::setUp(key);
+            Configuration::setUp(player, key);
             break;
         case OptionKey::down:
-            Configuration::setDown(key);
+            Configuration::setDown(player, key);
             break;
         case OptionKey::left:
-            Configuration::setLeft(key);
+            Configuration::setLeft(player, key);
             break;
         case OptionKey::right:
-            Configuration::setRight(key);
+            Configuration::setRight(player, key);
             break;
         case OptionKey::jump:
-            Configuration::setJump(key);
+            Configuration::setJump(player, key);
             break;
         case OptionKey::attack1:
-            Configuration::setAttack1(key);
+            Configuration::setAttack1(player, key);
             break;
         case OptionKey::attack2:
-            Configuration::setAttack2(key);
+            Configuration::setAttack2(player, key);
             break;
         case OptionKey::attack3:
-            Configuration::setAttack3(key);
+            Configuration::setAttack3(player, key);
             break;
         case OptionKey::attack4:
-            Configuration::setAttack4(key);
+            Configuration::setAttack4(player, key);
             break;
         case OptionKey::attack5:
-            Configuration::setAttack5(key);
+            Configuration::setAttack5(player, key);
             break;
         case OptionKey::attack6:
-            Configuration::setAttack6(key);
+            Configuration::setAttack6(player, key);
             break;
         default:
             break;
