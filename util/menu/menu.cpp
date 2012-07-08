@@ -1383,12 +1383,12 @@ void Menu::Menu::run(const Context & parentContext){
         input.set(Keyboard::Key_H, 0, true, Left);
         input.set(Keyboard::Key_L, 0, true, Right);
         /* regular keys */
-        input.set(Configuration::config(0).getUp(), 0, true, Up);
-        input.set(Configuration::config(0).getDown(), 0, true, Down);
-        input.set(Configuration::config(0).getLeft(), 0, true, Left);
-        input.set(Configuration::config(0).getRight(), 0, true, Right);
+        input.set(Configuration::getUp(0), 0, true, Up);
+        input.set(Configuration::getDown(0), 0, true, Down);
+        input.set(Configuration::getLeft(0), 0, true, Left);
+        input.set(Configuration::getRight(0), 0, true, Right);
+        input.set(Configuration::getAttack1(0), 0, true, Select);
         /* FIXME: use configuration keys */
-        input.set(Configuration::config(0).getAttack1(), 0, true, Select);
         input.set(Keyboard::Key_ENTER, 0, true, Select);
         input.set(Keyboard::Key_ESC, 0, true, Cancel);
         /* joystick */
