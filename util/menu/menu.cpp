@@ -1392,16 +1392,16 @@ void Menu::Menu::run(const Context & parentContext){
         input.set(Keyboard::Key_ENTER, 0, true, Select);
         input.set(Keyboard::Key_ESC, 0, true, Cancel);
         /* joystick */
-        input.set(Configuration::config(0).getJoystickUp(), 0, true, Up);
-        input.set(Configuration::config(0).getJoystickDown(), 0, true, Down);
-        input.set(Configuration::config(0).getJoystickLeft(), 0, true, Left);
-        input.set(Configuration::config(0).getJoystickRight(), 0, true, Right);
+        input.set(Configuration::getJoystickUp(0), 0, true, Up);
+        input.set(Configuration::getJoystickDown(0), 0, true, Down);
+        input.set(Configuration::getJoystickLeft(0), 0, true, Left);
+        input.set(Configuration::getJoystickRight(0), 0, true, Right);
         /*! FIXME this should be changed to Select/Cancel buttons, all other buttons should be Select */
-        input.set(Configuration::config(0).getJoystickAttack1(), 0, true, Select);
-        input.set(Configuration::config(0).getJoystickAttack2(), 0, true, Select);
-        input.set(Configuration::config(0).getJoystickAttack3(), 0, true, Select);
-        input.set(Configuration::config(0).getJoystickJump(), 0, true, Select);
-        input.set(Configuration::config(0).getJoystickQuit(), 0, true, Cancel);
+        input.set(Configuration::getJoystickAttack1(0), 0, true, Select);
+        input.set(Configuration::getJoystickAttack2(0), 0, true, Select);
+        input.set(Configuration::getJoystickAttack3(0), 0, true, Select);
+        input.set(Configuration::getJoystickJump(0), 0, true, Select);
+        input.set(Configuration::getJoystickQuit(0), 0, true, Cancel);
        
         class Logic: public Util::Logic {
         public:
