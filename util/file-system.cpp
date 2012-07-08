@@ -520,6 +520,7 @@ path(path){
 
 Token * NormalFile::location(){
     Token * head = new Token();
+    *head << "file";
     *head << path.path();
     return head;
 }
