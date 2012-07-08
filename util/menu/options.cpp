@@ -881,35 +881,35 @@ static OptionKey::keyType convertToKeyboardKey(const std::string &k){
 static int getKey(int player, OptionKey::keyType k){
     switch(k){
         case OptionKey::up:
-            return Configuration::config( player ).getUp();
+            return Configuration::getUp(player);
             break;
         case OptionKey::down:
-            return Configuration::config( player ).getDown();
+            return Configuration::getDown(player);
             break;
         case OptionKey::left:
-            return Configuration::config( player ).getLeft();
+            return Configuration::getLeft(player);
             break;
         case OptionKey::right:
-            return Configuration::config( player ).getRight();
+            return Configuration::getRight(player);
             break;
         case OptionKey::jump:
-            return Configuration::config( player ).getJump();
+            return Configuration::getJump(player);
             break;
         case OptionKey::attack1:
-            return Configuration::config( player ).getAttack1();
+            return Configuration::getAttack1(player);
             break;
         case OptionKey::attack2:
-            return Configuration::config( player ).getAttack2();
+            return Configuration::getAttack2(player);
             break;
         case OptionKey::attack3:
-            return Configuration::config( player ).getAttack3();
+            return Configuration::getAttack3(player);
             break;
         case OptionKey::attack4:
-            return Configuration::config(player).getAttack4();
+            return Configuration::getAttack4(player);
         case OptionKey::attack5:
-            return Configuration::config(player).getAttack5();
+            return Configuration::getAttack5(player);
         case OptionKey::attack6:
-            return Configuration::config(player).getAttack6();
+            return Configuration::getAttack6(player);
         default:
             break;
     }
