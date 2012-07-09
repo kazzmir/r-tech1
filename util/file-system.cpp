@@ -957,7 +957,7 @@ bool isContainer(const Path::AbsolutePath & path){
 }
 
 bool System::exists(const AbsolutePath & path){
-    return virtualDirectory.exists(path) != NULL || systemExists(path);
+    return (virtualDirectory.exists(path) != NULL) || systemExists(path);
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
