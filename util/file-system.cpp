@@ -480,6 +480,20 @@ vector<Filesystem::AbsolutePath> System::getFiles(const Filesystem::AbsolutePath
     }
     return out;
 }
+        
+Filesystem::AbsolutePath System::findContainer(const RelativePath & dataPath){
+    try{
+        return find(RelativePath(dataPath.path() + ".zip"));
+    } catch (const NotFound & fail){
+    }
+
+    try{
+        return find(RelativePath(dataPath.path() + ".7z"));
+    } catch (const NotFound & fail){
+    }
+
+    throw NotFound(dataPath.path(), __LINE__, __FILE__);
+}
 
 vector<Filesystem::AbsolutePath> System::getContainerFilesRecursive(const Filesystem::AbsolutePath & dataPath){
     vector<Filesystem::AbsolutePath> out;
