@@ -514,6 +514,18 @@ namespace Storage{
          *  .zip
          */
         virtual std::vector<AbsolutePath> getContainerFilesRecursive(const AbsolutePath & dataPath);
+        
+        /* Given a path with no extension, find a container file that is <name>.zip or
+         * <name>.7z or whatever exists.
+         * So if dataPath is "mugen/foo" this function will look for
+         *  mugen/foo.zip
+         *  mugen/foo.7z
+         *  mugen/foo.rar
+         *  ...
+         *
+         * and return the first one it finds
+         */
+        virtual AbsolutePath findContainer(const RelativePath & dataPath);
 
         /* search for a pattern of a single file within a directory */
         virtual std::vector<AbsolutePath> getFiles(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
