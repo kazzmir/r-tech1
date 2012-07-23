@@ -58,8 +58,8 @@ typedef struct
   unsigned index;
   CLoopThread thread;
 
-  Bool stopReading;
-  Bool stopWriting;
+  LzmaBool stopReading;
+  LzmaBool stopWriting;
   CAutoResetEvent canRead;
   CAutoResetEvent canWrite;
 } CMtThread;

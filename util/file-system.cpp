@@ -26,6 +26,11 @@
 #include "zip/unzip.h"
 #include "zip/ioapi.h"
 
+#include "7z/7zFile.h"
+#include "7z/7z.h"
+#include "7z/7zAlloc.h"
+#include "7z/7zCrc.h"
+
 #ifndef USE_ALLEGRO
 /* some sfl symbols conflict with allegro */
 #include "sfl/sfl.h"
@@ -657,6 +662,45 @@ File & StringFile::operator>>(unsigned char & c){
 
 StringFile::~StringFile(){
 }
+
+/* For 7z */
+class LzmaContainer{
+public:
+    LzmaContainer(const string & path, const Filesystem::AbsolutePath & start){
+        allocator.Alloc = SzAlloc;
+        allocator.Free = SzFree;
+        allocatorTemporary.Alloc = SzAllocTemp;
+        allocatorTemporary.Free = SzFreeTemp;
+        if (InFile_Open(&archiveStream.file, path.c_str())){
+            /* Error */
+        }
+
+        FileInStream_CreateVTable(&archiveStream);
+        LookToRead_CreateVTable(&lookStream, False);
+
+        lookStream.realStream = &archiveStream.s;
+        LookToRead_Init(&lookStream);
+
+        CrcGenerateTable();
+
+        SzArEx_Init(&database);
+        int ok = SzArEx_Open(&database, &lookStream.s, &allocator, &allocatorTemporary);
+        if (ok == SZ_OK){
+            /* Can read files */
+        }
+    }
+
+    virtual ~LzmaContainer(){
+        SzArEx_Free(&database, &allocator);
+        File_Close(&archiveStream.file);
+    }
+
+    CFileInStream archiveStream;
+    CLookToRead lookStream;
+    CSzArEx database;
+    ISzAlloc allocator;
+    ISzAlloc allocatorTemporary;
+};
 
 /* overlays:
  * add x/y.zip

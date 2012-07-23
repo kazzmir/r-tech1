@@ -21,10 +21,10 @@ extern "C" {
 
 typedef struct _CMtSync
 {
-  Bool wasCreated;
-  Bool needStart;
-  Bool exit;
-  Bool stopWriting;
+  LzmaBool wasCreated;
+  LzmaBool needStart;
+  LzmaBool exit;
+  LzmaBool stopWriting;
 
   CThread thread;
   CAutoResetEvent canStart;
@@ -32,8 +32,8 @@ typedef struct _CMtSync
   CAutoResetEvent wasStopped;
   CSemaphore freeSemaphore;
   CSemaphore filledSemaphore;
-  Bool csWasInitialized;
-  Bool csWasEntered;
+  LzmaBool csWasInitialized;
+  LzmaBool csWasEntered;
   CCriticalSection cs;
   UInt32 numProcessedBlocks;
 } CMtSync;

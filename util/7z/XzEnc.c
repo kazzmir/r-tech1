@@ -391,7 +391,7 @@ static SRes Xz_Compress(CXzStream *xz,
     ISeqOutStream *outStream,
     ISeqInStream *inStream,
     const CLzma2EncProps *lzma2Props,
-    Bool useSubblock,
+    LzmaBool useSubblock,
     ICompressProgress *progress)
 {
   xz->flags = XZ_CHECK_CRC32;
@@ -467,7 +467,7 @@ static SRes Xz_Compress(CXzStream *xz,
 }
 
 SRes Xz_Encode(ISeqOutStream *outStream, ISeqInStream *inStream,
-    const CLzma2EncProps *lzma2Props, Bool useSubblock,
+    const CLzma2EncProps *lzma2Props, LzmaBool useSubblock,
     ICompressProgress *progress)
 {
   SRes res;

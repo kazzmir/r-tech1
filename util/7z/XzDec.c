@@ -378,7 +378,7 @@ SRes MixCoder_Code(CMixCoder *p, Byte *dest, SizeT *destLen,
 {
   SizeT destLenOrig = *destLen;
   SizeT srcLenOrig = *srcLen;
-  Bool allFinished = True;
+  LzmaBool allFinished = True;
   *destLen = 0;
   *srcLen = 0;
   *status = CODER_STATUS_NOT_FINISHED;
@@ -395,7 +395,7 @@ SRes MixCoder_Code(CMixCoder *p, Byte *dest, SizeT *destLen,
 
   for (;;)
   {
-    Bool processed = False;
+    LzmaBool processed = False;
     int i;
     /*
     if (p->numCoders == 1 && *destLen == destLenOrig && finishMode == LZMA_FINISH_ANY)
@@ -488,7 +488,7 @@ SRes Xz_ParseHeader(CXzStreamFlags *p, const Byte *buf)
   return XzFlags_IsSupported(*p) ? SZ_OK : SZ_ERROR_UNSUPPORTED;
 }
 
-static Bool Xz_CheckFooter(CXzStreamFlags flags, UInt64 indexSize, const Byte *buf)
+static LzmaBool Xz_CheckFooter(CXzStreamFlags flags, UInt64 indexSize, const Byte *buf)
 {
   return
       indexSize == (((UInt64)GetUi32(buf + 4) + 1) << 2) &&
@@ -558,7 +558,7 @@ SRes XzBlock_Parse(CXzBlock *p, const Byte *header)
 SRes XzDec_Init(CMixCoder *p, const CXzBlock *block)
 {
   int i;
-  Bool needReInit = True;
+  LzmaBool needReInit = True;
   int numFilters = XzBlock_GetNumFilters(block);
   if (numFilters == p->numCoders)
   {
@@ -869,7 +869,7 @@ SRes XzUnpacker_Code(CXzUnpacker *p, Byte *dest, SizeT *destLen,
   */
 }
 
-Bool XzUnpacker_IsStreamWasFinished(CXzUnpacker *p)
+LzmaBool XzUnpacker_IsStreamWasFinished(CXzUnpacker *p)
 {
   return (p->state == XZ_STATE_STREAM_PADDING) && (((UInt32)p->padSize & 3) == 0);
 }

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 SRes Xz_Encode(ISeqOutStream *outStream, ISeqInStream *inStream,
-    const CLzma2EncProps *lzma2Props, Bool useSubblock,
+    const CLzma2EncProps *lzma2Props, LzmaBool useSubblock,
     ICompressProgress *progress);
 
 SRes Xz_EncodeEmpty(ISeqOutStream *outStream);
