@@ -93,7 +93,7 @@ void Ppmd7_Free(CPpmd7 *p, ISzAlloc *alloc)
   p->Base = 0;
 }
 
-Bool Ppmd7_Alloc(CPpmd7 *p, UInt32 size, ISzAlloc *alloc)
+LzmaBool Ppmd7_Alloc(CPpmd7 *p, UInt32 size, ISzAlloc *alloc)
 {
   if (p->Base == 0 || p->Size != size)
   {
@@ -338,7 +338,7 @@ void Ppmd7_Init(CPpmd7 *p, unsigned maxOrder)
   p->DummySee.Count = 64; /* unused */
 }
 
-static CTX_PTR CreateSuccessors(CPpmd7 *p, Bool skip)
+static CTX_PTR CreateSuccessors(CPpmd7 *p, LzmaBool skip)
 {
   CPpmd_State upState;
   CTX_PTR c = p->MinContext;
