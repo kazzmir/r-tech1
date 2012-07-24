@@ -14,6 +14,7 @@
 #include "file-system.h"
 #include "thread.h"
 #include "system.h"
+#include "utf.h"
 #include "globals.h"
 #include <dirent.h>
 #include <sstream>
@@ -687,7 +688,33 @@ public:
         int ok = SzArEx_Open(&database, &lookStream.s, &allocator, &allocatorTemporary);
         if (ok == SZ_OK){
             /* Can read files */
+            UInt16 * name = NULL;
+            int tempSize = 0;
+            for (int index = 0; index < database.db.NumFiles; index++){
+                size_t offset = 0;
+                size_t outSizeProcessed = 0;
+                const CSzFileItem * file = database.db.Files + index;
+                size_t length;
+                if (file->IsDir){
+                    continue;
+                }
+                length = SzArEx_GetFileNameUtf16(&database, index, NULL);
+                if (length > tempSize){
+                    delete[] name;
+                    name = new UInt16[length];
+                    memset(name, 0, length);
+                }
+
+                SzArEx_GetFileNameUtf16(&database, index, name);
+                files.push_back(Utf::utf16_to_utf8(name));
+            }
+
+            delete[] name;
         }
+    }
+
+    vector<string> getFiles(){
+        return files;
     }
 
     virtual ~LzmaContainer(){
@@ -700,6 +727,8 @@ public:
     CSzArEx database;
     ISzAlloc allocator;
     ISzAlloc allocatorTemporary;
+
+    vector<string> files;
 };
 
 /* overlays:
@@ -1015,17 +1044,15 @@ bool isContainer(const Path::AbsolutePath & path){
 }
 
 bool System::exists(const AbsolutePath & path){
-    return (virtualDirectory.exists(path) != NULL) || systemExists(path);
+    return virtualDirectory.exists(path) || systemExists(path);
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
     virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)).convert<Descriptor>());
-    // overlays[where] = zip;
 }
 
 void System::unoverlayFile(const AbsolutePath & where){
     virtualDirectory.removeFile(where);
-    // overlays.erase(where);
 }
         
 vector<string> System::containerFileList(const AbsolutePath & container){
@@ -1033,14 +1060,24 @@ vector<string> System::containerFileList(const AbsolutePath & container){
     return zip->getFiles();
 }
 
-void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
-    Global::debug(1) << "Opening zip file " << container.path() << std::endl;
-    Util::ReferenceCount<ZipContainer> zip(new ZipContainer(container.path(), where));
-    vector<string> files = zip->getFiles();
+static bool isZipFile(const Filesystem::AbsolutePath & path){
+    return path.path().find(".zip") != string::npos;
+}
+
+template <class Container>
+static void addOverlayFiles(System & system, const Filesystem::AbsolutePath & where, const Util::ReferenceCount<Container> & container){
+    vector<string> files = container->getFiles();
     for (vector<string>::const_iterator it = files.begin(); it != files.end(); it++){
         string path = *it;
         Global::debug(1) << "Add overlay to " << where.join(Filesystem::RelativePath(path)).path() << std::endl;
-        overlayFile(where.join(Filesystem::RelativePath(path)), zip);
+        system.overlayFile(where.join(Filesystem::RelativePath(path)), container);
+    }
+}
+
+void System::addOverlay(const AbsolutePath & container, const AbsolutePath & where){
+    if (isZipFile(container)){
+        Global::debug(1) << "Opening zip file " << container.path() << std::endl;
+        addOverlayFiles(*this, where, Util::ReferenceCount<ZipContainer>(new ZipContainer(container.path(), where)));
     }
 }
 

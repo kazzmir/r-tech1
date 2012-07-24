@@ -548,10 +548,15 @@ namespace Storage{
         virtual AbsolutePath lookupInsensitive(const AbsolutePath & directory, const RelativePath & path) = 0;
 
         virtual Util::ReferenceCount<File> open(const AbsolutePath & path, File::Access mode = File::Read);
+
+    /* Should be protected but needs to be public so we can use it in template methods
+     * in the implementation file.
+     */
+    public:
+        virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
     protected:
         virtual bool systemExists(const AbsolutePath & path) = 0;
 
-        virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
         virtual void unoverlayFile(const AbsolutePath & where);
 
         // std::map<AbsolutePath, Util::ReferenceCount<ZipContainer> > overlays;
