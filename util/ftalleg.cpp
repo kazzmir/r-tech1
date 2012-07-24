@@ -38,6 +38,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 */
 
 #include "ftalleg.h"
+#include "utf.h"
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -505,70 +506,6 @@ namespace ftalleg{
             return faceLoaded;
         }
 
-        /* utf8 decoding
-         * FIXME: handle the case when `position' runs out of bytes
-         */
-        static long decodeUnicode(const std::string & input, unsigned int * position){
-            unsigned char byte1 = (unsigned char) input[*position];
-            /* one byte - ascii */
-            if (byte1 >> 7 == 0){
-                return byte1;
-            }
-
-            if (byte1 >> 5 == 6){
-                *position += 1;
-                if (*position >= input.size()){
-                    return 0;
-                }
-                unsigned char byte2 = (unsigned char) input[*position];
-                int top = byte1 & 31;
-                int bottom = byte2 & 63;
-                return (top << 6) + bottom;
-            }
-
-            if (byte1 >> 4 == 14){
-                *position += 1;
-                if (*position >= input.size()){
-                    return 0;
-                }
-                unsigned char byte2 = (unsigned char) input[*position];
-                *position += 1;
-                if (*position >= input.size()){
-                    return 0;
-                }
-                unsigned char byte3 = (unsigned char) input[*position];
-                int top4 = byte1 & 15;
-                int middle6 = byte2 & 63;
-                int bottom6 = byte3 & 63;
-                return (top4 << (6+6)) + (middle6 << 6) + bottom6;
-            }
-
-            if (byte1 >> 3 == 30){
-                *position += 1;
-                if (*position >= input.size()){
-                    return 0;
-                }
-                unsigned char byte2 = (unsigned char) input[*position];
-                *position += 1;
-                if (*position >= input.size()){
-                    return 0;
-                }
-                unsigned char byte3 = (unsigned char) input[*position];
-                *position += 1;
-                if (*position >= input.size()){
-                    return 0;
-                }
-                unsigned char byte4 = (unsigned char) input[*position];
-                int unit1 = byte1 & 7;
-                int unit2 = byte2 & 63;
-                int unit3 = byte3 & 63;
-                int unit4 = byte4 & 63;
-                return (unit1 << 18) + (unit2 << 12) + (unit3 << 6) + unit4;
-            }
-
-            return 0;
-        }
-
 	//! Get text length
         int freetype::getLength(const std::string & text) {
             Util::Thread::ScopedLock locked(lock);
@@ -578,7 +515,7 @@ namespace ftalleg{
             if (ft != fontTable.end()){
                 for (unsigned int i = 0; i < text.length(); i++) {
                     std::map<signed long, character*>::iterator p;
-                    signed long unicode = decodeUnicode(text, &i);
+                    signed long unicode = Utf::readUtf8CodePoint(text, &i);
                     p = (ft->second).find(unicode);
                     if (p != (ft->second).end()){
                         if (p != fontTable[size.createKey()].end()){
@@ -643,7 +580,7 @@ namespace ftalleg{
                 int previous = 0;
                 int next = 0;
                 for (unsigned int i = 0; i<fixedText.length(); i++){
-                    long unicode = decodeUnicode(fixedText, &i);
+                    long unicode = Utf::readUtf8CodePoint(fixedText, &i);
                     if (kerning && previous && next){
                         next = FT_Get_Char_Index(face, unicode);
                         FT_Vector delta;

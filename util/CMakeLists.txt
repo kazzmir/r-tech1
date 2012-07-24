@@ -21,6 +21,7 @@ sound.cpp
 timer.cpp
 music.cpp
 init.cpp
+utf.cpp
 console.cpp
 input/keyboard.cpp
 loading.cpp
