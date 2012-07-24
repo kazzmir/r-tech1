@@ -130,8 +130,8 @@ namespace Utf{
                  *    W2 as its 10 low-order bits.
                  */
                 /* 5) Add 0x10000 to U' to obtain the character value U. Terminate. */
-                return (((word1 & 0x1777) << 10) |
-                         (word2 & 0x1777)) + 0x10000;
+                return (((word1 & 0x3ff) << 10) |
+                         (word2 & 0x3ff)) + 0x10000;
             }
         }
         
