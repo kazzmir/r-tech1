@@ -371,6 +371,7 @@ namespace Storage{
             }
     };
 
+    class LzmaContainer;
     class ZipContainer;
     class ZipFile: public File {
     public:
@@ -554,6 +555,7 @@ namespace Storage{
      */
     public:
         virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
+        virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<LzmaContainer> container);
     protected:
         virtual bool systemExists(const AbsolutePath & path) = 0;
 

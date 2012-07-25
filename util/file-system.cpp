@@ -1047,6 +1047,9 @@ bool System::exists(const AbsolutePath & path){
     return virtualDirectory.exists(path) || systemExists(path);
 }
 
+void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<LzmaContainer> container){
+}
+
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
     virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)).convert<Descriptor>());
 }
@@ -1064,6 +1067,10 @@ static bool isZipFile(const Filesystem::AbsolutePath & path){
     return path.path().find(".zip") != string::npos;
 }
 
+static bool is7zFile(const Filesystem::AbsolutePath & path){
+    return path.path().find(".7z") != string::npos;
+}
+
 template <class Container>
 static void addOverlayFiles(System & system, const Filesystem::AbsolutePath & where, const Util::ReferenceCount<Container> & container){
     vector<string> files = container->getFiles();
@@ -1078,6 +1085,8 @@ void System::addOverlay(const AbsolutePath & container, const AbsolutePath & whe
     if (isZipFile(container)){
         Global::debug(1) << "Opening zip file " << container.path() << std::endl;
         addOverlayFiles(*this, where, Util::ReferenceCount<ZipContainer>(new ZipContainer(container.path(), where)));
+    } else if (is7zFile(container)){
+        addOverlayFiles(*this, where, Util::ReferenceCount<LzmaContainer>(new LzmaContainer(container.path(), where)));
     }
 }
 
