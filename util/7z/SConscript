@@ -1,10 +1,19 @@
 Import('use')
 
-source = Split("""
-7zAlloc.c 7zBuf.c 7zBuf2.c 7zCrc.c 7zCrcOpt.c 7zDec.c 7zIn.c CpuArch.c LzmaDec.c Lzma2Dec.c Bra.c Bra86.c Bcj2.c 7zFile.c 7zStream.c
-""")
+#source = Split("""
+#7zAlloc.c 7zBuf.c 7zBuf2.c 7zCrc.c 7zCrcOpt.c 7zDec.c 7zIn.c CpuArch.c LzmaDec.c Lzma2Dec.c Bra.c Bra86.c Bcj2.c 7zFile.c 7zStream.c
+#""")
 # Ppmd7.c 
 # Ppmd7Dec.c 
+
+
+import helpers
+import os.path
+modules = helpers.read_cmake_list(os.path.join(helpers.findDirectory('src/util/7z'), 'CMakeLists.txt'))
+
+source = []
+for module in modules:
+    source.append(modules[module])
 
 out = use.StaticLibrary('7z-local', source)
 Return('out')
