@@ -673,7 +673,9 @@ StringFile::~StringFile(){
 /* For 7z */
 class LzmaContainer{
 public:
-    LzmaContainer(const string & path, const Filesystem::AbsolutePath & start){
+    LzmaContainer(const string & path, const Filesystem::AbsolutePath & start):
+    path(path),
+    start(start){
         allocator.Alloc = SzAlloc;
         allocator.Free = SzFree;
         allocatorTemporary.Alloc = SzAllocTemp;
@@ -719,6 +721,27 @@ public:
         }
     }
 
+    void readFile(const Path::AbsolutePath & path, unsigned char ** buffer, size_t * size){
+        *buffer = 0;
+        *size = 0;
+        if (files.find(path.path()) != files.end()){
+            int index = files[path.path()];
+            UInt32 block = 0;
+            size_t offset = 0;
+            size_t processed = 0;
+            int ok = SzArEx_Extract(&database, &lookStream.s, index,
+                                    &block, buffer, size, &offset, &processed,
+                                    &allocator, &allocatorTemporary);
+            if (ok != SZ_OK){
+                Global::debug(0) << "Could not read file from 7z archive: " << path.path() << endl;
+                return;
+            }
+            if (offset != 0){
+                memmove(*buffer, *buffer + offset, processed);
+            }
+        }
+    }
+
     vector<string> getFiles(){
         vector<string> names;
         for (map<string, int>::iterator it = files.begin(); it != files.begin(); it++){
@@ -727,10 +750,84 @@ public:
         return names;
     }
 
+    string getPath() const {
+        return path;
+    }
+
+    string getMount() const {
+        return start.path();
+    }
+
+    long getModificationTime(const Path::AbsolutePath & path){
+        if (files.find(path.path()) != files.end()){
+            int index = files[path.path()];
+            const CSzFileItem * file = database.db.Files + index; 
+            if (file->MTimeDefined){
+                CNtfsFileTime time = file->MTime;
+
+                /* Divide by 10 million here? */
+                return (time.Low | ((UInt64)time.High << 32)) / 10000000;
+
+                /*
+                unsigned year, mon, day, hour, min, sec;
+                UInt64 v64 = (time.Low | ((UInt64)time.High << 32)) / 10000000;
+                Byte ms[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+                unsigned t;
+                UInt32 v;
+                sec = (unsigned)(v64 % 60); v64 /= 60;
+                min = (unsigned)(v64 % 60); v64 /= 60;
+                hour = (unsigned)(v64 % 24); v64 /= 24;
+
+                v = (UInt32)v64;
+
+                const int PERIOD_4 = (4 * 365 + 1);
+                const int PERIOD_100 = (PERIOD_4 * 25 - 1);
+                const int PERIOD_400 = (PERIOD_100 * 4 + 1);
+
+                year = (unsigned)(1601 + v / PERIOD_400 * 400);
+                v %= PERIOD_400;
+
+                t = v / PERIOD_100; if (t ==  4) t =  3; year += t * 100; v -= t * PERIOD_100;
+                t = v / PERIOD_4;   if (t == 25) t = 24; year += t * 4;   v -= t * PERIOD_4;
+                t = v / 365;        if (t ==  4) t =  3; year += t;       v -= t * 365;
+
+                if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)){
+                    ms[1] = 29;
+                }
+
+                for (mon = 1; mon <= 12; mon++){
+                    unsigned s = ms[mon - 1];
+                    if (v < s)
+                        break;
+                    v -= s;
+                }
+
+                day = (unsigned)v + 1;
+                struct tm outTime;
+                memset(&outTime, 0, sizeof(outTime));
+                outTime.tm_sec = sec;
+                outTime.tm_min = min;
+                outTime.tm_hour = hour;
+                outTime.tm_mday = day;
+                outTime.tm_mon = mon;
+                / * tm_year The number of years since 1900. * /
+                outTime.tm_year = year - 1900;
+                outTime.tm_isdst = -1;
+                return mktime(&outTime);
+                */
+            }
+        }
+
+        return 0;
+    }
+
     virtual ~LzmaContainer(){
         SzArEx_Free(&database, &allocator);
         File_Close(&archiveStream.file);
     }
+
+    string path;
+    Path::AbsolutePath start;
 
     CFileInStream archiveStream;
     CLookToRead lookStream;
@@ -1062,26 +1159,31 @@ public:
     }
 };
 
+/* Extracts an entire file from a 7z archive into memory */
 class LzmaFile: public File {
 public:
     LzmaFile(const Path::AbsolutePath & path, const Util::ReferenceCount<LzmaContainer> & container):
     path(path),
-    container(container){
+    container(container),
+    memory(NULL),
+    size(0){
+        container->readFile(path, &memory, &size);
     }
 
     virtual ~LzmaFile(){
+        SzFree(NULL, memory);
     }
 
     bool eof(){
-        return false;
+        return position < size;
     }
 
     virtual bool good(){
-        return true;
+        return memory != NULL;
     }
 
     virtual int getSize(){
-        return 0;
+        return size;
     }
 
     virtual bool canStream(){
@@ -1089,43 +1191,68 @@ public:
     }
 
     virtual void reset(){
+        position = 0;
     }
 
     virtual long tell(){
-        return 0;
+        return position;
     }
 
     virtual Token * location(){
-        return NULL;
+        Token * head = new Token();
+        *head << "container";
+        /* container zipfile mount-point file-inside-zip */
+        *head << container->getPath();
+        *head << container->getMount();
+        *head << path.path();
+        return head;
+
     }
 
     virtual long getModificationTime(){
-        return 0;
+        return container->getModificationTime(path);
     }
 
     virtual off_t seek(off_t position, int whence){
-        return 0;
+        switch (whence){
+            case SEEK_SET: this->position = position; break;
+            case SEEK_CUR: this->position += position; break;
+            case SEEK_END: this->position = this->position - position; break;
+        }
+        if (this->position < 0){
+            this->position = 0;
+        }
+        if (this->position > size){
+            this->position = size;
+        }
+        return this->position;
     }
 
     virtual File & operator>>(unsigned char & out){
+        if (this->position < size){
+            out = memory[position];
+            position += 1;
+        }
         return *this;
     }
 
     virtual int readLine(char * output, int size){
-        return 0;
+        if (size > (this->size - this->position)){
+            size = this->size - this->position;
+        }
+        memmove(output, memory + this->position, size);
+        this->position += size;
+        return size;
     }
 
 protected:
-    /* skips `bytes'.
-     * returns number of bytes skipped (may be less than bytes)
-     */
-    int skipBytes(int bytes);
-
     const Path::AbsolutePath path;
     const Util::ReferenceCount<LzmaContainer> container;
-    bool atEof;
     /* keep track of bytes read so we can seek easier */
     int position;
+        
+    unsigned char * memory;
+    size_t size;
 };
 
 class LzmaDescriptor: public Descriptor {
