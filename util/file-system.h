@@ -373,59 +373,7 @@ namespace Storage{
 
     class LzmaContainer;
     class ZipContainer;
-    class ZipFile: public File {
-    public:
-        ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & container);
-        virtual ~ZipFile();
-        virtual bool eof();
-        virtual bool good();
-        virtual int getSize();
-        virtual bool canStream();
-        virtual void reset();
-        virtual long tell();
-        virtual Token * location();
-        virtual long getModificationTime();
-        virtual off_t seek(off_t position, int whence);
-        virtual File & operator>>(unsigned char &);
-        
-        virtual int readLine(char * output, int size);
-
-    protected:
-        /* skips `bytes'.
-         * returns number of bytes skipped (may be less than bytes)
-         */
-        int skipBytes(int bytes);
-
-        const Path::AbsolutePath path;
-        const Util::ReferenceCount<ZipContainer> zip;
-        bool atEof;
-        /* keep track of bytes read so we can seek easier */
-        int position;
-    };
-
-    class NormalFile: public File {
-    public:
-        NormalFile(const Path::AbsolutePath & path, Access mode = Read);
-
-        virtual int readLine(char * output, int size);
-        virtual bool eof();
-        virtual bool good();
-        virtual int getSize();
-        virtual bool canStream();
-        virtual long getModificationTime();
-        virtual void reset();
-        virtual long tell();
-        virtual Token * location();
-        virtual off_t seek(off_t position, int whence);
-        virtual File & operator>>(unsigned char &);
-
-        virtual ~NormalFile();
-
-    protected:
-        const Path::AbsolutePath path;
-        std::fstream in;
-    };
-
+   
     class StringFile: public File {
     public:
         StringFile(const std::string & start);
