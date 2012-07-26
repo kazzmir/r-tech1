@@ -525,81 +525,87 @@ File::File(){
 File::~File(){
 }
         
-NormalFile::NormalFile(const Path::AbsolutePath & path, Access mode):
-path(path){
-    ios_base::openmode iosMode = fstream::in;
-    switch (mode){
-        case Read: iosMode = fstream::in; break;
-        case Write: iosMode = fstream::out; break;
-        case ReadWrite: iosMode = fstream::in | fstream::out; break;
+class NormalFile: public File {
+public:
+    NormalFile(const Path::AbsolutePath & path, Access mode = Read):
+        path(path){
+            ios_base::openmode iosMode = fstream::in;
+            switch (mode){
+                case Read: iosMode = fstream::in; break;
+                case Write: iosMode = fstream::out; break;
+                case ReadWrite: iosMode = fstream::in | fstream::out; break;
+            }
+
+            in.open(path.path().c_str(), iosMode | fstream::binary);
+            in >> noskipws;
+        }
+
+    Token * location(){
+        Token * head = new Token();
+        *head << "file";
+        *head << path.path();
+        return head;
     }
 
-    in.open(path.path().c_str(), iosMode | fstream::binary);
-    in >> noskipws;
-}
-
-Token * NormalFile::location(){
-    Token * head = new Token();
-    *head << "file";
-    *head << path.path();
-    return head;
-}
-
-long NormalFile::getModificationTime(){
-    return ::System::getModificationTime(path.path());
-}
-        
-bool NormalFile::canStream(){
-    return true;
-}
-
-long NormalFile::tell(){
-    return in.tellg();
-}
-        
-void NormalFile::reset(){
-    in.clear();
-}
-
-off_t NormalFile::seek(off_t position, int whence){
-    switch (whence){
-        case SEEK_SET: in.seekg(position, ios::beg); break;
-        case SEEK_CUR: in.seekg(position, ios::cur); break;
-        case SEEK_END: in.seekg(position, ios::end); break;
+    long getModificationTime(){
+        return ::System::getModificationTime(path.path());
     }
-    return in.tellg();
-}
 
-bool NormalFile::eof(){
-    return in.eof();
-}
+    bool canStream(){
+        return true;
+    }
 
-int NormalFile::getSize(){
-    streampos here = in.tellg();
-    in.seekg(0, ios::end);
-    int length = in.tellg();
-    in.seekg(here, ios::beg);
-    return length;
-}
+    long tell(){
+        return in.tellg();
+    }
 
-bool NormalFile::good(){
-    return in.good();
-}
+    void reset(){
+        in.clear();
+    }
 
-File & NormalFile::operator>>(unsigned char & c){
-    in >> c;
-    return *this;
-}
+    off_t seek(off_t position, int whence){
+        switch (whence){
+            case SEEK_SET: in.seekg(position, ios::beg); break;
+            case SEEK_CUR: in.seekg(position, ios::cur); break;
+            case SEEK_END: in.seekg(position, ios::end); break;
+        }
+        return in.tellg();
+    }
 
-int NormalFile::readLine(char * output, int size){
-    in.read(output, size);
-    return in.gcount();
-}
+    bool eof(){
+        return in.eof();
+    }
 
-NormalFile::~NormalFile(){
-    in.close();
-}
+    int getSize(){
+        streampos here = in.tellg();
+        in.seekg(0, ios::end);
+        int length = in.tellg();
+        in.seekg(here, ios::beg);
+        return length;
+    }
 
+    bool good(){
+        return in.good();
+    }
+
+    File & operator>>(unsigned char & c){
+        in >> c;
+        return *this;
+    }
+
+    int readLine(char * output, int size){
+        in.read(output, size);
+        return in.gcount();
+    }
+
+    ~NormalFile(){
+        in.close();
+    }
+
+protected:
+    const Path::AbsolutePath path;
+    std::fstream in;
+};
 
 StringFile::StringFile(const std::string & start):
 data(start),
@@ -706,7 +712,7 @@ public:
                 }
 
                 SzArEx_GetFileNameUtf16(&database, index, name);
-                files.push_back(Utf::utf16_to_utf8(name));
+                files[Utf::utf16_to_utf8(name)] = index;
             }
 
             delete[] name;
@@ -714,7 +720,11 @@ public:
     }
 
     vector<string> getFiles(){
-        return files;
+        vector<string> names;
+        for (map<string, int>::iterator it = files.begin(); it != files.begin(); it++){
+            names.push_back(it->first);
+        }
+        return names;
     }
 
     virtual ~LzmaContainer(){
@@ -728,7 +738,8 @@ public:
     ISzAlloc allocator;
     ISzAlloc allocatorTemporary;
 
-    vector<string> files;
+    /* Map the filename to its index in the 7z database */
+    map<string, int> files;
 };
 
 /* overlays:
@@ -896,123 +907,136 @@ protected:
     bool locked;
 };
 
-ZipFile::ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
-path(path),
-zip(zip),
-atEof(false),
-position(0){
-    zip->open(path);
-}
-
-ZipFile::~ZipFile(){
-    zip->close();
-}
-        
-long ZipFile::getModificationTime(){
-    return zip->modificationTime();
-}
-        
-Token * ZipFile::location(){
-    Token * head = new Token();
-    *head << "container";
-    /* container zipfile mount-point file-inside-zip */
-    *head << zip->getPath();
-    *head << zip->getMount();
-    *head << path.path();
-    return head;
-}
-
-int ZipFile::skipBytes(int bytes){
-    char dummy[1024];
-    int total = 0;
-    while (bytes > 0){
-        /* Calls the zip file directly here so we don't mess up position */
-        int read = zip->read(dummy, bytes > sizeof(dummy) ? sizeof(dummy) : bytes);
-        total += read;
-        if (read == 0){
-            return total;
+class ZipFile: public File {
+public:
+    ZipFile(const Path::AbsolutePath & path, const Util::ReferenceCount<ZipContainer> & zip):
+        path(path),
+        zip(zip),
+        atEof(false),
+        position(0){
+            zip->open(path);
         }
-        bytes -= read;
+
+    virtual ~ZipFile(){
+        zip->close();
     }
-    return total;
-}
+
+    long getModificationTime(){
+        return zip->modificationTime();
+    }
+
+    Token * location(){
+        Token * head = new Token();
+        *head << "container";
+        /* container zipfile mount-point file-inside-zip */
+        *head << zip->getPath();
+        *head << zip->getMount();
+        *head << path.path();
+        return head;
+    }
         
-off_t ZipFile::seek(off_t where, int whence){
-    /* It seems that minizip is not capable of seeking in a specific file in a zip
-     * container so we have to re-open the file and read `position' bytes to
-     * emulate the seek behavior.
-     */
-    switch (whence){
-        case SEEK_SET: {
-            if (where >= position){
-                /* Read bytes until we hit the offset */
-                position += skipBytes(where - position);
-            } else {
-                zip->close();
-                zip->open(path);
-                /* re-open file and read where bytes */
-                position = skipBytes(where);
+    off_t seek(off_t where, int whence){
+        /* It seems that minizip is not capable of seeking in a specific file in a zip
+         * container so we have to re-open the file and read `position' bytes to
+         * emulate the seek behavior.
+         */
+        switch (whence){
+            case SEEK_SET: {
+                if (where >= position){
+                    /* Read bytes until we hit the offset */
+                    position += skipBytes(where - position);
+                } else {
+                    zip->close();
+                    zip->open(path);
+                    /* re-open file and read where bytes */
+                    position = skipBytes(where);
+                }
+                break;
             }
-            break;
+            case SEEK_CUR: {
+                position += skipBytes(where);
+                break;
+            }
+            case SEEK_END: {
+                return seek(getSize() + where, SEEK_SET);
+                break;
+            }
         }
-        case SEEK_CUR: {
-            position += skipBytes(where);
-            break;
+        if (position > getSize()){
+            position = getSize();
         }
-        case SEEK_END: {
-            return seek(getSize() + where, SEEK_SET);
-            break;
+        atEof = position == getSize();
+
+        return position;
+    }
+        
+    bool eof(){
+        return atEof;
+    }
+        
+    long tell(){
+        return zip->tell();
+    }
+
+    void reset(){
+        /* TODO or nothing..? */
+    }
+
+    bool canStream(){
+        return false;
+    }
+
+    bool good(){
+        /* FIXME */
+        return true;
+    }
+
+    File & operator>>(unsigned char & c){
+        readLine((char*) &c, 1);
+        return *this;
+    }
+        
+    int getSize(){
+        return zip->currentFileSize();
+    }
+        
+    int readLine(char * output, int size){
+        try{
+            int read = zip->read(output, size);
+            position += read;
+            return read;
+        } catch (const Exception & nomore){
+            atEof = true;
+            return 0;
         }
     }
-    if (position > getSize()){
-        position = getSize();
+
+    protected:
+        /* skips `bytes'.
+         * returns number of bytes skipped (may be less than bytes)
+         */
+    int skipBytes(int bytes){
+        char dummy[1024];
+        int total = 0;
+        while (bytes > 0){
+            /* Calls the zip file directly here so we don't mess up position */
+            int read = zip->read(dummy, bytes > sizeof(dummy) ? sizeof(dummy) : bytes);
+            total += read;
+            if (read == 0){
+                return total;
+            }
+            bytes -= read;
+        }
+        return total;
     }
-    atEof = position == getSize();
-    
-    return position;
-}
-        
-bool ZipFile::eof(){
-    return atEof;
-}
-        
-long ZipFile::tell(){
-    return zip->tell();
-}
 
-void ZipFile::reset(){
-    /* TODO or nothing..? */
-}
+    const Path::AbsolutePath path;
+    const Util::ReferenceCount<ZipContainer> zip;
+    bool atEof;
+    /* keep track of bytes read so we can seek easier */
+    int position;
+};
 
-bool ZipFile::canStream(){
-    return false;
-}
-
-bool ZipFile::good(){
-    /* FIXME */
-    return true;
-}
-
-File & ZipFile::operator>>(unsigned char & c){
-    readLine((char*) &c, 1);
-    return *this;
-}
-        
-int ZipFile::getSize(){
-    return zip->currentFileSize();
-}
-        
-int ZipFile::readLine(char * output, int size){
-    try{
-        int read = zip->read(output, size);
-        position += read;
-        return read;
-    } catch (const Exception & nomore){
-        atEof = true;
-        return 0;
-    }
-}
-        
 Descriptor::Descriptor(){
 }
 
@@ -1038,6 +1062,91 @@ public:
     }
 };
 
+class LzmaFile: public File {
+public:
+    LzmaFile(const Path::AbsolutePath & path, const Util::ReferenceCount<LzmaContainer> & container):
+    path(path),
+    container(container){
+    }
+
+    virtual ~LzmaFile(){
+    }
+
+    bool eof(){
+        return false;
+    }
+
+    virtual bool good(){
+        return true;
+    }
+
+    virtual int getSize(){
+        return 0;
+    }
+
+    virtual bool canStream(){
+        return true;
+    }
+
+    virtual void reset(){
+    }
+
+    virtual long tell(){
+        return 0;
+    }
+
+    virtual Token * location(){
+        return NULL;
+    }
+
+    virtual long getModificationTime(){
+        return 0;
+    }
+
+    virtual off_t seek(off_t position, int whence){
+        return 0;
+    }
+
+    virtual File & operator>>(unsigned char & out){
+        return *this;
+    }
+
+    virtual int readLine(char * output, int size){
+        return 0;
+    }
+
+protected:
+    /* skips `bytes'.
+     * returns number of bytes skipped (may be less than bytes)
+     */
+    int skipBytes(int bytes);
+
+    const Path::AbsolutePath path;
+    const Util::ReferenceCount<LzmaContainer> container;
+    bool atEof;
+    /* keep track of bytes read so we can seek easier */
+    int position;
+};
+
+class LzmaDescriptor: public Descriptor {
+public:
+    LzmaDescriptor(const Path::AbsolutePath & path, const Util::ReferenceCount<LzmaContainer> & container):
+    path(path),
+    container(container){
+    }
+
+    Path::AbsolutePath path;
+    Util::ReferenceCount<LzmaContainer> container;
+
+    using Descriptor::open;
+    virtual Util::ReferenceCount<File> open(File::Access mode){
+        return Util::ReferenceCount<File>(new LzmaFile(path, container));
+    }
+
+    virtual ~LzmaDescriptor(){
+    }
+};
+
 /* Keep this updated with all the supported container types */
 bool isContainer(const Path::AbsolutePath & path){
     return path.getExtension() == "zip";
@@ -1048,6 +1157,7 @@ bool System::exists(const AbsolutePath & path){
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<LzmaContainer> container){
+    virtualDirectory.addFile(where, Util::ReferenceCount<LzmaDescriptor>(new LzmaDescriptor(where, container)).convert<Descriptor>());
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){

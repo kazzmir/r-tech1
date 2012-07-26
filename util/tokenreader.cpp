@@ -43,8 +43,8 @@ Token * TokenReader::readTokenFromFile(const std::string & path){
     file >> noskipws;
     */
     Filesystem::AbsolutePath realPath(path);
-    Storage::NormalFile file(realPath);
-    readTokens(file);
+    Util::ReferenceCount<Storage::File> file = Storage::instance().open(realPath);
+    readTokens(*file.raw());
     // file.close();
     if (my_tokens.size() > 0){
         my_tokens[0]->setFile(path);
