@@ -506,6 +506,8 @@ vector<Filesystem::AbsolutePath> System::getContainerFilesRecursive(const Filesy
 
     vector<Filesystem::AbsolutePath> zips = getFilesRecursive(dataPath, "*.zip");
     out.insert(out.end(), zips.begin(), zips.end());
+    zips = getFilesRecursive(dataPath, "*.7z");
+    out.insert(out.end(), zips.begin(), zips.end());
 
     return out;
 }
@@ -722,10 +724,11 @@ public:
     }
 
     void readFile(const Path::AbsolutePath & path, unsigned char ** buffer, size_t * size){
+        Path::RelativePath find(path.remove(start));
         *buffer = 0;
         *size = 0;
-        if (files.find(path.path()) != files.end()){
-            int index = files[path.path()];
+        if (files.find(find.path()) != files.end()){
+            int index = files[find.path()];
             UInt32 block = 0;
             size_t offset = 0;
             size_t processed = 0;
@@ -739,12 +742,17 @@ public:
             if (offset != 0){
                 memmove(*buffer, *buffer + offset, processed);
             }
+
+            /* The original size is the size of the block buffer, but we only care
+             * about the size of the actual file.
+             */
+            *size = processed;
         }
     }
 
     vector<string> getFiles(){
         vector<string> names;
-        for (map<string, int>::iterator it = files.begin(); it != files.begin(); it++){
+        for (map<string, int>::iterator it = files.begin(); it != files.end(); it++){
             names.push_back(it->first);
         }
         return names;
@@ -1165,6 +1173,7 @@ public:
     LzmaFile(const Path::AbsolutePath & path, const Util::ReferenceCount<LzmaContainer> & container):
     path(path),
     container(container),
+    position(0),
     memory(NULL),
     size(0){
         container->readFile(path, &memory, &size);
@@ -1276,7 +1285,8 @@ public:
 
 /* Keep this updated with all the supported container types */
 bool isContainer(const Path::AbsolutePath & path){
-    return path.getExtension() == "zip";
+    return path.getExtension() == "zip" ||
+           path.getExtension() == "7z";
 }
 
 bool System::exists(const AbsolutePath & path){
