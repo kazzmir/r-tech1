@@ -1184,7 +1184,7 @@ public:
     }
 
     bool eof(){
-        return position < size;
+        return position >= size;
     }
 
     virtual bool good(){
@@ -1200,7 +1200,7 @@ public:
     }
 
     virtual void reset(){
-        position = 0;
+        /* nothing */
     }
 
     virtual long tell(){
@@ -1226,7 +1226,7 @@ public:
         switch (whence){
             case SEEK_SET: this->position = position; break;
             case SEEK_CUR: this->position += position; break;
-            case SEEK_END: this->position = this->position - position; break;
+            case SEEK_END: this->position = this->size + position; break;
         }
         if (this->position < 0){
             this->position = 0;
