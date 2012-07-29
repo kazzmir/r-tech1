@@ -463,6 +463,11 @@ namespace Storage{
          *  .zip
          */
         virtual std::vector<AbsolutePath> getContainerFilesRecursive(const AbsolutePath & dataPath);
+        /* Gets container files only in the specified directory */
+        virtual std::vector<AbsolutePath> getContainerFiles(const AbsolutePath & dataPath);
+        
+        /* Gets container files in <user>/path ./path and <data>/path */
+        virtual std::vector<AbsolutePath> getContainerFiles(const RelativePath & path);
         
         /* Given a path with no extension, find a container file that is <name>.zip or
          * <name>.7z or whatever exists.

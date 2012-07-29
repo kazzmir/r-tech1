@@ -511,6 +511,28 @@ vector<Filesystem::AbsolutePath> System::getContainerFilesRecursive(const Filesy
 
     return out;
 }
+        
+vector<Path::AbsolutePath> System::getContainerFiles(const AbsolutePath & dataPath){
+    vector<Filesystem::AbsolutePath> out;
+
+    vector<Filesystem::AbsolutePath> zips = getFiles(dataPath, "*.zip");
+    out.insert(out.end(), zips.begin(), zips.end());
+    zips = getFiles(dataPath, "*.7z");
+    out.insert(out.end(), zips.begin(), zips.end());
+
+    return out;
+}
+
+vector<Filesystem::AbsolutePath> System::getContainerFiles(const RelativePath & path){
+    vector<Filesystem::AbsolutePath> out;
+
+    vector<Filesystem::AbsolutePath> zips = getFiles(path, Filesystem::RelativePath("*.zip"), false);
+    out.insert(out.end(), zips.begin(), zips.end());
+    zips = getFiles(path, Filesystem::RelativePath("*.7z"), false);
+    out.insert(out.end(), zips.begin(), zips.end());
+
+    return out;
+}
 
 static Util::ReferenceCount<System> self;
 System & instance(){
