@@ -28,8 +28,10 @@ static SDL_Surface * screen;
 static SDL_PixelFormat format565;
 
 /* FIXME: try to get rid of these two variables */
+/*
 static int SCALE_X;
 static int SCALE_Y;
+*/
 
 typedef unsigned int (*blender)(unsigned int color1, unsigned int color2, unsigned int alpha);
 
@@ -266,7 +268,6 @@ static SDL_Surface * optimizedSurface(SDL_Surface * in){
 }
 
 static Bitmap * Scaler = NULL;
-static Bitmap * Buffer = NULL;
     
 BitmapData::BitmapData(SDL_Surface * surface):
 surface(surface),
@@ -589,12 +590,16 @@ int setGraphicsMode(int mode, int width, int height){
 #endif
 
 
+    /*
     SCALE_X = width;
     SCALE_Y = height;
+    */
 
     /* does this need to be here? I think configuration will set SCALE_ */
+    /*
     SCALE_X = 640;
     SCALE_Y = 480;
+    */
 
     if ( Screen != NULL ){
         delete Screen;
@@ -607,11 +612,6 @@ int setGraphicsMode(int mode, int width, int height){
         Scaler = NULL;
     }
     */
-
-    if ( Buffer != NULL ){
-        delete Buffer;
-        Buffer = NULL;
-    }
 
     if (width != 0 && height != 0){
         Screen = new Bitmap(screen);
@@ -649,8 +649,6 @@ void Bitmap::shutdown(){
     Screen = NULL;
     delete Scaler;
     Scaler = NULL;
-    delete Buffer;
-    Buffer = NULL;
 }
 
 void Bitmap::addBlender( int r, int g, int b, int a ){
@@ -1069,9 +1067,16 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
 }
 
 void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) const {
-    if ( Scaler != NULL ){
+    this->Blit(upper_left_x, upper_left_y, *Screen);
+#if 0
+    if (Scaler != NULL && false){
+        /*
         double mult_x = (double) Scaler->getWidth() / (double) SCALE_X;
         double mult_y = (double) Scaler->getHeight() / (double) SCALE_Y;
+        */
+
+        double mult_x = 1;
+        double mult_y = 1;
 
         int x = (int)(upper_left_x * mult_x);
         int y = (int)(upper_left_y * mult_y);
@@ -1087,8 +1092,9 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
 
         // Scaler->Blit( x, y, w, h, *Screen );
     } else {
-        this->Blit( upper_left_x, upper_left_y, *Screen );
+        this->Blit(upper_left_x, upper_left_y, *Screen);
     }
+#endif
 }
 
 /*
@@ -1186,6 +1192,10 @@ void Bitmap::StretchHqx(const Bitmap & where, const int sourceX, const int sourc
 }
 
 void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
+
+    /* TODO: if souceWidth == destWidth && souceHeight == destHeight then
+     * just do a normal blit. check if sdl already does this optimization
+     */
 
     if (destWidth <= 0 || destHeight <= 0 ||
         sourceWidth <= 0 || sourceHeight <= 0){
