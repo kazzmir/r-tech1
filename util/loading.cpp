@@ -109,9 +109,14 @@ int Info::getPositionY() const {
 void * loadingScreenSimple1(void * arg);
 
 static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & screen){
-    Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * -1, Graphics::makeColor( 192, 192, 192 ), background, "Paintown version %s", 0, Global::getVersionString().c_str());
-    Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * 0, Graphics::makeColor( 192, 192, 192 ), background, "Made by Jon Rafkind", 0 );
-    Font::getDefaultFont().printf(400, 480 - Font::getDefaultFont().getHeight() * 5 / 2 + Font::getDefaultFont().getHeight() * 1, Graphics::makeColor(192, 192, 192), background, "http://paintown.org", 0);
+    int startX = background.getWidth() - Font::getDefaultFont().textLength("Paintown version 9.9.9.9");
+    int startY = background.getHeight() - Font::getDefaultFont().getHeight() * 4;
+    int height = Font::getDefaultFont().getHeight();
+
+    Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), background, "Paintown version %s", 0, Global::getVersionString().c_str());
+    Font::getDefaultFont().printf(startX, startY + height * 1, Graphics::makeColor(192, 192, 192), background, "Made by Jon Rafkind", 0);
+    Font::getDefaultFont().printf(startX, startY + height * 2, Graphics::makeColor(192, 192, 192), background, "http://paintown.org", 0);
+
     /* we have to blit to the screen object passed in because that is the bitmap
      * that will be operated on in the draw() method of loadingScreen1.
      * we also have to blit to the real screen because the screen object 
