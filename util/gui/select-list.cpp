@@ -641,10 +641,7 @@ static int computeOffset(int location, int width, int height){
     return offset;
 }
 
-bool GridSelect::up(unsigned int cursor){
-    if (checkCursor(cursor)){
-        return false;
-    }
+bool GridSelect::moveUp(unsigned int cursor){
     switch (layout){
         case Static:{
             if (inRange(cursors[cursor].getIndex(), 0, gridX-1)){
@@ -653,21 +650,29 @@ bool GridSelect::up(unsigned int cursor){
                     if (location >= items.size()){
                         location = items.size()-1;
                     }
+                    cursors[cursor].setIndex(location);
+                    /*
                     if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                         cursors[cursor].setIndex(location);
                         return true;
                     } else {
                         return false;
                     }
+                    */
+                } else {
+                    return false;
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex() - gridX;
+                cursors[cursor].setIndex(location);
+                /*
                 if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                     cursors[cursor].setIndex(location);
                     return true;
                 } else {
                     return false;
                 }
+                */
             }
             break;
         }
@@ -710,36 +715,69 @@ bool GridSelect::up(unsigned int cursor){
         default:
             break;
     }
-    return false;
+
+    return true;
 }
 
-bool GridSelect::down(unsigned int cursor){
+bool GridSelect::up(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
+
+    int place = cursors[cursor].getIndex();
+    bool ok = moveUp(cursor);
+    if (!ok){
+        return ok;
+    }
+
+    if (!accessEmpty && getItemByCursor(cursor)->isEmpty()){
+        while (ok && getItemByCursor(cursor)->isEmpty() && place != cursors[cursor].getIndex()){
+            ok = moveUp(cursor);
+        }
+    }
+
+    /* We tried to move but failed and wrapping doesn't work, so the only alternative
+     * is to revert to our original place.
+     */
+    if (!ok && !allowWrap){
+        cursors[cursor].setIndex(place);
+    }
+
+    return ok;
+}
+
+bool GridSelect::moveDown(unsigned int cursor){
     switch (layout){
         case Static:{
             if (inRange(cursors[cursor].getIndex(), gridX * (gridY-1), gridX * gridY)){
                 if (allowWrap){
                     unsigned int location = cursors[cursor].getIndex() - (gridX * (gridY-1));
+                    cursors[cursor].setIndex(location);
+                    /*
                     if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                         cursors[cursor].setIndex(location);
                         return true;
                     } else {
                         return false;
                     }
+                    */
+                } else {
+                    return false;
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex() + gridX;
                 if (location >= items.size()){
                     location = items.size()-1;
                 }
+                cursors[cursor].setIndex(location);
+                /*
                 if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                     cursors[cursor].setIndex(location);
                     return true;
                 } else {
                     return false;
                 }
+                */
             }
             break;
         }
@@ -779,13 +817,35 @@ bool GridSelect::down(unsigned int cursor){
         default:
             break;
     }
-    return false;
+
+    return true;
 }
 
-bool GridSelect::left(unsigned int cursor){
+bool GridSelect::down(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
+
+    int place = cursors[cursor].getIndex();
+    bool ok = moveDown(cursor);
+    if (!ok){
+        return ok;
+    }
+
+    if (!accessEmpty && getItemByCursor(cursor)->isEmpty()){
+        while (ok && getItemByCursor(cursor)->isEmpty() && place != cursors[cursor].getIndex()){
+            ok = moveDown(cursor);
+        }
+    }
+    
+    if (!ok && !allowWrap){
+        cursors[cursor].setIndex(place);
+    }
+
+    return ok;
+}
+
+bool GridSelect::moveLeft(unsigned int cursor){
     switch (layout){
         case Static:{
             if (endPoint(cursors[cursor].getIndex(), 0, gridX * gridY, gridX)){
@@ -794,20 +854,28 @@ bool GridSelect::left(unsigned int cursor){
                     if (location >= items.size()){
                         location = items.size()-1;
                     }
+                    cursors[cursor].setIndex(location);
+                    /*
                     if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                         cursors[cursor].setIndex(location);
                         return true;
                     } else {
                         return false;
                     }
+                    */
+                } else {
+                    return false;
                 }
             } else {
+                /* FIXME: I think this is wrong.. */
                 cursors[cursor].decrement();
+                /*
                 if (items[cursors[cursor].getIndex()]->isEmpty() && !accessEmpty){
                     cursors[cursor].increment();
                     return false;
                 }
                 return true;
+                */
             }
             break;
         }
@@ -850,13 +918,35 @@ bool GridSelect::left(unsigned int cursor){
         default:
             break;
     }
-    return false;
+
+    return true;
 }
 
-bool GridSelect::right(unsigned int cursor){
+bool GridSelect::left(unsigned int cursor){
     if (checkCursor(cursor)){
         return false;
     }
+
+    int place = cursors[cursor].getIndex();
+    bool ok = moveLeft(cursor);
+    if (!ok){
+        return ok;
+    }
+
+    if (!accessEmpty && getItemByCursor(cursor)->isEmpty()){
+        while (ok && getItemByCursor(cursor)->isEmpty() && place != cursors[cursor].getIndex()){
+            ok = moveLeft(cursor);
+        }
+    }
+    
+    if (!ok && !allowWrap){
+        cursors[cursor].setIndex(place);
+    }
+
+    return ok;
+}
+
+bool GridSelect::moveRight(unsigned int cursor){
     switch (layout){
         case Static:{
             if (endPoint(cursors[cursor].getIndex(), gridX-1, gridX * gridY, gridX)){
@@ -865,12 +955,17 @@ bool GridSelect::right(unsigned int cursor){
                     if (location < 0){
                         location = 0;
                     }
+                    cursors[cursor].setIndex(location);
+                    /*
                     if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                         cursors[cursor].setIndex(location);
                         return true;
                     } else {
                         return false;
                     }
+                    */
+                } else {
+                    return false;
                 }
             } else {
                 unsigned int location = cursors[cursor].getIndex()+1;
@@ -881,12 +976,16 @@ bool GridSelect::right(unsigned int cursor){
                         location = items.size()-1;
                     }
                 }
+
+                cursors[cursor].setIndex(location);
+                /*
                 if (!items[location]->isEmpty() || (items[location]->isEmpty() && accessEmpty)){
                     cursors[cursor].setIndex(location);
                     return true;
                 } else {
                     return false;
                 }
+                */
             }
             break;
         }
@@ -926,9 +1025,33 @@ bool GridSelect::right(unsigned int cursor){
         default:
             break;
     }
-    return false;
+
+    return true;
 }
 
+bool GridSelect::right(unsigned int cursor){
+    if (checkCursor(cursor)){
+        return false;
+    }
+
+    int place = cursors[cursor].getIndex();
+    bool ok = moveRight(cursor);
+    if (!ok){
+        return ok;
+    }
+
+    if (!accessEmpty && getItemByCursor(cursor)->isEmpty()){
+        while (ok && getItemByCursor(cursor)->isEmpty() && place != cursors[cursor].getIndex()){
+            ok = moveRight(cursor);
+        }
+    }
+    
+    if (!ok && !allowWrap){
+        cursors[cursor].setIndex(place);
+    }
+
+    return ok;
+}
 
 bool GridSelect::hasMoreLow() const{
     return (offset > 0);

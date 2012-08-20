@@ -282,6 +282,11 @@ public:
     }
     
 protected:
+    bool moveUp(unsigned int cursor);
+    bool moveDown(unsigned int cursor);
+    bool moveLeft(unsigned int cursor);
+    bool moveRight(unsigned int cursor);
+
     bool checkCursor(unsigned int cursor) const;
     
     Layout layout;
