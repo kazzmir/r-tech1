@@ -155,7 +155,8 @@ public:
             case Triangle: return Joystick::Button4;
             case L1: return Joystick::Button5;
             case R1: return Joystick::Button6;
-            case Start: return Joystick::Quit;
+            case Start: return Joystick::Start;
+            case Select: return Joystick::Quit;
             case Up: return Joystick::Up;
             case Down: return Joystick::Down;
             case Left: return Joystick::Left;
@@ -203,7 +204,8 @@ public:
             case Button4: return Joystick::Button4;
             case L1: return Joystick::Button5;
             case R1: return Joystick::Button6;
-            case Start: return Joystick::Quit;
+            case Start: return Joystick::Start;
+            case Select: return Joystick::Quit;
         }
         return Joystick::Invalid;
     }
@@ -243,22 +245,22 @@ public:
 class Ps3Controller: public ButtonMapping {
 public:
     enum Buttons{
-        Left = 0,
+        Left = 7,
         Down = 1,
-        Right = 2,
-        Up = 3,
-        Select = 7,
-        Start = 4,
-        Square = 8,
-        Cross = 9,
-        Circle = 10,
-        Triangle = 11,
-        L1 = 13,
-        R1 = 12,
-        L2 = 15,
-        R2 = 14,
-        L3 = 6,
-        R3 = 5
+        Right = 5,
+        Up = 4,
+        Select = 0,
+        Start = 3,
+        Square = 15,
+        Cross = 14,
+        Circle = 13,
+        Triangle = 12,
+        L1 = 10,
+        R1 = 11,
+        L2 = 8,
+        R2 = 9,
+        L3 = 1,
+        R3 = 2
     };
 
     int toNative(int button){
@@ -292,7 +294,8 @@ public:
             case Triangle: return Joystick::Button4;
             case L1: return Joystick::Button5;
             case R1: return Joystick::Button6;
-            case Start: return Joystick::Quit;
+            case Start: return Joystick::Start;
+            case Select: return Joystick::Quit;
             case Up: return Joystick::Up;
             case Down: return Joystick::Down;
             case Left: return Joystick::Left;
@@ -322,7 +325,7 @@ public:
         Xbox = 7,
         L3 = 8,
         R3 = 9,
-        select = 10
+        Select = 10
     };
 
     int toNative(int button){
@@ -341,7 +344,8 @@ public:
             case Y: return Joystick::Button4;
             case L1: return Joystick::Button5;
             case R1: return Joystick::Button6;
-            case Start: return Joystick::Quit;
+            case Start: return Joystick::Start;
+            case Select: return Joystick::Quit;
         }
         return Joystick::Invalid;
     }
@@ -416,6 +420,7 @@ public:
     	return 0;
     }
     
+    /* FIXME: need a start key */
     Joystick::Key toKey(int button){
         switch (button){
             case A: return Joystick::Button1;
@@ -483,7 +488,7 @@ public:
             case X: return Joystick::Button3;
             case Y: return Joystick::Button4;
             case Z: return Joystick::Button5;
-            case Start: return Joystick::Quit;
+            case Start: return Joystick::Start;
         }
         return Joystick::Invalid;
     }

@@ -15,7 +15,8 @@ struct JoystickInput{
         button4(false),
         button5(false),
         button6(false),
-        quit(false){
+        quit(false),
+        start(false){
     }
 
     JoystickInput(const JoystickInput & copy):
@@ -29,7 +30,8 @@ struct JoystickInput{
         button4(copy.button4),
         button5(copy.button5),
         button6(copy.button6),
-        quit(copy.quit){
+        quit(copy.quit),
+        start(copy.start){
     }
 
     /* true if something is pressed */
@@ -37,7 +39,7 @@ struct JoystickInput{
         return left || right || up || down ||
                button1 || button2 || button3 || button4 ||
                button5 || button6 ||
-               quit;
+               quit || start;
     }
 
     bool left;
@@ -51,6 +53,7 @@ struct JoystickInput{
     bool button5;
     bool button6;
     bool quit;
+    bool start;
 };
 
 class Joystick{
@@ -83,6 +86,7 @@ public:
         Button5,
         Button6,
         Quit,
+        Start
     };
 
     struct Event{
