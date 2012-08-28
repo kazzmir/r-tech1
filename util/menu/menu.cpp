@@ -1401,6 +1401,7 @@ void Menu::Menu::run(const Context & parentContext){
         input.set(Configuration::getJoystickAttack2(0), 0, true, Select);
         input.set(Configuration::getJoystickAttack3(0), 0, true, Select);
         input.set(Configuration::getJoystickJump(0), 0, true, Select);
+        input.set(Configuration::getJoystickStart(0), 0, true, Select);
         input.set(Configuration::getJoystickQuit(0), 0, true, Cancel);
        
         class Logic: public Util::Logic {

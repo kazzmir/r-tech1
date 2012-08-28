@@ -63,6 +63,7 @@ const char * Joystick::keyToName(Key key){
         case Button4: return "Button4";
 	case Button5: return "Button5";
 	case Button6: return "Button6";
+	case Start: return "Start";
         case Quit: return "Quit";
     }
     return "Unknown";

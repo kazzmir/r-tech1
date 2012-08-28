@@ -242,6 +242,10 @@ public:
         do_joy(button2, Button2);
         do_joy(button3, Button3);
         do_joy(button4, Button4);
+        do_joy(button5, Button5);
+        do_joy(button6, Button6);
+        do_joy(quit, Quit);
+        do_joy(start, Start);
     /*
         if (joystick.up){
             JoystickState<X> * state = joy_states[Joystick::Up];
@@ -273,6 +277,10 @@ public:
         do_joy(button2, Button2);
         do_joy(button3, Button3);
         do_joy(button4, Button4);
+        do_joy(button5, Button5);
+        do_joy(button6, Button6);
+        do_joy(quit, Quit);
+        do_joy(start, Start);
 
 
 #undef do_joy
