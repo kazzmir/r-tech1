@@ -60,16 +60,19 @@ runnable(true){
  *  Expects the parent token to be passed in:
  *  (whatever (name ...))
  */
-void MenuOption::readName(const Token * token){
+void MenuOption::addName(const Token * token){
+    readName(token, "name");
+}
+void MenuOption::readName(const Token * token, const std::string & matchType){
     try{
         LanguageString name;
         string temp;
-        if (token->match("_/name", temp)){
+        if (token->match(matchType, temp)){
             name.add(temp);
         }
 
         string language, words;
-        Token::Matcher matcher = token->getMatcher("_/name/language");
+        Token::Matcher matcher = token->getMatcher(matchType + "/language");
         while (matcher.match(language, words)){
             name.add(words, language);
         }

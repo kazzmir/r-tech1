@@ -462,7 +462,7 @@ bool Menu::DefaultRenderer::readToken(const Token * token, const OptionFactory &
         try{
             MenuOption * temp = factory.getOption(menu, token);
             if (temp){
-                // Check for info
+                // Check for info/name
                 {
                     TokenView view = token->view();
                     while (view.hasMore()){
@@ -471,7 +471,9 @@ bool Menu::DefaultRenderer::readToken(const Token * token, const OptionFactory &
                         try{
                             if (*tok == "info"){
                                 temp->addInfo(tok);
-                            }
+                            } else if (*tok == "name"){
+                                temp->addName(tok);
+                            } 
                         } catch (const TokenException & ex){
                             // Output something
                         }
@@ -706,6 +708,23 @@ bool Menu::TabRenderer::readToken(const Token * token, const OptionFactory & fac
                     try {
                         MenuOption *temp = factory.getOption(tab->getContext(), tok);
                         if (temp){
+                            // Check for info/name
+                            {
+                                TokenView info = tok->view();
+                                while (info.hasMore()){
+                                    const Token * check;
+                                    info >> check;
+                                    try{
+                                        if (*check == "info"){
+                                            temp->addInfo(check);
+                                        } else if (*check == "name"){
+                                            temp->addName(check);
+                                        } 
+                                    } catch (const TokenException & ex){
+                                        // Output something
+                                    }
+                                }
+                            }
                             Util::ReferenceCount<MenuOption> ref(temp);
                             tabInfo->options.push_back(ref);
                             tab->addOption(ref.convert<Gui::ContextItem>());
