@@ -87,9 +87,10 @@ public:
 public:
     const std::string getName() const;
     void addInfo(const Token *);
+    void addName(const Token *);
 
 protected:
-    void readName(const Token * token);
+    void readName(const Token * token, const std::string & matchType = "_/name");
     void readInfo(const Token * token);
 };
 
