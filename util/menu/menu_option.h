@@ -86,6 +86,7 @@ public:
 
 public:
     const std::string getName() const;
+    void addInfo(const Token *);
 
 protected:
     void readName(const Token * token);

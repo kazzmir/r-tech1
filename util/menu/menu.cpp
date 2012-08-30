@@ -390,11 +390,11 @@ void Menu::Renderer::setFont(const Util::ReferenceCount<FontInfo> & font){
 */
 
 void Menu::Renderer::addInfo(const std::string & text, const Gui::Widget & defaults, Context & context, const Font & font){
-    if (text.empty()){
-        return;
-    }
     if (!info.empty()){
         info.back()->close();
+    }
+    if (text.empty()){
+        return;
     }
     ::Menu::InfoBox * temp = new ::Menu::InfoBox();
     // temp->setFont(context.getFont());
@@ -462,6 +462,21 @@ bool Menu::DefaultRenderer::readToken(const Token * token, const OptionFactory &
         try{
             MenuOption * temp = factory.getOption(menu, token);
             if (temp){
+                // Check for info
+                {
+                    TokenView view = token->view();
+                    while (view.hasMore()){
+                        const Token * tok;
+                        view >> tok;
+                        try{
+                            if (*tok == "info"){
+                                temp->addInfo(tok);
+                            }
+                        } catch (const TokenException & ex){
+                            // Output something
+                        }
+                    }
+                }
                 options.push_back(Util::ReferenceCount<MenuOption>(temp));
                 if (!hasOverride){
                     const Token * tok;
@@ -943,7 +958,7 @@ languages(parent.getLanguages()){
     }
 
     if (child.menuInfoLocation.getRelativeX() != 0 || child.menuInfoLocation.getRelativeY() != .95){
-        infoLocation = child.infoLocation;
+        menuInfoLocation = child.menuInfoLocation;
     }
 
     if (!child.menuInfo.empty()){

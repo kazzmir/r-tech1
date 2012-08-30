@@ -87,6 +87,9 @@ void MenuOption::readName(const Token * token){
 /* same deal as readName, except this excepts just the info token:
  * (info ...)
  */
+void MenuOption::addInfo(const Token * token){
+    readInfo(token);
+}
 void MenuOption::readInfo(const Token * token){
     try{
         LanguageString name;
