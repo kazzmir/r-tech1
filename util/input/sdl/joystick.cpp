@@ -245,22 +245,22 @@ public:
 class Ps3Controller: public ButtonMapping {
 public:
     enum Buttons{
-        Left = 7,
+        Left = 0,
         Down = 1,
-        Right = 5,
-        Up = 4,
-        Select = 0,
-        Start = 3,
-        Square = 15,
-        Cross = 14,
-        Circle = 13,
-        Triangle = 12,
-        L1 = 10,
-        R1 = 11,
-        L2 = 8,
-        R2 = 9,
-        L3 = 1,
-        R3 = 2
+        Right = 2,
+        Up = 3,
+        Select = 7,
+        Start = 4,
+        Square = 8,
+        Cross = 9,
+        Circle = 10,
+        Triangle = 11,
+        L1 = 13,
+        R1 = 12,
+        L2 = 15,
+        R2 = 14,
+        L3 = 6,
+        R3 = 5
     };
 
     int toNative(int button){
