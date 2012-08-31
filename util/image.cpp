@@ -3,7 +3,7 @@
 
 namespace Graphics{
 
-static bool isPng(const char * data, int length){
+static bool isPng(const unsigned char * data, int length){
     return length > 3 &&
            data[0] == 0x89 &&
            data[1] == 'P' &&
@@ -11,13 +11,13 @@ static bool isPng(const char * data, int length){
            data[3] == 'G';
 }
 
-static bool isBmp(const char * data, int length){
+static bool isBmp(const unsigned char * data, int length){
     return length > 2 &&
            data[0] == 'B' &&
            data[1] == 'M';
 }
 
-static bool isJpg(const char * data, int length){
+static bool isJpg(const unsigned char * data, int length){
     /* TODO */
     return false;
 #if 0
@@ -84,7 +84,7 @@ int start;
 #endif
 }
 
-static bool isPcx(const char * data, int length){
+static bool isPcx(const unsigned char * data, int length){
     const int ZSoft_Manufacturer = 10;
     const int PC_Paintbrush_Version = 5;
     const int PCX_Uncompressed_Encoding = 0;
@@ -97,12 +97,12 @@ static bool isPcx(const char * data, int length){
             data[2] == PCX_Uncompressed_Encoding);
 }
 
-static bool isTga(const char * data, int length){
+static bool isTga(const unsigned char * data, int length){
     /* No magic for tga files.. come up with some way to detect them */
     return false;
 }
 
-static bool isTif(const char * data, int length){
+static bool isTif(const unsigned char * data, int length){
     return length > 4 &&
            ((data[0] == 'I' &&
             data[1] == 'I' &&
@@ -114,18 +114,18 @@ static bool isTif(const char * data, int length){
             data[3] == 0x2a));
 }
 
-static bool isXpm(const char * data, int length){
-    return strncmp(data, "/* XPM */", length) == 0;
+static bool isXpm(const unsigned char * data, int length){
+    return strncmp((const char *) data, "/* XPM */", length) == 0;
 }
 
-static bool isGif(const char * data, int length){
+static bool isGif(const unsigned char * data, int length){
     return length > 7 &&
-           (strncmp(data, "GIF", 3) == 0) &&
-           (strncmp(data + 3, "87a", 3) == 0 ||
-            strncmp(data + 3, "89a", 3) == 0);
+           (strncmp((const char *) data, "GIF", 3) == 0) &&
+           (strncmp((const char *) data + 3, "87a", 3) == 0 ||
+            strncmp((const char *) data + 3, "89a", 3) == 0);
 }
 
-ImageFormat identifyImage(const char * data, int length){
+ImageFormat identifyImage(const unsigned char * data, int length){
     if (isPng(data, length)){
         return FormatPNG;
     }

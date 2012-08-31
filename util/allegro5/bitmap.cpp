@@ -336,7 +336,9 @@ static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, I
             break;
         }
     }
-    throw Exception::Base(__FILE__, __LINE__);
+    std::ostringstream out;
+    out << "Could not load the bitmap because its format was not known";
+    throw BitmapException(__FILE__, __LINE__, out.str());
 }
 
 Bitmap::Bitmap(const char * data, int length):
@@ -346,7 +348,7 @@ bit8MaskColor(makeColor(0, 0, 0)){
 }
 
 void Bitmap::loadFromMemory(const char * data, int length){
-    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage(data, length)))));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage((const unsigned char *) data, length)))));
     if (getData()->getBitmap() == NULL){
         std::ostringstream out;
         out << "Could not create bitmap from memory";
