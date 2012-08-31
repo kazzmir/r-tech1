@@ -609,19 +609,21 @@ void Menu::DefaultRenderer::doAction(const Actions & action, Context & context){
             }
             break;
         case Select: {
-            try{
-                context.playSound(Select);
-                options[menu.getCurrentIndex()]->run(context);
-            } catch (const Reload & reload){
-                menu.open();
-                menuInfo.open();
+            if (options[menu.getCurrentIndex()]->isRunnable()){
+                try{
+                    context.playSound(Select);
+                    options[menu.getCurrentIndex()]->run(context);
+                } catch (const Reload & reload){
+                    menu.open();
+                    menuInfo.open();
+                }
+                // setFont(context.getFont());
+                context.playMusic();
+                /* font might have been recreated */
+                const Font & font = currentFont();
+                addInfo(options[menu.getCurrentIndex()]->getInfoText(), menu, context, font); 
+                menuInfo.initialize(font);
             }
-            // setFont(context.getFont());
-            context.playMusic();
-            /* font might have been recreated */
-            const Font & font = currentFont();
-            addInfo(options[menu.getCurrentIndex()]->getInfoText(), menu, context, font); 
-            menuInfo.initialize(font);
             break;
         }
         case Cancel:
@@ -889,7 +891,8 @@ void Menu::TabRenderer::doAction(const Actions & action, Context & context){
                     menu.toggleTabSelect();
                 } else {
                     if (menu.getCurrentTab() < tabs.size() &&
-                        menu.getCurrentIndex() < tabs[menu.getCurrentTab()]->options.size()){
+                        menu.getCurrentIndex() < tabs[menu.getCurrentTab()]->options.size() &&
+                        tabs[menu.getCurrentTab()]->options[menu.getCurrentIndex()]->isRunnable()){
                         tabs[menu.getCurrentTab()]->options[menu.getCurrentIndex()]->run(context);
                     }
                     // tabs[menu.getCurrentTab()]->run(menu.getCurrentIndex(), context);
