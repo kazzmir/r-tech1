@@ -19,6 +19,30 @@ public:
     enum CreditKey{
         Exit
     };
+    
+    class Block{
+    public:
+        Block(const std::string &);
+        Block(const Token *);
+        Block(const Block &);
+        ~Block();
+        
+        const Block & operator=(const Block &);
+        void addCredit(const std::string &);
+        
+        int print(int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font &, const Graphics::Bitmap &) const;
+        
+        inline const int size() const{
+            // Counts title and space in between
+            return credits.size()+2;
+        }
+        
+    protected:
+        std::string title;
+        std::vector<std::string> credits;
+        Graphics::Color titleColor;
+        Graphics::Color color;
+    };
 
     // Do logic before run part
     virtual void logic();
@@ -32,7 +56,8 @@ public:
     virtual ~OptionCredits();
 private:
     Util::ReferenceCount<Menu::Context> creditsContext;
-    std::vector<std::string> credits;
+    //std::vector<std::string> credits;
+    std::vector<Block> credits;
     std::string music;
     Graphics::Color color, title;
     InputMap<CreditKey> input;
