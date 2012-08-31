@@ -36,7 +36,7 @@ enum ImageFormat{
     FormatUnknown
 };
 
-ImageFormat identifyImage(const char * data, int length);
+ImageFormat identifyImage(const unsigned char * data, int length);
 
 class TranslucentBitmap;
 class LitBitmap;
