@@ -60,6 +60,83 @@ static bool miguelBirthday(){
     return todaysDate(8, 11, 0);
 }
 
+OptionCredits::Block::Block(const std::string & title):
+title(title){
+}
+
+OptionCredits::Block::Block(const Token * token){
+    if ( *token != "credit-block" ){
+        throw LoadException(__FILE__, __LINE__, "Not a credit block");
+    }
+    
+    TokenView view = token->view();
+    
+    while (view.hasMore()){
+        try{
+            const Token * tok;
+            view >> tok;
+            if ( *tok == "title" ) {
+                tok->view() >> title;
+            } else if (*tok == "credit"){
+                std::string credit;
+                tok->view() >> credit;
+                credits.push_back(credit);
+            } else if ( *tok == "titlecolor" ) {
+                int r,b,g;
+                tok->view() >> r >> g >> b;
+                titleColor = Graphics::makeColor( r, b, g );
+            } else if ( *tok == "color" ) {
+                int r,b,g;
+                tok->view() >> r >> g >> b;
+                color = Graphics::makeColor( r, b, g );
+            } else {
+                Global::debug( 3 ) <<"Unhandled Credit Block attribute: "<<endl;
+                if (Global::getDebug() >= 3){
+                    tok->print(" ");
+                }
+            }
+        } catch ( const TokenException & ex ) {
+            throw LoadException(__FILE__, __LINE__, ex, "Credit Block parse error");
+        } catch ( const LoadException & ex ) {
+            throw ex;
+        }
+    }
+}
+
+OptionCredits::Block::Block(const OptionCredits::Block & copy):
+title(copy.title),
+credits(copy.credits){
+}
+
+OptionCredits::Block::~Block(){
+}
+
+const OptionCredits::Block & OptionCredits::Block::operator=(const OptionCredits::Block & copy){
+    title = copy.title;
+    credits = copy.credits;
+    return *this;
+}
+
+void OptionCredits::Block::addCredit(const std::string & credit){
+    credits.push_back(credit);
+}
+
+int OptionCredits::Block::print(int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work) const {
+    int currentY = y;
+    font.printf(100, currentY, defaultTitleColor, work, title, 0);
+    currentY += font.getHeight() + 2;
+    
+    for (std::vector<std::string>::const_iterator i = credits.begin(); i != credits.end(); ++i){
+        const std::string & credit = *i;
+        font.printf(100, currentY, defaultColor, work, credit, 0);
+        currentY += font.getHeight() + 2;
+    }
+    
+    currentY += font.getHeight() + 2;
+    
+    return currentY;
+}
+
 OptionCredits::OptionCredits(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token),
 creditsContext(new Menu::Context()),
@@ -68,51 +145,62 @@ color(Graphics::makeColor(255,255,255)),
 title(Graphics::makeColor(0,255,255)){
     /* Always */
     if (jonBirthday()){
-        credits.push_back("Happy birthday, Jon!");
-        credits.push_back("");
+        Block birthday("Happy birthday, Jon!");
+        credits.push_back(birthday);
     }
 
     if (miguelBirthday()){
-        credits.push_back("Happy Birthday, Miguel!");
-        credits.push_back("");
+        Block birthday("Happy birthday, Miguel!");
+        credits.push_back(birthday);
     }
-
-    credits.push_back("Paintown");
-    credits.push_back(string("Version ") + Global::getVersionString());
-    credits.push_back("");
-    credits.push_back("Programming");
-    credits.push_back("Jon Rafkind");
-    credits.push_back("Miguel Gavidia");
-    credits.push_back("");
-    credits.push_back("Level design");
-    credits.push_back("Jon Rafkind");
-    credits.push_back("Miguel Gavidia");
-    credits.push_back("");
-    credits.push_back("Music");
-    credits.push_back("aqua.s3m - Purple Motion");
-    credits.push_back("c_heaven.xm - One Man Project");
-    credits.push_back("elw-sick.xm - elwood");
-    credits.push_back("experience.xm - elwood");
-    credits.push_back("fall.xm - elwood");
-    credits.push_back("kajahtaa.xm - cube");
-    credits.push_back("kilimanz.mod - ???");
-    credits.push_back("SM_TechTown.it - SaMPLeMaSTeR");
-    credits.push_back("");
-    credits.push_back("Email: jon@rafkind.com");
-    credits.push_back("");
+    
+    Block paintown("Paintown");
+    paintown.addCredit(string("Version ") + Global::getVersionString());
+    credits.push_back(paintown);
+    
+    Block programming("Programming");
+    programming.addCredit("Jon Rafkind");
+    programming.addCredit("Miguel Gavidia");
+    credits.push_back(programming);
+    
+    Block levels("Level design");
+    levels.addCredit("Jon Rafkind");
+    levels.addCredit("Miguel Gavidia");
+    credits.push_back(levels);
+    
+    Block musicBlock("Music");
+    musicBlock.addCredit("aqua.s3m - Purple Motion");
+    musicBlock.addCredit("c_heaven.xm - One Man Project");
+    musicBlock.addCredit("elw-sick.xm - elwood");
+    musicBlock.addCredit("experience.xm - elwood");
+    musicBlock.addCredit("fall.xm - elwood");
+    musicBlock.addCredit("kajahtaa.xm - cube");
+    musicBlock.addCredit("kilimanz.mod - ???");
+    musicBlock.addCredit("SM_TechTown.it - SaMPLeMaSTeR");
+    credits.push_back(musicBlock);
+    
+    Block contact("Contact");
+    contact.addCredit("Website: http://paintown.org");
+    contact.addCredit("Email: jon@rafkind.com");
+    credits.push_back(contact);
     
     if ( *token != "credits" ){
-	throw LoadException(__FILE__, __LINE__, "Not a credit menu");
+        throw LoadException(__FILE__, __LINE__, "Not a credit menu");
     }
 
     readName(token);
     
     TokenView view = token->view();
+    
+    // NOTE Use this to handle legacy additional blocks for the time being
+    Block legacyAdditional("");
+    bool additionalTitle = true;
+    
     while (view.hasMore()){
-	try{
-	    const Token * tok;
-	    view >> tok;
-	    if ( *tok == "music" ) {
+        try{
+            const Token * tok;
+            view >> tok;
+            if ( *tok == "music" ) {
                 /* Set music for credits */
                 tok->view() >> music;
             } else if ( *tok == "background" ) {
@@ -127,27 +215,39 @@ title(Graphics::makeColor(0,255,255)){
                 TokenView additionalView = tok->view();
                 while (additionalView.hasMore()){
                     additionalView >> str;
-                    credits.push_back(str);
+                    if (additionalTitle){
+                        legacyAdditional = Block(str);
+                        additionalTitle = false;
+                    } else {
+                        legacyAdditional.addCredit(str);
+                    }
                 }
             } else if ( *tok == "titlecolor" ) {
                 int r,b,g;
                 tok->view() >> r >> g >> b;
                 title = Graphics::makeColor( r, b, g );
-	    } else if ( *tok == "color" ) {
-                int r,b,g;
-                tok->view() >> r >> g >> b;
-                color = Graphics::makeColor( r, b, g );
-	    } else {
+            } else if ( *tok == "color" ) {
+                    int r,b,g;
+                    tok->view() >> r >> g >> b;
+                    color = Graphics::makeColor( r, b, g );
+            } else if (*tok == "credit-block"){
+                Block block(tok);
+                credits.push_back(tok);
+            } else {
                 Global::debug( 3 ) <<"Unhandled menu attribute: "<<endl;
                 if (Global::getDebug() >= 3){
                     tok->print(" ");
                 }
             }
-	} catch ( const TokenException & ex ) {
-		throw LoadException(__FILE__, __LINE__, ex, "Menu parse error");
-	} catch ( const LoadException & ex ) {
-		throw ex;
-	}
+        } catch ( const TokenException & ex ) {
+            throw LoadException(__FILE__, __LINE__, ex, "Menu parse error");
+        } catch ( const LoadException & ex ) {
+            throw ex;
+        }
+    }
+    
+    if (legacyAdditional.size() > 2){
+        credits.push_back(legacyAdditional);
     }
 	
     input.set(Keyboard::Key_ESC, 0, true, Exit);
@@ -155,11 +255,6 @@ title(Graphics::makeColor(0,255,255)){
 }
 
 OptionCredits::~OptionCredits(){
-    /*
-	if ( background ){
-		delete background;
-	}
-        */
 }
 
 void OptionCredits::logic(){
@@ -171,43 +266,39 @@ void OptionCredits::run(const Menu::Context & context){
     Menu::Context localContext(context, *creditsContext);
     localContext.initialize();
 
-    const int maxCredits = credits.size();
-
-    // Global::speed_counter = 0;
-    // double min_y = GFX_Y;
-
-    // Bitmap fireWork(GFX_X, GFX_Y);
-    if (! music.empty()){
+    if (!music.empty()){
         //MenuGlobals::setMusic(music);
         if (Music::loadSong(Storage::instance().find(Filesystem::RelativePath(music)).path())){
-	    Music::pause();
-	    Music::play();
-	}
+            Music::pause();
+            Music::play();
+        }
     }
 
     // const Font & vFont = Configuration::getMenuFont()->get(context.getFont()->get());
     const Font & vFont = Menu::menuFontParameter.current()->get();
 
-    // bool quit = false;
-
     Graphics::Bitmap::transBlender(0, 0, 0, 128);
 
     struct State{
-        State(const Font & vFont, const vector<string> & credits, Graphics::Color color, Graphics::Color title):
+        State(const Font & vFont, const vector<Block> & credits, Graphics::Color color, Graphics::Color title):
         /* FIXME: hard coded resolution */
         min_y(480),
-        maxCredits(credits.size()),
+        maxCredits(0),
         font(vFont),
         credits(credits),
         color(color),
         title(title){
+            for (std::vector<Block>::const_iterator i = credits.begin(); i != credits.end(); ++i){
+                const Block & block = *i;
+                maxCredits+=block.size();
+            }
         }
 
         double min_y;
-        const int maxCredits;
+        int maxCredits;
         const Font & font;
         Paintown::Fire fire;
-        const vector<string> & credits;
+        const vector<Block> & credits;
         Graphics::Color color, title;
     };
 
@@ -274,23 +365,11 @@ void OptionCredits::run(const Menu::Context & context){
             //background.Blit(work);
             context.render(NULL, work);
             int y = (int) state.min_y;
-            vector<std::string>::const_iterator b = state.credits.begin();
-            vector<std::string>::const_iterator e = state.credits.end();
-            bool isTitle = true;
-            for (/**/ ; b != e; b++){
-                if (isTitle){
-                    state.font.printf(100, y, state.title, work, (*b), 0);
-                    isTitle = false;
-                } else {
-                    state.font.printf(100, y, state.color, work, (*b), 0);
-                }
-                y += state.font.getHeight() + 2;
 
-                if ( (*b).empty() ){
-                    isTitle = true;
-                }
+            for (std::vector<Block>::const_iterator i = state.credits.begin(); i != state.credits.end(); ++i){
+                const Block & block = *i;
+                y = block.print(y, state.title, state.color, state.font, work);
             }
-
             work.finish();
             
             // state.fire.draw(work);
@@ -303,80 +382,6 @@ void OptionCredits::run(const Menu::Context & context){
     Draw draw(state, localContext);
 
     Util::standardLoop(logic, draw);
-
-#if 0
-    double think = 0;
-    while (!quit){
-
-        InputManager::poll();
-        vector<InputMap<CreditKey>::InputEvent> out = InputManager::getEvents(input);
-        for (vector<InputMap<CreditKey>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
-            const InputMap<CreditKey>::InputEvent & event = *it;
-            if (event.enabled){
-                if (event.out == Exit){
-                    quit = true;
-                }
-            }
-        }
-
-        bool draw = false;
-        if (Global::speed_counter > 0){
-            think += Global::speed_counter * Global::LOGIC_MULTIPLIER;
-            draw = true;
-
-            while (think >= 1.0){
-                think -= 1;
-                min_y -= 0.9;
-                if (min_y < -(int)(maxCredits * vFont.getHeight() * 1.1)){
-                    min_y = GFX_Y;
-                }
-                fire.update();
-            }
-
-            Global::speed_counter = 0;
-        }
-
-        if (draw){
-            /*
-            if (background){
-                background->Blit(tmp);
-            } else {
-                tmp.fill(Bitmap::makeColor(0,0,0));
-            }
-            */
-            backgroundImage.Blit(tmp);
-
-            /*
-            fire.draw(fireWork);
-            fireWork.drawTrans(0, 0, tmp);
-            */
-
-            int y = (int) min_y;
-            vector<std::string>::iterator b = credits.begin();
-            vector<std::string>::iterator e = credits.end();
-            bool isTitle = true;
-            for ( /**/ ; b != e; b++ ){
-                if ( isTitle ){
-                    vFont.printf( 100, y, title, tmp, (*b), 0 );
-                    isTitle = false;
-                } else {
-                    vFont.printf( 100, y, color, tmp, (*b), 0 );
-                }
-                y += vFont.getHeight() + 2;
-
-                if ( (*b).empty() ){
-                    isTitle = true;
-                }
-            }
-            
-            fire.draw(tmp);
-
-            tmp.BlitToScreen();
-        } else {
-            Util::rest(1);
-        }
-    }
-#endif
 
     InputManager::waitForRelease(input, InputSource(), Exit);
     throw Menu::Reload(__FILE__, __LINE__);
