@@ -186,11 +186,11 @@ Bitmap::Bitmap(const char * data, int length):
 mustResize(false),
 error(false),
 bit8MaskColor(0){
-    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage(data, length)))));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage((unsigned char *) data, length)))));
 }
 
 void Bitmap::loadFromMemory(const char * data, int length){
-    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage(data, length)))));
+    setData(Util::ReferenceCount<BitmapData>(new BitmapData(load_bitmap_from_memory(data, length, identifyImage((unsigned char *) data, length)))));
 }
 
 /* If a BITMAP is given to us, we didn't make it so we don't own it */
