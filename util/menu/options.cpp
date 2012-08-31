@@ -394,6 +394,8 @@ MenuOption(parent, token){
     if (getText().empty()){
         this->setText("Dummy");
     }
+    
+    setRunnable(false);
 }
 
 OptionDummy::OptionDummy(const Gui::ContextBox & parent, const std::string &name):
@@ -402,6 +404,9 @@ MenuOption(parent, 0){
 	throw LoadException(__FILE__, __LINE__, "No name given to dummy");
     }
     this->setText(name);
+    
+    
+    setRunnable(false);
 }
 
 OptionDummy::~OptionDummy(){
@@ -463,6 +468,7 @@ bool OptionFullscreen::rightKey(){
 OptionFps::OptionFps(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token){
     readName(token);
+    setRunnable(false);
 }
 
 void OptionFps::logic(){
@@ -495,6 +501,7 @@ OptionFps::~OptionFps(){
 OptionQualityFilter::OptionQualityFilter(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token){
     readName(token);
+    setRunnable(false);
 }
               
 std::string OptionQualityFilter::getText() const {
