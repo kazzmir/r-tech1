@@ -737,10 +737,11 @@ void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
 }
 
 void Bitmap::getClipRect(int & x1, int & y1, int & x2, int & y2) const {
-    x1 = getData()->clip_left;
-    y1 = getData()->clip_top;
-    x2 = getData()->clip_right;
-    y2 = getData()->clip_bottom;
+    const Util::ReferenceCount<BitmapData> & data = getData();
+    x1 = data->clip_left;
+    y1 = data->clip_top;
+    x2 = data->clip_right;
+    y2 = data->clip_bottom;
 }
 
 static void doPutPixel(SDL_Surface * surface, int x, int y, int pixel, bool translucent){
