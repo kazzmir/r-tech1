@@ -57,6 +57,7 @@ public class PaintownActivity extends AllegroActivity {
    static {
 		/* FIXME: see if we can't load the allegro library name, or type from the manifest here */
       System.loadLibrary("OpenSLES");
+      /*
       System.loadLibrary("allegro");
       System.loadLibrary("allegro_primitives");
       System.loadLibrary("allegro_image");
@@ -65,6 +66,16 @@ public class PaintownActivity extends AllegroActivity {
       System.loadLibrary("allegro_ttf");
       System.loadLibrary("allegro_audio");
       System.loadLibrary("allegro_acodec");
+      */
+
+      System.loadLibrary("allegro-debug");
+      System.loadLibrary("allegro_primitives-debug");
+      System.loadLibrary("allegro_image-debug");
+      System.loadLibrary("allegro_memfile-debug");
+      System.loadLibrary("allegro_font-debug");
+      System.loadLibrary("allegro_ttf-debug");
+      System.loadLibrary("allegro_audio-debug");
+      System.loadLibrary("allegro_acodec-debug");
       System.loadLibrary("paintown");
    }
 
