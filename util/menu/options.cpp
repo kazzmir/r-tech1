@@ -2140,3 +2140,54 @@ void OptionLanguage::run(const Menu::Context & context){
     
 void OptionLanguage::logic(){
 }
+
+OptionGibs::OptionGibs(const Gui::ContextBox & parent, const Token *token):
+MenuOption(parent, token){
+    setRunnable(false);
+
+    if (*token != "gibs" ){
+        throw LoadException(__FILE__, __LINE__, "Not a gibs option");
+    }
+
+    readName(token);
+    originalName = getName();
+}
+
+void OptionGibs::logic(){
+    ostringstream temp;
+    /* FIXME: we want to use Gib::GibProperty here but that would necessitate a
+     * dependancy on the Paintown engine.
+     */
+    temp << originalName << ": " << Configuration::getProperty("paintown/gibs", 5);
+    setText(temp.str());
+}
+
+void OptionGibs::run(const Menu::Context & context){
+}
+
+void OptionGibs::changeGibs(int much){
+    int gibs = Configuration::getProperty("paintown/gibs", 5);
+    gibs += much;
+    if (gibs < 0){
+        gibs = 0;
+    }
+
+    if (gibs > 10){
+        gibs = 10;
+    }
+
+    Configuration::setProperty("paintown/gibs", gibs);
+}
+
+bool OptionGibs::leftKey(){
+    changeGibs(-1);
+    return true;
+}
+
+bool OptionGibs::rightKey(){
+    changeGibs(+1);
+    return true;
+}
+
+OptionGibs::~OptionGibs(){
+}

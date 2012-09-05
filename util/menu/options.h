@@ -573,4 +573,27 @@ public:
     virtual void run(const Menu::Context &);
 };
 
+/* FIXME: move this option to the paintown engine somehow */
+class OptionGibs: public MenuOption {
+public:
+    OptionGibs(const Gui::ContextBox & parent, const Token *token);
+
+    // Do logic before run part
+    virtual void logic();
+
+    // Finally it has been selected, this is what shall run 
+    // endGame will be set true if it is a terminating option
+    virtual void run(const Menu::Context &);
+
+    // This is to pass parameters to an option ie a bar or something
+    virtual bool leftKey();
+    virtual bool rightKey();
+
+    virtual ~OptionGibs();
+protected:
+    void changeGibs(int much);
+private:
+    std::string originalName;
+};
+
 #endif
