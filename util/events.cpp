@@ -27,7 +27,8 @@ using std::map;
 namespace Util{
 
 EventManager::EventManager():
-bufferKeys(false){
+bufferKeys(false),
+deferResize(false){
     resize.enable = false;
 #ifdef USE_ALLEGRO5
     queue = al_create_event_queue();
