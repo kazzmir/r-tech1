@@ -61,10 +61,18 @@ static bool miguelBirthday(){
 }
 
 OptionCredits::Block::Block(const std::string & title):
-title(title){
+title(title),
+titleColorOverride(false),
+titleColor(Graphics::makeColor(0,255,255)),
+colorOverride(false),
+color(Graphics::makeColor(255,255,255)){
 }
 
-OptionCredits::Block::Block(const Token * token){
+OptionCredits::Block::Block(const Token * token):
+titleColorOverride(false),
+titleColor(Graphics::makeColor(0,255,255)),
+colorOverride(false),
+color(Graphics::makeColor(255,255,255)){
     if ( *token != "credit-block" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit block");
     }
@@ -82,13 +90,21 @@ OptionCredits::Block::Block(const Token * token){
                 tok->view() >> credit;
                 credits.push_back(credit);
             } else if ( *tok == "titlecolor" ) {
-                int r,b,g;
-                tok->view() >> r >> g >> b;
-                titleColor = Graphics::makeColor( r, b, g );
+                try{
+                    int r,b,g;
+                    tok->view() >> r >> g >> b;
+                    titleColor = Graphics::makeColor( r, b, g );
+                    titleColorOverride = true;
+                } catch (const TokenException & ex){
+                }
             } else if ( *tok == "color" ) {
-                int r,b,g;
-                tok->view() >> r >> g >> b;
-                color = Graphics::makeColor( r, b, g );
+                try{
+                    int r,b,g;
+                    tok->view() >> r >> g >> b;
+                    color = Graphics::makeColor( r, b, g );
+                    colorOverride = true;
+                } catch (const TokenException & ex){
+                }
             } else {
                 Global::debug( 3 ) <<"Unhandled Credit Block attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -105,7 +121,11 @@ OptionCredits::Block::Block(const Token * token){
 
 OptionCredits::Block::Block(const OptionCredits::Block & copy):
 title(copy.title),
-credits(copy.credits){
+credits(copy.credits),
+titleColorOverride(copy.titleColorOverride),
+titleColor(copy.titleColor),
+colorOverride(copy.colorOverride),
+color(copy.color){
 }
 
 OptionCredits::Block::~Block(){
@@ -114,6 +134,10 @@ OptionCredits::Block::~Block(){
 const OptionCredits::Block & OptionCredits::Block::operator=(const OptionCredits::Block & copy){
     title = copy.title;
     credits = copy.credits;
+    titleColor = copy.titleColor;
+    titleColorOverride = copy.titleColorOverride;
+    color = copy.color;
+    colorOverride = copy.colorOverride;
     return *this;
 }
 
@@ -123,12 +147,13 @@ void OptionCredits::Block::addCredit(const std::string & credit){
 
 int OptionCredits::Block::print(int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work) const {
     int currentY = y;
-    font.printf(100, currentY, defaultTitleColor, work, title, 0);
+    
+    font.printf(100, currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
     currentY += font.getHeight() + 2;
     
     for (std::vector<std::string>::const_iterator i = credits.begin(); i != credits.end(); ++i){
         const std::string & credit = *i;
-        font.printf(100, currentY, defaultColor, work, credit, 0);
+        font.printf(100, currentY, (colorOverride ? color : defaultColor), work, credit, 0);
         currentY += font.getHeight() + 2;
     }
     
