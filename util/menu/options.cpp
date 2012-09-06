@@ -93,7 +93,7 @@ color(Graphics::makeColor(255,255,255)){
                 try{
                     int r,b,g;
                     tok->view() >> r >> g >> b;
-                    titleColor = Graphics::makeColor( r, b, g );
+                    titleColor = Graphics::makeColor( r, g, b );
                     titleColorOverride = true;
                 } catch (const TokenException & ex){
                 }
@@ -101,7 +101,7 @@ color(Graphics::makeColor(255,255,255)){
                 try{
                     int r,b,g;
                     tok->view() >> r >> g >> b;
-                    color = Graphics::makeColor( r, b, g );
+                    color = Graphics::makeColor( r, g, b );
                     colorOverride = true;
                 } catch (const TokenException & ex){
                 }
@@ -167,7 +167,8 @@ MenuOption(parent, token),
 creditsContext(new Menu::Context()),
 music(""),
 color(Graphics::makeColor(255,255,255)),
-title(Graphics::makeColor(0,255,255)){
+title(Graphics::makeColor(0,255,255)),
+clearColor(Graphics::makeColor(0,0,0)){
     /* Always */
     if (jonBirthday()){
         Block birthday("Happy birthday, Jon!");
@@ -250,11 +251,15 @@ title(Graphics::makeColor(0,255,255)){
             } else if ( *tok == "titlecolor" ) {
                 int r,b,g;
                 tok->view() >> r >> g >> b;
-                title = Graphics::makeColor( r, b, g );
+                title = Graphics::makeColor( r, g, b );
             } else if ( *tok == "color" ) {
                     int r,b,g;
                     tok->view() >> r >> g >> b;
-                    color = Graphics::makeColor( r, b, g );
+                    color = Graphics::makeColor( r, g, b );
+            } else if ( *tok == "clear-color" ) {
+                    int r,b,g;
+                    tok->view() >> r >> g >> b;
+                    clearColor = Graphics::makeColor( r, g, b );
             } else if (*tok == "credit-block"){
                 Block block(tok);
                 credits.push_back(tok);
@@ -305,14 +310,15 @@ void OptionCredits::run(const Menu::Context & context){
     Graphics::Bitmap::transBlender(0, 0, 0, 128);
 
     struct State{
-        State(const Font & vFont, const vector<Block> & credits, Graphics::Color color, Graphics::Color title):
+        State(const Font & vFont, const vector<Block> & credits, Graphics::Color color, Graphics::Color title, Graphics::Color clearColor):
         /* FIXME: hard coded resolution */
         min_y(480),
         maxCredits(0),
         font(vFont),
         credits(credits),
         color(color),
-        title(title){
+        title(title),
+        clearColor(clearColor){
             for (std::vector<Block>::const_iterator i = credits.begin(); i != credits.end(); ++i){
                 const Block & block = *i;
                 maxCredits+=block.size();
@@ -324,7 +330,7 @@ void OptionCredits::run(const Menu::Context & context){
         const Font & font;
         Paintown::Fire fire;
         const vector<Block> & credits;
-        Graphics::Color color, title;
+        Graphics::Color color, title, clearColor;
     };
 
     class Logic: public Util::Logic {
@@ -386,6 +392,7 @@ void OptionCredits::run(const Menu::Context & context){
         void draw(const Graphics::Bitmap & buffer){
             /* FIXME: hard coded resolution */
             Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+            work.fill(state.clearColor);
             work.start();
             //background.Blit(work);
             context.render(NULL, work);
@@ -402,7 +409,7 @@ void OptionCredits::run(const Menu::Context & context){
         }
     };
 
-    State state(vFont, credits, color, title);
+    State state(vFont, credits, color, title, clearColor);
     Logic logic(state, input, localContext);
     Draw draw(state, localContext);
 
