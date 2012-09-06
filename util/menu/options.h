@@ -40,7 +40,9 @@ public:
     protected:
         std::string title;
         std::vector<std::string> credits;
+        bool titleColorOverride;
         Graphics::Color titleColor;
+        bool colorOverride;
         Graphics::Color color;
     };
 
