@@ -63,6 +63,8 @@ private:
     std::string music;
     Graphics::Color color, title;
     InputMap<CreditKey> input;
+    // Clear background (default black)
+    Graphics::Color clearColor;
 };
 
 /*! Dummy option, to allow place fillers in menus */
