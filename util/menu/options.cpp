@@ -1,5 +1,6 @@
 #include "util/bitmap.h"
 #include "util/stretch-bitmap.h"
+#include "util/trans-bitmap.h"
 
 #include "options.h"
 #include "util/token.h"
@@ -72,7 +73,11 @@ OptionCredits::Block::Block(const Token * token):
 titleColorOverride(false),
 titleColor(Graphics::makeColor(0,255,255)),
 colorOverride(false),
-color(Graphics::makeColor(255,255,255)){
+color(Graphics::makeColor(255,255,255)),
+topWidth(0),
+topHeight(0),
+bottomWidth(0),
+bottomHeight(0){
     if ( *token != "credit-block" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit block");
     }
@@ -80,6 +85,7 @@ color(Graphics::makeColor(255,255,255)){
     TokenView view = token->view();
     
     while (view.hasMore()){
+        std::string match;
         try{
             const Token * tok;
             view >> tok;
@@ -105,6 +111,20 @@ color(Graphics::makeColor(255,255,255)){
                     colorOverride = true;
                 } catch (const TokenException & ex){
                 }
+            } else if ( *tok == "animation" ) {
+                Global::debug(0) << "Found animation" << std::endl;
+                const Token * animTok;
+                tok->view() >> animTok;
+                if (animTok->match("top", match)){
+                    Global::debug(0) << "Found top" << std::endl;
+                    animTok->match("width", topWidth);
+                    animTok->match("height", topHeight);
+                    topAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
+                } else if (animTok->match("bottom", match)){
+                    animTok->match("width", bottomWidth);
+                    animTok->match("height", bottomHeight);
+                    bottomAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
+                }
             } else {
                 Global::debug( 3 ) <<"Unhandled Credit Block attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -125,7 +145,13 @@ credits(copy.credits),
 titleColorOverride(copy.titleColorOverride),
 titleColor(copy.titleColor),
 colorOverride(copy.colorOverride),
-color(copy.color){
+color(copy.color),
+topAnimation(copy.topAnimation),
+topWidth(copy.topWidth),
+topHeight(copy.topHeight),
+bottomAnimation(copy.bottomAnimation),
+bottomWidth(copy.bottomWidth),
+bottomHeight(copy.bottomHeight){
 }
 
 OptionCredits::Block::~Block(){
@@ -138,6 +164,12 @@ const OptionCredits::Block & OptionCredits::Block::operator=(const OptionCredits
     titleColorOverride = copy.titleColorOverride;
     color = copy.color;
     colorOverride = copy.colorOverride;
+    topAnimation = copy.topAnimation;
+    topWidth =copy.topWidth;
+    topHeight = copy.topHeight;
+    bottomAnimation = copy.bottomAnimation;
+    bottomWidth = copy.bottomWidth;
+    bottomHeight = copy.bottomHeight;
     return *this;
 }
 
@@ -145,21 +177,52 @@ void OptionCredits::Block::addCredit(const std::string & credit){
     credits.push_back(credit);
 }
 
-int OptionCredits::Block::print(int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work) const {
+int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work) const {
     int currentY = y;
     
-    font.printf(320 - (font.textLength(title.c_str())/2), currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
-    currentY += font.getHeight() + 2;
+    // Top animation
+    if (topAnimation != NULL){
+        topAnimation->draw(x - (topWidth/2), y, topWidth, topHeight, work);
+        currentY+=topHeight;
+    }
+    
+    if (!title.empty()){
+        font.printf(x - (font.textLength(title.c_str())/2), currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
+        currentY += font.getHeight() + 2;
+    }
     
     for (std::vector<std::string>::const_iterator i = credits.begin(); i != credits.end(); ++i){
         const std::string & credit = *i;
-        font.printf(320 - (font.textLength(credit.c_str())/2), currentY, (colorOverride ? color : defaultColor), work, credit, 0);
+        font.printf(x - (font.textLength(credit.c_str())/2), currentY, (colorOverride ? color : defaultColor), work, credit, 0);
         currentY += font.getHeight() + 2;
+    }
+    
+    // Bottom animation
+    if (bottomAnimation != NULL){
+        bottomAnimation->draw(x - (bottomWidth/2), y, bottomWidth, bottomHeight, work);
+        currentY+=bottomHeight;
     }
     
     currentY += font.getHeight() + 2;
     
     return currentY;
+}
+
+const int OptionCredits::Block::size(const Font & font) const{
+    // Counts title and space in between
+    int total = 0;
+    if (topAnimation != NULL){
+        total += topHeight;
+    }
+    if (!title.empty()){
+        total+= font.getHeight();
+    }
+    total += credits.size() * font.getHeight();
+    if (bottomAnimation != NULL){
+        total += bottomHeight;
+    }
+    total += font.getHeight();
+    return total;
 }
 
 OptionCredits::OptionCredits(const Gui::ContextBox & parent, const Token * token):
@@ -172,27 +235,30 @@ clearColor(Graphics::makeColor(0,0,0)){
     /* Always */
     if (jonBirthday()){
         Block birthday("Happy birthday, Jon!");
-        credits.push_back(birthday);
+        creditsPrimary.push_back(birthday);
     }
 
     if (miguelBirthday()){
         Block birthday("Happy birthday, Miguel!");
-        credits.push_back(birthday);
+        creditsPrimary.push_back(birthday);
     }
-    
-    Block paintown("Paintown");
+    std::string paintownToken = "(credit-block"
+        "(animation (top) (width 100) (height 35) (image 0 \"sprites/logo.png\") (frame (image 0) (time -1)))"
+        "(title \"Paintown\"))";
+    TokenReader reader;
+    Block paintown(reader.readTokenFromString(paintownToken));
     paintown.addCredit(string("Version ") + Global::getVersionString());
-    credits.push_back(paintown);
+    creditsPrimary.push_back(paintown);
     
     Block programming("Programming");
     programming.addCredit("Jon Rafkind");
     programming.addCredit("Miguel Gavidia");
-    credits.push_back(programming);
+    creditsPrimary.push_back(programming);
     
     Block levels("Level design");
     levels.addCredit("Jon Rafkind");
     levels.addCredit("Miguel Gavidia");
-    credits.push_back(levels);
+    creditsPrimary.push_back(levels);
     
     Block musicBlock("Music");
     musicBlock.addCredit("aqua.s3m - Purple Motion");
@@ -203,12 +269,12 @@ clearColor(Graphics::makeColor(0,0,0)){
     musicBlock.addCredit("kajahtaa.xm - cube");
     musicBlock.addCredit("kilimanz.mod - ???");
     musicBlock.addCredit("SM_TechTown.it - SaMPLeMaSTeR");
-    credits.push_back(musicBlock);
+    creditsRoll.push_back(musicBlock);
     
     Block contact("Contact");
     contact.addCredit("Website: http://paintown.org");
     contact.addCredit("Email: jon@rafkind.com");
-    credits.push_back(contact);
+    creditsRoll.push_back(contact);
     
     if ( *token != "credits" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit menu");
@@ -261,8 +327,9 @@ clearColor(Graphics::makeColor(0,0,0)){
                     tok->view() >> r >> g >> b;
                     clearColor = Graphics::makeColor( r, g, b );
             } else if (*tok == "credit-block"){
-                Block block(tok);
-                credits.push_back(tok);
+                creditsRoll.push_back(Block(tok));
+            } else if (*tok == "primary-credit-block"){
+                creditsPrimary.push_back(Block(tok));
             } else {
                 Global::debug( 3 ) <<"Unhandled menu attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -276,8 +343,8 @@ clearColor(Graphics::makeColor(0,0,0)){
         }
     }
     
-    if (legacyAdditional.size() > 2){
-        credits.push_back(legacyAdditional);
+    if (!legacyAdditional.empty()){
+        creditsRoll.push_back(legacyAdditional);
     }
 	
     input.set(Keyboard::Key_ESC, 0, true, Exit);
@@ -291,61 +358,55 @@ void OptionCredits::logic(){
 }
 
 void OptionCredits::run(const Menu::Context & context){
-    // Keyboard key;
-    //Graphics::Bitmap backgroundImage(Storage::instance().find(background).path());
     Menu::Context localContext(context, *creditsContext);
     localContext.initialize();
 
     if (!music.empty()){
-        //MenuGlobals::setMusic(music);
         if (Music::loadSong(Storage::instance().find(Filesystem::RelativePath(music)).path())){
             Music::pause();
             Music::play();
         }
     }
 
-    // const Font & vFont = Configuration::getMenuFont()->get(context.getFont()->get());
     const Font & vFont = Menu::menuFontParameter.current()->get();
 
-    Graphics::Bitmap::transBlender(0, 0, 0, 128);
-
-    struct State{
-        State(const Font & vFont, const vector<Block> & credits, Graphics::Color color, Graphics::Color title, Graphics::Color clearColor):
-        /* FIXME: hard coded resolution */
-        min_y(480),
-        maxCredits(0),
-        font(vFont),
-        credits(credits),
-        color(color),
-        title(title),
-        clearColor(clearColor){
-            for (std::vector<Block>::const_iterator i = credits.begin(); i != credits.end(); ++i){
+    class LogicDraw : public Util::Logic, public Util::Draw{
+    public:
+        LogicDraw(OptionCredits & self, const Font & font, InputMap<CreditKey> & input, Menu::Context & context):
+        self(self),
+        font(font),
+        input(input),
+        quit(false),
+        context(context),
+        // FIXME use spaces not hardcoded positions
+        currentX(360),
+        currentY(220 - (!self.creditsPrimary.empty() ? (self.creditsPrimary[0].size(font)/2) : 0)),
+        currentBlock(0),
+        blockAlpha(0),
+        startPrimary(true),
+        startRoll(false),
+        /* FIXME hardcoded resolution */
+        rollY(480),
+        maxCredits(0){
+            for (std::vector<Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
                 const Block & block = *i;
-                maxCredits+=block.size();
+                maxCredits+=block.size(font);
             }
         }
 
-        double min_y;
-        int maxCredits;
+        OptionCredits & self;
         const Font & font;
-        Paintown::Fire fire;
-        const vector<Block> & credits;
-        Graphics::Color color, title, clearColor;
-    };
-
-    class Logic: public Util::Logic {
-    public:
-        Logic(State & state, InputMap<CreditKey> & input, Menu::Context & context):
-        state(state),
-        input(input),
-        quit(false),
-        context(context){
-        }
-
-        State & state;
         InputMap<CreditKey> & input;
         bool quit;
         Menu::Context & context;
+        double currentX;
+        double currentY;
+        unsigned int currentBlock;
+        int blockAlpha;
+        bool startPrimary;
+        bool startRoll;
+        double rollY;
+        int maxCredits;
 
         void run(){
             vector<InputMap<CreditKey>::InputEvent> out = InputManager::getEvents(input, InputSource());
@@ -359,12 +420,17 @@ void OptionCredits::run(const Menu::Context & context){
                 }
             }
 
-            state.min_y -= 0.8;
-            if (state.min_y < -(int)(state.maxCredits * state.font.getHeight() * 1.1)){
-                /* FIXME: hard coded resolution */
-                state.min_y = 480;
+            if (startRoll){
+                rollY -= 0.8;
+                if (rollY < -(maxCredits * 1.1)){
+                    /* FIXME: hard coded resolution */
+                    rollY = 480;
+                    startRoll = false;
+                }
+            } else {
+                handlePrimary();
             }
-            // state.fire.update();
+            
             context.act();
         }
 
@@ -375,49 +441,82 @@ void OptionCredits::run(const Menu::Context & context){
         double ticks(double system){
             return system * Global::ticksPerSecond(90);
         }
-    };
-
-    class Draw: public Util::Draw {
-    public:
-        Draw(State & state, Menu::Context & context):
-        state(state),
-        context(context){
-        }
-    
-        State & state;
-
-        /* use Bitmap::temporaryBitmap here? no! BlitToScreen uses temporaryBitmap */
-        Menu::Context & context;
-
+        
         void draw(const Graphics::Bitmap & buffer){
             /* FIXME: hard coded resolution */
             Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
-            work.fill(state.clearColor);
+            work.fill(self.clearColor);
             work.start();
             //background.Blit(work);
             context.render(NULL, work);
-            int y = (int) state.min_y;
+            
+            if (startRoll){
+                int y = (int) rollY;
 
-            for (std::vector<Block>::const_iterator i = state.credits.begin(); i != state.credits.end(); ++i){
-                const Block & block = *i;
-                y = block.print(y, state.title, state.color, state.font, work);
+                for (std::vector<Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
+                    const Block & block = *i;
+                    y = block.print(320, y, self.title, self.color, font, work);
+                }
+            } else {
+                Graphics::Bitmap::transBlender(0, 0, 0, blockAlpha);
+                self.creditsPrimary[currentBlock].print(currentX, currentY, self.title, self.color, font, work.translucent());
             }
+            
             work.finish();
             
-            // state.fire.draw(work);
             buffer.BlitToScreen();
         }
+        
+        void handlePrimary(){
+            if (!self.creditsPrimary.empty()){
+                if (!startPrimary){
+                    nextPrimary();
+                    // FIXME use spaces not static positions
+                    blockAlpha = 0;
+                    currentX = 360;
+                    currentY = 220 - (self.creditsPrimary[currentBlock].size(font)/2);
+                    startPrimary = true;
+                } else {
+                    currentX -= 0.2;
+                    if (currentX >= 320){
+                        if (blockAlpha < 255){
+                            blockAlpha +=2;
+                        } else {
+                            blockAlpha = 255;
+                        }
+                    } else if (currentX < 320){
+                        if (blockAlpha > 0){
+                            blockAlpha -=2;
+                        } else {
+                            blockAlpha = 0;
+                        }
+                    }
+                    if (currentX < 280){
+                        startPrimary = false;
+                    }
+                }
+            } else {
+                startPrimary = false;
+                startRoll = true;
+            }
+        }
+        
+        void nextPrimary(){
+            if (currentBlock < self.creditsPrimary.size()){
+                currentBlock++;
+                if (currentBlock == self.creditsPrimary.size()){
+                    startRoll = true;
+                    startPrimary = false;
+                    currentBlock = 0;
+                }
+            }
+        }
     };
-
-    State state(vFont, credits, color, title, clearColor);
-    Logic logic(state, input, localContext);
-    Draw draw(state, localContext);
-
-    Util::standardLoop(logic, draw);
+    LogicDraw loop(*this, vFont, input, localContext);
+    Util::standardLoop(loop, loop);
 
     InputManager::waitForRelease(input, InputSource(), Exit);
     throw Menu::Reload(__FILE__, __LINE__);
-    // throw Exception::Return(__FILE__, __LINE__);
 }
 
 OptionDummy::OptionDummy(const Gui::ContextBox & parent, const Token *token):
