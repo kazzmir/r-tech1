@@ -2,6 +2,7 @@
 #define _paintown_options_h
 
 #include "menu_option.h"
+#include "util/gui/animation.h"
 #include "util/input/input-map.h"
 #include "util/file-system.h"
 #include "util/pointer.h"
@@ -30,11 +31,12 @@ public:
         const Block & operator=(const Block &);
         void addCredit(const std::string &);
         
-        int print(int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font &, const Graphics::Bitmap &) const;
+        int print(int x, int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font &, const Graphics::Bitmap &) const;
         
-        inline const int size() const{
-            // Counts title and space in between
-            return credits.size()+2;
+        const int size(const Font &) const;
+        
+        inline const bool empty() const {
+            return title.empty() && credits.empty();
         }
         
     protected:
@@ -44,6 +46,12 @@ public:
         Graphics::Color titleColor;
         bool colorOverride;
         Graphics::Color color;
+        // Before title
+        Util::ReferenceCount<Gui::Animation> topAnimation;
+        int topWidth, topHeight;
+        // After last credit
+        Util::ReferenceCount<Gui::Animation> bottomAnimation;
+        int bottomWidth, bottomHeight;
     };
 
     // Do logic before run part
@@ -58,8 +66,8 @@ public:
     virtual ~OptionCredits();
 private:
     Util::ReferenceCount<Menu::Context> creditsContext;
-    //std::vector<std::string> credits;
-    std::vector<Block> credits;
+    std::vector<Block> creditsPrimary;
+    std::vector<Block> creditsRoll;
     std::string music;
     Graphics::Color color, title;
     InputMap<CreditKey> input;
