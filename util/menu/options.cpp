@@ -148,12 +148,12 @@ void OptionCredits::Block::addCredit(const std::string & credit){
 int OptionCredits::Block::print(int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work) const {
     int currentY = y;
     
-    font.printf(100, currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
+    font.printf(320 - (font.textLength(title.c_str())/2), currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
     currentY += font.getHeight() + 2;
     
     for (std::vector<std::string>::const_iterator i = credits.begin(); i != credits.end(); ++i){
         const std::string & credit = *i;
-        font.printf(100, currentY, (colorOverride ? color : defaultColor), work, credit, 0);
+        font.printf(320 - (font.textLength(credit.c_str())/2), currentY, (colorOverride ? color : defaultColor), work, credit, 0);
         currentY += font.getHeight() + 2;
     }
     
