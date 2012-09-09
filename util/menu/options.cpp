@@ -112,24 +112,17 @@ bottomHeight(0){
                 } catch (const TokenException & ex){
                 }
             } else if ( *tok == "animation" ) {
-                Global::debug(0) << "Found animation" << std::endl;
                 TokenView animView = tok->view();
                 while (animView.hasMore()){
                     const Token * animTok;
                     animView >> animTok;
-                    /* Match can only be used like this if there is at least one
-                     * data element. (top) will not match a call to match("top", x")
-                     * but (top a) will.
-                     */
-                    // if (animTok->match("top", match)){
                     if (*animTok == "top"){
-                        Global::debug(0) << "Found top" << std::endl;
-                        animTok->match("width", topWidth);
-                        animTok->match("height", topHeight);
+                        tok->match("_/width", topWidth);
+                        tok->match("_/height", topHeight);
                         topAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
-                    } else if (animTok->match("bottom", match)){
-                        animTok->match("width", bottomWidth);
-                        animTok->match("height", bottomHeight);
+                    } else if (*animTok == "bottom"){
+                        tok->match("_/width", bottomWidth);
+                        tok->match("_/height", bottomHeight);
                         bottomAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
                     }
                 }
@@ -185,29 +178,92 @@ void OptionCredits::Block::addCredit(const std::string & credit){
     credits.push_back(credit);
 }
 
-int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work) const {
+void OptionCredits::Block::act(){
+    // Top animation
+    if (topAnimation != NULL){
+        topAnimation->act();
+    }
+    // Bottom animation
+    if (bottomAnimation != NULL){
+        bottomAnimation->act();
+    }
+}
+
+int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font & font, const Graphics::Bitmap & work, const Justification & justification) const {
     int currentY = y;
     
     // Top animation
     if (topAnimation != NULL){
-        topAnimation->draw(x - (topWidth/2), y, topWidth, topHeight, work);
+        int xmod = 0;
+        switch (justification){
+            default:
+            case Left:
+                xmod = 0;
+                break;
+            case Center:
+                xmod = topWidth/2;
+                break;
+            case Right:
+                xmod = topWidth;
+                break;
+        }
+        topAnimation->draw(x - xmod, y, topWidth, topHeight, work);
         currentY+=topHeight;
     }
     
     if (!title.empty()){
-        font.printf(x - (font.textLength(title.c_str())/2), currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
+        int xmod = 0;
+        switch (justification){
+            default:
+            case Left:
+                xmod = 0;
+                break;
+            case Center:
+                xmod = font.textLength(title.c_str())/2;
+                break;
+            case Right:
+                xmod = font.textLength(title.c_str());
+                break;
+        }
+        font.printf(x - xmod, currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
         currentY += font.getHeight() + 2;
     }
     
     for (std::vector<std::string>::const_iterator i = credits.begin(); i != credits.end(); ++i){
         const std::string & credit = *i;
-        font.printf(x - (font.textLength(credit.c_str())/2), currentY, (colorOverride ? color : defaultColor), work, credit, 0);
+        int xmod = 0;
+        switch (justification){
+            default:
+            case Left:
+                xmod = 0;
+                break;
+            case Center:
+                xmod = font.textLength(credit.c_str())/2;
+                break;
+            case Right:
+                xmod = font.textLength(credit.c_str());
+                break;
+        }
+        font.printf(x - xmod, currentY, (colorOverride ? color : defaultColor), work, credit, 0);
         currentY += font.getHeight() + 2;
     }
     
     // Bottom animation
     if (bottomAnimation != NULL){
-        bottomAnimation->draw(x - (bottomWidth/2), y, bottomWidth, bottomHeight, work);
+        int xmod = 0;
+        switch (justification){
+            default:
+            case Left:
+                xmod = 0;
+                break;
+            case Center:
+                xmod = bottomWidth/2;
+                break;
+            case Right:
+                xmod = bottomWidth;
+                break;
+        }
+        bottomAnimation->draw(x - xmod, y, bottomWidth, bottomHeight, work);
         currentY+=bottomHeight;
     }
     
@@ -236,6 +292,13 @@ const int OptionCredits::Block::size(const Font & font) const{
 OptionCredits::OptionCredits(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token),
 creditsContext(new Menu::Context()),
+primaryStart(360),
+primaryEnd(280),
+primarySpeed(-.2),
+primaryAlphaSpeed(2),
+rollSpeed(.8),
+rollOffset(0),
+rollJustification(Block::Center),
 music(""),
 color(Graphics::makeColor(255,255,255)),
 title(Graphics::makeColor(0,255,255)),
@@ -250,9 +313,9 @@ clearColor(Graphics::makeColor(0,0,0)){
         Block birthday("Happy birthday, Miguel!");
         creditsPrimary.push_back(birthday);
     }
-    std::string paintownToken = "(credit-block"
-        "(animation (top) (width 100) (height 35) (image 0 \"sprites/logo.png\") (frame (image 0) (time -1)))"
-        "(title \"Paintown\"))";
+    const std::string paintownToken = "(credit-block"
+        "(animation (top) (width 200) (height 65) (image 0 \"sprites/logo.png\") (frame (image 0) (time -1))))";
+        //"(title \"Paintown\"))";
     TokenReader reader;
     Block paintown(reader.readTokenFromString(paintownToken));
     paintown.addCredit(string("Version ") + Global::getVersionString());
@@ -268,21 +331,10 @@ clearColor(Graphics::makeColor(0,0,0)){
     levels.addCredit("Miguel Gavidia");
     creditsPrimary.push_back(levels);
     
-    Block musicBlock("Music");
-    musicBlock.addCredit("aqua.s3m - Purple Motion");
-    musicBlock.addCredit("c_heaven.xm - One Man Project");
-    musicBlock.addCredit("elw-sick.xm - elwood");
-    musicBlock.addCredit("experience.xm - elwood");
-    musicBlock.addCredit("fall.xm - elwood");
-    musicBlock.addCredit("kajahtaa.xm - cube");
-    musicBlock.addCredit("kilimanz.mod - ???");
-    musicBlock.addCredit("SM_TechTown.it - SaMPLeMaSTeR");
-    creditsRoll.push_back(musicBlock);
-    
     Block contact("Contact");
     contact.addCredit("Website: http://paintown.org");
     contact.addCredit("Email: jon@rafkind.com");
-    creditsRoll.push_back(contact);
+    creditsPrimary.push_back(contact);
     
     if ( *token != "credits" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit menu");
@@ -338,6 +390,28 @@ clearColor(Graphics::makeColor(0,0,0)){
                 creditsRoll.push_back(Block(tok));
             } else if (*tok == "primary-credit-block"){
                 creditsPrimary.push_back(Block(tok));
+            } else if ( *tok == "primary-start" ) {
+                tok->view() >> primaryStart;
+            } else if ( *tok == "primary-end" ) {
+                tok->view() >> primaryEnd;
+            } else if ( *tok == "primary-speed" ) {
+                tok->view() >> primarySpeed;
+            } else if ( *tok == "primary-alpha" ) {
+                tok->view() >> primaryAlphaSpeed;
+            } else if ( *tok == "roll-speed" ) {
+                tok->view() >> rollSpeed;
+            } else if ( *tok == "roll-offset" ) {
+                tok->view() >> rollOffset;
+            } else if ( *tok == "roll-justification" ) {
+                std::string justify;
+                tok->view() >> justify;
+                if (justify == "left"){
+                    rollJustification = Block::Left;
+                } else if (justify == "center"){
+                    rollJustification = Block::Center;
+                } else if (justify == "right"){
+                    rollJustification = Block::Right;
+                }
             } else {
                 Global::debug( 3 ) <<"Unhandled menu attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -386,8 +460,7 @@ void OptionCredits::run(const Menu::Context & context){
         input(input),
         quit(false),
         context(context),
-        // FIXME use spaces not hardcoded positions
-        currentX(360),
+        currentX(self.primaryStart),
         currentY(220 - (!self.creditsPrimary.empty() ? (self.creditsPrimary[0].size(font)/2) : 0)),
         currentBlock(0),
         blockAlpha(0),
@@ -429,7 +502,7 @@ void OptionCredits::run(const Menu::Context & context){
             }
 
             if (startRoll){
-                rollY -= 0.8;
+                rollY -= self.rollSpeed;
                 if (rollY < -(maxCredits * 1.1)){
                     /* FIXME: hard coded resolution */
                     rollY = 480;
@@ -463,11 +536,11 @@ void OptionCredits::run(const Menu::Context & context){
 
                 for (std::vector<Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
                     const Block & block = *i;
-                    y = block.print(320, y, self.title, self.color, font, work);
+                    y = block.print(self.rollOffset, y, self.title, self.color, font, work, self.rollJustification);
                 }
             } else {
                 Graphics::Bitmap::transBlender(0, 0, 0, blockAlpha);
-                self.creditsPrimary[currentBlock].print(currentX, currentY, self.title, self.color, font, work.translucent());
+                self.creditsPrimary[currentBlock].print(currentX, currentY, self.title, self.color, font, work.translucent(), Block::Center);
             }
             
             work.finish();
@@ -481,26 +554,47 @@ void OptionCredits::run(const Menu::Context & context){
                     nextPrimary();
                     // FIXME use spaces not static positions
                     blockAlpha = 0;
-                    currentX = 360;
+                    currentX = self.primaryStart;
                     currentY = 220 - (self.creditsPrimary[currentBlock].size(font)/2);
                     startPrimary = true;
                 } else {
-                    currentX -= 0.2;
-                    if (currentX >= 320){
-                        if (blockAlpha < 255){
-                            blockAlpha +=2;
-                        } else {
-                            blockAlpha = 255;
+                    // Act
+                    self.creditsPrimary[currentBlock].act();
+                    currentX += self.primarySpeed;
+                    if (self.primaryStart > self.primaryEnd){
+                        if (currentX >= (self.primaryStart+self.primaryEnd)/2){
+                            if (blockAlpha < 255){
+                                blockAlpha +=self.primaryAlphaSpeed;
+                            } else {
+                                blockAlpha = 255;
+                            }
+                        } else if (currentX < (self.primaryStart+self.primaryEnd)/2){
+                            if (blockAlpha > 0){
+                                blockAlpha -=self.primaryAlphaSpeed;
+                            } else {
+                                blockAlpha = 0;
+                            }
                         }
-                    } else if (currentX < 320){
-                        if (blockAlpha > 0){
-                            blockAlpha -=2;
-                        } else {
-                            blockAlpha = 0;
+                        if (currentX < self.primaryEnd){
+                            startPrimary = false;
                         }
-                    }
-                    if (currentX < 280){
-                        startPrimary = false;
+                    } else if (self.primaryStart < self.primaryEnd){
+                        if (currentX <= (self.primaryStart+self.primaryEnd)/2){
+                            if (blockAlpha < 255){
+                                blockAlpha +=self.primaryAlphaSpeed;
+                            } else {
+                                blockAlpha = 255;
+                            }
+                        } else if (currentX > (self.primaryStart+self.primaryEnd)/2){
+                            if (blockAlpha > 0){
+                                blockAlpha -=self.primaryAlphaSpeed;
+                            } else {
+                                blockAlpha = 0;
+                            }
+                        }
+                        if (currentX > self.primaryEnd){
+                            startPrimary = false;
+                        }
                     }
                 }
             } else {
