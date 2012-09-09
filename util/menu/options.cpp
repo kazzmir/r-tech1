@@ -113,17 +113,25 @@ bottomHeight(0){
                 }
             } else if ( *tok == "animation" ) {
                 Global::debug(0) << "Found animation" << std::endl;
-                const Token * animTok;
-                tok->view() >> animTok;
-                if (animTok->match("top", match)){
-                    Global::debug(0) << "Found top" << std::endl;
-                    animTok->match("width", topWidth);
-                    animTok->match("height", topHeight);
-                    topAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
-                } else if (animTok->match("bottom", match)){
-                    animTok->match("width", bottomWidth);
-                    animTok->match("height", bottomHeight);
-                    bottomAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
+                TokenView animView = tok->view();
+                while (animView.hasMore()){
+                    const Token * animTok;
+                    animView >> animTok;
+                    /* Match can only be used like this if there is at least one
+                     * data element. (top) will not match a call to match("top", x")
+                     * but (top a) will.
+                     */
+                    // if (animTok->match("top", match)){
+                    if (*animTok == "top"){
+                        Global::debug(0) << "Found top" << std::endl;
+                        animTok->match("width", topWidth);
+                        animTok->match("height", topHeight);
+                        topAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
+                    } else if (animTok->match("bottom", match)){
+                        animTok->match("width", bottomWidth);
+                        animTok->match("height", bottomHeight);
+                        bottomAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
+                    }
                 }
             } else {
                 Global::debug( 3 ) <<"Unhandled Credit Block attribute: "<<endl;
