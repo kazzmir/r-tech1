@@ -31,7 +31,15 @@ public:
         const Block & operator=(const Block &);
         void addCredit(const std::string &);
         
-        int print(int x, int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font &, const Graphics::Bitmap &) const;
+        void act();
+        
+        enum Justification{
+            Left,
+            Center,
+            Right,
+        };
+        
+        int print(int x, int y, Graphics::Color defaultTitleColor, Graphics::Color defaultColor, const Font &, const Graphics::Bitmap &, const Justification &) const;
         
         const int size(const Font &) const;
         
@@ -67,7 +75,14 @@ public:
 private:
     Util::ReferenceCount<Menu::Context> creditsContext;
     std::vector<Block> creditsPrimary;
+    int primaryStart;
+    int primaryEnd;
+    double primarySpeed;
+    double primaryAlphaSpeed;
     std::vector<Block> creditsRoll;
+    double rollSpeed;
+    double rollOffset;
+    Block::Justification rollJustification;
     std::string music;
     Graphics::Color color, title;
     InputMap<CreditKey> input;
