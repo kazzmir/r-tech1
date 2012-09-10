@@ -61,6 +61,32 @@ public:
         Util::ReferenceCount<Gui::Animation> bottomAnimation;
         int bottomWidth, bottomHeight;
     };
+    
+    class Sequence {
+    public:
+        Sequence(Token *);
+        Sequence(const Sequence &);
+        ~Sequence();
+        
+        const Sequence & operator=(const Sequence &);
+        
+        void act();
+        void draw(const Graphics::Bitmap &);
+        
+        enum Type{
+            Primary,
+            Roll,
+        };
+        
+    protected:
+        Type type;
+        int start;
+        int end;
+        double speed;
+        double distance;
+        std::vector<Block> credits;
+        Block::Justification justification;
+    };
 
     // Do logic before run part
     virtual void logic();
