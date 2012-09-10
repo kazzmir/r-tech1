@@ -460,45 +460,35 @@ std::string Client::readMessage(){
 void Client::checkResponseAndHandle(const Command & command){
     // Checks for username or channel errors
     if (command.getType() == Command::ErrorNickInUse){
+        ::Util::Thread::ScopedLock scope(lock);
         // Change the username back to what it was
-        lock.acquire();
         channel.removeUser(username);
         username = previousUsername;
         channel.addUser(username);
-        lock.signal();
-        lock.release();
     } else if (command.getType() == Command::ErrorBannedFromChannel ||
                command.getType() == Command::ErrorInviteOnlyChannel ||
                command.getType() == Command::ErrorBadChannelKey ||
                command.getType() == Command::ErrorChannelIsFull ||
                command.getType() == Command::ErrorNoSuchChannel){
+        ::Util::Thread::ScopedLock scope(lock);
         // Revert old channel
-        lock.acquire();
         channel = previousChannel;
-        lock.signal();
-        lock.release();
     } else if (command.getType() == Command::ReplyTopic){
+        ::Util::Thread::ScopedLock scope(lock);
         // Set topic
-        lock.acquire();
         channel.setTopic(command.getParameters().at(2));
-        lock.signal();
-        lock.release();
     } else if (command.getType() == Command::ReplyTopicAuthor){
+        ::Util::Thread::ScopedLock scope(lock);
         // Set topic and author
         const std::vector<std::string> & params = command.getParameters();
-        lock.acquire();
         channel.setTopicAuthor(split(params.at(1), '!').at(0), atoi(params.at(2).c_str()));
-        lock.signal();
-        lock.release();
     } else if (command.getType() == Command::ReplyNames){
         // Add names
         const std::vector<std::string> & params = command.getParameters();
         if (params.at(1) == channel.getName()){
             const std::vector<std::string> & names = split(params.at(2), ' ');
-            lock.acquire();
+            ::Util::Thread::ScopedLock scope(lock);
             channel.addUsers(names);
-            lock.signal();
-            lock.release();
         }
     }
 }
@@ -510,11 +500,10 @@ void Client::run(){
             // Check if the message is empty it might be because of (\n)
             if (!message.empty()){
                 Command command(message);
-                lock.acquire();
+                ::Util::Thread::ScopedLock scope(lock);
                 checkResponseAndHandle(command);
                 commands.push(command);
-                lock.signal();
-                lock.release();
+            } else {
             }
         } catch (const Network::MessageEnd & ex){
             end = true;

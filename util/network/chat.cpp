@@ -186,11 +186,9 @@ Client::~Client(){
 void Client::run(){
     while (!end){
         try {
+            ::Util::Thread::ScopedLock scope(lock);
             Message message(socket);
-            lock.acquire();
             messages.push(message);
-            lock.signal();
-            lock.release();
         } catch (const Network::MessageEnd & ex){
             end = true;
         }
@@ -258,7 +256,7 @@ void Server::run(){
 void Server::poll(){
     for (std::vector< Util::ReferenceCount<Client> >::iterator i = clients.begin(); i != clients.end(); ++i){
         Util::ReferenceCount<Client> client = *i;
-        while(client->hasMessages()){
+        while (client->hasMessages()){
             Message message = client->nextMessage();
             relay(client->getId(), message);
             messages.push(message);
