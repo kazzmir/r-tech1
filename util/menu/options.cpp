@@ -417,12 +417,12 @@ void OptionCredits::Sequence::act(){
             credits[current].act();
             x += speed;
             if (startx > endx){
-                alpha = 255 - fabs(((startx+endx)/2) - x) * alphaMultiplier;
+                alpha = 255 - fabs((double)(((startx+endx)/2) - x)) * alphaMultiplier;
                 if (x < endx){
                     next();
                 }
             } else if (startx < endx){
-                alpha = 255 - fabs(((startx+endx)/2) - x) * alphaMultiplier;
+                alpha = 255 - fabs((double)(((startx+endx)/2) - x)) * alphaMultiplier;
                 if (x > endx){
                     next();
                 }
