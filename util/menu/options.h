@@ -60,6 +60,8 @@ public:
         // After last credit
         Util::ReferenceCount<Gui::Animation> bottomAnimation;
         int bottomWidth, bottomHeight;
+        // Spacing at bottom
+        int spacing;
     };
     
     class Sequence {
@@ -71,21 +73,37 @@ public:
         const Sequence & operator=(const Sequence &);
         
         void act();
-        void draw(const Graphics::Bitmap &);
+        void draw(Graphics::Color title, Graphics::Color color, const Graphics::Bitmap &);
+        
+        void reset();
         
         enum Type{
             Primary,
             Roll,
         };
         
+        inline const bool isDone() const {
+            return this->done;
+        }
+        
     protected:
+        // Next for primary
+        void next();
+        
         Type type;
-        int start;
-        int end;
+        int x;
+        int y;
+        int startx;
+        int endx;
+        int starty;
+        int endy;
         double speed;
-        double distance;
+        int alpha;
+        double alphaMultiplier;
         Block::Justification justification;
         std::vector<Block> credits;
+        unsigned int current;
+        bool done;
     };
 
     // Do logic before run part
