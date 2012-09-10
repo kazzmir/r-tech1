@@ -23,7 +23,16 @@
 // #include "funcs.h"
 #include "debug.h"
 
+/* 9/10/2012: Condition variables have been removed. There are no use-cases in the code
+ * where multiple threads are waiting for producer thread to signal them so a simpler
+ * solution is just to use a mutex and poll. The main motivation to remove condition
+ * variables was in getting the xbox 360 port to work with libxenon which does not
+ * yet have support for condition variables, but supposedly mutexes work ok.
+ */
+
 namespace Util{
+
+    void rest(int x);
 
 /* Either uses pthreads or SDL_thread */
 namespace Thread{
@@ -51,10 +60,12 @@ namespace Thread{
     bool isUninitialized(Id thread);
     bool initializeLock(Lock * lock);
 
+    /*
     void initializeCondition(Condition * condition);
     void destroyCondition(Condition * condition);
     int conditionWait(Condition * condition, Lock * lock);
     int conditionSignal(Condition * condition);
+    */
 
     /*
     void initializeSemaphore(Semaphore * semaphore, unsigned int value);
@@ -84,24 +95,24 @@ namespace Thread{
 
         /* wait until check is true.
          * you MUST acquire the lock before calling this function */
-        void wait(volatile bool & check) const;
+        // void wait(volatile bool & check) const;
 
         /* just until we are signaled
          * you MUST acquire the lock before calling this function */
-        void wait() const;
+        // void wait() const;
 
         /* you MUST acquire the lock before calling this function */
-        void signal() const;
+        // void signal() const;
 
         /* gets the lock, sets the boolean, and signals the condition
          * you MUST NOT acquire the lock before calling this function
          */
-        void lockAndSignal(volatile bool & check, bool what) const;
+        // void lockAndSignal(volatile bool & check, bool what) const;
 
         virtual ~LockObject();
 
         Lock lock;
-        Condition condition;
+        // Condition condition;
     };
 
     /* acquires/releases the lock in RAII fashion */
@@ -180,9 +191,14 @@ protected:
  * Object o = future.get(); // future is already done
  *
  */
-template<class X> class Future{ public: Future(): thing(0),
-    thread(Thread::uninitializedValue), done(false), exception(NULL),
-    ran(false){ }
+template<class X> class Future{
+public:
+    Future():
+        thing(0),
+        thread(Thread::uninitializedValue),
+        done(false),
+        exception(NULL),
+        ran(false){ }
 
     virtual ~Future(){
         Thread::joinThread(thread);
@@ -195,8 +211,16 @@ template<class X> class Future{ public: Future(): thing(0),
             start();
         }
         Exception::Base * failed = NULL;
-        future.acquire();
-        future.wait(done);
+        bool ok = false;
+        while (!ok){
+            future.acquire();
+            if (!done){
+                future.release();
+                Util::rest(1);
+            } else {
+                ok = true;
+            }
+        }
         if (exception != NULL){
             failed = exception;
         }
@@ -240,7 +264,10 @@ protected:
         } catch (...){
             me->exception = new Exception::Base(__FILE__, __LINE__);
         }
-        me->future.lockAndSignal(me->done, true);
+        me->future.acquire();
+        me->done = true;
+        me->future.release();
+        // me->future.lockAndSignal(me->done, true);
         return NULL;
     }
 

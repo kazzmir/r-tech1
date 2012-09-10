@@ -11,7 +11,7 @@ namespace Thread{
 
 LockObject::LockObject(){
     initializeLock(&lock);
-    initializeCondition(&condition);
+    // initializeCondition(&condition);
     // Global::debug(0) << "Created lock " << lock << std::endl;
     // Global::debug(0) << "Created condition " << condition << std::endl;
 }
@@ -25,6 +25,7 @@ int LockObject::release() const {
     return releaseLock((Lock*) &lock);
 }
         
+#if 0
 void LockObject::wait() const {
     int ok = 1;
     while (ok != 0){
@@ -56,10 +57,11 @@ void LockObject::lockAndSignal(volatile bool & check, bool what) const {
     signal();
     release();
 }
+#endif
 
 LockObject::~LockObject(){
     destroyLock(&lock);
-    destroyCondition(&condition);
+    // destroyCondition(&condition);
 }
 
 ScopedLock::ScopedLock(const LockObject & lock):
@@ -116,6 +118,7 @@ void destroyLock(Lock * lock){
     SDL_DestroyMutex(*lock);
 }
     
+#if 0
 void initializeCondition(Condition * condition){
     *condition = SDL_CreateCond();
     if (condition == NULL){
@@ -134,6 +137,7 @@ int conditionWait(Condition * condition, Lock * lock){
 int conditionSignal(Condition * condition){
     return SDL_CondBroadcast(*condition);
 }
+#endif
 
 /*
 void initializeSemaphore(Semaphore * semaphore, unsigned int value){
@@ -232,6 +236,7 @@ int releaseLock(Lock * lock){
     return 0;
 }
 
+#if 0
 void initializeCondition(Condition * condition){
     *condition = al_create_cond();
 }
@@ -249,6 +254,7 @@ int conditionSignal(Condition * condition){
     al_broadcast_cond(*condition);
     return 0;
 }
+#endif
 
 struct AllegroThreadStuff{
     AllegroThreadStuff(const ThreadFunction & function, void * arg):
@@ -309,6 +315,7 @@ int releaseLock(Lock * lock){
     return pthread_mutex_unlock(lock);
 }
 
+#if 0
 void initializeCondition(Condition * condition){
     pthread_cond_init(condition, NULL);
 }
@@ -324,6 +331,7 @@ int conditionWait(Condition * condition, Lock * lock){
 int conditionSignal(Condition * condition){
     return pthread_cond_broadcast(condition);
 }
+#endif
 
 #if 0
 void initializeSemaphore(Semaphore * semaphore, unsigned int value){
