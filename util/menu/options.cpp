@@ -289,6 +289,69 @@ const int OptionCredits::Block::size(const Font & font) const{
     return total;
 }
 
+OptionCredits::Sequence::Sequence(Token * token):
+type(Primary),
+start(0),
+end(0),
+speed(0),
+distance(0),
+justification(Block::Center){
+    if ( *token != "sequence" ){
+        throw LoadException(__FILE__, __LINE__, "Not a credit sequence");
+    }
+    
+    TokenView view = token->view();
+    
+    while (view.hasMore()){
+        std::string match;
+        try{
+            const Token * tok;
+            view >> tok;
+            if (*tok == ""){
+            } else {
+                Global::debug( 3 ) <<"Unhandled Credit Sequence attribute: "<<endl;
+                if (Global::getDebug() >= 3){
+                    tok->print(" ");
+                }
+            }
+        } catch ( const TokenException & ex ) {
+            throw LoadException(__FILE__, __LINE__, ex, "Credit Sequence parse error");
+        } catch ( const LoadException & ex ) {
+            throw ex;
+        }
+    }
+}
+
+OptionCredits::Sequence::Sequence(const Sequence & copy):
+type(copy.type),
+start(copy.start),
+end(copy.end),
+speed(copy.speed),
+distance(copy.distance),
+justification(copy.justification),
+credits(copy.credits){
+}
+
+OptionCredits::Sequence::~Sequence(){
+}
+
+const OptionCredits::Sequence & OptionCredits::Sequence::operator=(const OptionCredits::Sequence & copy){
+    type = copy.type;
+    start = copy.start;
+    end = copy.end;
+    speed = copy.speed;
+    distance = copy.distance;
+    justification = copy.justification;
+    credits = copy.credits;
+    return *this;
+}
+
+void OptionCredits::Sequence::act(){
+}
+
+void OptionCredits::Sequence::draw(const Graphics::Bitmap & work){
+}
+
 OptionCredits::OptionCredits(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token),
 creditsContext(new Menu::Context()),
@@ -439,6 +502,169 @@ OptionCredits::~OptionCredits(){
 void OptionCredits::logic(){
 }
 
+class LogicDraw : public Util::Logic, public Util::Draw{
+public:
+    LogicDraw(OptionCredits & self, const Font & font, InputMap<OptionCredits::CreditKey> & input, Menu::Context & context):
+    self(self),
+    font(font),
+    input(input),
+    quit(false),
+    context(context),
+    currentX(self.primaryStart),
+    currentY(220 - (!self.creditsPrimary.empty() ? (self.creditsPrimary[0].size(font)/2) : 0)),
+    currentBlock(0),
+    blockAlpha(0),
+    startPrimary(true),
+    startRoll(false),
+    /* FIXME hardcoded resolution */
+    rollY(480),
+    maxCredits(0){
+        for (std::vector<OptionCredits::Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
+            const OptionCredits::Block & block = *i;
+            maxCredits+=block.size(font);
+        }
+    }
+
+    OptionCredits & self;
+    const Font & font;
+    InputMap<OptionCredits::CreditKey> & input;
+    bool quit;
+    Menu::Context & context;
+    double currentX;
+    double currentY;
+    unsigned int currentBlock;
+    int blockAlpha;
+    bool startPrimary;
+    bool startRoll;
+    double rollY;
+    int maxCredits;
+
+    void run(){
+        vector<InputMap<OptionCredits::CreditKey>::InputEvent> out = InputManager::getEvents(input, InputSource());
+        for (vector<InputMap<OptionCredits::CreditKey>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
+            const InputMap<OptionCredits::CreditKey>::InputEvent & event = *it;
+            if (event.enabled){
+                if (event.out == OptionCredits::Exit){
+                    quit = true;
+                    context.finish();
+                }
+            }
+        }
+
+        if (startRoll){
+            rollY -= self.rollSpeed;
+            if (rollY < -(maxCredits * 1.1)){
+                /* FIXME: hard coded resolution */
+                rollY = 480;
+                startRoll = false;
+            }
+        } else {
+            handlePrimary();
+        }
+        
+        context.act();
+    }
+
+    bool done(){
+        return quit;
+    }
+
+    double ticks(double system){
+        return system * Global::ticksPerSecond(90);
+    }
+    
+    void draw(const Graphics::Bitmap & buffer){
+        /* FIXME: hard coded resolution */
+        Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+        work.fill(self.clearColor);
+        work.start();
+        //background.Blit(work);
+        context.render(NULL, work);
+        
+        if (startRoll){
+            int y = (int) rollY;
+
+            for (std::vector<OptionCredits::Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
+                const OptionCredits::Block & block = *i;
+                y = block.print(self.rollOffset, y, self.title, self.color, font, work, self.rollJustification);
+            }
+        } else {
+            Graphics::Bitmap::transBlender(0, 0, 0, blockAlpha);
+            self.creditsPrimary[currentBlock].print(currentX, currentY, self.title, self.color, font, work.translucent(), OptionCredits::Block::Center);
+        }
+        
+        work.finish();
+        
+        buffer.BlitToScreen();
+    }
+    
+    void handlePrimary(){
+        if (!self.creditsPrimary.empty()){
+            if (!startPrimary){
+                nextPrimary();
+                // FIXME use spaces not static positions
+                blockAlpha = 0;
+                currentX = self.primaryStart;
+                currentY = 220 - (self.creditsPrimary[currentBlock].size(font)/2);
+                startPrimary = true;
+            } else {
+                // Act
+                self.creditsPrimary[currentBlock].act();
+                currentX += self.primarySpeed;
+                if (self.primaryStart > self.primaryEnd){
+                    if (currentX >= (self.primaryStart+self.primaryEnd)/2){
+                        if (blockAlpha < 255){
+                            blockAlpha +=self.primaryAlphaSpeed;
+                        } else {
+                            blockAlpha = 255;
+                        }
+                    } else if (currentX < (self.primaryStart+self.primaryEnd)/2){
+                        if (blockAlpha > 0){
+                            blockAlpha -=self.primaryAlphaSpeed;
+                        } else {
+                            blockAlpha = 0;
+                        }
+                    }
+                    if (currentX < self.primaryEnd){
+                        startPrimary = false;
+                    }
+                } else if (self.primaryStart < self.primaryEnd){
+                    if (currentX <= (self.primaryStart+self.primaryEnd)/2){
+                        if (blockAlpha < 255){
+                            blockAlpha +=self.primaryAlphaSpeed;
+                        } else {
+                            blockAlpha = 255;
+                        }
+                    } else if (currentX > (self.primaryStart+self.primaryEnd)/2){
+                        if (blockAlpha > 0){
+                            blockAlpha -=self.primaryAlphaSpeed;
+                        } else {
+                            blockAlpha = 0;
+                        }
+                    }
+                    if (currentX > self.primaryEnd){
+                        startPrimary = false;
+                    }
+                }
+            }
+        } else {
+            startPrimary = false;
+            startRoll = true;
+        }
+    }
+    
+    void nextPrimary(){
+        if (currentBlock < self.creditsPrimary.size()){
+            currentBlock++;
+            if (currentBlock == self.creditsPrimary.size()){
+                startRoll = true;
+                startPrimary = false;
+                currentBlock = 0;
+            }
+        }
+    }
+};
+
 void OptionCredits::run(const Menu::Context & context){
     Menu::Context localContext(context, *creditsContext);
     localContext.initialize();
@@ -451,169 +677,7 @@ void OptionCredits::run(const Menu::Context & context){
     }
 
     const Font & vFont = Menu::menuFontParameter.current()->get();
-
-    class LogicDraw : public Util::Logic, public Util::Draw{
-    public:
-        LogicDraw(OptionCredits & self, const Font & font, InputMap<CreditKey> & input, Menu::Context & context):
-        self(self),
-        font(font),
-        input(input),
-        quit(false),
-        context(context),
-        currentX(self.primaryStart),
-        currentY(220 - (!self.creditsPrimary.empty() ? (self.creditsPrimary[0].size(font)/2) : 0)),
-        currentBlock(0),
-        blockAlpha(0),
-        startPrimary(true),
-        startRoll(false),
-        /* FIXME hardcoded resolution */
-        rollY(480),
-        maxCredits(0){
-            for (std::vector<Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
-                const Block & block = *i;
-                maxCredits+=block.size(font);
-            }
-        }
-
-        OptionCredits & self;
-        const Font & font;
-        InputMap<CreditKey> & input;
-        bool quit;
-        Menu::Context & context;
-        double currentX;
-        double currentY;
-        unsigned int currentBlock;
-        int blockAlpha;
-        bool startPrimary;
-        bool startRoll;
-        double rollY;
-        int maxCredits;
-
-        void run(){
-            vector<InputMap<CreditKey>::InputEvent> out = InputManager::getEvents(input, InputSource());
-            for (vector<InputMap<CreditKey>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
-                const InputMap<CreditKey>::InputEvent & event = *it;
-                if (event.enabled){
-                    if (event.out == Exit){
-                        quit = true;
-                        context.finish();
-                    }
-                }
-            }
-
-            if (startRoll){
-                rollY -= self.rollSpeed;
-                if (rollY < -(maxCredits * 1.1)){
-                    /* FIXME: hard coded resolution */
-                    rollY = 480;
-                    startRoll = false;
-                }
-            } else {
-                handlePrimary();
-            }
-            
-            context.act();
-        }
-
-        bool done(){
-            return quit;
-        }
-
-        double ticks(double system){
-            return system * Global::ticksPerSecond(90);
-        }
-        
-        void draw(const Graphics::Bitmap & buffer){
-            /* FIXME: hard coded resolution */
-            Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
-            work.fill(self.clearColor);
-            work.start();
-            //background.Blit(work);
-            context.render(NULL, work);
-            
-            if (startRoll){
-                int y = (int) rollY;
-
-                for (std::vector<Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
-                    const Block & block = *i;
-                    y = block.print(self.rollOffset, y, self.title, self.color, font, work, self.rollJustification);
-                }
-            } else {
-                Graphics::Bitmap::transBlender(0, 0, 0, blockAlpha);
-                self.creditsPrimary[currentBlock].print(currentX, currentY, self.title, self.color, font, work.translucent(), Block::Center);
-            }
-            
-            work.finish();
-            
-            buffer.BlitToScreen();
-        }
-        
-        void handlePrimary(){
-            if (!self.creditsPrimary.empty()){
-                if (!startPrimary){
-                    nextPrimary();
-                    // FIXME use spaces not static positions
-                    blockAlpha = 0;
-                    currentX = self.primaryStart;
-                    currentY = 220 - (self.creditsPrimary[currentBlock].size(font)/2);
-                    startPrimary = true;
-                } else {
-                    // Act
-                    self.creditsPrimary[currentBlock].act();
-                    currentX += self.primarySpeed;
-                    if (self.primaryStart > self.primaryEnd){
-                        if (currentX >= (self.primaryStart+self.primaryEnd)/2){
-                            if (blockAlpha < 255){
-                                blockAlpha +=self.primaryAlphaSpeed;
-                            } else {
-                                blockAlpha = 255;
-                            }
-                        } else if (currentX < (self.primaryStart+self.primaryEnd)/2){
-                            if (blockAlpha > 0){
-                                blockAlpha -=self.primaryAlphaSpeed;
-                            } else {
-                                blockAlpha = 0;
-                            }
-                        }
-                        if (currentX < self.primaryEnd){
-                            startPrimary = false;
-                        }
-                    } else if (self.primaryStart < self.primaryEnd){
-                        if (currentX <= (self.primaryStart+self.primaryEnd)/2){
-                            if (blockAlpha < 255){
-                                blockAlpha +=self.primaryAlphaSpeed;
-                            } else {
-                                blockAlpha = 255;
-                            }
-                        } else if (currentX > (self.primaryStart+self.primaryEnd)/2){
-                            if (blockAlpha > 0){
-                                blockAlpha -=self.primaryAlphaSpeed;
-                            } else {
-                                blockAlpha = 0;
-                            }
-                        }
-                        if (currentX > self.primaryEnd){
-                            startPrimary = false;
-                        }
-                    }
-                }
-            } else {
-                startPrimary = false;
-                startRoll = true;
-            }
-        }
-        
-        void nextPrimary(){
-            if (currentBlock < self.creditsPrimary.size()){
-                currentBlock++;
-                if (currentBlock == self.creditsPrimary.size()){
-                    startRoll = true;
-                    startPrimary = false;
-                    currentBlock = 0;
-                }
-            }
-        }
-    };
+    
     LogicDraw loop(*this, vFont, input, localContext);
     Util::standardLoop(loop, loop);
 

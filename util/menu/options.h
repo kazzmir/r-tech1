@@ -84,8 +84,8 @@ public:
         int end;
         double speed;
         double distance;
-        std::vector<Block> credits;
         Block::Justification justification;
+        std::vector<Block> credits;
     };
 
     // Do logic before run part
@@ -98,7 +98,7 @@ public:
     OptionCredits(const Gui::ContextBox & parent, const Token *token);
 
     virtual ~OptionCredits();
-private:
+//private:
     Util::ReferenceCount<Menu::Context> creditsContext;
     std::vector<Block> creditsPrimary;
     int primaryStart;
