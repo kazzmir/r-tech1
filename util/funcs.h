@@ -94,7 +94,7 @@ std::string niceSize(unsigned long size);
 
 int levenshtein(const std::string & str1, const std::string & str2);
 
-int getPipe(int files[2]);
+// int getPipe(int files[2]);
 
 void limitPrintf(char * buffer, int size, const char * format, va_list args);
 

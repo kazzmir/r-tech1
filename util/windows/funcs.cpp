@@ -5,6 +5,7 @@
 #include <io.h>
 #include <fcntl.h>
 
+/*
 int Util::getPipe(int files[2]){
     HANDLE read_in, write_in;
     int ok = CreatePipe(&read_in, &write_in, NULL, 0);
@@ -17,5 +18,6 @@ int Util::getPipe(int files[2]){
     files[1] = _open_osfhandle((intptr_t) write_in, _O_WRONLY);
     return 0;
 }
+*/
 
 #endif

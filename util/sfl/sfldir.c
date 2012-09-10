@@ -1410,7 +1410,11 @@ remove_dir (
     if (!file_is_directory (path))
         return (-1);
 
+#ifdef XENON
+    return -1;
+#else
     return (rmdir (path));
+#endif
 
 #elif (defined (MSDOS_FILESYSTEM))
     int
