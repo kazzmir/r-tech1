@@ -35,6 +35,7 @@
 #include <sstream>
 #include <algorithm>
 #include <time.h>
+#include <math.h>
 
 using namespace std;
 using namespace Gui;
@@ -66,7 +67,8 @@ title(title),
 titleColorOverride(false),
 titleColor(Graphics::makeColor(0,255,255)),
 colorOverride(false),
-color(Graphics::makeColor(255,255,255)){
+color(Graphics::makeColor(255,255,255)),
+spacing(0){
 }
 
 OptionCredits::Block::Block(const Token * token):
@@ -77,7 +79,8 @@ color(Graphics::makeColor(255,255,255)),
 topWidth(0),
 topHeight(0),
 bottomWidth(0),
-bottomHeight(0){
+bottomHeight(0),
+spacing(0){
     if ( *token != "credit-block" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit block");
     }
@@ -126,6 +129,8 @@ bottomHeight(0){
                         bottomAnimation = Util::ReferenceCount<Gui::Animation>(new Animation(tok));
                     }
                 }
+            } else if (*tok == "spacing"){
+                tok->view() >> spacing;
             } else {
                 Global::debug( 3 ) <<"Unhandled Credit Block attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -152,7 +157,8 @@ topWidth(copy.topWidth),
 topHeight(copy.topHeight),
 bottomAnimation(copy.bottomAnimation),
 bottomWidth(copy.bottomWidth),
-bottomHeight(copy.bottomHeight){
+bottomHeight(copy.bottomHeight),
+spacing(copy.spacing){
 }
 
 OptionCredits::Block::~Block(){
@@ -171,6 +177,7 @@ const OptionCredits::Block & OptionCredits::Block::operator=(const OptionCredits
     bottomAnimation = copy.bottomAnimation;
     bottomWidth = copy.bottomWidth;
     bottomHeight = copy.bottomHeight;
+    spacing = copy.spacing;
     return *this;
 }
 
@@ -226,7 +233,7 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
                 break;
         }
         font.printf(x - xmod, currentY, (titleColorOverride ? titleColor : defaultTitleColor), work, title, 0);
-        currentY += font.getHeight() + 2;
+        currentY += font.getHeight();
     }
     
     for (std::vector<std::string>::const_iterator i = credits.begin(); i != credits.end(); ++i){
@@ -245,7 +252,7 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
                 break;
         }
         font.printf(x - xmod, currentY, (colorOverride ? color : defaultColor), work, credit, 0);
-        currentY += font.getHeight() + 2;
+        currentY += font.getHeight();
     }
     
     // Bottom animation
@@ -267,7 +274,7 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
         currentY+=bottomHeight;
     }
     
-    currentY += font.getHeight() + 2;
+    currentY += font.getHeight() + spacing;
     
     return currentY;
 }
@@ -286,16 +293,25 @@ const int OptionCredits::Block::size(const Font & font) const{
         total += bottomHeight;
     }
     total += font.getHeight();
+    
+    total += spacing;
     return total;
 }
 
 OptionCredits::Sequence::Sequence(Token * token):
 type(Primary),
-start(0),
-end(0),
+x(0),
+y(0),
+startx(0),
+endx(0),
+starty(0),
+endy(0),
 speed(0),
-distance(0),
-justification(Block::Center){
+alpha(0),
+alphaMultiplier(0),
+justification(Block::Center),
+current(0),
+done(false){
     if ( *token != "sequence" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit sequence");
     }
@@ -307,7 +323,38 @@ justification(Block::Center){
         try{
             const Token * tok;
             view >> tok;
-            if (*tok == ""){
+            if (*tok == "type"){
+                std::string sequenceType;
+                tok->view() >> sequenceType;
+                if (sequenceType == "roll"){
+                    type = Roll;
+                } else if (sequenceType == "primary"){
+                    type = Primary;
+                }
+            } else if (*tok == "start-x"){
+                tok->view() >> startx;
+            } else if (*tok == "end-x"){
+                tok->view() >> endx;
+            } else if (*tok == "start-y"){
+                tok->view() >> starty;
+            } else if (*tok == "end-y"){
+                tok->view() >> endy;
+            } else if (*tok == "speed"){
+                tok->view() >> speed;
+            } else if (*tok == "alpha-multiplier"){
+                tok->view() >> alphaMultiplier;
+            } else if ( *tok == "justification" ) {
+                std::string justify;
+                tok->view() >> justify;
+                if (justify == "left"){
+                    justification = Block::Left;
+                } else if (justify == "center"){
+                    justification = Block::Center;
+                } else if (justify == "right"){
+                    justification = Block::Right;
+                }
+            } else if (*tok == "block"){
+                credits.push_back(Block(tok));
             } else {
                 Global::debug( 3 ) <<"Unhandled Credit Sequence attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -320,16 +367,26 @@ justification(Block::Center){
             throw ex;
         }
     }
+    
+    // Initial
+    reset();
 }
 
 OptionCredits::Sequence::Sequence(const Sequence & copy):
 type(copy.type),
-start(copy.start),
-end(copy.end),
+x(0),
+y(0),
+startx(copy.startx),
+endx(copy.endx),
+starty(copy.starty),
+endy(copy.endy),
 speed(copy.speed),
-distance(copy.distance),
+alpha(0),
+alphaMultiplier(copy.alphaMultiplier),
 justification(copy.justification),
-credits(copy.credits){
+credits(copy.credits),
+current(0),
+done(false){
 }
 
 OptionCredits::Sequence::~Sequence(){
@@ -337,19 +394,83 @@ OptionCredits::Sequence::~Sequence(){
 
 const OptionCredits::Sequence & OptionCredits::Sequence::operator=(const OptionCredits::Sequence & copy){
     type = copy.type;
-    start = copy.start;
-    end = copy.end;
+    x = copy.x;
+    y = copy.y;
+    startx = copy.startx;
+    endx = copy.endx;
+    starty = copy.starty;
+    endy = copy.endy;
     speed = copy.speed;
-    distance = copy.distance;
+    alpha = copy.alpha;
+    alphaMultiplier = copy.alphaMultiplier;
     justification = copy.justification;
     credits = copy.credits;
+    current = 0;
+    done = false;
     return *this;
 }
 
 void OptionCredits::Sequence::act(){
+    if (!done && !credits.empty()){
+        if (type == Roll){
+        } else if (type == Primary){
+            credits[current].act();
+            x += speed;
+            if (startx > endx){
+                alpha = 255 - fabs(((startx+endx)/2) - x) * alphaMultiplier;
+                if (x < endx){
+                    next();
+                }
+            } else if (startx < endx){
+                alpha = 255 - fabs(((startx+endx)/2) - x) * alphaMultiplier;
+                if (x > endx){
+                    next();
+                }
+            }
+        }
+    }
 }
 
-void OptionCredits::Sequence::draw(const Graphics::Bitmap & work){
+void OptionCredits::Sequence::draw(Graphics::Color title, Graphics::Color color, const Graphics::Bitmap & work){
+    if (!done && !credits.empty()){
+        if (type == Roll){
+            int rollY = (int) y;
+            for (std::vector<OptionCredits::Block>::const_iterator i = credits.begin(); i != credits.end(); ++i){
+                const OptionCredits::Block & block = *i;
+                rollY = block.print(x, y, title, color, Menu::menuFontParameter.current()->get(), work, justification);
+            }
+        } else if (type == Primary){
+            Graphics::Bitmap::transBlender(0, 0, 0, alpha);
+            credits[current].print(x, y, title, color, Menu::menuFontParameter.current()->get(), work.translucent(), justification);
+        }
+    }
+}
+
+void OptionCredits::Sequence::reset(){
+    done = false;
+    current = 0;
+    if (!credits.empty()){
+        if (type == Roll){
+            x = startx;
+            y = starty;
+        } else if (type == Primary){
+            x = startx;
+            y = starty - (credits[current].size(Menu::menuFontParameter.current()->get())/2);
+        }
+    }
+}
+
+void OptionCredits::Sequence::next(){
+    if (type == Primary){
+        if (current < credits.size()){
+            current++;
+            x = startx;
+            y = starty - (credits[current].size(Menu::menuFontParameter.current()->get())/2);
+            if (current == credits.size()){
+                done = true;
+            }
+        }
+    }
 }
 
 OptionCredits::OptionCredits(const Gui::ContextBox & parent, const Token * token):
