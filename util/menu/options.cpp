@@ -81,7 +81,7 @@ topHeight(0),
 bottomWidth(0),
 bottomHeight(0),
 spacing(0){
-    if ( *token != "credit-block" ){
+    if ( *token != "block" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit block");
     }
     
@@ -298,7 +298,7 @@ const int OptionCredits::Block::size(const Font & font) const{
     return total;
 }
 
-OptionCredits::Sequence::Sequence(Token * token):
+OptionCredits::Sequence::Sequence(const Token * token):
 type(Primary),
 x(0),
 y(0),
@@ -311,7 +311,8 @@ alpha(0),
 alphaMultiplier(0),
 justification(Block::Center),
 current(0),
-done(false){
+done(false),
+creditLength(0){
     if ( *token != "sequence" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit sequence");
     }
@@ -370,23 +371,28 @@ done(false){
     
     // Initial
     reset();
+    for (std::vector<OptionCredits::Block>::const_iterator i = credits.begin(); i != credits.end(); ++i){
+        const OptionCredits::Block & block = *i;
+        creditLength += block.size(Menu::menuFontParameter.current()->get());
+    }
 }
 
 OptionCredits::Sequence::Sequence(const Sequence & copy):
 type(copy.type),
-x(0),
-y(0),
+x(copy.x),
+y(copy.y),
 startx(copy.startx),
 endx(copy.endx),
 starty(copy.starty),
 endy(copy.endy),
 speed(copy.speed),
-alpha(0),
+alpha(copy.alpha),
 alphaMultiplier(copy.alphaMultiplier),
 justification(copy.justification),
 credits(copy.credits),
-current(0),
-done(false){
+current(copy.current),
+done(false),
+creditLength(copy.creditLength){
 }
 
 OptionCredits::Sequence::~Sequence(){
@@ -405,24 +411,38 @@ const OptionCredits::Sequence & OptionCredits::Sequence::operator=(const OptionC
     alphaMultiplier = copy.alphaMultiplier;
     justification = copy.justification;
     credits = copy.credits;
-    current = 0;
+    current = copy.current;
     done = false;
+    creditLength = copy.creditLength;
     return *this;
 }
 
 void OptionCredits::Sequence::act(){
     if (!done && !credits.empty()){
         if (type == Roll){
+            y += speed;
+            if (starty > endy){
+                if ((y + (creditLength * 1.1)) < endy){
+                    done = true;
+                }
+            } else if (starty < endy){
+                if ((y * 1.1) > endy){
+                    done = true;
+                }
+            }
         } else if (type == Primary){
             credits[current].act();
             x += speed;
             if (startx > endx){
                 alpha = 255 - fabs((double)(((startx+endx)/2) - x)) * alphaMultiplier;
+                Global::debug(0) << "alpha: " << alpha << std::endl;
+                //alpha = 255;
                 if (x < endx){
                     next();
                 }
             } else if (startx < endx){
                 alpha = 255 - fabs((double)(((startx+endx)/2) - x)) * alphaMultiplier;
+                //alpha = 255;
                 if (x > endx){
                     next();
                 }
@@ -437,7 +457,7 @@ void OptionCredits::Sequence::draw(Graphics::Color title, Graphics::Color color,
             int rollY = (int) y;
             for (std::vector<OptionCredits::Block>::const_iterator i = credits.begin(); i != credits.end(); ++i){
                 const OptionCredits::Block & block = *i;
-                rollY = block.print(x, y, title, color, Menu::menuFontParameter.current()->get(), work, justification);
+                rollY = block.print(x, rollY, title, color, Menu::menuFontParameter.current()->get(), work, justification);
             }
         } else if (type == Primary){
             Graphics::Bitmap::transBlender(0, 0, 0, alpha);
@@ -464,61 +484,53 @@ void OptionCredits::Sequence::next(){
     if (type == Primary){
         if (current < credits.size()){
             current++;
-            x = startx;
-            y = starty - (credits[current].size(Menu::menuFontParameter.current()->get())/2);
             if (current == credits.size()){
                 done = true;
+            } else {
+                x = startx;
+                y = starty - (credits[current].size(Menu::menuFontParameter.current()->get())/2);
             }
         }
     }
 }
 
+static std::string defaultPositions(){
+    const int width = Configuration::getScreenWidth();
+    const int height = Configuration::getScreenHeight();
+    std::ostringstream out;
+    out << "(start-x " << width/2.3 << ") (end-x " << width/1.8 << ") (start-y " << height/2 << ") ";
+    return out.str();
+}
+
 OptionCredits::OptionCredits(const Gui::ContextBox & parent, const Token * token):
 MenuOption(parent, token),
 creditsContext(new Menu::Context()),
-primaryStart(360),
-primaryEnd(280),
-primarySpeed(-.2),
-primaryAlphaSpeed(2),
-rollSpeed(.8),
-rollOffset(0),
-rollJustification(Block::Center),
 music(""),
 color(Graphics::makeColor(255,255,255)),
 title(Graphics::makeColor(0,255,255)),
 clearColor(Graphics::makeColor(0,0,0)){
+    std::string defaultSequence = "(sequence (type primary) (speed 0.2) (alpha-modifier 50) (justification center) " + defaultPositions();
+    
     /* Always */
     if (jonBirthday()){
-        Block birthday("Happy birthday, Jon!");
-        creditsPrimary.push_back(birthday);
+        defaultSequence += "(block (title \"Happy birthday, Jon!\"))";
     }
 
     if (miguelBirthday()){
-        Block birthday("Happy birthday, Miguel!");
-        creditsPrimary.push_back(birthday);
+        defaultSequence += "(block (title \"Happy birthday, Jon!\"))";
     }
-    const std::string paintownToken = "(credit-block"
-        "(animation (top) (width 200) (height 65) (image 0 \"sprites/logo.png\") (frame (image 0) (time -1))))";
-        //"(title \"Paintown\"))";
+    defaultSequence += "(block (animation (top) (width 200) (height 65) (image 0 \"sprites/logo.png\") (frame (image 0) (time -1))) (credit \"Version " + Global::getVersionString() + "\"))";
+    
+    defaultSequence += "(block (title \"Programming\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
+    
+    defaultSequence += "(block (title \"Level design\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
+    
+    defaultSequence += "(block (title \"Contact\") (credit \"Website: http://paintown.org\") (credit \"Email: jon@rafkind.com\")))";
     TokenReader reader;
-    Block paintown(reader.readTokenFromString(paintownToken));
-    paintown.addCredit(string("Version ") + Global::getVersionString());
-    creditsPrimary.push_back(paintown);
+    Sequence sequence(reader.readTokenFromString(defaultSequence));
+    sequences.push_back(sequence);
     
-    Block programming("Programming");
-    programming.addCredit("Jon Rafkind");
-    programming.addCredit("Miguel Gavidia");
-    creditsPrimary.push_back(programming);
-    
-    Block levels("Level design");
-    levels.addCredit("Jon Rafkind");
-    levels.addCredit("Miguel Gavidia");
-    creditsPrimary.push_back(levels);
-    
-    Block contact("Contact");
-    contact.addCredit("Website: http://paintown.org");
-    contact.addCredit("Email: jon@rafkind.com");
-    creditsPrimary.push_back(contact);
+    //Global::debug(0) << defaultSequence << std::endl;
     
     if ( *token != "credits" ){
         throw LoadException(__FILE__, __LINE__, "Not a credit menu");
@@ -558,6 +570,8 @@ clearColor(Graphics::makeColor(0,0,0)){
                         legacyAdditional.addCredit(str);
                     }
                 }
+            } else if (*tok == "sequence"){
+                sequences.push_back(OptionCredits::Sequence(tok));
             } else if ( *tok == "titlecolor" ) {
                 int r,b,g;
                 tok->view() >> r >> g >> b;
@@ -570,32 +584,6 @@ clearColor(Graphics::makeColor(0,0,0)){
                     int r,b,g;
                     tok->view() >> r >> g >> b;
                     clearColor = Graphics::makeColor( r, g, b );
-            } else if (*tok == "credit-block"){
-                creditsRoll.push_back(Block(tok));
-            } else if (*tok == "primary-credit-block"){
-                creditsPrimary.push_back(Block(tok));
-            } else if ( *tok == "primary-start" ) {
-                tok->view() >> primaryStart;
-            } else if ( *tok == "primary-end" ) {
-                tok->view() >> primaryEnd;
-            } else if ( *tok == "primary-speed" ) {
-                tok->view() >> primarySpeed;
-            } else if ( *tok == "primary-alpha" ) {
-                tok->view() >> primaryAlphaSpeed;
-            } else if ( *tok == "roll-speed" ) {
-                tok->view() >> rollSpeed;
-            } else if ( *tok == "roll-offset" ) {
-                tok->view() >> rollOffset;
-            } else if ( *tok == "roll-justification" ) {
-                std::string justify;
-                tok->view() >> justify;
-                if (justify == "left"){
-                    rollJustification = Block::Left;
-                } else if (justify == "center"){
-                    rollJustification = Block::Center;
-                } else if (justify == "right"){
-                    rollJustification = Block::Right;
-                }
             } else {
                 Global::debug( 3 ) <<"Unhandled menu attribute: "<<endl;
                 if (Global::getDebug() >= 3){
@@ -610,7 +598,7 @@ clearColor(Graphics::makeColor(0,0,0)){
     }
     
     if (!legacyAdditional.empty()){
-        creditsRoll.push_back(legacyAdditional);
+        //creditsRoll.push_back(legacyAdditional);
     }
 	
     input.set(Keyboard::Key_ESC, 0, true, Exit);
@@ -625,40 +613,25 @@ void OptionCredits::logic(){
 
 class LogicDraw : public Util::Logic, public Util::Draw{
 public:
-    LogicDraw(OptionCredits & self, const Font & font, InputMap<OptionCredits::CreditKey> & input, Menu::Context & context):
-    self(self),
+    LogicDraw(std::vector<OptionCredits::Sequence> & sequences, Graphics::Color clearColor, Graphics::Color title, Graphics::Color color, const Font & font, InputMap<OptionCredits::CreditKey> & input, Menu::Context & context):
+    sequences(sequences),
+    clearColor(clearColor),
+    title(title),
+    color(color),
     font(font),
     input(input),
     quit(false),
     context(context),
-    currentX(self.primaryStart),
-    currentY(220 - (!self.creditsPrimary.empty() ? (self.creditsPrimary[0].size(font)/2) : 0)),
-    currentBlock(0),
-    blockAlpha(0),
-    startPrimary(true),
-    startRoll(false),
-    /* FIXME hardcoded resolution */
-    rollY(480),
-    maxCredits(0){
-        for (std::vector<OptionCredits::Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
-            const OptionCredits::Block & block = *i;
-            maxCredits+=block.size(font);
-        }
+    current(0){
     }
 
-    OptionCredits & self;
+    std::vector<OptionCredits::Sequence> & sequences;
+    Graphics::Color clearColor, title, color;
     const Font & font;
     InputMap<OptionCredits::CreditKey> & input;
     bool quit;
     Menu::Context & context;
-    double currentX;
-    double currentY;
-    unsigned int currentBlock;
-    int blockAlpha;
-    bool startPrimary;
-    bool startRoll;
-    double rollY;
-    int maxCredits;
+    unsigned int current;
 
     void run(){
         vector<InputMap<OptionCredits::CreditKey>::InputEvent> out = InputManager::getEvents(input, InputSource());
@@ -671,18 +644,15 @@ public:
                 }
             }
         }
-
-        if (startRoll){
-            rollY -= self.rollSpeed;
-            if (rollY < -(maxCredits * 1.1)){
-                /* FIXME: hard coded resolution */
-                rollY = 480;
-                startRoll = false;
-            }
-        } else {
-            handlePrimary();
-        }
         
+        sequences[current].act();
+        if (sequences[current].isDone()){
+            sequences[current].reset();
+            current++;
+            if (current >= sequences.size()){
+                current = 0;
+            }
+        }   
         context.act();
     }
 
@@ -697,93 +667,17 @@ public:
     void draw(const Graphics::Bitmap & buffer){
         /* FIXME: hard coded resolution */
         Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
-        work.fill(self.clearColor);
+        work.fill(clearColor);
         work.start();
         //background.Blit(work);
         context.render(NULL, work);
         
-        if (startRoll){
-            int y = (int) rollY;
-
-            for (std::vector<OptionCredits::Block>::const_iterator i = self.creditsRoll.begin(); i != self.creditsRoll.end(); ++i){
-                const OptionCredits::Block & block = *i;
-                y = block.print(self.rollOffset, y, self.title, self.color, font, work, self.rollJustification);
-            }
-        } else {
-            Graphics::Bitmap::transBlender(0, 0, 0, blockAlpha);
-            self.creditsPrimary[currentBlock].print(currentX, currentY, self.title, self.color, font, work.translucent(), OptionCredits::Block::Center);
-        }
-        
+        sequences[current].draw(title, color, work);
         work.finish();
         
         buffer.BlitToScreen();
     }
     
-    void handlePrimary(){
-        if (!self.creditsPrimary.empty()){
-            if (!startPrimary){
-                nextPrimary();
-                // FIXME use spaces not static positions
-                blockAlpha = 0;
-                currentX = self.primaryStart;
-                currentY = 220 - (self.creditsPrimary[currentBlock].size(font)/2);
-                startPrimary = true;
-            } else {
-                // Act
-                self.creditsPrimary[currentBlock].act();
-                currentX += self.primarySpeed;
-                if (self.primaryStart > self.primaryEnd){
-                    if (currentX >= (self.primaryStart+self.primaryEnd)/2){
-                        if (blockAlpha < 255){
-                            blockAlpha +=self.primaryAlphaSpeed;
-                        } else {
-                            blockAlpha = 255;
-                        }
-                    } else if (currentX < (self.primaryStart+self.primaryEnd)/2){
-                        if (blockAlpha > 0){
-                            blockAlpha -=self.primaryAlphaSpeed;
-                        } else {
-                            blockAlpha = 0;
-                        }
-                    }
-                    if (currentX < self.primaryEnd){
-                        startPrimary = false;
-                    }
-                } else if (self.primaryStart < self.primaryEnd){
-                    if (currentX <= (self.primaryStart+self.primaryEnd)/2){
-                        if (blockAlpha < 255){
-                            blockAlpha +=self.primaryAlphaSpeed;
-                        } else {
-                            blockAlpha = 255;
-                        }
-                    } else if (currentX > (self.primaryStart+self.primaryEnd)/2){
-                        if (blockAlpha > 0){
-                            blockAlpha -=self.primaryAlphaSpeed;
-                        } else {
-                            blockAlpha = 0;
-                        }
-                    }
-                    if (currentX > self.primaryEnd){
-                        startPrimary = false;
-                    }
-                }
-            }
-        } else {
-            startPrimary = false;
-            startRoll = true;
-        }
-    }
-    
-    void nextPrimary(){
-        if (currentBlock < self.creditsPrimary.size()){
-            currentBlock++;
-            if (currentBlock == self.creditsPrimary.size()){
-                startRoll = true;
-                startPrimary = false;
-                currentBlock = 0;
-            }
-        }
-    }
 };
 
 void OptionCredits::run(const Menu::Context & context){
@@ -799,7 +693,7 @@ void OptionCredits::run(const Menu::Context & context){
 
     const Font & vFont = Menu::menuFontParameter.current()->get();
     
-    LogicDraw loop(*this, vFont, input, localContext);
+    LogicDraw loop(sequences, clearColor, title, color, vFont, input, localContext);
     Util::standardLoop(loop, loop);
 
     InputManager::waitForRelease(input, InputSource(), Exit);
