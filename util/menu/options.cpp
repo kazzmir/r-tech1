@@ -306,6 +306,8 @@ startx(0),
 endx(0),
 starty(0),
 endy(0),
+ticks(0),
+duration(250),
 speed(0),
 alpha(0),
 alphaMultiplier(0),
@@ -340,6 +342,8 @@ creditLength(0){
                 tok->view() >> starty;
             } else if (*tok == "end-y"){
                 tok->view() >> endy;
+            } else if (*tok == "duration"){
+                tok->view() >> duration;
             } else if (*tok == "speed"){
                 tok->view() >> speed;
             } else if (*tok == "alpha-multiplier"){
@@ -385,6 +389,8 @@ startx(copy.startx),
 endx(copy.endx),
 starty(copy.starty),
 endy(copy.endy),
+ticks(copy.ticks),
+duration(copy.duration),
 speed(copy.speed),
 alpha(copy.alpha),
 alphaMultiplier(copy.alphaMultiplier),
@@ -406,6 +412,8 @@ const OptionCredits::Sequence & OptionCredits::Sequence::operator=(const OptionC
     endx = copy.endx;
     starty = copy.starty;
     endy = copy.endy;
+    ticks = copy.ticks;
+    duration = copy.duration;
     speed = copy.speed;
     alpha = copy.alpha;
     alphaMultiplier = copy.alphaMultiplier;
@@ -432,18 +440,30 @@ void OptionCredits::Sequence::act(){
             }
         } else if (type == Primary){
             credits[current].act();
-            x += speed;
-            if (startx > endx){
-                alpha = 255 - fabs((double)(((startx+endx)/2) - x)) * alphaMultiplier;
-                Global::debug(0) << "alpha: " << alpha << std::endl;
-                //alpha = 255;
-                if (x < endx){
-                    next();
+            if (startx != endx){
+                x += speed;
+                if (startx > endx){
+                    const double midpoint = (startx+endx)/2;
+                    const int mid = x < midpoint ? x - startx : endx - x;
+                    alpha = (mid/midpoint) * alphaMultiplier;
+                    if (x < endx){
+                        next();
+                    }
+                } else if (startx < endx){
+                    const double midpoint = (startx+endx)/2;
+                    const int mid = x < midpoint ? x - startx : endx - x;
+                    alpha = (mid/midpoint) * alphaMultiplier;
+                    //Global::debug(0) << "alpha: " << alpha << " midpoint: " << midpoint << " mid: " << mid << std::endl;
+                    if (x > endx){
+                        next();
+                    }
                 }
-            } else if (startx < endx){
-                alpha = 255 - fabs((double)(((startx+endx)/2) - x)) * alphaMultiplier;
-                //alpha = 255;
-                if (x > endx){
+            } else {
+                //alpha = fabs((double)ticks/duration) * alphaMultiplier;
+                //Global::debug(0) << "alpha: " << alpha << std::endl;
+                ticks++;
+                if (ticks >= duration){
+                    ticks = 0;
                     next();
                 }
             }
@@ -469,6 +489,7 @@ void OptionCredits::Sequence::draw(Graphics::Color title, Graphics::Color color,
 void OptionCredits::Sequence::reset(){
     done = false;
     current = 0;
+    ticks = 0;
     if (!credits.empty()){
         if (type == Roll){
             x = startx;
@@ -499,6 +520,7 @@ static std::string defaultPositions(){
     const int height = Configuration::getScreenHeight();
     std::ostringstream out;
     out << "(start-x " << width/2.3 << ") (end-x " << width/1.8 << ") (start-y " << height/2 << ") ";
+    //out << "(start-x " << width/2 << ") (end-x " << width/2 << ") (start-y " << height/2 << ") (duration 250) ";
     return out.str();
 }
 
@@ -509,7 +531,7 @@ music(""),
 color(Graphics::makeColor(255,255,255)),
 title(Graphics::makeColor(0,255,255)),
 clearColor(Graphics::makeColor(0,0,0)){
-    std::string defaultSequence = "(sequence (type primary) (speed 0.2) (alpha-modifier 50) (justification center) " + defaultPositions();
+    std::string defaultSequence = "(sequence (type primary) (speed 0.2) (alpha-multiplier 950) (justification center) " + defaultPositions();
     
     /* Always */
     if (jonBirthday()){
