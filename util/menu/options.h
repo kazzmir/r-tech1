@@ -97,6 +97,9 @@ public:
         int endx;
         int starty;
         int endy;
+        // Only used if both x's or y's are == to each other
+        int ticks;
+        int duration;
         double speed;
         int alpha;
         double alphaMultiplier;
