@@ -66,7 +66,7 @@ public:
     
     class Sequence {
     public:
-        Sequence(Token *);
+        Sequence(const Token *);
         Sequence(const Sequence &);
         ~Sequence();
         
@@ -91,8 +91,8 @@ public:
         void next();
         
         Type type;
-        int x;
-        int y;
+        double x;
+        double y;
         int startx;
         int endx;
         int starty;
@@ -104,6 +104,7 @@ public:
         std::vector<Block> credits;
         unsigned int current;
         bool done;
+        int creditLength;
     };
 
     // Do logic before run part
@@ -116,17 +117,10 @@ public:
     OptionCredits(const Gui::ContextBox & parent, const Token *token);
 
     virtual ~OptionCredits();
-//private:
+private:
     Util::ReferenceCount<Menu::Context> creditsContext;
-    std::vector<Block> creditsPrimary;
-    int primaryStart;
-    int primaryEnd;
-    double primarySpeed;
-    double primaryAlphaSpeed;
-    std::vector<Block> creditsRoll;
-    double rollSpeed;
-    double rollOffset;
-    Block::Justification rollJustification;
+    
+    std::vector<Sequence> sequences;
     std::string music;
     Graphics::Color color, title;
     InputMap<CreditKey> input;
