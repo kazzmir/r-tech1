@@ -425,8 +425,8 @@ const OptionCredits::Sequence & OptionCredits::Sequence::operator=(const OptionC
     return *this;
 }
 
-static int alphaClamp(int x, double middle, double multiplier){
-    int clamp = (x/middle) * multiplier;
+static int alphaClamp(int x, double multiplier){
+    int clamp = x * multiplier;
     if (clamp < 0){
         clamp = 0;
     } else if (clamp > 255){
@@ -455,14 +455,14 @@ void OptionCredits::Sequence::act(){
                 if (startx > endx){
                     const double midpoint = (startx+endx)/2;
                     const int mid = x > midpoint ? startx -x : x - endx;
-                    alpha = alphaClamp(mid, midpoint, alphaMultiplier);
+                    alpha = alphaClamp(mid, alphaMultiplier);
                     if (x < endx){
                         next();
                     }
                 } else if (startx < endx){
                     const double midpoint = (startx+endx)/2;
                     const int mid = x < midpoint ? x - startx : endx - x;
-                    alpha = alphaClamp(mid, midpoint, alphaMultiplier);
+                    alpha = alphaClamp(mid, alphaMultiplier);
                     //Global::debug(0) << "alpha: " << alpha << " midpoint: " << midpoint << " mid: " << mid << std::endl;
                     if (x > endx){
                         next();
@@ -471,7 +471,7 @@ void OptionCredits::Sequence::act(){
             } else {
                 const double midpoint = duration/2;
                 const int mid = ticks < midpoint ? ticks : duration - ticks;
-                alpha = alphaClamp(mid, midpoint, alphaMultiplier);
+                alpha = alphaClamp(mid, alphaMultiplier);
                 ticks++;
                 if (ticks >= duration){
                     ticks = 0;
@@ -542,7 +542,7 @@ music(""),
 color(Graphics::makeColor(255,255,255)),
 title(Graphics::makeColor(0,255,255)),
 clearColor(Graphics::makeColor(0,0,0)){
-    std::string defaultSequence = "(sequence (type primary) (speed 0.2) (alpha-multiplier 950) (justification center) " + defaultPositions();
+    std::string defaultSequence = "(sequence (type primary) (speed 0.3) (alpha-multiplier 20) (justification center) " + defaultPositions();
     
     /* Always */
     if (jonBirthday()){
