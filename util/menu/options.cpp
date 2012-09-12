@@ -214,7 +214,11 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
                 xmod = topWidth;
                 break;
         }
-        topAnimation->draw(x - xmod, y, topWidth, topHeight, work);
+        // FIXME temporary solution
+        const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(topWidth, topHeight);
+        //topAnimation->draw(x - xmod, y, topWidth, topHeight, work);
+        topAnimation->draw(0, 0, topWidth, topHeight, temp);
+        temp.translucent().draw(x-xmod, y, work);
         currentY+=topHeight;
     }
     
@@ -270,7 +274,11 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
                 xmod = bottomWidth;
                 break;
         }
-        bottomAnimation->draw(x - xmod, y, bottomWidth, bottomHeight, work);
+        // FIXME temporary solution
+        const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(topWidth, topHeight);
+        //bottomAnimation->draw(x - xmod, y, bottomWidth, bottomHeight, work);
+        bottomAnimation->draw(0, 0, bottomWidth, bottomHeight, temp);
+        temp.translucent().draw(x-xmod, y, work);
         currentY+=bottomHeight;
     }
     
@@ -552,7 +560,7 @@ clearColor(Graphics::makeColor(0,0,0)){
     if (miguelBirthday()){
         defaultSequence += "(block (title \"Happy birthday, Jon!\"))";
     }
-    defaultSequence += "(block (animation (top) (width 200) (height 65) (image 0 \"sprites/logo.png\") (frame (image 0) (time -1))) (credit \"Version " + Global::getVersionString() + "\"))";
+    defaultSequence += "(block (animation (top) (width 350) (height 65) (image 0 \"sprites/paintown.png\") (frame (image 0) (time -1))) (credit \"Version " + Global::getVersionString() + "\"))";
     
     defaultSequence += "(block (title \"Programming\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
     
