@@ -84,3 +84,16 @@ void Joystick::axisMotion(int axis, int motion){
 
 void Joystick::hatMotion(int motion){
 }
+    
+void Joystick::addListener(JoystickListener * listener){
+    listeners.insert(listener);
+}
+
+void Joystick::removeListener(JoystickListener * listener){
+    listeners.erase(listener);
+}
+    
+std::set<JoystickListener*> Joystick::listeners;
+std::set<JoystickListener*> Joystick::getListeners(){
+    return listeners;
+}

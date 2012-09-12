@@ -670,6 +670,11 @@ joystick(NULL){
 }
     
 void SDLJoystick::pressButton(int button){
+    std::set<JoystickListener*> listeners = getListeners();
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->pressButton(this, button);
+    }
+
     // Global::debug(0) << "Pressed button " << button << std::endl;
     if (joystick){
         Key event = buttonMapping->toKey(button);
@@ -680,6 +685,11 @@ void SDLJoystick::pressButton(int button){
 }
 
 void SDLJoystick::releaseButton(int button){
+    std::set<JoystickListener*> listeners = getListeners();
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->releaseButton(this, button);
+    }
+
     if (joystick){
         Key event = buttonMapping->toKey(button);
         if (event != Invalid){
@@ -689,6 +699,11 @@ void SDLJoystick::releaseButton(int button){
 }
 
 void SDLJoystick::hatMotion(int motion){
+    std::set<JoystickListener*> listeners = getListeners();
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->hatMotion(this, motion);
+    }
+
     // Global::debug(0) << "Hat motion " << motion << std::endl;
     if (joystick){
         buttonMapping->hatMotionEvents(motion, events);
@@ -696,6 +711,11 @@ void SDLJoystick::hatMotion(int motion){
 }
 
 void SDLJoystick::axisMotion(int axis, int motion){
+    std::set<JoystickListener*> listeners = getListeners();
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->axisMotion(this, axis, motion);
+    }
+
     // Global::debug(0) << "Axis motion on " << axis << " motion " << motion << std::endl;
     if (joystick){
         buttonMapping->axisMotionEvents(axis, motion, events);
