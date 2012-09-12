@@ -425,6 +425,16 @@ const OptionCredits::Sequence & OptionCredits::Sequence::operator=(const OptionC
     return *this;
 }
 
+static int alphaClamp(int x, double middle, double multiplier){
+    int clamp = (x/middle) * multiplier;
+    if (clamp < 0){
+        clamp = 0;
+    } else if (clamp > 255){
+        clamp = 255;
+    }
+    return clamp;
+}
+
 void OptionCredits::Sequence::act(){
     if (!done && !credits.empty()){
         if (type == Roll){
@@ -444,23 +454,24 @@ void OptionCredits::Sequence::act(){
                 x += speed;
                 if (startx > endx){
                     const double midpoint = (startx+endx)/2;
-                    const int mid = x < midpoint ? x - startx : endx - x;
-                    alpha = (mid/midpoint) * alphaMultiplier;
+                    const int mid = x > midpoint ? startx -x : x - endx;
+                    alpha = alphaClamp(mid, midpoint, alphaMultiplier);
                     if (x < endx){
                         next();
                     }
                 } else if (startx < endx){
                     const double midpoint = (startx+endx)/2;
                     const int mid = x < midpoint ? x - startx : endx - x;
-                    alpha = (mid/midpoint) * alphaMultiplier;
+                    alpha = alphaClamp(mid, midpoint, alphaMultiplier);
                     //Global::debug(0) << "alpha: " << alpha << " midpoint: " << midpoint << " mid: " << mid << std::endl;
                     if (x > endx){
                         next();
                     }
                 }
             } else {
-                //alpha = fabs((double)ticks/duration) * alphaMultiplier;
-                //Global::debug(0) << "alpha: " << alpha << std::endl;
+                const double midpoint = duration/2;
+                const int mid = ticks < midpoint ? ticks : duration - ticks;
+                alpha = alphaClamp(mid, midpoint, alphaMultiplier);
                 ticks++;
                 if (ticks >= duration){
                     ticks = 0;
