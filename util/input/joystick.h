@@ -2,6 +2,7 @@
 #define _paintown_joystick_h
 
 #include <vector>
+#include <set>
 
 struct JoystickInput{
     JoystickInput():
@@ -56,6 +57,17 @@ struct JoystickInput{
     bool start;
 };
 
+/* Callback for joystick actions like button presses, axis motions, etc.
+ */
+class Joystick;
+class JoystickListener{
+public:
+    virtual void pressButton(Joystick * from, int button) = 0;
+    virtual void releaseButton(Joystick * from, int button) = 0;
+    virtual void axisMotion(Joystick * from, int axis, int motion) = 0;
+    virtual void hatMotion(Joystick * from, int motion) = 0;
+};
+
 class Joystick{
 public:
     virtual void poll() = 0;
@@ -104,8 +116,14 @@ public:
 	
     static const char * keyToName(Key key);
 
+    static void addListener(JoystickListener * listener);
+    static void removeListener(JoystickListener * listener);
+
 protected:
 
+    static std::set<JoystickListener*> getListeners();
+
+    static std::set<JoystickListener*> listeners;
     std::vector<Event> events;
 
     Joystick();
