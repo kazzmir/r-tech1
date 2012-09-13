@@ -216,15 +216,32 @@ public:
     void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
         int tolerance = 10;
         if (axis == 0){
+            if (motion == 0){
+                events.push_back(Joystick::Event(Joystick::Left, false));
+                events.push_back(Joystick::Event(Joystick::Right, false));
+            } else if (motion == -32768){
+                events.push_back(Joystick::Event(Joystick::Left, true));
+            } else if (motion == 32767){
+                events.push_back(Joystick::Event(Joystick::Right, true));
+            } else if (motion == 128){
+                events.push_back(Joystick::Event(Joystick::Up, false));
+                events.push_back(Joystick::Event(Joystick::Down, false));
+            } else if (motion == 1){
+                events.push_back(Joystick::Event(Joystick::Up, true));
+            } else if (motion == 255){
+                events.push_back(Joystick::Event(Joystick::Down, true));
+            }
+            /*
             if (motion < -tolerance){
                 events.push_back(Joystick::Event(Joystick::Left, true));
             } else if (motion > tolerance){
                 events.push_back(Joystick::Event(Joystick::Right, true));
             } else {
-                /* fake a release for left and right */
+                / * fake a release for left and right * /
                 events.push_back(Joystick::Event(Joystick::Left, false));
                 events.push_back(Joystick::Event(Joystick::Right, false));
             }
+            */
         } else if (axis == 1){
             if (motion < -tolerance){
                 events.push_back(Joystick::Event(Joystick::Up, true));

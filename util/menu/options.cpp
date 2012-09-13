@@ -968,35 +968,36 @@ static OptionJoystick::JoystickType convertToKey(const std::string &k){
 static Configuration::JoystickInput getKey(int player, OptionJoystick::JoystickType k){
     switch(k){
         case OptionJoystick::Up:
-            return Configuration::getJoystickUp(player);
+            return Joystick::Up;
         case OptionJoystick::Down:
-            return Configuration::getJoystickDown(player);
+            return Joystick::Down;
         case OptionJoystick::Left:
-            return Configuration::getJoystickLeft(player);
+            return Joystick::Left;
         case OptionJoystick::Right:
-            return Configuration::getJoystickRight(player);
+            return Joystick::Right;
         case OptionJoystick::Jump:
-            return Configuration::getJoystickJump(player);
+            return Joystick::Button4;
         case OptionJoystick::Attack1:
-            return Configuration::getJoystickAttack1(player);
+            return Joystick::Button1;
         case OptionJoystick::Attack2:
-            return Configuration::getJoystickAttack2(player);
+            return Joystick::Button2;
         case OptionJoystick::Attack3:
-            return Configuration::getJoystickAttack3(player);
+            return Joystick::Button3;
         case OptionJoystick::Attack4:
-            return Configuration::getJoystickAttack4(player);
+            return Joystick::Button4;
         case OptionJoystick::Attack5:
-            return Configuration::getJoystickAttack5(player);
+            return Joystick::Button5;
         case OptionJoystick::Attack6:
-            return Configuration::getJoystickAttack6(player);
+            return Joystick::Button6;
         default:
             break;
     }
 
-    return Configuration::getJoystickUp(player);
+    return Joystick::Up;
 }
 
 static void setKey(int player, OptionJoystick::JoystickType k, Configuration::JoystickInput key){
+    /*
     switch(k){
         case OptionJoystick::Up:
             Configuration::setJoystickUp(player, key);
@@ -1034,6 +1035,7 @@ static void setKey(int player, OptionJoystick::JoystickType k, Configuration::Jo
         default:
             break;
     }
+    */
 }
 
 static Configuration::JoystickInput readJoystick(){

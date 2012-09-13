@@ -295,7 +295,7 @@ void CutScene::playScene(unsigned int scene){
         input.set(Keyboard::Key_ESC, 0, true, Esc);
         input.set(Joystick::Quit, 0, true, Esc);
         input.set(Configuration::getAttack1(0), Esc);
-        input.set(Configuration::getJoystickAttack1(0), Esc);
+        input.set(Joystick::Button1, Esc);
 
         Logic logic(input, scenes[scene]);
         Draw draw(logic, scenes[scene], width, height);
