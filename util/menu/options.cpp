@@ -944,6 +944,7 @@ bool OptionInvincible::rightKey(){
 	return true;
 }
 
+#if 0
 static OptionJoystick::JoystickType convertToKey(const std::string &k){
     std::string temp = k;
     for(unsigned int i=0;i<temp.length();i++){
@@ -953,6 +954,7 @@ static OptionJoystick::JoystickType convertToKey(const std::string &k){
     if (temp == "up") return OptionJoystick::Up;
     if (temp == "down") return OptionJoystick::Down;
     if (temp == "left") return OptionJoystick::Left;
+/*
     if (temp == "right") return OptionJoystick::Right;
     if (temp == "jump") return OptionJoystick::Jump;
     if (temp == "attack1") return OptionJoystick::Attack1;
@@ -1224,6 +1226,7 @@ void OptionJoystick::run(const Menu::Context & context){
     setKey(player,type, keyCode);
     */
 }
+#endif
 
 static OptionKey::keyType convertToKeyboardKey(const std::string &k){
     std::string temp = k;
@@ -2545,4 +2548,24 @@ bool OptionGibs::rightKey(){
 }
 
 OptionGibs::~OptionGibs(){
+}
+
+OptionJoystick::OptionJoystick(const Gui::ContextBox & parent, const Token *token):
+MenuOption(parent, token){
+    setRunnable(true);
+
+    if (*token != "joystick" ){
+        throw LoadException(__FILE__, __LINE__, "Not a joystick option");
+    }
+
+    readName(token);
+}
+
+void OptionJoystick::logic(){
+}
+
+void OptionJoystick::run(const Menu::Context & context){
+}
+
+OptionJoystick::~OptionJoystick(){
 }

@@ -198,6 +198,7 @@ class OptionInvincible : public MenuOption
 };
 
 /*! Handles joystick reconfiguration */
+/*
 class OptionJoystick: public MenuOption {
 public:
     // Do logic before run part
@@ -235,6 +236,7 @@ private:
     JoystickType type;
     int keyCode;
 };
+*/
 
 /*! Handles key reconfiguration */
 class OptionKey: public MenuOption{
@@ -662,6 +664,20 @@ protected:
     void changeGibs(int much);
 private:
     std::string originalName;
+};
+
+class OptionJoystick: public MenuOption {
+public:
+    OptionJoystick(const Gui::ContextBox & parent, const Token *token);
+
+    // Do logic before run part
+    virtual void logic();
+
+    // Finally it has been selected, this is what shall run 
+    // endGame will be set true if it is a terminating option
+    virtual void run(const Menu::Context &);
+
+    virtual ~OptionJoystick();
 };
 
 #endif
