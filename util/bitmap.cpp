@@ -50,7 +50,7 @@ mustResize(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     int length = file.getSize();
     if (length == -1){
-        throw BitmapException(__FILE__, __LINE__, std::string("Could read from file"));
+        throw BitmapException(__FILE__, __LINE__, std::string("Could not read from file"));
     }
     char * data = new char[length];
     file.readLine(data, length);
