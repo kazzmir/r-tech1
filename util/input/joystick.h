@@ -62,6 +62,8 @@ struct JoystickInput{
 class Joystick;
 class JoystickListener{
 public:
+    JoystickListener();
+    virtual ~JoystickListener();
     virtual void pressButton(Joystick * from, int button) = 0;
     virtual void releaseButton(Joystick * from, int button) = 0;
     virtual void axisMotion(Joystick * from, int axis, int motion) = 0;
