@@ -652,9 +652,9 @@ OptionCredits::~OptionCredits(){
 void OptionCredits::logic(){
 }
 
-class LogicDraw : public Util::Logic, public Util::Draw{
+class CreditsLogicDraw : public Util::Logic, public Util::Draw{
 public:
-    LogicDraw(std::vector<OptionCredits::Sequence> & sequences, Graphics::Color clearColor, Graphics::Color title, Graphics::Color color, const Font & font, InputMap<OptionCredits::CreditKey> & input, Menu::Context & context):
+    CreditsLogicDraw(std::vector<OptionCredits::Sequence> & sequences, Graphics::Color clearColor, Graphics::Color title, Graphics::Color color, const Font & font, InputMap<OptionCredits::CreditKey> & input, Menu::Context & context):
     sequences(sequences),
     clearColor(clearColor),
     title(title),
@@ -734,7 +734,7 @@ void OptionCredits::run(const Menu::Context & context){
 
     const Font & vFont = Menu::menuFontParameter.current()->get();
     
-    LogicDraw loop(sequences, clearColor, title, color, vFont, input, localContext);
+    CreditsLogicDraw loop(sequences, clearColor, title, color, vFont, input, localContext);
     Util::standardLoop(loop, loop);
 
     InputManager::waitForRelease(input, InputSource(), Exit);
