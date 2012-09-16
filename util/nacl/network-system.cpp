@@ -354,26 +354,43 @@ public:
 
     Util::ReferenceCount<FileHandle> openFile(const char * path, unsigned int size){
         Global::debug(1, CONTEXT) << "open " << path << std::endl;
-        Util::Thread::ScopedLock scoped(lock);
+        lock.acquire();
         done = false;
         openFileData.path = path;
         openFileData.size = size;
         pp::CompletionCallback callback(&Manager::doOpenFile, this);
         core->CallOnMainThread(0, callback, 0);
-        lock.wait(done);
-        return openFileData.file;
+
+        while (!done){
+            lock.release();
+            Util::rest(1);
+            lock.acquire();
+        }
+
+        Util::ReferenceCount<FileHandle> out = openFileData.file;
+        lock.release();
+        return out;
     }
 
     bool exists(const string & path){
         Global::debug(1, CONTEXT) << "exists " << path << std::endl;
-        Util::Thread::ScopedLock scoped(lock);
+        lock.acquire();
         done = false;
         existsData.exists = false;
         existsData.path = path.c_str();
         pp::CompletionCallback callback(&Manager::doExists, this);
         core->CallOnMainThread(0, callback, 0);
-        lock.wait(done);
-        return existsData.exists;
+
+        while (!done){
+            lock.release();
+            Util::rest(1);
+            lock.acquire();
+        }
+
+        bool ok = existsData.exists;
+        lock.release();
+
+        return ok;
     }
 
     static void doExists(void * self, int32_t result){
@@ -410,7 +427,9 @@ public:
     void requestComplete(){
         /* destroy request on the main thread */
         request = NULL;
-        lock.lockAndSignal(done, true);
+        lock.acquire();
+        done = true;
+        lock.release();
     }
 
     void success(NaclRequestOpen & open){
