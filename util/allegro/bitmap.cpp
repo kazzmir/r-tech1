@@ -118,29 +118,6 @@ static BITMAP * memoryPNG(const char * data, int length){
     return load_memory_png(data, length, NULL);
 }
 
-static BITMAP * memoryPCX(const char * data, int length){
-    PACKFILE_VTABLE table = Memory::makeTable();
-    Memory::memory memory((unsigned char *) data, length);
-
-    PACKFILE * pack = pack_fopen_vtable(&table, &memory);
-    /* need to supply a proper palette at some point */
-    RGB * palette = NULL;
-    BITMAP * gif = load_pcx_pf(pack, palette);
-    if (!gif){
-        pack_fclose(pack);
-        ostringstream out;
-        out <<"Could not load gif from memory: " << (void*) data << " length " << length;
-        throw LoadException(__FILE__, __LINE__, out.str());
-    }
-
-    BITMAP * out = create_bitmap(gif->w, gif->h);
-    blit(gif, out, 0, 0, 0, 0, gif->w, gif->h);
-    destroy_bitmap(gif);
-    pack_fclose(pack);
-
-    return out;
-}
-
 static BITMAP * memoryGIF(const char * data, int length){
     PACKFILE_VTABLE table = Memory::makeTable();
     Memory::memory memory((unsigned char *) data, length);
@@ -198,7 +175,12 @@ static BITMAP * load_bitmap_from_memory(const char * data, int length, ImageForm
         }
         case FormatBMP: throw BitmapException(__FILE__, __LINE__, "Could not load .bmp file from memory");
         case FormatJPG: throw BitmapException(__FILE__, __LINE__, "Could not load .jpg file from memory");
-        case FormatPCX: throw BitmapException(__FILE__, __LINE__, "Could not load .pcx file from memory");
+        case FormatPCX: {
+            Bitmap pcx(memoryPCX((unsigned char * const) data, length, false));
+            BITMAP * out = create_bitmap(pcx.getWidth(), pcx.getHeight());
+            blit(pcx.getData()->getBitmap(), out, 0, 0, 0, 0, out->w, out->h);
+            return out;
+        }
         case FormatTGA: throw BitmapException(__FILE__, __LINE__, "Could not load .tga file from memory");
         case FormatTIF: throw BitmapException(__FILE__, __LINE__, "Could not load .tif file from memory");
         case FormatXPM: throw BitmapException(__FILE__, __LINE__, "Could not load .xpm file from memory");
