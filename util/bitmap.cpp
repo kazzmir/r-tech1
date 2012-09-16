@@ -47,17 +47,21 @@ void initializeExtraStuff();
         
 Bitmap::Bitmap(Storage::File & file):
 mustResize(false),
+error(false),
 bit8MaskColor(makeColor(0, 0, 0)){
     int length = file.getSize();
     if (length == -1){
         throw BitmapException(__FILE__, __LINE__, std::string("Could not read from file"));
     }
     char * data = new char[length];
-    file.readLine(data, length);
     try{
+        file.readLine(data, length);
         loadFromMemory(data, length);
         delete[] data;
     } catch (const BitmapException & fail){
+        delete[] data;
+        throw;
+    } catch (...){
         delete[] data;
         throw;
     }
