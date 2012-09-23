@@ -44,6 +44,10 @@
 #include <stdlib.h>
 #include "zlib.h"
 
+#ifdef _Z_OF
+#define OF _Z_OF
+#endif
+
 /*
 #ifdef MACOSX
 #define USE_FILE32API
