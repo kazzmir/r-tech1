@@ -44,6 +44,10 @@
 #include <stdlib.h>
 #include "zlib.h"
 
+/* 9/23/2012: gentoo seems to be replacing zlib's OF macro with _Z_OF.
+ * so we check if _Z_OF is defined to define it to OF for backwards compatability
+ * for older/other versions of zlib.
+ */
 #ifdef _Z_OF
 #define OF _Z_OF
 #endif
