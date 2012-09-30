@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <string>
 
 struct JoystickInput{
     JoystickInput():
@@ -82,6 +83,8 @@ public:
     virtual void releaseButton(int button);
     virtual void axisMotion(int axis, int motion);
     virtual void hatMotion(int motion);
+
+    virtual std::string getName() const = 0;
 
     /* create the ith joystick */
     static Joystick * create(int i);

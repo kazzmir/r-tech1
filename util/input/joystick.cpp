@@ -35,6 +35,7 @@ Joystick * Joystick::create(int i){
     return new SDLJoystick(i);
 #endif
 #endif
+    /* TODO: support allegro5 joystick */
 /*
 #ifdef LINUX
     return new LinuxJoystick();

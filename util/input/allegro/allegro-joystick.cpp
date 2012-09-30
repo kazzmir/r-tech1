@@ -3,6 +3,10 @@
 #include <allegro.h>
 #include "allegro-joystick.h"
 
+#include <string>
+
+using std::string;
+
 void AllegroJoystick::poll(){
     ::poll_joystick();
 }
@@ -53,6 +57,11 @@ AllegroJoystick::AllegroJoystick(){
     
 int AllegroJoystick::getDeviceId() const {
     return 0;
+}
+
+string AllegroJoystick::getName() const {
+    /* FIXME */
+    return "unknown";
 }
 
 int Joystick::numberOfJoysticks(){

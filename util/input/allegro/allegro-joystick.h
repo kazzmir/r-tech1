@@ -2,11 +2,13 @@
 #define _paintown_allegro_joystick_h
 
 #include "../joystick.h"
+#include <string>
 
 class AllegroJoystick: public Joystick {
 public:
     virtual void poll();
     virtual int getDeviceId() const;
+    virtual std::string getName() const;
 
     virtual ~AllegroJoystick();
 

@@ -25,6 +25,14 @@ void InputManager::installJoysticks(){
         joysticks[i] = Joystick::create(i);
     }
 }
+    
+const std::map<int, Util::ReferenceCount<Joystick> > & InputManager::getJoysticks(){
+    if (manager != NULL){
+        return manager->joysticks;
+    }
+    Global::debug(0) << "*BUG* Input manager not set up" << endl;
+    exit(0);
+}
 
 #ifdef PS3
 #include <io/pad.h>

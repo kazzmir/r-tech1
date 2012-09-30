@@ -27,9 +27,11 @@ public:
      */
     virtual void close();
 
-    // Do logic before run part
+    /* Logic is executed every tick by the menu so you can do cool effects.
+     */
     virtual void logic() = 0;
 
+    /* Run is executed when the user selects this option */
     // Finally it has been selected, this is what shall run 
     // endGame will be set true if it is a terminating option
     virtual void run(const Menu::Context &) = 0;
