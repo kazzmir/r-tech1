@@ -456,6 +456,10 @@ void Menu::DefaultRenderer::invokeOverride(const Context & context){
 
 Menu::DefaultRenderer::~DefaultRenderer(){
 }
+        
+Menu::Renderer::Type Menu::DefaultRenderer::getType() const {
+    return Default;
+}
 
 bool Menu::DefaultRenderer::readToken(const Token * token, const OptionFactory & factory){
     if( *token == "option" ) {
@@ -662,6 +666,10 @@ overrideIndex(0){
     menu.colors.bodyAlpha = 128;
     menu.colors.border = Graphics::makeColor(200,200,200);
     menu.colors.borderAlpha = 255;
+}
+
+Menu::Renderer::Type Menu::TabRenderer::getType() const {
+    return Tabbed;
 }
         
 vector<Util::ReferenceCount<MenuOption> > Menu::TabRenderer::getOptions() const {
@@ -1130,7 +1138,7 @@ void Menu::Context::act(){
     background.act();
 }
 
-void Menu::Context::render(Renderer * renderer, const Graphics::Bitmap & bmp){
+void Menu::Context::render(const Util::ReferenceCount<Renderer> & renderer, const Graphics::Bitmap & bmp){
     if (!background.empty()){
         // background
         background.render(Gui::Animation::BackgroundBottom, bmp);
@@ -1141,7 +1149,7 @@ void Menu::Context::render(Renderer * renderer, const Graphics::Bitmap & bmp){
     }
 
     // Menu
-    if (renderer){
+    if (renderer != NULL){
         renderer->render(bmp, currentFont());
     }
 
@@ -1170,14 +1178,17 @@ void Menu::Context::setBackground(Background *bg){
 /* New Menu */
 
 // Utilizes default renderer
-Menu::Menu::Menu(const Type & type):
-renderer(0),
+Menu::Menu::Menu(const Renderer::Type & type):
 type(type){
     setRenderer(type);
 }
 
-Menu::Menu::Menu(const Filesystem::AbsolutePath & filename, const Type & type):
-renderer(0),
+Menu::Menu::Menu(const Util::ReferenceCount<Renderer> & renderer):
+renderer(renderer),
+type(renderer->getType()){
+}
+
+Menu::Menu::Menu(const Filesystem::AbsolutePath & filename, const Renderer::Type & type):
 type(type){
     // Load up tokenizer
     try{
@@ -1191,7 +1202,7 @@ type(type){
     }
 }
 
-Menu::Menu::Menu(const Filesystem::AbsolutePath & filename, const OptionFactory & factory, const Type & type):
+Menu::Menu::Menu(const Filesystem::AbsolutePath & filename, const OptionFactory & factory, const Renderer::Type & type):
 renderer(0),
 type(type){
     // Load up tokenizer
@@ -1205,14 +1216,14 @@ type(type){
     }
 }
 
-Menu::Menu::Menu(const Token * token, const Type & type):
+Menu::Menu::Menu(const Token * token, const Renderer::Type & type):
 renderer(0),
 type(type){
     OptionFactory defaultFactory;
     load(token, defaultFactory);
 }
 
-Menu::Menu::Menu(const Token * token, const OptionFactory & factory, const Type & type):
+Menu::Menu::Menu(const Token * token, const OptionFactory & factory, const Renderer::Type & type):
 renderer(0),
 type(type){
     load(token, factory);
@@ -1224,11 +1235,6 @@ Menu::Menu::~Menu(){
         if (i->second){
             delete i->second;
         }
-    }
-
-    // Kill renderer
-    if (renderer){
-        delete renderer;
     }
 }
         
@@ -1253,9 +1259,9 @@ void Menu::Menu::load(const Token * token, const OptionFactory & factory){
                 std::string menuType;
                 ourToken->view() >> menuType;
                 if (menuType == "default"){
-                    type = Default;
+                    type = Renderer::Default;
                 } else if (menuType == "tabbed"){
-                    type = Tabbed;
+                    type = Renderer::Tabbed;
                 }
             } catch (const TokenException & ex){
             }
@@ -1332,7 +1338,7 @@ public:
     }
 
     LanguageMenu(const MenuClass & original){
-        ::Menu::DefaultRenderer * renderer = (::Menu::DefaultRenderer*) getRenderer();
+        Util::ReferenceCount< ::Menu::DefaultRenderer > renderer = getRenderer().convert< ::Menu::DefaultRenderer>();
         vector<string> languages = putEnglishFirst(findLanguages(original));
         for (vector<string>::iterator it = languages.begin(); it != languages.end(); it++){
             addOption(new LanguageOption(renderer->getBox(), *it));
@@ -1397,7 +1403,7 @@ void Menu::Menu::run(const Context & parentContext){
         }
 
         // Setup menu fonts etc
-        if (renderer){        
+        if (renderer != NULL){        
             renderer->initialize(localContext);
             
             // Invoke Override if available
@@ -1443,7 +1449,7 @@ void Menu::Menu::run(const Context & parentContext){
        
         class Logic: public Util::Logic {
         public:
-            Logic(Menu & menu, Context & localContext, Renderer * renderer):
+            Logic(Menu & menu, Context & localContext, const Util::ReferenceCount<Renderer> & renderer):
             menu(menu),
             localContext(localContext),
             renderer(renderer){
@@ -1451,7 +1457,7 @@ void Menu::Menu::run(const Context & parentContext){
         
             Menu & menu;
             Context & localContext;
-            Renderer * renderer;
+            Util::ReferenceCount<Renderer> renderer;
 
             void run(){
                 try {
@@ -1459,7 +1465,7 @@ void Menu::Menu::run(const Context & parentContext){
                 } catch (const Exception::Return & ex){
                     // signaled to quit current menu, closing this one out
                     localContext.finish();
-                    if (renderer){
+                    if (renderer != NULL){
                         renderer->finish();
                     }
                 }
@@ -1471,7 +1477,7 @@ void Menu::Menu::run(const Context & parentContext){
 
             bool done(){
                 return localContext.getState() == Context::Completed ||
-                       !(renderer && renderer->active());
+                       !(renderer != NULL && renderer->active());
             }
         };
 
@@ -1527,7 +1533,7 @@ void Menu::Menu::act(Context & ourContext){
         }
         
         if (event.out == Cancel){
-            if (renderer){
+            if (renderer != NULL){
                 InputManager::waitForRelease(input, InputSource(), Cancel);
                 renderer->doAction(Cancel, ourContext);
             } else {
@@ -1537,7 +1543,7 @@ void Menu::Menu::act(Context & ourContext){
             }
         }
 
-        if (renderer){
+        if (renderer != NULL){
             switch (event.out){
                 case Up: renderer->doAction(Up, ourContext); break;
                 case Down: renderer->doAction(Down, ourContext); break;
@@ -1549,7 +1555,7 @@ void Menu::Menu::act(Context & ourContext){
         }
     }
             
-    if (renderer){
+    if (renderer != NULL){
         Util::Parameter<Util::ReferenceCount<FontInfo> > currentFont(menuFontParameter);
         if (Configuration::hasMenuFont()){
             currentFont.push(Configuration::getMenuFont());
@@ -1719,7 +1725,7 @@ void Menu::Menu::handleCompatibility(const Token * token, int version, const Opt
                     context.addBackground(tok);
                 } else if ( *tok == "clear-color" ) {
                     // Not necessary ignore
-                } else if (renderer && renderer->readToken(tok, factory)){
+                } else if (renderer != NULL && renderer->readToken(tok, factory)){
                     // Nothing checks compatible version of renderer
                 } else if ( *tok == "font" ) {
                     ValueHolder * value = new ValueHolder("font");
@@ -1789,23 +1795,32 @@ void Menu::Menu::handleCompatibility(const Token * token, int version, const Opt
     }
 }
         
-void Menu::Menu::setRenderer(const Type & type){
-    if (renderer){
-        delete renderer;
-    }
+void Menu::Menu::setRenderer(const Renderer::Type & type){
     renderer = rendererType(type);
 }
+        
+void Menu::Menu::setRenderer(const Util::ReferenceCount<Renderer> & renderer){
+    this->renderer = renderer;
+}
 
-Menu::Renderer * Menu::Menu::rendererType(const Type & type){
+void Menu::Menu::addOption(MenuOption * opt){
+    if (renderer != NULL){
+        this->renderer->addOption(opt);
+    }
+}
+
+Util::ReferenceCount<Menu::Renderer> Menu::Menu::rendererType(const Renderer::Type & type){
     switch (type){
-        case Tabbed: {
-            return new TabRenderer();
+        case Renderer::Tabbed: {
+            return Util::ReferenceCount<Renderer>(new TabRenderer());
             break;
         }
-        case Default:
+        case Renderer::Default:
         default: {
-            return new DefaultRenderer();
+            return Util::ReferenceCount<Renderer>(new DefaultRenderer());
             break;
         }
     }
+
+    return Util::ReferenceCount<Renderer>(NULL);
 }

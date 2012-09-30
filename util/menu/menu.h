@@ -179,9 +179,16 @@ class Renderer{
     public:
         Renderer();
         virtual ~Renderer();
+
+        enum Type{
+            Default,
+            Tabbed
+        };
         
         //! Reader
         virtual bool readToken(const Token *, const OptionFactory &)=0;
+
+        virtual Type getType() const = 0;
         
         virtual void initialize(Context &)=0;
         virtual void finish()=0;
@@ -239,6 +246,8 @@ class DefaultRenderer : public Renderer {
         virtual std::vector<Util::ReferenceCount<MenuOption> > getOptions() const;
         virtual void invokeOverride(const Context &);
 
+        virtual Type getType() const;
+
         virtual const Gui::ContextBox & getBox() const {
             return menu;
         }
@@ -293,6 +302,7 @@ class TabRenderer: public Renderer {
         virtual void doAction(const Actions &, Context &);
         virtual std::vector<Util::ReferenceCount<MenuOption> > getOptions() const;
         virtual void invokeOverride(const Context &);
+        virtual Type getType() const;
         
         virtual Gui::TabbedBox & getBox(){
             return menu;
@@ -331,7 +341,7 @@ class Context{
         /*! Pass the widget (Menu ContextBox in this case) to be drawn
          * Allows for custom widget menus to be draw in place (ie for tabs or something)
         */
-        virtual void render(Renderer *, const Graphics::Bitmap &);
+        virtual void render(const Util::ReferenceCount<Renderer> &, const Graphics::Bitmap &);
         
         /*! Parse data */
         virtual void parseToken(const Token *);
@@ -464,15 +474,15 @@ class Context{
 /*! New Menu class */
 class Menu{
     public:
-        enum Type{
-            Default,
-            Tabbed,
-        };
-        Menu(const Type & type = Default);
-        Menu(const Filesystem::AbsolutePath &, const Type & type = Default);
-        Menu(const Filesystem::AbsolutePath &, const OptionFactory & factory, const Type & type = Default);
-        Menu(const Token *, const Type & type = Default);
-        Menu(const Token * token, const OptionFactory & factory, const Type & type = Default);
+        
+        /* These two are basically the same but the Type version will create the renderer for you */
+        Menu(const Renderer::Type & type = Renderer::Default);
+        Menu(const Util::ReferenceCount<Renderer> & renderer);
+
+        Menu(const Filesystem::AbsolutePath &, const Renderer::Type & type = Renderer::Default);
+        Menu(const Filesystem::AbsolutePath &, const OptionFactory & factory, const Renderer::Type & type = Renderer::Default);
+        Menu(const Token *, const Renderer::Type & type = Renderer::Default);
+        Menu(const Token * token, const OptionFactory & factory, const Renderer::Type & type = Renderer::Default);
         virtual ~Menu();
 
         /*! Run Menu pass parent context */
@@ -484,7 +494,8 @@ class Menu{
         /*! render pass local context and work */
         virtual void render(Context &, const Graphics::Bitmap &);
 
-        virtual void setRenderer(const Type &);
+        virtual void setRenderer(const Renderer::Type &);
+        virtual void setRenderer(const Util::ReferenceCount<Renderer> & renderer);
 
         /* a list of languages (translations) supported by this menu */
         virtual std::vector<std::string> getLanguages() const;
@@ -496,13 +507,9 @@ class Menu{
         virtual void setFont(const Util::ReferenceCount<FontInfo> &);
         
         /*! Add option */
-        virtual inline void addOption(MenuOption * opt){
-            if (renderer){
-                this->renderer->addOption(opt);
-            }
-        }
+        virtual void addOption(MenuOption * opt);
 
-        virtual inline Renderer * getRenderer() const {
+        virtual inline Util::ReferenceCount<Renderer> getRenderer() const {
             return renderer;
         }
         
@@ -521,7 +528,7 @@ class Menu{
         std::map<std::string, ValueHolder *> data;
 
         /*! Renderer */
-        Renderer * renderer;
+        Util::ReferenceCount<Renderer> renderer;
         
         /*! load token */
         void load(const Token * token, const OptionFactory & factory);
@@ -546,10 +553,10 @@ class Menu{
         InputMap<Actions> input;
         
         /*! Type */
-        Type type;
+        Renderer::Type type;
         
         /*! Check type */
-        virtual Renderer * rendererType(const Type &);
+        virtual Util::ReferenceCount<Renderer> rendererType(const Renderer::Type &);
         std::vector<std::string> languages;
 };
 
