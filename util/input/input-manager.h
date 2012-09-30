@@ -53,6 +53,8 @@ public:
     static void waitForClear();
 
     static void deferResizeEvents(bool defer);
+    
+    static const std::map<int, Util::ReferenceCount<Joystick> > & getJoysticks();
 
     /*
     template <class X>

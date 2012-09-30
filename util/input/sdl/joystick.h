@@ -18,6 +18,7 @@ public:
     virtual void releaseButton(int button);
     virtual void axisMotion(int axis, int motion);
     virtual void hatMotion(int motion);
+    std::string getName() const;
 
     virtual ~SDLJoystick();
 

@@ -745,6 +745,14 @@ void SDLJoystick::axisMotion(int axis, int motion){
     }
 }
 
+string SDLJoystick::getName() const {
+    if (joystick){
+        return SDL_JoystickName(getDeviceId());
+    }
+
+    return "";
+}
+
 int SDLJoystick::getDeviceId() const {
     if (joystick){
         return SDL_JoystickIndex(joystick);

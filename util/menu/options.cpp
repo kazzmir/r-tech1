@@ -20,6 +20,9 @@
 #include "util/funcs.h"
 #include "util/file-system.h"
 #include "factory/font_factory.h"
+/* FIXME: its probably bad to depend on the top-level globals. Most of globals.h/cpp should
+ * be moved to the utils directory.
+ */
 #include "globals.h"
 #include "util/exceptions/shutdown_exception.h"
 #include "util/exceptions/exception.h"
@@ -2475,8 +2478,7 @@ void OptionLanguage::run(const Menu::Context & context){
     };
 
     Menu::Menu temp;
-    /* FIXME don't hardcode arial.ttf */
-    Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Filesystem::RelativePath("fonts/arial.ttf"), 24, 24));
+    Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
     temp.setFont(info);
 
     const Gui::ContextBox & box = ((Menu::DefaultRenderer*) temp.getRenderer())->getBox();
@@ -2564,7 +2566,58 @@ MenuOption(parent, token){
 void OptionJoystick::logic(){
 }
 
+class JoystickLogicDraw: public Util::Logic, public Util::Draw {
+public:
+    JoystickLogicDraw():
+    quit(false){
+    }
+
+    bool quit;
+
+    virtual void run(){
+    }
+
+    bool done(){
+        return quit;
+    }
+
+    double ticks(double system){
+        return system * Global::ticksPerSecond(60);
+    }
+    
+    void draw(const Graphics::Bitmap & buffer){
+    }
+};
+
 void OptionJoystick::run(const Menu::Context & context){
+    Menu::Menu temp;
+    /*
+    Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
+    temp.setFont(info);
+    */
+
+    /* FIXME: getting the context box like this is annoying (due to the down cast) */
+    Gui::ContextBox & box = ((Menu::DefaultRenderer*) temp.getRenderer())->getBox();
+    box.setListType(ContextBox::Normal);
+
+    map<int, Util::ReferenceCount<Joystick> > joysticks = InputManager::getJoysticks();
+    for (map<int, Util::ReferenceCount<Joystick> >::iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        ostringstream out;
+        out << "Joystick " << (it->first + 1);
+        OptionDummy * option = new OptionDummy(box, out.str());
+        option->setInfoText(it->second->getName());
+        temp.addOption(option);
+    }
+
+    if (joysticks.size() == 0){
+        temp.addOption(new OptionDummy(box, "No joysticks found!"));
+    }
+
+    try {
+        temp.run(context);
+    } catch (const Exception::Return & ignore){
+    } catch (const Menu::MenuException & ex){
+    }
 }
 
 OptionJoystick::~OptionJoystick(){
