@@ -714,7 +714,7 @@ public:
         work.fill(clearColor);
         work.start();
         //background.Blit(work);
-        context.render(NULL, work);
+        context.render(Util::ReferenceCount<Menu::Renderer>(NULL), work);
         
         sequences[current].draw(title, color, work);
         work.finish();
@@ -1432,7 +1432,7 @@ void OptionKey::run(const Menu::Context & context){
 	}
         */
 	tempContext.act();
-	tempContext.render(0, temp);
+	tempContext.render(Util::ReferenceCount<Menu::Renderer>(NULL), temp);
 	keyDialog.render(temp, font);
 	temp.BlitToScreen();
     }
@@ -2285,9 +2285,9 @@ menu(0){
     if (token->numTokens() == 1){
         std::string temp;
         token->view() >> temp;
-        menu = new Menu::Menu(Storage::instance().find(Filesystem::RelativePath(temp)), factory, Menu::Menu::Tabbed);
+        menu = new Menu::Menu(Storage::instance().find(Filesystem::RelativePath(temp)), factory, Menu::Renderer::Tabbed);
     } else {
-        menu = new Menu::Menu(token, factory, Menu::Menu::Tabbed);
+        menu = new Menu::Menu(token, factory, Menu::Renderer::Tabbed);
     }
 
     // this->setText(menu->getName());
@@ -2477,11 +2477,12 @@ void OptionLanguage::run(const Menu::Context & context){
         }
     };
 
-    Menu::Menu temp;
+    Util::ReferenceCount<Menu::DefaultRenderer> renderer = Util::ReferenceCount<Menu::DefaultRenderer>(new Menu::DefaultRenderer());
+    Menu::Menu temp(renderer.convert<Menu::Renderer>());
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
     temp.setFont(info);
 
-    const Gui::ContextBox & box = ((Menu::DefaultRenderer*) temp.getRenderer())->getBox();
+    const Gui::ContextBox & box = renderer->getBox();
 
     vector<string> languages = context.getLanguages();
     for (vector<string>::iterator it = languages.begin(); it != languages.end(); it++){
@@ -2590,14 +2591,14 @@ public:
 };
 
 void OptionJoystick::run(const Menu::Context & context){
-    Menu::Menu temp;
+    Util::ReferenceCount<Menu::DefaultRenderer> renderer = Util::ReferenceCount<Menu::DefaultRenderer>(new Menu::DefaultRenderer());
+    Menu::Menu temp(renderer.convert<Menu::Renderer>());
     /*
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
     temp.setFont(info);
     */
 
-    /* FIXME: getting the context box like this is annoying (due to the down cast) */
-    Gui::ContextBox & box = ((Menu::DefaultRenderer*) temp.getRenderer())->getBox();
+    Gui::ContextBox & box = renderer->getBox();
     box.setListType(ContextBox::Normal);
 
     map<int, Util::ReferenceCount<Joystick> > joysticks = InputManager::getJoysticks();
