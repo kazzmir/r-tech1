@@ -126,6 +126,17 @@ public:
     Data * data;
 };
 
+/* Same as ReferenceCount but by default passes a new instance of Data to the constructor
+ * of ReferenceCount
+ */
+template <class Data>
+class NewReferenceCount: public ReferenceCount<Data> {
+public:
+    NewReferenceCount():
+    ReferenceCount<Data>(new Data()){
+    }
+};
+
 /* Initializes its pointer to NULL and deletes the data in the destructor.
  * how is this different from the ReferenceCount class above? its basically
  * the same thing but only allows one owner at a time.

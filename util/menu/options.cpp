@@ -47,9 +47,6 @@ using namespace Gui;
  * pass 0 for any argument that you don't care about (it will match any date)
  */
 static bool todaysDate(int month, int day, int year){
-    int currentMonth;
-    int currentDay;
-    int currentYear;
     time_t result = time(NULL);
     struct tm * local = localtime(&result);
     return (month == 0 || month == (local->tm_mon + 1)) &&
@@ -2477,7 +2474,7 @@ void OptionLanguage::run(const Menu::Context & context){
         }
     };
 
-    Util::ReferenceCount<Menu::DefaultRenderer> renderer = Util::ReferenceCount<Menu::DefaultRenderer>(new Menu::DefaultRenderer());
+    Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
     Menu::Menu temp(renderer.convert<Menu::Renderer>());
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
     temp.setFont(info);
@@ -2591,7 +2588,7 @@ public:
 };
 
 void OptionJoystick::run(const Menu::Context & context){
-    Util::ReferenceCount<Menu::DefaultRenderer> renderer = Util::ReferenceCount<Menu::DefaultRenderer>(new Menu::DefaultRenderer());
+    Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
     Menu::Menu temp(renderer.convert<Menu::Renderer>());
     /*
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
