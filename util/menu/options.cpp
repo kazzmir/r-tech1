@@ -2566,13 +2566,35 @@ void OptionJoystick::logic(){
 
 class JoystickLogicDraw: public Util::Logic, public Util::Draw {
 public:
-    JoystickLogicDraw():
+    enum Inputs{
+        Exit
+    };
+
+    JoystickLogicDraw(const Util::ReferenceCount<Joystick> & joystick):
+    joystick(joystick),
     quit(false){
+        input.set(Keyboard::Key_ESC, Exit);
     }
 
+    Util::ReferenceCount<Joystick> joystick;
     bool quit;
+    InputMap<Inputs> input;
+
+    void doInput(){
+        vector<InputMap<Inputs>::InputEvent> out = InputManager::getEvents(input, InputSource());
+        for (vector<InputMap<Inputs>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
+            const InputMap<Inputs>::InputEvent & event = *it;
+            if (event.enabled){
+                if (event.out == Exit){
+                    quit = true;
+                    // context.finish();
+                }
+            }
+        }
+    }
 
     virtual void run(){
+        doInput();
     }
 
     bool done(){
@@ -2588,8 +2610,31 @@ public:
 };
 
 void OptionJoystick::run(const Menu::Context & context){
+    class JoystickOption: public MenuOption {
+    public:
+        JoystickOption(const Gui::ContextBox & parent, int id, const Util::ReferenceCount<Joystick> & joystick):
+        MenuOption(parent, NULL),
+        joystick(joystick){
+            ostringstream out;
+            out << "Joystick " << (id + 1);
+            setText(out.str());
+            setInfoText(joystick->getName());
+        }
+        
+        const Util::ReferenceCount<Joystick> joystick;
+
+        virtual void logic(){
+        }
+
+        virtual void run(const ::Menu::Context & context){
+            JoystickLogicDraw mainLoop(joystick);
+            Util::standardLoop(mainLoop, mainLoop);
+            throw ::Menu::MenuException(__FILE__, __LINE__);
+        }
+    };
+
     Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
-    Menu::Menu temp(renderer.convert<Menu::Renderer>());
+    Menu::Menu menu(renderer.convert<Menu::Renderer>());
     /*
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
     temp.setFont(info);
@@ -2600,19 +2645,15 @@ void OptionJoystick::run(const Menu::Context & context){
 
     map<int, Util::ReferenceCount<Joystick> > joysticks = InputManager::getJoysticks();
     for (map<int, Util::ReferenceCount<Joystick> >::iterator it = joysticks.begin(); it != joysticks.end(); it++){
-        ostringstream out;
-        out << "Joystick " << (it->first + 1);
-        OptionDummy * option = new OptionDummy(box, out.str());
-        option->setInfoText(it->second->getName());
-        temp.addOption(option);
+        menu.addOption(new JoystickOption(box, it->first, it->second));
     }
 
     if (joysticks.size() == 0){
-        temp.addOption(new OptionDummy(box, "No joysticks found!"));
+        menu.addOption(new OptionDummy(box, "No joysticks found!"));
     }
 
     try {
-        temp.run(context);
+        menu.run(context);
     } catch (const Exception::Return & ignore){
     } catch (const Menu::MenuException & ex){
     }
