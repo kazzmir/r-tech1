@@ -376,7 +376,7 @@ frame(frame),
 ticks(0){
 }
     
-void SequenceFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+void SequenceFrame::draw(int xaxis, int yaxis, const Graphics::Bitmap & work) const {
     frame->draw(xaxis, yaxis, work);
 }
 
@@ -452,7 +452,7 @@ Util::ReferenceCount<Sequence> SequenceLoop::getCurrentSequence() const {
 
 }
 
-void SequenceLoop::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+void SequenceLoop::draw(int xaxis, int yaxis, const Graphics::Bitmap & work) const {
     Util::ReferenceCount<Sequence> current = getCurrentSequence();
     if (current != NULL){
         current->draw(xaxis, yaxis, work);
@@ -630,9 +630,9 @@ void SequenceAll::addSequence(const Util::ReferenceCount<Sequence> & sequence){
     sequences.push_back(sequence);
 }
 
-void SequenceAll::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
-    for (SequenceIterator it = sequences.begin(); it != sequences.end(); it++){
-        Util::ReferenceCount<Sequence> & next = *it;
+void SequenceAll::draw(int xaxis, int yaxis, const Graphics::Bitmap & work) const {
+    for (SequenceConstIterator it = sequences.begin(); it != sequences.end(); it++){
+        const Util::ReferenceCount<Sequence> & next = *it;
         next->draw(xaxis, yaxis, work);
     }
 }
@@ -728,7 +728,7 @@ void SequenceRandom::addSequence(const Util::ReferenceCount<Sequence> & sequence
     sequences.push_back(sequence);
 }
 
-void SequenceRandom::draw(int xaxis, int yaxis, const Graphics::Bitmap & work){
+void SequenceRandom::draw(int xaxis, int yaxis, const Graphics::Bitmap & work) const {
     if (current < sequences.size()){
         Util::ReferenceCount<Sequence> now = sequences[current];
         now->draw(xaxis, yaxis, work);
@@ -1014,7 +1014,7 @@ void Animation::act(){
     forward();
 }
 
-void Animation::draw(const Graphics::Bitmap & work){
+void Animation::draw(const Graphics::Bitmap & work) const {
     /* FIXME: should use sub-bitmaps here */
     /*const int x = window.getX();
     const int y = window.getY();
@@ -1034,7 +1034,7 @@ void Animation::draw(const Graphics::Bitmap & work){
     work.setClipRect(0, 0, work.getWidth(), work.getHeight());
 }
 
-void Animation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work){
+void Animation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work) const {
     const Util::ReferenceCount<Element> & frame = sequence.getCurrentFrame();
     if (frame != NULL){
         Graphics::Bitmap clipped(work, x, y, width, height);
@@ -1133,12 +1133,17 @@ void AnimationManager::act(){
     forward();
 }
 
-void AnimationManager::render(const Gui::Animation::Depth & depth, const Graphics::Bitmap & work){
-    for (std::vector<Util::ReferenceCount<Gui::Animation> >::iterator i = animations[depth].begin(); i != animations[depth].end(); ++i){
-        Util::ReferenceCount<Gui::Animation> animation = *i;
-        if (animation != NULL){
-            animation->draw(work);
-        }   
+void AnimationManager::render(const Gui::Animation::Depth & depth, const Graphics::Bitmap & work) const {
+    std::map< Gui::Animation::Depth, std::vector< Util::ReferenceCount<Gui::Animation> > >::const_iterator animation = animations.find(depth);
+
+    if (animation != animations.end()){
+        const vector<Util::ReferenceCount<Gui::Animation> > & all = animation->second;
+        for (std::vector<Util::ReferenceCount<Gui::Animation> >::const_iterator i = all.begin(); i != all.end(); ++i){
+            Util::ReferenceCount<Gui::Animation> animation = *i;
+            if (animation != NULL){
+                animation->draw(work);
+            }   
+        }
     }
 }
 

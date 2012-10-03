@@ -1138,7 +1138,7 @@ void Menu::Context::act(){
     background.act();
 }
 
-void Menu::Context::render(const Util::ReferenceCount<Renderer> & renderer, const Graphics::Bitmap & bmp){
+void Menu::Context::renderBackground(const Graphics::Bitmap & bmp) const {
     if (!background.empty()){
         // background
         background.render(Gui::Animation::BackgroundBottom, bmp);
@@ -1147,19 +1147,27 @@ void Menu::Context::render(const Util::ReferenceCount<Renderer> & renderer, cons
     } else {
         bmp.fill(Graphics::makeColor(0,0,0));
     }
+}
 
-    // Menu
-    if (renderer != NULL){
-        renderer->render(bmp, currentFont());
-    }
-
+void Menu::Context::renderForeground(const Graphics::Bitmap & bmp) const {
     if (!background.empty()){
         // foreground
         background.render(Gui::Animation::ForegroundBottom, bmp);
         background.render(Gui::Animation::ForegroundMiddle, bmp);
         background.render(Gui::Animation::ForegroundTop, bmp);
     }
-    
+}
+
+void Menu::Context::render(const Util::ReferenceCount<Renderer> & renderer, const Graphics::Bitmap & bmp){
+    renderBackground(bmp);
+
+    // Menu
+    if (renderer != NULL){
+        renderer->render(bmp, currentFont());
+    }
+
+    renderForeground(bmp);
+        
     // Fades
     if (fades){
         fades->draw(bmp);

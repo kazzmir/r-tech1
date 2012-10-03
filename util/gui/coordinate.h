@@ -110,8 +110,8 @@ class RelativePoint {
             this->x = x;
             this->y = y;
         }
-        virtual int getDistanceFromCenterX();
-        virtual int getDistanceFromCenterY();
+        virtual int getDistanceFromCenterX() const;
+        virtual int getDistanceFromCenterY() const;
         virtual void moveX(double percent);
         virtual void moveY(double percent);
         virtual void moveBy(double x, double y);
@@ -210,11 +210,11 @@ class Coordinate {
 
         virtual void setDimensions(int width, int height);
 
-        virtual inline RelativePoint & getPosition(){
+        virtual inline const RelativePoint & getPosition() const {
             return this->position;
         }
 
-        virtual inline RelativePoint & getPosition2(){
+        virtual inline const RelativePoint & getPosition2() const {
             return this->position2;
         }
         

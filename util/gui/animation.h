@@ -123,7 +123,7 @@ public:
     virtual bool forward(int tickCount, double velocityX, double velocityY) = 0;
     virtual bool reverse(int tickCount, double velocityX, double velocityY) = 0;
     
-    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) = 0;
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) const = 0;
 
     virtual void reset() = 0;
     virtual void resetTicks() = 0;
@@ -145,7 +145,7 @@ public:
     virtual void resetTicks();
     virtual void setToEnd();
     
-    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) const;
 
     /* Move the sequence along by the number of ticks and at the specified speed */
     virtual bool forward(int tickCount, double velocityX, double velocityY);
@@ -173,7 +173,7 @@ public:
     virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
     virtual void parse(const Token * token, ImageMap & map, const std::string & baseDir);
     
-    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) const;
     
     virtual int totalTicks() const;
 
@@ -213,7 +213,7 @@ public:
     virtual void setToEnd();
     virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
     
-    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) const;
     
     virtual int totalTicks() const;
 
@@ -243,7 +243,7 @@ public:
     virtual void setToEnd();
     virtual void addSequence(const Util::ReferenceCount<Sequence> & sequence);
     
-    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &);
+    virtual void draw(int xaxis, int yaxis, const Graphics::Bitmap &) const;
     
     virtual int totalTicks() const;
 
@@ -278,8 +278,8 @@ public:
     /*! Logic ticking per iteration and moving to subsequent frames */
     virtual void act();
     /*! Draw */
-    virtual void draw(const Graphics::Bitmap &);
-    virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &);
+    virtual void draw(const Graphics::Bitmap &) const;
+    virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &) const;
     /*! Forward to next frame with no regard to ticks */
     virtual void forwardFrame();
     /*! Back a frame with no regard to ticks */
@@ -345,7 +345,7 @@ public:
     void forward(int tickCount = 1);
     void reverse(int tickCount = 1);
     void act();
-    void render(const Gui::Animation::Depth &, const Graphics::Bitmap &);
+    void render(const Gui::Animation::Depth &, const Graphics::Bitmap &) const;
     
     void add(Util::ReferenceCount<Gui::Animation > animation);
     
