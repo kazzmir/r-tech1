@@ -2570,14 +2570,16 @@ public:
         Exit
     };
 
-    JoystickLogicDraw(const Util::ReferenceCount<Joystick> & joystick):
+    JoystickLogicDraw(const Util::ReferenceCount<Joystick> & joystick, const ::Menu::Context & context):
     joystick(joystick),
-    quit(false){
+    quit(false),
+    context(context, Menu::Context()){
         input.set(Keyboard::Key_ESC, Exit);
     }
 
     Util::ReferenceCount<Joystick> joystick;
     bool quit;
+    Menu::Context context;
     InputMap<Inputs> input;
 
     void doInput(){
@@ -2595,6 +2597,7 @@ public:
 
     virtual void run(){
         doInput();
+        context.act();
     }
 
     bool done(){
@@ -2604,8 +2607,42 @@ public:
     double ticks(double system){
         return system * Global::ticksPerSecond(60);
     }
+
+    void drawButtons(const Font & font, const Graphics::Bitmap & buffer){
+        int y = 30;
+        Graphics::Color color = Graphics::makeColor(255, 255, 255);
+        font.printf(1, y, color, buffer, "Up: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Down: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Left: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Right: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Button1: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Button2: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Button3: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Button4: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Button5: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Button6: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Select: ", 0); y += font.getHeight() + 5;
+        font.printf(1, y, color, buffer, "Quit: ", 0); y += font.getHeight() + 5;
+    }
     
     void draw(const Graphics::Bitmap & buffer){
+        const Font & font = Menu::menuFontParameter.current()->get();
+        Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+        work.start();
+        context.renderBackground(buffer);
+        font.printf(1, 1, Graphics::makeColor(255, 255, 255), buffer, "Joystick: %s", 0, joystick->getName().c_str());
+
+        drawButtons(font, buffer);
+        context.renderForeground(buffer);
+
+        work.finish();
+        
+        buffer.BlitToScreen();
+
+        /*
+        Util::ReferenceCount<FontInfo> font = context.getFont();
+        Font & font = font.get();
+        */
     }
 };
 
@@ -2627,7 +2664,7 @@ void OptionJoystick::run(const Menu::Context & context){
         }
 
         virtual void run(const ::Menu::Context & context){
-            JoystickLogicDraw mainLoop(joystick);
+            JoystickLogicDraw mainLoop(joystick, context);
             Util::standardLoop(mainLoop, mainLoop);
             throw ::Menu::MenuException(__FILE__, __LINE__);
         }

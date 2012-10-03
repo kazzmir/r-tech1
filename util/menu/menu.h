@@ -343,6 +343,9 @@ class Context{
         */
         virtual void render(const Util::ReferenceCount<Renderer> &, const Graphics::Bitmap &);
         
+        virtual void renderBackground(const Graphics::Bitmap & bmp) const;
+        virtual void renderForeground(const Graphics::Bitmap & bmp) const;
+        
         /*! Parse data */
         virtual void parseToken(const Token *);
 

@@ -304,11 +304,11 @@ int RelativePoint::getY() const{
     return relativeToAbsoluteY(y);
 }
 
-int RelativePoint::getDistanceFromCenterX(){
+int RelativePoint::getDistanceFromCenterX() const {
     return amountFromCenterX(getX()); 
 }
 
-int RelativePoint::getDistanceFromCenterY(){
+int RelativePoint::getDistanceFromCenterY() const {
     return amountFromCenterY(getY());
 }
 
