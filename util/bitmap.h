@@ -18,6 +18,10 @@
 #include "allegro5/bitmap.h"
 #endif
 
+#if !defined(USE_ALLEGRO) && !defined(USE_SDL) && !defined(USE_ALLEGRO5)
+#error No backend specified. Define one of USE_ALLEGRO, USE_SDL, or USE_ALLEGRO5
+#endif
+
 namespace Storage{
     class File;
 }
