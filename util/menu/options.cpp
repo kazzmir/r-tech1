@@ -560,8 +560,12 @@ clearColor(Graphics::makeColor(0,0,0)){
     if (miguelBirthday()){
         defaultSequence += "(block (title \"Happy birthday, Jon!\"))";
     }
-    defaultSequence += "(block (animation (top) (width 350) (height 65) (image 0 \"sprites/paintown.png\") (frame (image 0) (time -1))) (credit \"Version " + Global::getVersionString() + "\"))";
     
+    if (Storage::instance().exists(Filesystem::RelativePath("sprites/paintown.png"))){
+        defaultSequence += "(block (animation (top) (width 350) (height 65) (image 0 \"sprites/paintown.png\") (frame (image 0) (time -1))) (credit \"Version " + Global::getVersionString() + "\"))";
+    } else {
+        defaultSequence += "(block (title \"PAINTOWN\") (credit \"Version " + Global::getVersionString() + "\"))";
+    }
     defaultSequence += "(block (title \"Programming\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
     
     defaultSequence += "(block (title \"Level design\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
