@@ -170,7 +170,7 @@ static std::vector<std::string> split(std::string str, char splitter){
 Command::Command(const std::string & message){
     std::vector< std::string > messageSplit = split(message, ' ');
     std::vector< std::string >::iterator current = messageSplit.begin();
-    if (Util::matchRegex(*current, "^:.*")){
+    if (Util::matchRegex(*current, Util::Regex("^:.*"))){
         // Found owner (":") indicates the user, otherwise it's going to be the command
         // Grab just the username, ignore everything else
         try{
@@ -192,23 +192,23 @@ Command::Command(const std::string & message){
     for (std::vector< std::string >::iterator i = current; i != messageSplit.end(); ++i){
         const std::string & parameter = *i;
         // If there is a colon in the parameter the rest of split string is the whole parameter rejoin
-        if (Util::matchRegex(parameter, "^:\001.*") && !foundCtcp){
+        if (Util::matchRegex(parameter, Util::Regex("^:\001.*")) && !foundCtcp){
             foundCtcp = true;
             // Drop the ':\001'
             ctcp.push_back(parameter.substr(2));
             continue;
-        } else if (Util::matchRegex(parameter, ".*\001") && foundCtcp){
+        } else if (Util::matchRegex(parameter, Util::Regex(".*\001")) && foundCtcp){
             foundCtcp = false;
             // Drop the '\001'
             ctcp.push_back(parameter.substr(0, parameter.size()-1));
             continue;
-        } else if (Util::matchRegex(parameter, "^:.*") && !concactenate){
+        } else if (Util::matchRegex(parameter, Util::Regex("^:.*")) && !concactenate){
             concactenate = true;
             // Drop the ':'
             concactenated += parameter.substr(1) + " ";
             continue;
-        } else if (Util::matchRegex(parameter, "=") ||
-                   Util::matchRegex(parameter, "@")){
+        } else if (Util::matchRegex(parameter, Util::Regex("=")) ||
+                   Util::matchRegex(parameter, Util::Regex("@"))){
             // Ignore
             continue;
         }

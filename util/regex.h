@@ -4,8 +4,19 @@
 #include <string>
 
 namespace Util{
-    bool matchRegex(const std::string & str, const std::string & regex);
-    std::string captureRegex(const std::string & str, const std::string & regex, int capture);
+
+    /* Use a new type so raw strings are not confused for regexes */
+    class Regex{
+    public:
+        explicit Regex(const std::string & input);
+
+        const std::string & get() const;
+    public:
+        std::string data;
+    };
+
+    bool matchRegex(const std::string & str, const Regex & regex);
+    std::string captureRegex(const std::string & str, const Regex & regex, int capture);
 }
 
 #endif

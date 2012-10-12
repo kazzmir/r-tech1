@@ -10,21 +10,31 @@
 
 using namespace std;
 
+namespace Util{
+
 static map<string, pcre*> cachedPatterns;
+
+Regex::Regex(const string & data):
+data(data){
+}
+        
+const std::string & Regex::get() const {
+    return data;
+}
     
 /* http://www.gnu.org/s/libc/manual/html_node/Regular-Expressions.html */
-bool Util::matchRegex(const string & str, const string & pattern){
+bool matchRegex(const string & str, const Regex & pattern){
     pcre * regex;
     const char * error;
     int errorOffset;
     int count;
-    regex = cachedPatterns[pattern];
+    regex = cachedPatterns[pattern.get()];
     if (regex == NULL){
-        regex = pcre_compile(pattern.c_str(), 0, &error, &errorOffset, NULL);
+        regex = pcre_compile(pattern.get().c_str(), 0, &error, &errorOffset, NULL);
         if (regex == NULL){
             return false;
         }
-        cachedPatterns[pattern] = regex;
+        cachedPatterns[pattern.get()] = regex;
     }
 
     count = pcre_exec(regex, NULL, str.c_str(), str.size(), 0, 0, NULL, 0);
@@ -32,20 +42,20 @@ bool Util::matchRegex(const string & str, const string & pattern){
     return count >= 0;
 }
     
-string Util::captureRegex(const string & str, const string & pattern, int capture){
+string captureRegex(const string & str, const Regex & pattern, int capture){
     pcre * regex;
     const char * error;
     int errorOffset;
     int count;
     const int captureMax = 100;
     int captures[captureMax];
-    regex = cachedPatterns[pattern];
+    regex = cachedPatterns[pattern.get()];
     if (regex == NULL){
-        regex = pcre_compile(pattern.c_str(), 0, &error, &errorOffset, NULL);
+        regex = pcre_compile(pattern.get().c_str(), 0, &error, &errorOffset, NULL);
         if (regex == NULL){
             return "";
         }
-        cachedPatterns[pattern] = regex;
+        cachedPatterns[pattern.get()] = regex;
     }
 
     count = pcre_exec(regex, NULL, str.c_str(), str.size(), 0, 0, captures, captureMax);
@@ -58,3 +68,5 @@ string Util::captureRegex(const string & str, const string & pattern, int captur
     
     return "";
 }
+
+} // namespace
