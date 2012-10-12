@@ -127,7 +127,7 @@ void ImageFrame::parseToken(const Token * token, const string & baseDir, ImageMa
         // get the number
         string maybeNumber;
         token->view() >> maybeNumber;
-        if (Util::matchRegex("[0-9]+", maybeNumber)){
+        if (Util::matchRegex(maybeNumber,"\\d+")){
             int num;
             token->view() >> num;
             if (images.find(num) == images.end()){
