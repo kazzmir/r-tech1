@@ -416,7 +416,7 @@ void Keyboard::popRepeatState(){
 }
     
 bool Keyboard::haveKeyboard(){
-#if defined(WII) || defined(PS3)
+#if defined(WII) || defined(PS3) || defined(XENON)
     return false;
 #endif
     return true;
