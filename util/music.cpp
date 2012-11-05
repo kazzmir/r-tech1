@@ -89,7 +89,9 @@ static void * playMusic( void * _music ){
     while (playing){
         LOCK;{
             playing = alive;
-            music->doPlay();
+            if (music != NULL){
+                music->doPlay();
+            }
         }
         UNLOCK;
         Util::rest(10);
@@ -322,7 +324,6 @@ void Music::_setVolume(double vol){
 Music::~Music(){
 
     LOCK;{
-        musicPlayer = NULL;
         alive = false;
         playing = false;
     }
@@ -330,6 +331,11 @@ Music::~Music(){
 
     Global::debug(1) << "Waiting for music thread to die" << endl;
     Util::Thread::joinThread(musicThread);
+        
+    LOCK;{
+        musicPlayer = NULL;
+    }
+    UNLOCK;
 }
 
 static string getExtension(string path){
