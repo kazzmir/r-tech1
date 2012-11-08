@@ -1311,6 +1311,10 @@ bool isContainer(const Path::AbsolutePath & path){
            path.getExtension() == "7z";
 }
 
+bool System::isDirectory(const AbsolutePath & path){
+    return virtualDirectory.isDirectory(path) || systemIsDirectory(path);
+}
+
 bool System::exists(const AbsolutePath & path){
     return virtualDirectory.exists(path) || systemExists(path);
 }
@@ -1832,6 +1836,10 @@ bool Filesystem::exists(const RelativePath & path){
     } catch (const NotFound & found){
         return false;
     }
+}
+
+bool Filesystem::systemIsDirectory(const AbsolutePath & path){
+    return ::System::isDirectory(path.path());
 }
 
 bool Filesystem::systemExists(const AbsolutePath & path){

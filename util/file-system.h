@@ -433,6 +433,9 @@ namespace Storage{
         /* true if the path (either file or directory) exists */
         bool exists(const Path::AbsolutePath & path);
 
+        /* true if path is a directory */
+        bool isDirectory(const Path::AbsolutePath & path);
+
     protected:
         void doTraverse(const Path::AbsolutePath & path, Traverser & traverser);
         void traverse(const Path::AbsolutePath & path, Traverser & traverser);
@@ -457,6 +460,7 @@ namespace Storage{
         virtual RelativePath cleanse(const AbsolutePath & path) = 0;
         virtual bool exists(const RelativePath & path) = 0;
         virtual bool exists(const AbsolutePath & path);
+        virtual bool isDirectory(const AbsolutePath & path);
         virtual std::vector<AbsolutePath> getFilesRecursive(const AbsolutePath & dataPath, const std::string & find, bool caseInsensitive = false) = 0;
 
         /* Finds all supported container files. Currently
@@ -511,6 +515,7 @@ namespace Storage{
         virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<LzmaContainer> container);
     protected:
         virtual bool systemExists(const AbsolutePath & path) = 0;
+        virtual bool systemIsDirectory(const AbsolutePath & path) = 0;
 
         virtual void unoverlayFile(const AbsolutePath & where);
 
@@ -583,6 +588,7 @@ public:
 
 protected:
     virtual bool systemExists(const AbsolutePath & path);
+    virtual bool systemIsDirectory(const AbsolutePath & path);
     AbsolutePath lookup(const RelativePath path);
     std::vector<AbsolutePath> findDirectoriesIn(const AbsolutePath & path);
     std::vector<AbsolutePath> getAllDirectories(const AbsolutePath & path);
