@@ -248,6 +248,35 @@ bool Directory::exists(const Path::AbsolutePath & path){
     return find.found;
 }
 
+bool Directory::isDirectory(const Path::AbsolutePath & path){
+    Util::Thread::ScopedLock scoped(lock);
+    class FindIt: public Traverser {
+    public:
+        FindIt():
+        found(false){
+        }
+
+        virtual void traverseFile(Directory & directory, const string & file){
+            if (directory.files[file] != NULL){
+                found = false;
+            } else if (directory.directories[file] != NULL){
+                found = true;
+            } else {
+                found = false;
+            }
+        }
+
+        virtual void traverseDirectory(Directory & directory, const string & path){
+        }
+
+        bool found;
+    };
+
+    FindIt find;
+    traverse(path, find);
+    return find.found;
+}
+
 /* Might return NULL if the path can't be found */
 Util::ReferenceCount<Descriptor> Directory::lookup(const Path::AbsolutePath & path){
     Util::Thread::ScopedLock scoped(lock);
