@@ -57,6 +57,11 @@
 #endif
 
 #ifdef XENON
+#ifdef DEBUG
+#include <network/network.h>
+#include <threads/threads.h>
+#include <threads/gdb.h>
+#endif
 #include <xenos/xenos.h>
 #include <diskio/ata.h>
 #include <libfat/fat.h>
@@ -549,6 +554,11 @@ static void maybeSetWorkingDirectory(){
 
 bool Global::init(int gfx){
 #ifdef XENON
+#ifdef DEBUG
+    threading_init();
+    network_init();
+    gdb_init();
+#endif
     xenos_init(VIDEO_MODE_AUTO);
     console_init();
     xenon_make_it_faster(XENON_SPEED_FULL);
