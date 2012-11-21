@@ -56,17 +56,6 @@
 #include <fat.h>
 #endif
 
-#ifdef XENON
-#ifdef DEBUG
-#include <network/network.h>
-#include <threads/threads.h>
-#include <threads/gdb.h>
-#endif
-#include <xenos/xenos.h>
-#include <diskio/ata.h>
-#include <libfat/fat.h>
-#endif
-
 using namespace std;
 
 volatile int Global::speed_counter4 = 0;
@@ -552,13 +541,21 @@ static void maybeSetWorkingDirectory(){
 #endif
 }
 
-bool Global::init(int gfx){
+/* All xenon stuff goes here */
 #ifdef XENON
+
 #ifdef DEBUG
-    threading_init();
-    network_init();
-    gdb_init();
+#include <network/network.h>
+#include <threads/threads.h>
+#include <threads/gdb.h>
 #endif
+
+#include <xenos/xenos.h>
+#include <diskio/ata.h>
+#include <libfat/fat.h>
+#include <xenon_sound/sound.h>
+
+static void xenon_init(){
     xenos_init(VIDEO_MODE_AUTO);
     console_init();
     xenon_make_it_faster(XENON_SPEED_FULL);
@@ -567,6 +564,20 @@ bool Global::init(int gfx){
     xenon_ata_init();
     xenon_atapi_init();
     fatInitDefault();
+    xenon_sound_init();
+
+#ifdef DEBUG
+    threading_init();
+    network_init();
+    gdb_init();
+#endif
+}
+#endif
+
+bool Global::init(int gfx){
+    /* Can xenon_init be moved lower? Probably.. */
+#ifdef XENON
+    xenon_init();
 #endif
 
     Global::stream_type & out = Global::debug(0);
