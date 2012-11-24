@@ -546,10 +546,10 @@ static void maybeSetWorkingDirectory(){
 
 #ifdef DEBUG
 #include <network/network.h>
-#include <threads/threads.h>
 #include <threads/gdb.h>
 #endif
 
+#include <threads/threads.h>
 #include <xenos/xenos.h>
 #include <diskio/ata.h>
 #include <libfat/fat.h>
@@ -557,7 +557,7 @@ static void maybeSetWorkingDirectory(){
 
 static void xenon_init(){
     xenos_init(VIDEO_MODE_AUTO);
-//    console_init();
+    console_init();
     xenon_make_it_faster(XENON_SPEED_FULL);
     usb_init();
     usb_do_poll();
@@ -565,9 +565,9 @@ static void xenon_init(){
     xenon_atapi_init();
     fatInitDefault();
     xenon_sound_init();
+    threading_init();
 
 #ifdef DEBUG
-    threading_init();
     network_init();
     gdb_init();
 #endif
