@@ -557,7 +557,7 @@ static void maybeSetWorkingDirectory(){
 
 static void xenon_init(){
     xenos_init(VIDEO_MODE_AUTO);
-    console_init();
+//    console_init();
     xenon_make_it_faster(XENON_SPEED_FULL);
     usb_init();
     usb_do_poll();
