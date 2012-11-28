@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <fstream>
 
+#ifdef USE_SDL
+#include <SDL/SDL.h>
+#endif
+
 #ifndef WINDOWS
 #include <unistd.h>
 #include <sys/stat.h>
@@ -68,10 +72,22 @@ void System::makeDirectory(const std::string & path){
     mkdir(path.c_str(), 0777);
 }
 
+/*
 uint64_t System::currentMicroseconds(){
     struct timeval hold;
     gettimeofday(&hold, NULL);
     return hold.tv_sec * 1000 * 1000 + hold.tv_usec;
+}
+*/
+    
+uint64_t System::currentMilliseconds(){
+#ifdef USE_SDL
+    return SDL_GetTicks();
+#else
+    struct timeval hold;
+    gettimeofday(&hold, NULL);
+    return (hold.tv_sec * 1000 * 1000 + hold.tv_usec) / 1000;
+#endif
 }
 
 uint64_t System::getModificationTime(const std::string & path){
@@ -108,6 +124,6 @@ void System::makeAllDirectory(const std::string & path){
 }
  
 uint64_t System::currentSeconds(){
-    return currentMicroseconds() / (1000 * 1000);
+    return currentMilliseconds() / 1000;
 }
 

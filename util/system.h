@@ -13,7 +13,8 @@ namespace System{
     bool readableFile(const std::string & path);
     bool readable(const std::string & path);
     uint64_t getModificationTime(const std::string & path);
-    uint64_t currentMicroseconds();
+    // uint64_t currentMicroseconds();
+    uint64_t currentMilliseconds();
     uint64_t currentSeconds();
     unsigned long memoryUsage();
 

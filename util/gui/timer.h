@@ -36,54 +36,49 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef gui_TIMER_H
+#define gui_TIMER_H
 
+class guiTimer{
+private:
+    unsigned long startTime;
+    /*
 #if defined (_WIN32)
-#include <windows.h>
-#else
-#include <time.h>
-#include <sys/time.h>
-#endif
+    //! Start time for timer
+    unsigned long long startTime;
 
-class guiTimer
-{
-		private:
-#if defined (_WIN32)
-			//! Start time for timer
-    			unsigned long long startTime;
-    			
-    			//! Current time for comparison against startTime
-    			unsigned long long currentTime;
+    //! Current time for comparison against startTime
+    unsigned long long currentTime;
 #else
 
-			//! Start time for timer
-    			timeval startTime;
-    		
-			//! Current time for comparison against startTime
-			timeval currentTime;
+    //! Start time for timer
+    timeval startTime;
+
+    //! Current time for comparison against startTime
+    timeval currentTime;
 #endif
-		public:
-			//! Constructor
-			guiTimer();
-			
-			//! Destructor
-			~guiTimer();
-			
-			//! Provides the currentTime in microseconds
-			unsigned int usecs();
-			
-			//! Provides the currentTime in milliseconds
-			unsigned int msecs();
-			
-			//! Provides the currentTime in seconds
-			unsigned int secs();
-			
-			//! Reset timer
-			void reset();
-			
-			//! Provides a method to sleep in milliseconds
-			static void sleep(int msecs);
+*/
+public:
+    //! Constructor
+    guiTimer();
+
+    //! Destructor
+    ~guiTimer();
+
+    //! Provides the currentTime in microseconds
+    // unsigned int usecs();
+
+    //! Provides the currentTime in milliseconds
+    unsigned int msecs();
+
+    //! Provides the currentTime in seconds
+    unsigned int secs();
+
+    //! Reset timer
+    void reset();
+
+    //! Provides a method to sleep in milliseconds
+    static void sleep(int msecs);
 };
 
 

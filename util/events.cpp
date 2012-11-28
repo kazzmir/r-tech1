@@ -516,13 +516,13 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     checkFullscreen();
                     runCounter -= 1;
                     logicCount += 1;
-                    uint64_t now = System::currentMicroseconds();
+                    uint64_t now = System::currentMilliseconds();
                     logic.run();
-                    uint64_t later = System::currentMicroseconds();
+                    uint64_t later = System::currentMilliseconds();
                     logicTime += (later - now);
 
                     if (logicCount >= maxCount){
-                        // Global::debug(0) << "Logic average " << (logicTime / logicCount / 1000.0) << "ms" << std::endl;
+                        // Global::debug(0) << "Logic average " << (logicTime / logicCount) << "ms" << std::endl;
                         logicCount = 0;
                         logicTime = 0;
                     }
@@ -540,13 +540,13 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 if (need_draw){
                     frameCount += 1;
                     draw.updateFrames();
-                    uint64_t now = System::currentMicroseconds();
+                    uint64_t now = System::currentMilliseconds();
                     draw.draw(screen);
-                    uint64_t later = System::currentMicroseconds();
+                    uint64_t later = System::currentMilliseconds();
                     frameTime += (later - now);
 
                     if (frameCount >= maxCount){
-                        // Global::debug(0) << "Draw average " << (frameTime / frameCount / 1000.0) << "ms" << std::endl;
+                        // Global::debug(0) << "Draw average " << (frameTime / frameCount) << "ms" << std::endl;
                         frameCount = 0;
                         frameTime = 0;
                     }

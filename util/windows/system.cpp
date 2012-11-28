@@ -39,12 +39,12 @@ void makeDirectory(const std::string & path){
     _mkdir(path.c_str());
 }
 
-uint64_t currentMicroseconds(){
+uint64_t currentMilliseconds(){
     LARGE_INTEGER ticksPerSecond;
     LARGE_INTEGER tick;  
     QueryPerformanceFrequency(&ticksPerSecond);
     QueryPerformanceCounter(&tick);
-    return (tick.QuadPart)/(ticksPerSecond.QuadPart/1000000);
+    return (tick.QuadPart)/(ticksPerSecond.QuadPart/1000000)/1000;
 }
     
 uint64_t getModificationTime(const std::string & path){
