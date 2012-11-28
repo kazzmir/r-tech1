@@ -38,18 +38,18 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "timer.h"
 #include "util/funcs.h"
+#include "util/system.h"
 
-	guiTimer::guiTimer()
-	{
-		// Setup initial
-		reset();
-	}
-	
-	guiTimer::~guiTimer()
-	{
-		// nothing to be done
-	}
+guiTimer::guiTimer(){
+    // Setup initial
+    reset();
+}
 
+guiTimer::~guiTimer(){
+    // nothing to be done
+}
+
+/*
 	unsigned int guiTimer::usecs()
 	{
 #if defined (_WIN32)
@@ -74,9 +74,12 @@ THE POSSIBILITY OF SUCH DAMAGE.
 		    + (unsigned long)((currentTime.tv_usec - startTime.tv_usec));
 #endif
 	}
+        */
 
 	unsigned int guiTimer::msecs()
 	{
+            return System::currentMilliseconds() - startTime;
+            /*
 #if defined (_WIN32)
     		currentTime = GetTickCount();
     
@@ -87,10 +90,13 @@ THE POSSIBILITY OF SUCH DAMAGE.
     		return (unsigned long)((currentTime.tv_sec - startTime.tv_sec) * 1000)
 		    + (unsigned long)((currentTime.tv_usec - startTime.tv_usec) / 1000);
 #endif
+*/
 	}
 	
 	unsigned int guiTimer::secs()
 	{
+            return msecs() / 1000;
+            /*
 #if defined (_WIN32)
 		currentTime = GetTickCount();
 		
@@ -100,16 +106,20 @@ THE POSSIBILITY OF SUCH DAMAGE.
     
     		return (unsigned long)(currentTime.tv_sec - startTime.tv_sec);
 #endif
+*/
 	}
 	
 	// Reset timer
 	void guiTimer::reset()
 	{
+            startTime = System::currentMilliseconds();
+            /*
 #if defined (_WIN32)
     		startTime = GetTickCount();
 #else
     		gettimeofday(&startTime, 0);
 #endif
+*/
 	}
 	
 	// Provides a method to sleep

@@ -13,11 +13,11 @@ end(0){
 }
 
 void TimeDifference::startTime(){
-    start = System::currentMicroseconds();
+    start = System::currentMilliseconds();
 }
 
 void TimeDifference::endTime(){
-    end = System::currentMicroseconds();
+    end = System::currentMilliseconds();
 }
 
 const string TimeDifference::printTime(){
@@ -40,10 +40,10 @@ const string TimeDifference::printAverageTime(const std::string & description, i
 const string TimeDifference::printTime(const string & description, int runs){
 
     double total = getTime() / (double) runs;
-    string units = "microseconds";
+    string units = "milliseconds";
 
-    int unit_times[] = {1000, 1000, 60};
-    string unit_descriptions[] = {"milliseconds", "seconds", "minutes"};
+    int unit_times[] = {1000, 60};
+    string unit_descriptions[] = {"seconds", "minutes"};
 
     for (unsigned int index = 0; index < sizeof(unit_times) / sizeof(int); index++){
         if (total > unit_times[index]){
