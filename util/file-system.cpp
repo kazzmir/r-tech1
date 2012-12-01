@@ -1697,10 +1697,14 @@ vector<Filesystem::AbsolutePath> Filesystem::getFiles(const AbsolutePath & dataP
     bool ok = open_dir(&sflEntry, dataPath.path().c_str());
     if (!ok){
         /* sfldir.c claims that you have to call close_dir even if
-         * open_dir fails but close_dir will do ASSERT(dir->handle) which will
-         * be 0 if open_dir fails, so I don't think we can really call close_dir
+         * open_dir fails but close_dir will do ASSERT(dir->dir_handle) which is sometimes
+         * NULL when open_dir fails so we first check if the dir_handle is non-NULL and
+         * then call close_dir.
          */
-        // close_dir(&sflEntry);
+        if (sflEntry._dir_handle != NULL){
+            close_dir(&sflEntry);
+        }
+
         return files;
     }
     while (ok){
