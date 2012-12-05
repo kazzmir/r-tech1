@@ -176,6 +176,11 @@ void CutScene::load(const Token * token){
             view >> tok;
             if (*tok == "name"){
                 tok->view() >> name;
+            } else if (*tok == "resolution"){
+                int x = 640;
+                int y = 480;
+                tok->view() >> x >> y;
+                setResolution(x, y);
             } else if (*tok == "scene"){
                 scenes.push_back(Util::ReferenceCount<Scene>(new Scene(tok)));
             } else {
