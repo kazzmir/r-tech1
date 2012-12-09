@@ -148,6 +148,7 @@ void MusicRenderer::create(int frequency, int channels){
     converted = 0;
 }
 
+/*
 static int sampleSize(){
     int size = 1;
     switch (Sound::Info.format){
@@ -167,6 +168,7 @@ static int sampleSize(){
     }
     return size * Sound::Info.channels;
 }
+*/
 
 void MusicRenderer::fill(MusicPlayer * player){
     position = 0;
