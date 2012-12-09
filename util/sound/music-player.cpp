@@ -6,11 +6,11 @@
 #include "configuration.h"
 #include "sound.h"
 #include "music-exception.h"
-#include "timedifference.h"
+#include "../timedifference.h"
 #include "dumb/include/dumb.h"
 #include "gme/Music_Emu.h"
-#include "exceptions/exception.h"
-#include "file-system.h"
+#include "../exceptions/exception.h"
+#include "../file-system.h"
 #include <sstream>
 #include <stdio.h>
 

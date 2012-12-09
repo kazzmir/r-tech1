@@ -1,7 +1,7 @@
 #ifndef _paintown_music_exception_h
 #define _paintown_music_exception_h
 
-#include "exceptions/exception.h"
+#include "../exceptions/exception.h"
 
 namespace Util{
 

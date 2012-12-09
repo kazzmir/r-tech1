@@ -2,16 +2,16 @@
 #define _paintown_sound_h
 
 #include <string>
-#include "load_exception.h"
+#include "../load_exception.h"
 
 #ifdef USE_SDL
-#include "sdl/sound.h"
+#include "../sdl/sound.h"
 #endif
 #ifdef USE_ALLEGRO
-#include "allegro/sound.h"
+#include "../allegro/sound.h"
 #endif
 #ifdef USE_ALLEGRO5
-#include "allegro5/sound.h"
+#include "../allegro5/sound.h"
 #endif
 
 struct SAMPLE;

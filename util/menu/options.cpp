@@ -14,7 +14,7 @@
 #include "util/events.h"
 #include "optionfactory.h"
 
-#include "util/music.h"
+#include "util/sound/music.h"
 
 #include "util/input/keyboard.h"
 #include "util/funcs.h"

@@ -35,9 +35,9 @@
 #include <time.h>
 
 #include <ostream>
-#include "dumb/include/dumb.h"
+#include "sound/dumb/include/dumb.h"
 #ifdef USE_ALLEGRO
-#include "dumb/include/aldumb.h"
+#include "sound/dumb/include/aldumb.h"
 #include "allegro/loadpng/loadpng.h"
 #include "allegro/gif/algif.h"
 #endif
@@ -45,9 +45,9 @@
 #include "funcs.h"
 #include "file-system.h"
 #include "font.h"
-#include "sound.h"
+#include "sound/sound.h"
 #include "configuration.h"
-#include "music.h"
+#include "sound/music.h"
 #include "loading.h"
 #include "input/keyboard.h"
 #include "message-queue.h"

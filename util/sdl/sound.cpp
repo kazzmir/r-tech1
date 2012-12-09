@@ -1,4 +1,3 @@
-#include "../sound.h"
 #include <SDL.h>
 #include "mixer/SDL_mixer.h"
 #include "util/debug.h"

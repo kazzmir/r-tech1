@@ -6,9 +6,9 @@
 // #include "defs.h"
 
 #include "configuration.h"
-#include "thread.h"
-#include "funcs.h"
-#include "file-system.h"
+#include "../thread.h"
+#include "../funcs.h"
+#include "../file-system.h"
 #include "music-player.h"
 
 using namespace std;

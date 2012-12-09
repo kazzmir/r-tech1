@@ -2,7 +2,6 @@
 #include <string>
 
 #include "../memory.h"
-#include "../sound.h"
 #include "../load_exception.h"
 
 using namespace std;
