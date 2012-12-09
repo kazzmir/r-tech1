@@ -330,12 +330,12 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
 
         void draw(const Graphics::Bitmap & screen){
             Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
-            work.lock();
+            // work.lock();
             for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
                 Graphics::Color color = gradient.current(it->x);
                 work.putPixel(it->x, it->y, color);
             }
-            work.unlock();
+            // work.unlock();
 
             if (state.drawInfo){
                 infoBackground.Blit(infoWork);
