@@ -19,7 +19,7 @@
 #endif
 
 #ifdef USE_SDL
-#include "sdl/mixer/SDL_mixer.h"
+#include "../sdl/mixer/SDL_mixer.h"
 #endif
 
 #include "music-renderer.h"

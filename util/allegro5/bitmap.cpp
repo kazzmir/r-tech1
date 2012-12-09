@@ -542,7 +542,8 @@ Color Bitmap::getPixel(const int x, const int y) const {
 
 void Bitmap::putPixel(int x, int y, Color pixel) const {
     changeTarget(this, this);
-    al_put_pixel(x, y, pixel);
+    // al_put_pixel(x, y, pixel);
+    al_draw_pixel(x, y, pixel);
 }
 
 void Bitmap::putPixelNormal(int x, int y, Color col) const {

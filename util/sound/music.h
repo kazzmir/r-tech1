@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "file-system.h"
-#include "pointer.h"
+#include "../file-system.h"
+#include "../pointer.h"
 
 namespace Util{
     class MusicPlayer;

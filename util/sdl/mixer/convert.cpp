@@ -1,6 +1,6 @@
 #include "convert.h"
 #include "SDL_mixer.h"
-#include "util/audio.h"
+#include "util/sound/audio.h"
 
 Util::Encoding encoding(int format){
     switch (format){

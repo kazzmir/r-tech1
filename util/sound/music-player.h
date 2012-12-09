@@ -17,8 +17,8 @@
 #include <mad.h>
 #endif
 
-#include "pointer.h"
-#include "file-system.h"
+#include "../pointer.h"
+#include "../file-system.h"
 
 struct DUH;
 struct DUH_SIGRENDERER;

@@ -2,7 +2,7 @@
 #include "resource.h"
 // #include "factory/collector.h"
 #include "funcs.h"
-#include "sound.h"
+#include "sound/sound.h"
 #include "load_exception.h"
 #include "file-system.h"
 #include <string>

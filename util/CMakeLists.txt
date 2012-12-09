@@ -17,9 +17,7 @@ resource.cpp
 tokenreader.cpp
 timedifference.cpp
 debug.cpp
-sound.cpp
 timer.cpp
-music.cpp
 init.cpp
 utf.cpp
 console.cpp
@@ -36,8 +34,6 @@ funcs.cpp
 directory.cpp
 file-system.cpp
 gradient.cpp
-music-player.cpp
-music-renderer.cpp
 ebox.cpp
 regex.cpp
 language-string.cpp
@@ -56,7 +52,6 @@ sdl/hqx.cpp
 sdl/xbr.cpp
 system.cpp
 compress.cpp
-audio.cpp
 message-queue.cpp
 input/linux_joystick.cpp
 load_exception.cpp
@@ -87,7 +82,12 @@ gui/scroll-list.cpp
 gui/select-list.cpp
 gui/tabbed-box.cpp
 gui/timer.cpp
-gui/widget.cpp)
+gui/widget.cpp
+sound/sound.cpp
+sound/audio.cpp
+sound/music-player.cpp
+sound/music-renderer.cpp
+sound/music.cpp)
 
 # -------------------------------------------------------
 # Include directory

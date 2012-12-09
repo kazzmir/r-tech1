@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "audio.h"
-#include "debug.h"
+#include "../debug.h"
 
 namespace Util{
 
