@@ -1,5 +1,5 @@
 #include <SDL.h>
-#include "../../sdl/mixer/SDL_mixer.h"
+#include "mixer/SDL_mixer.h"
 #include "util/debug.h"
 
 Sound::Sound():
