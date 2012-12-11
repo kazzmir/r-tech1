@@ -8,10 +8,10 @@
 #include "sdl/sound.h"
 #endif
 #ifdef USE_ALLEGRO
-#include "../allegro/sound.h"
+#include "allegro/sound.h"
 #endif
 #ifdef USE_ALLEGRO5
-#include "../allegro5/sound.h"
+#include "allegro5/sound.h"
 #endif
 
 struct SAMPLE;
