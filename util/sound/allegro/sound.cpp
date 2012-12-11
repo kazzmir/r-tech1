@@ -1,8 +1,8 @@
 #include <allegro.h>
 #include <string>
 
-#include "../memory.h"
-#include "../load_exception.h"
+#include "../../memory.h"
+#include "../../load_exception.h"
 
 using namespace std;
 

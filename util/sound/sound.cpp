@@ -2,13 +2,13 @@
 #include "sound.h"
 
 #ifdef USE_ALLEGRO
-#include "../allegro/sound.cpp"
+#include "allegro/sound.cpp"
 #endif
 #ifdef USE_SDL
 #include "sdl/sound.cpp"
 #endif
 #ifdef USE_ALLEGRO5
-#include "../allegro5/sound.cpp"
+#include "allegro5/sound.cpp"
 #endif
 
 #include "configuration.h"
