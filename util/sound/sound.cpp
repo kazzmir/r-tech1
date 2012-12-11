@@ -5,7 +5,7 @@
 #include "../allegro/sound.cpp"
 #endif
 #ifdef USE_SDL
-#include "../sdl/sound.cpp"
+#include "sdl/sound.cpp"
 #endif
 #ifdef USE_ALLEGRO5
 #include "../allegro5/sound.cpp"

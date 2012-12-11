@@ -5,7 +5,7 @@
 #include "../load_exception.h"
 
 #ifdef USE_SDL
-#include "../sdl/sound.h"
+#include "sdl/sound.h"
 #endif
 #ifdef USE_ALLEGRO
 #include "../allegro/sound.h"
