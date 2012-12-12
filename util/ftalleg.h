@@ -37,7 +37,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "thread.h"
-#include "color.h"
+#include "graphics/color.h"
 
 #ifdef USE_ALLEGRO5
 struct ALLEGRO_FONT;

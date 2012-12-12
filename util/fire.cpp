@@ -1,4 +1,4 @@
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include <vector>
 #include "fire.h"
 #include <string.h>

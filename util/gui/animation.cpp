@@ -5,9 +5,9 @@
 #include <math.h>
 #include <sstream>
 #include "util/token.h"
-#include "util/trans-bitmap.h"
-#include "util/bitmap.h"
-#include "util/stretch-bitmap.h"
+#include "util/graphics/trans-bitmap.h"
+#include "util/graphics/bitmap.h"
+#include "util/graphics/stretch-bitmap.h"
 #include "util/font.h"
 #include "globals.h"
 #include "util/gradient.h"

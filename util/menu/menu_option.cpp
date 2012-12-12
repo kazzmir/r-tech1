@@ -1,4 +1,4 @@
-#include "util/bitmap.h"
+#include "util/graphics/bitmap.h"
 #include "util/token.h"
 #include "util/funcs.h"
 #include "util/language-string.h"

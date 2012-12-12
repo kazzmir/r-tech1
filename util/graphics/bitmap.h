@@ -1,21 +1,21 @@
 #ifndef _paintown_bitmap_h_
 #define _paintown_bitmap_h_
 
-#include "exceptions/exception.h"
-#include "pointer.h"
-#include "parameter.h"
+#include "../exceptions/exception.h"
+#include "../pointer.h"
+#include "../parameter.h"
 #include <string>
 #include <vector>
 #include <iostream>
 
 #ifdef USE_ALLEGRO
-#include "allegro/bitmap.h"
+#include "../allegro/bitmap.h"
 #endif
 #ifdef USE_SDL
-#include "sdl/bitmap.h"
+#include "../sdl/bitmap.h"
 #endif
 #ifdef USE_ALLEGRO5
-#include "allegro5/bitmap.h"
+#include "../allegro5/bitmap.h"
 #endif
 
 #if !defined(USE_ALLEGRO) && !defined(USE_SDL) && !defined(USE_ALLEGRO5)

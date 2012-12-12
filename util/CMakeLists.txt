@@ -24,7 +24,7 @@ console.cpp
 input/keyboard.cpp
 loading.cpp
 messages.cpp
-bitmap.cpp
+graphics/bitmap.cpp
 image.cpp
 events.cpp
 font.cpp

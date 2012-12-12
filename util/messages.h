@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "bitmap.h"
+#include "graphics/color.h"
 
 namespace Graphics{
 class Bitmap;

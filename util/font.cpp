@@ -2,7 +2,7 @@
 /* for textout_* and whatnot */
 #include <allegro.h>
 #endif
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include "font.h"
 #include "funcs.h"
 #include "init.h"

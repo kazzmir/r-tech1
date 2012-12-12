@@ -1,4 +1,4 @@
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include "resource.h"
 // #include "factory/collector.h"
 #include "funcs.h"

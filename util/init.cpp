@@ -41,7 +41,7 @@
 #include "allegro/loadpng/loadpng.h"
 #include "allegro/gif/algif.h"
 #endif
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include "funcs.h"
 #include "file-system.h"
 #include "font.h"

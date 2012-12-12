@@ -1,4 +1,4 @@
-#include "util/bitmap.h"
+#include "util/graphics/bitmap.h"
 #include "util/funcs.h"
 #include "widget.h"
 #include <math.h>

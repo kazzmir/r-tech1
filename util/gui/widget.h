@@ -3,7 +3,7 @@
 
 #include "rectarea.h"
 #include "coordinate.h"
-#include "util/bitmap.h"
+#include "util/graphics/bitmap.h"
 #include "util/pointer.h"
 
 namespace Graphics{

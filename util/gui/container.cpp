@@ -1,6 +1,6 @@
 #include "container.h"
 
-#include "../bitmap.h"
+#include "util/graphics/bitmap.h"
 #include "widget.h"
 
 using namespace Gui;

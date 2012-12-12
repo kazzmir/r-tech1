@@ -1,6 +1,6 @@
 #include "console.h"
-#include "bitmap.h"
-#include "trans-bitmap.h"
+#include "graphics/bitmap.h"
+#include "graphics/trans-bitmap.h"
 #include "font.h"
 #include "funcs.h"
 #include "file-system.h"
