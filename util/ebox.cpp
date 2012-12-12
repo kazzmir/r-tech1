@@ -5,7 +5,7 @@
 #include "ebox.h"
 #include <stdio.h>
 #include "funcs.h"
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include <iostream>
 
 using namespace std;

@@ -1,7 +1,7 @@
 #ifndef _paintown_fire_93c6678306f3542737be4288dc09cfa9
 #define _paintown_fire_93c6678306f3542737be4288dc09cfa9
 
-#include "bitmap.h"
+#include "graphics/color.h"
 
 namespace Graphics{
 class Bitmap;

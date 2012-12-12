@@ -28,7 +28,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #ifndef FT_FONT_CPP
 #define FT_FONT_CPP
 
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 
 /*
 #include <allegro.h>

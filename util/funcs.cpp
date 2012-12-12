@@ -15,8 +15,8 @@
 #include <string.h>
 #include <algorithm>
 #include "file-system.h"
-#include "bitmap.h"
-#include "trans-bitmap.h"
+#include "graphics/bitmap.h"
+#include "graphics/trans-bitmap.h"
 #include "font.h"
 #include "init.h"
 #include <sstream>

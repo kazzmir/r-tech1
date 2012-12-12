@@ -1,6 +1,6 @@
 #include "select-list.h"
 
-#include "util/bitmap.h"
+#include "util/graphics/bitmap.h"
 #include "util/font.h"
 #include "util/debug.h"
 

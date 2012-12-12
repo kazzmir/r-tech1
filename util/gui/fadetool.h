@@ -1,7 +1,7 @@
 #ifndef gui_fadetool_h
 #define gui_fadetool_h
 
-#include "util/bitmap.h"
+#include "util/graphics/bitmap.h"
 
 /*! Fade utility */
 

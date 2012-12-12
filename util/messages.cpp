@@ -1,5 +1,5 @@
-#include "util/bitmap.h"
-#include "util/trans-bitmap.h"
+#include "graphics/bitmap.h"
+#include "graphics/trans-bitmap.h"
 #include "messages.h"
 #include "util/font.h"
 #include "globals.h"

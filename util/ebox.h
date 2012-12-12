@@ -5,7 +5,7 @@
 #ifndef _ebox_3_h
 #define _ebox_3_h
 
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include <vector>
 
 class EQuad{

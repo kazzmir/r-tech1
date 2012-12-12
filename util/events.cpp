@@ -6,7 +6,7 @@
 #endif
 #include <vector>
 #include <map>
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 #include "events.h"
 #include "exceptions/shutdown_exception.h"
 #include "configuration.h"

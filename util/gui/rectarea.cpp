@@ -1,4 +1,4 @@
-#include "../bitmap.h"
+#include "util/graphics/bitmap.h"
 #include "rectarea.h"
 
 using namespace Gui;

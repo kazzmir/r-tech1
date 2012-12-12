@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "bitmap.h"
+#include "graphics/bitmap.h"
 // #include "ftalleg.h"
 
 struct FONT;
