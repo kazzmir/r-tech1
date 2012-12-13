@@ -1,7 +1,7 @@
-#include "../funcs.h"
-#include "../../util/debug.h"
-#include "../system.h"
-#include "../init.h"
+#include "util/funcs.h"
+#include "util/debug.h"
+#include "util/system.h"
+#include "util/init.h"
 #include "hqx.h"
 #include "xbr.h"
 #include "sprig/sprig.h"
@@ -2354,4 +2354,4 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
 
 }
 
-#include "../software-renderer/bitmap.cpp"
+#include "util/software-renderer/bitmap.cpp"

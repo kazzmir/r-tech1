@@ -48,8 +48,8 @@ input/allegro/allegro-joystick.cpp
 input/sdl/joystick.cpp
 input/psp/joystick.cpp
 input/wii/joystick.cpp
-sdl/hqx.cpp
-sdl/xbr.cpp
+graphics/sdl/hqx.cpp
+graphics/sdl/xbr.cpp
 system.cpp
 compress.cpp
 message-queue.cpp
