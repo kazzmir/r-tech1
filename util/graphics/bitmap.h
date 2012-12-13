@@ -521,6 +521,58 @@ Bitmap * getScreenBuffer();
 void blend_palette(Color * pal, int mp, Color sc, Color ec);
 // bool sameColors(Color color1, Color color2);
 
+class LitBitmap: public Bitmap {
+public:
+    LitBitmap( const Bitmap & b );
+    LitBitmap();
+    virtual ~LitBitmap();
+
+    using Bitmap::draw;
+    virtual void draw(const int x, const int y, const Bitmap & where) const;
+    virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where ) const;
+    using Bitmap::drawHFlip;
+    virtual void drawHFlip( const int x, const int y, const Bitmap & where ) const;
+    virtual void drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
+    using Bitmap::drawVFlip;
+    virtual void drawVFlip( const int x, const int y, const Bitmap & where ) const;
+    virtual void drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
+    using Bitmap::drawHVFlip;
+    virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
+    virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
+};
+
+class StretchedBitmap: public Bitmap {
+public:
+    StretchedBitmap(int width, int height, const Bitmap & where, QualityFilter filter = NoFilter);
+    void finish();
+    void start();
+    virtual int getWidth() const;
+    virtual int getHeight() const;
+
+    virtual double getScaleWidth() const;
+    virtual double getScaleHeight() const;
+
+protected:
+    double width;
+    double height;
+    double scale_x, scale_y;
+    const Bitmap & where;
+    const QualityFilter filter;
+    Bitmap scaleToFilter;
+};
+
+class TranslatedBitmap: public Bitmap {
+public:
+    TranslatedBitmap(int x, int y, const Bitmap & where);
+    using Bitmap::BlitToScreen;
+    virtual void BlitToScreen() const;
+    virtual ~TranslatedBitmap();
+public:
+    int x, y;
+};
+
+
+
 }
 
 #endif
