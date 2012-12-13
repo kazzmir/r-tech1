@@ -1,5 +1,4 @@
 #include "util/graphics/bitmap.h"
-#include "util/graphics/trans-bitmap.h"
 #include "../funcs.h"
 #include "scroll-list.h"
 #include "../font.h"

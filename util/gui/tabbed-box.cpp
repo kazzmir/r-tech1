@@ -1,5 +1,4 @@
 #include "util/graphics/bitmap.h"
-#include "util/graphics/trans-bitmap.h"
 #include "tabbed-box.h"
 
 #include "util/font.h"

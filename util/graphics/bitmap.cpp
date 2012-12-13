@@ -1,8 +1,5 @@
 #include "../funcs.h"
 #include "bitmap.h"
-#include "trans-bitmap.h"
-#include "stretch-bitmap.h"
-#include "lit_bitmap.h"
 #include "../file-system.h"
 #include <string>
 #include <stdio.h>

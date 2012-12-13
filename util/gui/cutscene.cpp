@@ -5,7 +5,6 @@
 #include "util/input/input-map.h"
 #include "util/input/input-manager.h"
 #include "util/input/input-source.h"
-#include "util/graphics/stretch-bitmap.h"
 #include "util/token.h"
 #include "util/tokenreader.h"
 #include "util/file-system.h"
