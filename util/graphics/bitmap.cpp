@@ -562,7 +562,7 @@ void blend_palette(Color * pal, int mp, Color startColor, Color endColor){
 #include "../allegro/bitmap.cpp"
 #endif
 #ifdef USE_SDL
-#include "../sdl/bitmap.cpp"
+#include "sdl/bitmap.cpp"
 #endif
 #ifdef USE_ALLEGRO5
 #include "../allegro5/bitmap.cpp"

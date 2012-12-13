@@ -12,7 +12,7 @@
 #include "../allegro/bitmap.h"
 #endif
 #ifdef USE_SDL
-#include "../sdl/bitmap.h"
+#include "sdl/bitmap.h"
 #endif
 #ifdef USE_ALLEGRO5
 #include "../allegro5/bitmap.h"

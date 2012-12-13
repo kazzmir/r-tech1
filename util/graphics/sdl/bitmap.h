@@ -43,4 +43,4 @@ struct BitmapData{
 typedef int Color;
 }
 
-#include "../software-renderer/bitmap.h"
+#include "util/software-renderer/bitmap.h"
