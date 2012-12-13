@@ -1,5 +1,4 @@
 #include "graphics/bitmap.h"
-#include "graphics/trans-bitmap.h"
 #include <math.h>
 #include <iostream>
 

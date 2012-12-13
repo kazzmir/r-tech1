@@ -6,9 +6,6 @@
 #endif
 
 #include "gif/algif.h"
-#include "../graphics/bitmap.h"
-#include "../graphics/lit_bitmap.h"
-#include "../graphics/trans-bitmap.h"
 #include "../init.h"
 #include "loadpng/loadpng.h"
 #include <stdarg.h>

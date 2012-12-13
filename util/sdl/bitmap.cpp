@@ -1,6 +1,3 @@
-#include "../graphics/bitmap.h"
-#include "../graphics/lit_bitmap.h"
-#include "../graphics/trans-bitmap.h"
 #include "../funcs.h"
 #include "../../util/debug.h"
 #include "../system.h"

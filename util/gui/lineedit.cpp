@@ -1,5 +1,4 @@
 #include "util/graphics/bitmap.h"
-#include "util/graphics/trans-bitmap.h"
 #include "util/font.h"
 #include "lineedit.h"
 #include "globals.h"
