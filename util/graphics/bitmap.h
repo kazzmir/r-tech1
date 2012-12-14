@@ -15,7 +15,7 @@
 #include "sdl/bitmap.h"
 #endif
 #ifdef USE_ALLEGRO5
-#include "../allegro5/bitmap.h"
+#include "allegro5/bitmap.h"
 #endif
 
 #if !defined(USE_ALLEGRO) && !defined(USE_SDL) && !defined(USE_ALLEGRO5)
