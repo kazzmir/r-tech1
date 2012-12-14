@@ -1,4 +1,4 @@
-#include "graphics/bitmap.h"
+#include "bitmap.h"
 #include <string.h>
 
 namespace Graphics{
