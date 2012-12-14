@@ -1872,4 +1872,4 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
 
 }
 
-#include "util/software-renderer/bitmap.cpp"
+#include "../software-renderer/bitmap.cpp"

@@ -2354,4 +2354,4 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
 
 }
 
-#include "util/software-renderer/bitmap.cpp"
+#include "../software-renderer/bitmap.cpp"

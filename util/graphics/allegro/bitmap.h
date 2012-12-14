@@ -49,4 +49,4 @@ namespace Graphics{
     typedef int Color;
 }
 
-#include "util/software-renderer/bitmap.h"
+#include "../software-renderer/bitmap.h"
