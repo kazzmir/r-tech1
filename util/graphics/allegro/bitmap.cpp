@@ -6,17 +6,17 @@
 #endif
 
 #include "gif/algif.h"
-#include "../init.h"
+#include "util/init.h"
 #include "loadpng/loadpng.h"
 #include <stdarg.h>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <math.h>
-#include "../funcs.h"
+#include "util/funcs.h"
 #include <stdio.h>
-#include "../load_exception.h"
-#include "../memory.h"
+#include "util/load_exception.h"
+#include "util/memory.h"
 #include <sstream>
 // #include <fblend.h>
 
@@ -1872,4 +1872,4 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
 
 }
 
-#include "../software-renderer/bitmap.cpp"
+#include "util/software-renderer/bitmap.cpp"
