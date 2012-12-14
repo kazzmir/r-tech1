@@ -319,6 +319,7 @@ static ALLEGRO_BITMAP * do_load_from_memory(const char * data, int length, const
     ALLEGRO_FILE * memory = al_open_memfile((void*) data, length, "r");
     ALLEGRO_BITMAP * bitmap = al_load_bitmap_f(memory, type);
     al_fclose(memory);
+    al_convert_mask_to_alpha(bitmap, al_map_rgb(255, 0, 255));
     return bitmap;
 }
 
