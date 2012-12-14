@@ -7,7 +7,7 @@
 #include "widget.h"
 #include "box.h"
 
-#include "../gradient.h"
+#include "util/graphics/gradient.h"
 
 namespace Gui{
     

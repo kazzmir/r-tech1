@@ -14,7 +14,7 @@
 #include "util/init.h"
 #include "configuration.h"
 #include "util/sound/music.h"
-#include "util/gradient.h"
+#include "util/graphics/gradient.h"
 #include "util/exceptions/shutdown_exception.h"
 #include "util/exceptions/exception.h"
 

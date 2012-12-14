@@ -7,7 +7,7 @@
 #include "file-system.h"
 #include "font.h"
 #include "funcs.h"
-#include "gradient.h"
+#include "graphics/gradient.h"
 #include "parameter.h"
 #include "thread.h"
 #include "globals.h"

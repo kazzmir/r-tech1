@@ -9,7 +9,7 @@
 #include "scroll-list.h"
 
 #include "../language-string.h"
-#include "../gradient.h"
+#include "util/graphics/gradient.h"
 #include "../file-system.h"
 
 #include "util/pointer.h"
