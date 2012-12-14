@@ -8,7 +8,7 @@
 #include "util/graphics/bitmap.h"
 #include "util/font.h"
 #include "globals.h"
-#include "util/gradient.h"
+#include "util/graphics/gradient.h"
 #include "../debug.h"
 #include "../funcs.h"
 #include "../file-system.h"

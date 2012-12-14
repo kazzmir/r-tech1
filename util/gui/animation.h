@@ -7,7 +7,7 @@
 
 #include "coordinate.h"
 #include "util/pointer.h"
-#include "util/gradient.h"
+#include "util/graphics/gradient.h"
 
 class Filesystem;
 namespace Path{

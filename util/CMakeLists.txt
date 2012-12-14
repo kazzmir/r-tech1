@@ -33,7 +33,7 @@ ftalleg.cpp
 funcs.cpp
 directory.cpp
 file-system.cpp
-gradient.cpp
+graphics/gradient.cpp
 ebox.cpp
 regex.cpp
 language-string.cpp

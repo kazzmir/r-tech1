@@ -7,7 +7,7 @@
 #include "widget.h"
 #include "../file-system.h"
 #include "../pointer.h"
-#include "../gradient.h"
+#include "../graphics/gradient.h"
 #include "context-box.h"
 
 class Token;

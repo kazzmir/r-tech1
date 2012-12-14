@@ -1,7 +1,7 @@
 #ifndef _paintown_gradient_h
 #define _paintown_gradient_h
 
-#include "graphics/bitmap.h"
+#include "bitmap.h"
 
 class Token;
 

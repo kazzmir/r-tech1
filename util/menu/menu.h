@@ -10,7 +10,7 @@
 #include "util/pointer.h"
 #include "util/parameter.h"
 #include "util/input/input-map.h"
-#include "util/gradient.h"
+#include "util/graphics/gradient.h"
 #include "font-info.h"
 
 #include "util/gui/animation.h"
