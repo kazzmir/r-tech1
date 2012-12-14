@@ -9,7 +9,7 @@
 #include <iostream>
 
 #ifdef USE_ALLEGRO
-#include "../allegro/bitmap.h"
+#include "allegro/bitmap.h"
 #endif
 #ifdef USE_SDL
 #include "sdl/bitmap.h"

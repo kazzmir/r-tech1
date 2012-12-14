@@ -38,8 +38,8 @@
 #include "sound/dumb/include/dumb.h"
 #ifdef USE_ALLEGRO
 #include "sound/dumb/include/aldumb.h"
-#include "allegro/loadpng/loadpng.h"
-#include "allegro/gif/algif.h"
+#include "graphics/allegro/loadpng/loadpng.h"
+#include "graphics/allegro/gif/algif.h"
 #endif
 #include "graphics/bitmap.h"
 #include "funcs.h"
