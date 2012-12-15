@@ -2,7 +2,7 @@
 #include <string>
 
 #include "../../memory.h"
-#include "../../load_exception.h"
+#include "util/exceptions/load_exception.h"
 
 using namespace std;
 

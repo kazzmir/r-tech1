@@ -15,7 +15,7 @@
 #include <math.h>
 #include "util/funcs.h"
 #include <stdio.h>
-#include "util/load_exception.h"
+#include "util/exceptions/load_exception.h"
 #include "util/memory.h"
 #include <sstream>
 // #include <fblend.h>
