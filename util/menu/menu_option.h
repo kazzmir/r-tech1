@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include "util/gui/box.h"
-#include "util/load_exception.h"
 #include "util/language-string.h"
 #include "util/gui/context-box.h"
 #include "util/gui/scroll-list.h"

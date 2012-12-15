@@ -2,7 +2,7 @@
 #define _paintown_sound_h
 
 #include <string>
-#include "../load_exception.h"
+#include "util/exceptions/load_exception.h"
 
 #ifdef USE_SDL
 #include "sdl/sound.h"

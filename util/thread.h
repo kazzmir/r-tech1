@@ -17,7 +17,7 @@
 #endif
 
 #include "exceptions/exception.h"
-#include "load_exception.h"
+#include "exceptions/load_exception.h"
 #include "token_exception.h"
 #include "mugen/exception.h"
 // #include "funcs.h"

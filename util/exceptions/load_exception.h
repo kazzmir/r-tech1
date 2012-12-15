@@ -1,7 +1,7 @@
 #ifndef _load_exception_h
 #define _load_exception_h
 
-#include "exceptions/exception.h"
+#include "exception.h"
 
 /* Generic load exception class. Thrown whenever a structure is being created
  * and an error occurs.

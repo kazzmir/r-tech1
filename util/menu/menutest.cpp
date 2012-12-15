@@ -28,7 +28,7 @@
 #include "util/bitmap.h"
 #include "util/funcs.h"
 #include "util/font.h"
-#include "util/load_exception.h"
+#include "util/exceptions/load_exception.h"
 #include "util/timedifference.h"
 #include "object/animation.h"
 #include "world.h"
