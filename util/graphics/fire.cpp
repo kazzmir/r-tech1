@@ -1,8 +1,8 @@
-#include "graphics/bitmap.h"
+#include "bitmap.h"
 #include <vector>
 #include "fire.h"
 #include <string.h>
-#include "funcs.h"
+#include "util/funcs.h"
 #include <math.h>
 
 namespace Paintown{
