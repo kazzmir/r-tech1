@@ -28,7 +28,7 @@ graphics/bitmap.cpp
 graphics/image.cpp
 events.cpp
 font.cpp
-fire.cpp
+graphics/fire.cpp
 ftalleg.cpp
 funcs.cpp
 directory.cpp

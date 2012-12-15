@@ -29,7 +29,6 @@
 #include "util/thread.h"
 
 #include "util/loading.h"
-#include "util/fire.h"
 #include "util/input/input-map.h"
 #include "util/input/input-manager.h"
 
