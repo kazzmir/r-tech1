@@ -246,7 +246,9 @@ namespace ftalleg{
             face(NULL){
                 //Load library
                 if (!ftLibrary){
-                    FT_Init_FreeType(&ftLibrary);
+                    if (FT_Init_FreeType(&ftLibrary) != 0){
+                        throw Exception("Could not initialize freetype");
+                    }
                 }
                 instances += 1;
                 faceLoaded = kerning = false;
@@ -309,7 +311,9 @@ namespace ftalleg{
             matrix.yy = 0x10000L;
             FT_Set_Transform( face, &matrix, 0 );
 
-            FT_Load_Char(face, unicode, FT_LOAD_TARGET_NORMAL | FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT);
+            if (FT_Load_Char(face, unicode, FT_LOAD_TARGET_NORMAL | FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT) != 0){
+                throw Exception("Could not load freetype glyph");
+            }
 
             w = face->glyph->bitmap.width;
             h = face->glyph->bitmap.rows;
@@ -341,7 +345,9 @@ namespace ftalleg{
             std::map<int, std::map<signed long, character*> >::iterator p;
             p = fontTable.find(size.createKey());
             if (p == fontTable.end()){
-                FT_Set_Pixel_Sizes(face, size.width, size.height);
+                if (FT_Set_Pixel_Sizes(face, size.width, size.height) != 0){
+                    throw Exception("Could not set freetype size");
+                }
                 FT_UInt glyphIndex;
                 FT_ULong unicode = FT_Get_First_Char(face, &glyphIndex);
                 std::map<signed long, character*> tempMap;
@@ -355,7 +361,7 @@ namespace ftalleg{
 
             if (fontTable.find(size.createKey()) == fontTable.end()){
                 printf("ftalleg: inconsistency error\n");
-                throw std::exception();
+                throw Exception("inconsistency error");
             }
         }
 
