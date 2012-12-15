@@ -5,7 +5,7 @@
 #include "globals.h"
 #include "util/token.h"
 #include "coordinate.h"
-#include "util/load_exception.h"
+#include "util/exceptions/load_exception.h"
 #include <sstream>
 
 using namespace Gui;

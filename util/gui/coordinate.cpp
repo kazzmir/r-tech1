@@ -2,7 +2,7 @@
 #include "coordinate.h"
 #include "globals.h"
 #include "util/funcs.h"
-#include "util/load_exception.h"
+#include "util/exceptions/load_exception.h"
 #include <sstream>
 #include <math.h>
 

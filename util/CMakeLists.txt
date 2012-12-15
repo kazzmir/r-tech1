@@ -54,7 +54,7 @@ system.cpp
 compress.cpp
 message-queue.cpp
 input/linux_joystick.cpp
-load_exception.cpp
+exceptions/load_exception.cpp
 windows/funcs.cpp
 windows/system.cpp
 nacl/module.cpp

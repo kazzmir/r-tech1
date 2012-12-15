@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 
-#include "util/load_exception.h"
 #include "util/file-system.h"
 #include "util/pointer.h"
 #include "util/parameter.h"

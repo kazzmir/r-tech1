@@ -1,6 +1,5 @@
 #include "util/token.h"
 #include "optionfactory.h"
-#include "util/load_exception.h"
 #include "util/gui/context-box.h"
 #include "menu_option.h"
 #include "options.h"
