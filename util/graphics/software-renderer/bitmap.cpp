@@ -15,6 +15,39 @@ void Bitmap::startDrawing() const {
 
 void Bitmap::endDrawing() const {
 }
+        
+void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
+    const double newheight = getHeight() * scale;
+    Bitmap shade = temporaryBitmap(getWidth(), (int) fabs(newheight));
+    Stretch(shade);
+
+    /* Could be slow, but meh, lets do it for now to make it look like a real shadow */
+    for (int h = 0; h < shade.getHeight(); ++h){
+        for (int w = 0; w < shade.getWidth(); ++w){
+            Color pix = shade.getPixel(w, h);
+            if (pix != MaskColor()){
+                shade.putPixel(w, h, color);
+            }
+        }
+    }
+
+    transBlender(0, 0, 0, intensity);
+
+    if (scale > 0){
+        if (facingRight){
+            shade.translucent().drawVFlip(x, y, where);
+        } else { 
+            shade.translucent().drawHVFlip(x, y, where);
+        }
+    } else if (scale < 0){
+        y -= fabs(newheight);
+        if (facingRight){
+            shade.translucent().draw(x + 3, y, where);
+        } else { 
+            shade.translucent().drawHFlip(x - 3, y, where);
+        }
+    }
+}
 
 void TranslucentBitmap::startDrawing() const {
 }
