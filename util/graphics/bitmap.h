@@ -348,6 +348,8 @@ public:
         void roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const;
         void roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const;
 
+        virtual void drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const;
+
         /* returned a scaled version of this bitmap of the given dimensions */
         virtual Bitmap scaleTo(const int width, const int height) const;
 

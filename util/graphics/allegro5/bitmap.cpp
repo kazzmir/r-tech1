@@ -774,7 +774,10 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
     MaskedBlender blender;
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+}
 
+void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
+    /* TODO: implement */
 }
 
 void Bitmap::hLine(const int x1, const int y, const int x2, const Color color) const {
