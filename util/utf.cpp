@@ -79,22 +79,39 @@ namespace Utf{
             out << (char) unicode;
         } else if (unicode <= 0x7ff){
             /* 110xxxxx 10xxxxxx */
-            unsigned char byte1 = ((unicode >> 6) & 0x1f) | (6 << 5);
+            unsigned char byte1 = ((unicode >> (1 * 6)) & 0x1f) | (6 << 5);
             unsigned char byte2 = (unicode & 0x3f) | (2 << 6);
             out << byte1 << byte2;
         } else if (unicode <= 0xffff){
             /* 1110xxxx 10xxxxxx 10xxxxxx */
-            unsigned char byte1 = ((unicode >> 12) & 0xf) | (0xe << 4);
-            unsigned char byte2 = ((unicode >> 6) & 0x3f) | (2 << 6);
+            unsigned char byte1 = ((unicode >> (2 * 6)) & 0xf) | (0xe << 4);
+            unsigned char byte2 = ((unicode >> (1 * 6)) & 0x3f) | (2 << 6);
             unsigned char byte3 = (unicode & 0x3f) | (2 << 6);
             out << byte1 << byte2 << byte3;
-        } else if (unicode <= 0x10ffff){
+        } else if (unicode <= 0x1fffff){
             /* 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx */
-            unsigned char byte1 = ((unicode >> 18) & 0x7) | (0x1e << 3);
-            unsigned char byte2 = ((unicode >> 12) & 0x3f) | (2 << 6);
-            unsigned char byte3 = ((unicode >> 6) & 0x3f) | (2 << 6);
+            unsigned char byte1 = ((unicode >> (3 * 6)) & 0x7) | (0x1e << 3);
+            unsigned char byte2 = ((unicode >> (2 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte3 = ((unicode >> (1 * 6)) & 0x3f) | (2 << 6);
             unsigned char byte4 = (unicode & 0x3f) | (2 << 6);
             out << byte1 << byte2 << byte3 << byte4;
+        } else if (unicode <= 0x3ffffff){
+            /* 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */
+            unsigned char byte1 = ((unicode >> (4 * 6)) & 0x3) | (0x3e << 2);
+            unsigned char byte2 = ((unicode >> (3 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte3 = ((unicode >> (2 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte4 = ((unicode >> (1 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte5 = (unicode & 0x3f) | (2 << 6);
+            out << byte1 << byte2 << byte3 << byte4 << byte5;
+        } else if (unicode <= 0x7fffffff){
+            /* 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx */
+            unsigned char byte1 = ((unicode >> (5 * 6)) & 0x1) | (0x7e << 1);
+            unsigned char byte2 = ((unicode >> (4 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte3 = ((unicode >> (3 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte4 = ((unicode >> (2 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte5 = ((unicode >> (1 * 6)) & 0x3f) | (2 << 6);
+            unsigned char byte6 = (unicode & 0x3f) | (2 << 6);
+            out << byte1 << byte2 << byte3 << byte4 << byte5 << byte6;
         }
 
         return out.str();
