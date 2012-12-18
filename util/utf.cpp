@@ -142,6 +142,7 @@ namespace Utf{
              */
             uint16_t word2 = input[*position];
             if (word2 >= 0xdc00 && word2 <= 0xdfff){
+                *position += 1;
                 /* 4) Construct a 20-bit unsigned integer U', taking the 10 low-order
                  *    bits of W1 as its 10 high-order bits and the 10 low-order bits of
                  *    W2 as its 10 low-order bits.
