@@ -2,11 +2,40 @@ Import('env')
 
 import helpers
 import os.path
-modules = helpers.read_cmake_list(os.path.join(helpers.findDirectory('src/util'), 'CMakeLists.txt'))
 
-source = []
-for module in modules:
-    source.append(modules[module])
+def utilLibrary(env):
+    modules = helpers.read_cmake_list(os.path.join(helpers.findDirectory('src/util'), 'CMakeLists.txt'))
 
-x = env.StaticLibrary('paintown-util', source)
-Return('x')
+    source = []
+    for module in modules:
+        source.append(modules[module])
+
+    return env.StaticLibrary('paintown-util', source)
+
+def minizipLibrary(env):
+    return env.SConscript('zip/SConscript', exports = ['env'])
+
+def gmeLibrary(env):
+    use = env
+    return SConscript('sound/gme/SConscript', exports = ['use'])
+
+def lzmaLibrary7z(env):
+    use = env
+    return SConscript('7z/SConscript', exports = ['use'])
+
+def sflLibrary(env):
+    use = env
+    return SConscript('sfl/SConscript', exports = ['use'])
+
+def pcreLibrary(env):
+    pcreEnv = env.Clone()
+    env = pcreEnv
+    return env.SConscript('pcre/SConstruct', exports = ['env'])
+
+def dumbLibrary(env):
+    dumbEnv = env.Clone()
+    env = dumbEnv
+    return env.SConscript('sound/dumb/SConscript', exports = ['env'])
+
+all = [utilLibrary(env), minizipLibrary(env), gmeLibrary(env), lzmaLibrary7z(env), sflLibrary(env), pcreLibrary(env), dumbLibrary(env)]
+Return('all')
