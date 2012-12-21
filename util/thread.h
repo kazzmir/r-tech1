@@ -17,9 +17,11 @@
 #endif
 
 #include "exceptions/exception.h"
+/*
 #include "exceptions/load_exception.h"
 #include "token_exception.h"
 #include "mugen/exception.h"
+*/
 // #include "funcs.h"
 #include "debug.h"
 
@@ -253,14 +255,16 @@ protected:
         Future<X> * me = (Future<X>*) arg;
         try{
             me->compute();
+        /*
         } catch (const LoadException & load){
             me->exception = new LoadException(load);
         } catch (const TokenException & t){
             me->exception = new TokenException(t);
         } catch (const MugenException & m){
             me->exception = new MugenException(m);
+        */
         } catch (const Exception::Base & base){
-            me->exception = new Exception::Base(base);
+            me->exception = base.copy();
         } catch (...){
             me->exception = new Exception::Base(__FILE__, __LINE__);
         }

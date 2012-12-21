@@ -3,6 +3,7 @@
 #include "util/graphics/bitmap.h"
 #include "util/init.h"
 #include "util/input/input-map.h"
+#include "util/exceptions/load_exception.h"
 #include "util/input/input-manager.h"
 #include "util/input/input-source.h"
 #include "util/token.h"
