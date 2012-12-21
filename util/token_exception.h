@@ -15,10 +15,10 @@ public:
     virtual void throwSelf() const {
         throw *this;
     }
-
-protected:
+    
     virtual Exception::Base * copy() const;
 
+protected:
     virtual inline const std::string getReason() const {
         return reason;
     }

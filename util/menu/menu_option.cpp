@@ -3,6 +3,7 @@
 #include "util/funcs.h"
 #include "util/language-string.h"
 #include "util/debug.h"
+#include "util/exceptions/load_exception.h"
 #include "util/gui/animation.h"
 #include "menu_option.h"
 

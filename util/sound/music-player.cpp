@@ -696,7 +696,7 @@ public:
         return file->readLine(buffer, bytes);
     }
 
-    static ssize_t read(void * handle, void * buffer, size_t bytes){
+    static ssize_t readStream(void * handle, void * buffer, size_t bytes){
         StreamMpg123Handler * self = (StreamMpg123Handler*) handle;
         return self->doRead((char*) buffer, bytes);
     }
@@ -721,7 +721,7 @@ public:
 
     Mpg123FileIO mpg123IO(){
         Mpg123FileIO io;
-        io.read = read;
+        io.read = readStream;
         io.seek = seek;
         io.close = close;
         return io;
@@ -775,7 +775,7 @@ public:
         return actual;
     }
 
-    static ssize_t read(void * handle, void * buffer, size_t bytes){
+    static ssize_t readStream(void * handle, void * buffer, size_t bytes){
         MemoryMpg123Handler * self = (MemoryMpg123Handler*) handle;
         return self->doRead((char*) buffer, bytes);
     }
@@ -811,7 +811,7 @@ public:
 
     Mpg123FileIO mpg123IO(){
         Mpg123FileIO io;
-        io.read = read;
+        io.read = readStream;
         io.seek = seek;
         io.close = close;
         return io;

@@ -21,11 +21,11 @@ public:
     virtual void throwSelf() const {
         throw *this;
     }
+    
+    virtual Exception::Base * copy() const;
 
 protected:
     virtual const std::string getReason() const;
-
-    virtual Exception::Base * copy() const;
 
     std::string reason;
 };

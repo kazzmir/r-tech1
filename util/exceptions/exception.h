@@ -19,6 +19,8 @@ public:
     virtual void throwSelf() const {
         throw *this;
     }
+    
+    virtual Base * copy() const;
 
     const std::string getTrace() const;
 
@@ -26,8 +28,6 @@ public:
 protected:
 
     virtual const std::string getReason() const;
-
-    virtual Base * copy() const;
 
     std::string file;
     int line;
