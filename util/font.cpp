@@ -12,6 +12,8 @@
 
 using namespace std;
 
+Util::Parameter<Util::ReferenceCount<Filesystem::RelativePath> > Font::defaultFont;
+
 Font::Font(){
 }
 
@@ -176,9 +178,13 @@ void AllegroFont::printf( int x, int y, int color, const Graphics::Bitmap & work
 const Font & Font::getDefaultFont(){
     return getDefaultFont(16, 16);
 }
+        
+const Path::RelativePath & Font::getDefaultFontPath(){
+    return *defaultFont.current();
+}
 
 const Font & Font::getDefaultFont(int width, int height){
-    Font * font = FontFactory::getFont(Filesystem::RelativePath("fonts/arial.ttf"), width, height);
+    Font * font = FontFactory::getFont(getDefaultFontPath(), width, height);
     if (font == NULL){
         throw Exception::Base(__FILE__, __LINE__);
     }

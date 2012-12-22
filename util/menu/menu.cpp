@@ -45,9 +45,11 @@ static const Font & currentFont(){
 
 Util::Parameter<Util::ReferenceCount<Menu::FontInfo> > Menu::menuFontParameter;
 
+/*
 static std::string sharedFont = "fonts/arial.ttf";
 static int sharedFontWidth = 24;
 static int sharedFontHeight = 24;
+*/
 
 Effects::Gradient Menu::standardGradient(){
     return Gui::standardGradient(50);
@@ -1354,7 +1356,7 @@ public:
 
 void Menu::Menu::setupDefaultLanguage(const Context & context, const MenuClass & parent){
     LanguageMenu menu(parent);
-    menu.setFont(Util::ReferenceCount<FontInfo>(new RelativeFontInfo(Filesystem::RelativePath(sharedFont), sharedFontWidth, sharedFontHeight)));
+    menu.setFont(Util::ReferenceCount<FontInfo>(new RelativeFontInfo(Font::getDefaultFontPath(), 24, 24)));
     Configuration::setLanguage("English");
     try{
         menu.run(context);

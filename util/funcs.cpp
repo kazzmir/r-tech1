@@ -8,7 +8,6 @@
 #include <allegro5/allegro.h>
 #endif
 #include "funcs.h"
-#include "globals.h"
 #include "debug.h"
 #include <vector>
 #include <string>
@@ -126,6 +125,7 @@ void Util::restSeconds(double x){
     Util::rest((int)(x * 1000));
 }
 
+#if 0
 bool Util::checkVersion(int version){
     if (version == Global::getVersion()){
         return true;
@@ -144,6 +144,7 @@ bool Util::checkVersion(int version){
 
     return true;
 }
+#endif
 
 void Util::setDataPath( const string & str ){
     dataPath = str;	
@@ -295,7 +296,7 @@ void Util::showError(const Graphics::Bitmap & screen, const Exception::Base & ex
     Graphics::Bitmap error(screen.getWidth() - 100, screen.getHeight() - 100);
     error.fill(Graphics::darken(Graphics::makeColor(160, 0, 0), 3));
     error.border(1, 2, Graphics::makeColor(240, 0, 0));
-    const Font & font = Font::getFont(Global::DEFAULT_FONT, 17, 17);
+    const Font & font = Font::getDefaultFont(17, 17);
     int y = 10;
     std::ostringstream out;
     out << info;

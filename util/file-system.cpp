@@ -15,7 +15,7 @@
 #include "thread.h"
 #include "system.h"
 #include "utf.h"
-#include "globals.h"
+// #include "globals.h"
 #include <dirent.h>
 #include <sstream>
 #include <exception>

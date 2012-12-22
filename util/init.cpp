@@ -28,7 +28,6 @@
 /* don't be a boring tuna */
 // #warning you are ugly
 
-#include "globals.h"
 #include "init.h"
 #include "network/network.h"
 #include "thread.h"
@@ -434,7 +433,6 @@ bool Global::initNoGraphics(){
     Global::stream_type & out = Global::debug(0);
     out << "-- BEGIN init --" << endl;
     out << "Data path is " << Util::getDataPath2().path() << endl;
-    out << "Paintown version " << Global::getVersionString() << endl;
     out << "Build date " << __DATE__ << " " << __TIME__ << endl;
 
 #ifdef WII
@@ -583,7 +581,6 @@ bool Global::init(int gfx){
     Global::stream_type & out = Global::debug(0);
     out << "-- BEGIN init --" << endl;
     out << "Data path is " << Util::getDataPath2().path() << endl;
-    out << "Paintown version " << Global::getVersionString() << endl;
     out << "Build date " << __DATE__ << " " << __TIME__ << endl;
 
     maybeSetWorkingDirectory();

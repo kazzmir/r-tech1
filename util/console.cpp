@@ -6,7 +6,6 @@
 #include "exceptions/exception.h"
 #include "input/input-manager.h"
 #include "input/input-map.h"
-#include "globals.h"
 #include "debug.h"
 #include <string>
 #include <sstream>

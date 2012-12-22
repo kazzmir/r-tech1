@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include "graphics/bitmap.h"
+// #include "file-system.h"
+#include "parameter.h"
 // #include "ftalleg.h"
 
 struct FONT;
@@ -19,6 +21,8 @@ namespace Path{
 /* handle allegro fonts and true type fonts */
 class Font{
 public:
+    static Util::Parameter<Util::ReferenceCount<Path::RelativePath> > defaultFont;
+
 	Font();
 	virtual ~Font();
 
@@ -35,6 +39,7 @@ public:
 	virtual void printf( int x, int y, Graphics::Color color, const Graphics::Bitmap & work, const std::string & str, int marker, ... ) const = 0;
 	virtual void printfWrap( int x, int y, Graphics::Color color, const Graphics::Bitmap & work, int maxWidth, const std::string & str, int marker, ... ) const;
 
+        static const Path::RelativePath & getDefaultFontPath();
 	static const Font & getDefaultFont();
 	static const Font & getDefaultFont(int width, int height);
 	static const Font & getFont( const Path::RelativePath & name, const int x = 32, const int y = 32 );

@@ -4,7 +4,6 @@
 
 #include "compress.h"
 #include "memory.h"
-#include "globals.h"
 #include "debug.h"
 
 namespace Compress{

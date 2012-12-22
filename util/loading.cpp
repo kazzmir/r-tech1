@@ -10,7 +10,6 @@
 #include "graphics/gradient.h"
 #include "parameter.h"
 #include "thread.h"
-#include "globals.h"
 #include <vector>
 #include "thread.h"
 #include "message-queue.h"
@@ -190,7 +189,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
     int load_y = 220;
     const int infobox_width = 300;
     const int infobox_height = 150;
-    const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
+    const Font & myFont = Font::getDefaultFont(24, 24);
 
     if (levelInfo.getPositionX() != -1){
         load_x = levelInfo.getPositionX();
@@ -301,7 +300,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
             load_width(load_width),
             load_height(load_height){
 
-            const Font & myFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
+            const Font & myFont = Font::getDefaultFont(24, 24);
             pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
         }
 
@@ -339,13 +338,13 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
             if (state.drawInfo){
                 infoBackground.Blit(infoWork);
 
-                const Font & infoFont = Font::getFont(Global::DEFAULT_FONT, 24, 24);
+                const Font & infoFont = Font::getDefaultFont(24, 24);
                 /* cheesy hack to change the font size. the font
                  * should store the size and change it on its own
                  */
-                Font::getFont(Global::DEFAULT_FONT, 13, 13);
+                Font::getDefaultFont(13, 13);
                 infobox.draw(0, 0, infoWork, infoFont);
-                Font::getFont(Global::DEFAULT_FONT, 24, 24);
+                Font::getDefaultFont(24, 24);
                 infoWork.BlitAreaToScreen(infobox_x, infobox_y);
                 // infoWork.BlitToScreen();
                 state.drawInfo = false;
