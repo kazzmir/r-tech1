@@ -1,7 +1,6 @@
 #include "graphics/bitmap.h"
 #include "messages.h"
 #include "util/font.h"
-#include "globals.h"
 
 using namespace std;
 	

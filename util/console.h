@@ -9,6 +9,7 @@
 #include "input/input-map.h"
 #include "input/text-input.h"
 #include "file-system.h"
+#include "font.h"
 #include "pointer.h"
 
 namespace Graphics{
@@ -40,7 +41,7 @@ public:
 /* starts disabled */
 class Console{
 public:
-    Console(const int maxHeight, const Filesystem::RelativePath & font = Global::DEFAULT_FONT);
+    Console(const int maxHeight, const Filesystem::RelativePath & font = Font::getDefaultFontPath());
     virtual ~Console();
 
     /* handle input and whatnot */

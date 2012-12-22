@@ -2478,7 +2478,7 @@ void OptionLanguage::run(const Menu::Context & context){
 
     Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
     Menu::Menu temp(renderer.convert<Menu::Renderer>());
-    Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
+    Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Font::getDefaultFontPath(), 24, 24));
     temp.setFont(info);
 
     const Gui::ContextBox & box = renderer->getBox();
