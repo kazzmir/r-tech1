@@ -7,7 +7,6 @@
 #include "util/token.h"
 #include "util/graphics/bitmap.h"
 #include "util/font.h"
-#include "globals.h"
 #include "util/graphics/gradient.h"
 #include "../debug.h"
 #include "../funcs.h"

@@ -2,7 +2,6 @@
 #include "util/funcs.h"
 #include "widget.h"
 #include <math.h>
-#include "globals.h"
 #include "util/token.h"
 #include "coordinate.h"
 #include "util/exceptions/load_exception.h"

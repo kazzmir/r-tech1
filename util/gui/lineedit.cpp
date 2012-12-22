@@ -1,7 +1,6 @@
 #include "util/graphics/bitmap.h"
 #include "util/font.h"
 #include "lineedit.h"
-#include "globals.h"
 #include "util/debug.h"
 #include <iostream>
 
