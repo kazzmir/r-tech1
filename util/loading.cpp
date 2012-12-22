@@ -7,6 +7,7 @@
 #include "file-system.h"
 #include "font.h"
 #include "funcs.h"
+#include "version.h"
 #include "graphics/gradient.h"
 #include "parameter.h"
 #include "thread.h"
@@ -111,10 +112,7 @@ static void setupBackground(const Graphics::Bitmap & background, int load_x, int
     int startY = background.getHeight() - Font::getDefaultFont().getHeight() * 4;
     int height = Font::getDefaultFont().getHeight();
 
-    /* FIXME */
-    string version = "3.6.1";
-
-    Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), background, "Paintown version %s", 0, version.c_str());
+    Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), background, "Paintown version %s", 0, Version::getVersionString().c_str());
     Font::getDefaultFont().printf(startX, startY + height * 1, Graphics::makeColor(192, 192, 192), background, "Made by Jon Rafkind", 0);
     Font::getDefaultFont().printf(startX, startY + height * 2, Graphics::makeColor(192, 192, 192), background, "http://paintown.org", 0);
 
