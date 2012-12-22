@@ -15,7 +15,6 @@
 #include "factory/collector.h"
 #include "factory/font_render.h"
 #include "fonts.h"
-#include "globals.h"
 #include "level/scene.h"
 #include "loading.h"
 #include "object/character.h"

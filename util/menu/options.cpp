@@ -11,6 +11,7 @@
 #include "menu-exception.h"
 #include "util/init.h"
 #include "util/events.h"
+#include "util/version.h"
 #include "optionfactory.h"
 
 #include "util/sound/music.h"
@@ -18,11 +19,7 @@
 #include "util/input/keyboard.h"
 #include "util/funcs.h"
 #include "util/file-system.h"
-#include "factory/font_factory.h"
-/* FIXME: its probably bad to depend on the top-level globals. Most of globals.h/cpp should
- * be moved to the utils directory.
- */
-#include "globals.h"
+#include "util/font_factory.h"
 #include "util/exceptions/shutdown_exception.h"
 #include "util/exceptions/exception.h"
 #include "util/font.h"
@@ -558,11 +555,11 @@ clearColor(Graphics::makeColor(0,0,0)){
     if (miguelBirthday()){
         defaultSequence += "(block (title \"Happy birthday, Jon!\"))";
     }
-    
+
     if (Storage::instance().exists(Filesystem::RelativePath("sprites/paintown.png"))){
-        defaultSequence += "(block (animation (top) (width 350) (height 65) (image 0 \"sprites/paintown.png\") (frame (image 0) (time -1))) (credit \"Version " + Global::getVersionString() + "\"))";
+        defaultSequence += "(block (animation (top) (width 350) (height 65) (image 0 \"sprites/paintown.png\") (frame (image 0) (time -1))) (credit \"Version " + Version::getVersionString() + "\"))";
     } else {
-        defaultSequence += "(block (title \"PAINTOWN\") (credit \"Version " + Global::getVersionString() + "\"))";
+        defaultSequence += "(block (title \"PAINTOWN\") (credit \"Version " + Version::getVersionString() + "\"))";
     }
     defaultSequence += "(block (title \"Programming\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
     

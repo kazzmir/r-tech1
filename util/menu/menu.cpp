@@ -1,6 +1,7 @@
 #include "util/graphics/bitmap.h"
 #include "menu.h"
 #include "menu_option.h"
+#include "util/version.h"
 #include "util/funcs.h"
 #include "util/sound/sound.h"
 #include "util/font.h"
@@ -9,7 +10,6 @@
 #include "util/tokenreader.h"
 #include "util/file-system.h"
 #include "util/resource.h"
-#include "globals.h"
 #include "util/debug.h"
 #include "util/init.h"
 #include "util/configuration.h"
@@ -1290,9 +1290,9 @@ void Menu::Menu::load(const Token * token, const OptionFactory & factory){
 
     setRenderer(type);
 
-    if (Global::getVersion(major, minor, micro) != Global::getVersion()){
+    if (Version::getVersion(major, minor, micro) != Version::getVersion()){
         // Do compatible translations if necessary
-        handleCompatibility(token, Global::getVersion(major, minor, micro), factory);
+        handleCompatibility(token, Version::getVersion(major, minor, micro), factory);
     } else {
         handleCurrentVersion(token);
     }
@@ -1651,7 +1651,7 @@ void Menu::Menu::handleCurrentVersion(const Token * token){
 
 void Menu::Menu::handleCompatibility(const Token * token, int version, const OptionFactory & factory){
     Global::debug(1,"menu") << "Trying version: " << version << endl;
-    if (version <= Global::getVersion(3, 3, 1)){
+    if (version <= Version::getVersion(3, 3, 1)){
 
         const Token * languages = token->findToken("_/languages");
         if (languages != NULL){

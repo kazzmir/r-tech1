@@ -7,7 +7,7 @@
 #include "funcs.h"
 #include "init.h"
 #include "ftalleg.h"
-#include "factory/font_factory.h"
+#include "font_factory.h"
 #include <string.h>
 
 using namespace std;
@@ -180,6 +180,9 @@ const Font & Font::getDefaultFont(){
 }
         
 const Path::RelativePath & Font::getDefaultFontPath(){
+    if (defaultFont.current() == NULL){
+        throw Exception::Base(__FILE__, __LINE__);
+    }
     return *defaultFont.current();
 }
 

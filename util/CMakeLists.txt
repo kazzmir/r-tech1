@@ -29,6 +29,7 @@ graphics/bitmap.cpp
 graphics/image.cpp
 events.cpp
 font.cpp
+font_factory.cpp
 graphics/fire.cpp
 ftalleg.cpp
 funcs.cpp
@@ -52,6 +53,7 @@ input/wii/joystick.cpp
 graphics/sdl/hqx.cpp
 graphics/sdl/xbr.cpp
 system.cpp
+version.cpp
 compress.cpp
 message-queue.cpp
 input/linux_joystick.cpp
