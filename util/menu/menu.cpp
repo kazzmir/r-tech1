@@ -209,7 +209,7 @@ static std::vector<Util::ReferenceCount<ContextItem> > toContextList(const Conte
 }
 
 static void tryPlaySound(const Filesystem::RelativePath & path){
-    Sound * ok = Resource::getSound(path);
+    Util::ReferenceCount<Sound> ok = Resource::getSound(path);
     if (ok != NULL){
         ok->play();
     }
