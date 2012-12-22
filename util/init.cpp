@@ -48,6 +48,7 @@
 #include "sound/sound.h"
 #include "configuration.h"
 #include "sound/music.h"
+#include "resource.h"
 #include "loading.h"
 #include "input/keyboard.h"
 #include "message-queue.h"
@@ -647,6 +648,7 @@ bool Global::init(int gfx){
 
     /* this mutex is used to show the loading screen while the game loads */
     Util::Thread::initializeLock(&MessageQueue::messageLock);
+    Resource::initialize();
 
     Util::Thread::initializeLock(&run_timer_lock);
     run_timer = true;
