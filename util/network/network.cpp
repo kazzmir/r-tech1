@@ -2,7 +2,6 @@
 #include "hawknl/nl.h"
 #endif
 #include "network.h"
-#include "globals.h"
 #include "util/debug.h"
 #include <string>
 #include <sstream>
