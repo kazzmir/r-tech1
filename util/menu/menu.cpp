@@ -12,7 +12,7 @@
 #include "globals.h"
 #include "util/debug.h"
 #include "util/init.h"
-#include "configuration.h"
+#include "util/configuration.h"
 #include "util/sound/music.h"
 #include "util/graphics/gradient.h"
 #include "util/exceptions/shutdown_exception.h"

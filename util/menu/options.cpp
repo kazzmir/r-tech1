@@ -6,7 +6,7 @@
 #include "util/parameter.h"
 #include "util/tokenreader.h"
 #include "menu.h"
-#include "configuration.h"
+#include "util/configuration.h"
 #include "util/exceptions/load_exception.h"
 #include "menu-exception.h"
 #include "util/init.h"

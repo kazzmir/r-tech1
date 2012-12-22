@@ -1,6 +1,6 @@
 /*
 #include "input.h"
-#include "configuration.h"
+#include "util/configuration.h"
 #include "paintown-engine/object/object.h"
 #include <vector>
 

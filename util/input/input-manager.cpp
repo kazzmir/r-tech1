@@ -1,5 +1,5 @@
 #include "input-manager.h"
-#include "configuration.h"
+#include "util/configuration.h"
 #include "joystick.h"
 #include "util/events.h"
 #include "util/debug.h"

@@ -1,7 +1,7 @@
 #include "font-info.h"
 #include "util/file-system.h"
 #include "util/font.h"
-#include "configuration.h"
+#include "util/configuration.h"
 #include "util/exceptions/exception.h"
 
 namespace Menu{

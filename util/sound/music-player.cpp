@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "util/debug.h"
 #include <iostream>
-#include "configuration.h"
+#include "util/configuration.h"
 #include "sound.h"
 #include "music-exception.h"
 #include "../timedifference.h"

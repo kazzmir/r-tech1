@@ -9,6 +9,7 @@
 # -------------------------------------------------------
 set(UTIL_SRC
 argument.cpp
+configuration.cpp
 network/network.cpp
 network/chat.cpp
 network/irc.cpp

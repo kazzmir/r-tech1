@@ -5,7 +5,7 @@
 #include <algorithm>
 // #include "defs.h"
 
-#include "configuration.h"
+#include "util/configuration.h"
 #include "../thread.h"
 #include "../funcs.h"
 #include "../file-system.h"
