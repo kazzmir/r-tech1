@@ -26,6 +26,12 @@ using std::map;
 
 namespace Util{
 
+int do_shutdown = 0;
+
+bool shutdown(){
+    return do_shutdown > 0;
+}
+
 EventManager::EventManager():
 bufferKeys(false),
 deferResize(false){
@@ -472,7 +478,7 @@ void Draw::updateFrames(){
 static void changeScreenMode(){
     Configuration::setFullscreen(!Configuration::getFullscreen());
     int gfx = (Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED);
-    Graphics::setGraphicsMode(gfx, Global::getScreenWidth(), Global::getScreenHeight());
+    Graphics::setGraphicsMode(gfx, Graphics::Bitmap::getScreenWidth(), Graphics::Bitmap::getScreenHeight());
 }
 
 static void checkFullscreen(){
@@ -527,7 +533,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                         logicTime = 0;
                     }
 
-                    if (Global::shutdown()){
+                    if (shutdown()){
                         throw ShutdownException();
                     }
 

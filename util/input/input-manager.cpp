@@ -2,7 +2,6 @@
 #include "configuration.h"
 #include "joystick.h"
 #include "util/events.h"
-#include "globals.h"
 #include "util/debug.h"
 #include <stdlib.h>
 #include <vector>

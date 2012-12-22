@@ -124,6 +124,9 @@ protected:
 };
 
 void standardLoop(Logic & logic, Draw & draw);
+/* true if the game should shutdown immediately */
+bool shutdown();
+extern int do_shutdown;
 
 }
 

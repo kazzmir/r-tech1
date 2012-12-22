@@ -5,7 +5,6 @@
 #include "../keyboard.h"
 #include "util/thread.h"
 #include "util/funcs.h"
-#include "globals.h"
 #include <iostream>
 #include <vector>
 #include <map>

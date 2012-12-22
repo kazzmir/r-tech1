@@ -5,7 +5,6 @@
 #include <vector>
 #include "joystick.h"
 #include "keyboard.h"
-#include "globals.h"
 #include "util/pointer.h"
 #include <iostream>
 
