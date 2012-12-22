@@ -31,7 +31,7 @@ typedef struct pair{
 class MessageInfo{
 public:
     MessageInfo(){
-        Global::registerInfo(&messages);
+        MessageQueue::registerInfo(&messages);
     }
 
     bool transferMessages(Messages & box){
@@ -45,19 +45,19 @@ public:
     }
 
     ~MessageInfo(){
-        Global::unregisterInfo(&messages);
+        MessageQueue::unregisterInfo(&messages);
     }
 
 private:
     MessageQueue messages;
 };
 
-Info::Info():
+Info::Info(const string & message, const Filesystem::AbsolutePath & background):
 x(-1),
 y(-1),
-_loadingMessage("Loading Paintown"),
+_loadingMessage(message),
 background(NULL),
-_loadingBackground(Global::titleScreen()){
+_loadingBackground(background){
 }
 
 Info::Info(const Info & info){
@@ -111,7 +111,10 @@ static void setupBackground(const Graphics::Bitmap & background, int load_x, int
     int startY = background.getHeight() - Font::getDefaultFont().getHeight() * 4;
     int height = Font::getDefaultFont().getHeight();
 
-    Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), background, "Paintown version %s", 0, Global::getVersionString().c_str());
+    /* FIXME */
+    string version = "3.6.1";
+
+    Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), background, "Paintown version %s", 0, version.c_str());
     Font::getDefaultFont().printf(startX, startY + height * 1, Graphics::makeColor(192, 192, 192), background, "Made by Jon Rafkind", 0);
     Font::getDefaultFont().printf(startX, startY + height * 2, Graphics::makeColor(192, 192, 192), background, "http://paintown.org", 0);
 
@@ -319,10 +322,16 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
         const int load_height;
 
         void drawFirst(const Graphics::Bitmap & screen){
-            if (levelInfo.getBackground() != 0){
+            if (levelInfo.getBackground() != NULL){
                 setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
             } else {
-                setupBackground(Graphics::Bitmap(levelInfo.loadingBackground().path()), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
+                Graphics::Bitmap background;
+                if (levelInfo.loadingBackground() != Filesystem::AbsolutePath("")){
+                    background = Graphics::Bitmap(levelInfo.loadingBackground().path());
+                } else {
+                    background = Graphics::Bitmap(*Graphics::screenParameter.current(), true);
+                }
+                setupBackground(background, load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
             }
         }
 

@@ -44,6 +44,7 @@
 #include "funcs.h"
 #include "file-system.h"
 #include "font.h"
+#include "events.h"
 #include "sound/sound.h"
 #include "configuration.h"
 #include "sound/music.h"
@@ -184,18 +185,14 @@ static void close_paintown(){
     exit(0);
 }
 
-namespace Global{
-    extern int do_shutdown;
-}
-
 static void close_window(){
     /* when do_shutdown is 1 the game will attempt to throw ShutdownException
      * wherever it is. If the game is stuck or the code doesn't throw
      * ShutdownException then when the user tries to close the window
      * twice we just forcifully shutdown.
      */
-    Global::do_shutdown += 1;
-    if (Global::do_shutdown == 2){
+    Util::do_shutdown += 1;
+    if (Util::do_shutdown == 2){
         close_paintown();
     }
 }
@@ -649,7 +646,7 @@ bool Global::init(int gfx){
 #endif
 
     /* this mutex is used to show the loading screen while the game loads */
-    Util::Thread::initializeLock(&Global::messageLock);
+    Util::Thread::initializeLock(&MessageQueue::messageLock);
 
     Util::Thread::initializeLock(&run_timer_lock);
     run_timer = true;

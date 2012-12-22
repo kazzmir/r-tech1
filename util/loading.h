@@ -14,7 +14,7 @@ namespace Loader{
 class Info{
 public:
 
-    Info();
+    Info(const std::string & message, const Filesystem::AbsolutePath & background);
     Info(const Info & info);
 
     virtual ~Info();

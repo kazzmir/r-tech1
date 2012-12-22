@@ -5,10 +5,6 @@
 #include <string>
 #include "thread.h"
 
-namespace Global{
-    extern Util::Thread::Lock messageLock;
-}
-
 /* multithreaded message queue.
  * someone puts messages in, someone takes them out.
  * FIFO order
@@ -25,6 +21,13 @@ public:
     std::string get();
 
     virtual ~MessageQueue();
+
+    static void registerInfo(MessageQueue *);
+    static void unregisterInfo(MessageQueue *);
+    static void info(const std::string & str);
+    static void clearInfo();
+    static Util::Thread::Lock messageLock;
+
 private:
     std::queue<std::string> messages;
     Util::Thread::Lock lock;

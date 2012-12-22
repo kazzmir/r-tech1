@@ -809,7 +809,7 @@ void OptionFullscreen::logic(){;
 static void changeScreenMode(){
     Configuration::setFullscreen(!Configuration::getFullscreen());
     int gfx = (Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED);
-    Graphics::setGraphicsMode(gfx, Global::getScreenWidth(), Global::getScreenHeight());
+    Graphics::setGraphicsMode(gfx, Graphics::Bitmap::getScreenWidth(), Graphics::Bitmap::getScreenHeight());
 }
 
 void OptionFullscreen::run(const Menu::Context & context){
@@ -2171,7 +2171,7 @@ static bool saneFont(const Util::ReferenceCount<Menu::FontInfo> & info){
 
     Context context(info);
     /* an empty Info object, we don't really care about it */
-    Loader::Info level;
+    Loader::Info level("Loading Font", Filesystem::AbsolutePath());
     Loader::loadScreen(context, level, Loader::SimpleCircle);
     return context.isok;
 }
