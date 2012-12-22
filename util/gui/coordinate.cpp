@@ -1,6 +1,5 @@
 #include "util/graphics/bitmap.h"
 #include "coordinate.h"
-#include "globals.h"
 #include "util/funcs.h"
 #include "util/exceptions/load_exception.h"
 #include <sstream>
