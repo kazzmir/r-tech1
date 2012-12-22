@@ -1,7 +1,6 @@
 #include "music.h"
 #include <string>
 #include <iostream>
-#include "globals.h"
 #include <algorithm>
 // #include "defs.h"
 
