@@ -1,5 +1,5 @@
 #include "action_speed.h"
-#include "configuration.h"
+#include "util/configuration.h"
 #include "util/token.h"
 
 ActionSpeed::ActionSpeed(const Token *token):

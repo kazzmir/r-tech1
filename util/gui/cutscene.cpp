@@ -9,7 +9,7 @@
 #include "util/token.h"
 #include "util/tokenreader.h"
 #include "util/file-system.h"
-#include "configuration.h"
+#include "util/configuration.h"
 
 using namespace Gui;
 

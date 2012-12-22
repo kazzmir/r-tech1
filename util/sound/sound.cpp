@@ -11,7 +11,7 @@
 #include "allegro5/sound.cpp"
 #endif
 
-#include "configuration.h"
+#include "../configuration.h"
 #include "../file-system.h"
         
 Sound::SoundInfo Sound::Info;
