@@ -500,6 +500,9 @@ static void checkFullscreen(){
 }
 
 static void doStandardLoop(Logic & logic, Draw & draw){
+    if (Graphics::screenParameter.current() == NULL){
+        throw Exception::Base(__FILE__, __LINE__);
+    }
     const Graphics::Bitmap & screen = *Graphics::screenParameter.current();
     draw.drawFirst(screen);
     Global::speed_counter4 = 0;
