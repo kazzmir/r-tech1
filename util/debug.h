@@ -101,7 +101,9 @@ void logToFile();
 void closeLog();
 void setDebug(int i);
 int getDebug();
-stream_type & debug(int i, const std::string & context = "paintown");
+extern std::string defaultDebugContext;
+void setDefaultDebugContext(const std::string & context);
+stream_type & debug(int i, const std::string & context = defaultDebugContext);
 
 }
 

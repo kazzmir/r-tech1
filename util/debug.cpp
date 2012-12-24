@@ -397,3 +397,9 @@ void Global::setDebug(int i){
 int Global::getDebug(){
     return global_debug_level;
 }
+
+std::string Global::defaultDebugContext = "default";
+
+void Global::setDefaultDebugContext(const std::string & context){
+    defaultDebugContext = context;
+}
