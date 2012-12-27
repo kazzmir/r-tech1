@@ -830,6 +830,11 @@ void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color)
     int alpha = globalBlend.alpha;
     SPG_RectFilledBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
 }
+    
+void TranslucentBitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
+    int alpha = globalBlend.alpha;
+    SPG_EllipseFilledBlend(getData()->getSurface(), x, y, rx, ry, color, alpha);
+}
 
 void Bitmap::circleFill(int x, int y, int radius, int color) const {
     SPG_CircleFilled(getData()->getSurface(), x, y, radius, color);

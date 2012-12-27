@@ -593,6 +593,7 @@ public:
     virtual void arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
     virtual void circleFill( int x, int y, int radius, Color color ) const;
     virtual void ellipse( int x, int y, int rx, int ry, Color color ) const;
+    virtual void ellipseFill( int x, int y, int rx, int ry, Color color ) const;
 
     using Bitmap::draw;
     virtual void draw(const int x, const int y, const Bitmap & where) const;
