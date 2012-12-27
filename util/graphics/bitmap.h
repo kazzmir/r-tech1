@@ -162,7 +162,7 @@ public:
 
 	virtual void save( const std::string & str ) const;
 
-	Bitmap & operator=( const Bitmap & );
+	virtual Bitmap & operator=( const Bitmap & );
 
 	virtual void load( const std::string & str );
 
