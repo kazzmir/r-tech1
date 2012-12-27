@@ -124,6 +124,8 @@ void Bitmap::cleanupTemporaryBitmaps(){
 
 Bitmap & Bitmap::operator=(const Bitmap & copy){
     path = copy.getPath();
+    this->width = copy.getWidth();
+    this->height = copy.getHeight();
     setData(copy.getData());
     return *this;
 }
