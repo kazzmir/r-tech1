@@ -10,7 +10,7 @@ def tryKey(hashx, key, default):
         return default
 
 def useSDL(options):
-    return tryKey(options, 'sdl', True)
+    return tryKey(options, 'sdl', False)
 
 def useAllegro(options):
     return tryKey(options, 'allegro', False)
