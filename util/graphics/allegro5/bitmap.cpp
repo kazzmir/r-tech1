@@ -1021,6 +1021,11 @@ void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, Color color ) con
     Bitmap::ellipse(x, y, rx, ry, doTransBlend(color, globalBlend.alpha));
 }
 
+void TranslucentBitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
+    TransBlender blender;
+    Bitmap::ellipseFill(x, y, rx, ry, doTransBlend(color, globalBlend.alpha));
+}
+
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
     /* TODO */
 }
