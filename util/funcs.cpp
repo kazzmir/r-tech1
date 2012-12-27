@@ -55,6 +55,10 @@ double Util::radians(double degree){
     return degree * pi / 180.0;
 }
 
+double Util::degrees(double radians){
+    return radians * 180.0 / pi;
+}
+
 /*
 inline int rnd( int q ){
 	if ( q <= 0 ) return 0;
