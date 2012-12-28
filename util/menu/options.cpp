@@ -998,7 +998,7 @@ static Configuration::JoystickInput getKey(int player, OptionJoystick::JoystickT
 }
 
 static void setKey(int player, OptionJoystick::JoystickType k, Configuration::JoystickInput key){
-    /*
+    / *
     switch(k){
         case OptionJoystick::Up:
             Configuration::setJoystickUp(player, key);

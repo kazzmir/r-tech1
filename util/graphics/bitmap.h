@@ -508,6 +508,7 @@ class PaletteBitmap: public Bitmap {
 public:
     PaletteBitmap();
     virtual ~PaletteBitmap();
+    using Bitmap::operator=;
 
 protected:
     Color palette[256];
@@ -541,6 +542,7 @@ public:
     using Bitmap::drawHVFlip;
     virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
     virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
+    using Bitmap::operator=;
 };
 
 class StretchedBitmap: public Bitmap {
@@ -550,6 +552,7 @@ public:
     void start();
     virtual int getWidth() const;
     virtual int getHeight() const;
+    using Bitmap::operator=;
 
     virtual double getScaleWidth() const;
     virtual double getScaleHeight() const;
@@ -566,6 +569,7 @@ protected:
 class TranslatedBitmap: public Bitmap {
 public:
     TranslatedBitmap(int x, int y, const Bitmap & where);
+    using Bitmap::operator=;
     using Bitmap::BlitToScreen;
     virtual void BlitToScreen() const;
     virtual ~TranslatedBitmap();
@@ -579,6 +583,7 @@ public:
     TranslucentBitmap();
     virtual ~TranslucentBitmap();
 
+    using Bitmap::operator=;
     virtual Color blendColor(const Color & color) const;
     virtual void startDrawing() const;
     virtual void endDrawing() const;
