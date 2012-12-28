@@ -388,9 +388,13 @@ height(height){
     ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
     ALLEGRO_TRANSFORM transform;
     al_identity_transform(&transform);
-    al_set_target_bitmap(copy.getData()->getBitmap());
-    if (al_get_current_transform() != NULL){
+    if (al_get_target_bitmap() != copy.getData()->getBitmap()){
         al_set_target_bitmap(copy.getData()->getBitmap());
+    }
+    if (al_get_current_transform() != NULL){
+        if (old_target != copy.getData()->getBitmap()){
+            al_set_target_bitmap(copy.getData()->getBitmap());
+        }
         al_copy_transform(&transform, al_get_current_transform());
     }
 
@@ -1121,16 +1125,22 @@ filter(filter){
     scale_x = (double) parent.getWidth() / width;
     scale_y = (double) parent.getHeight() / height;
     ALLEGRO_BITMAP * old_target = al_get_target_bitmap();
-    al_set_target_bitmap(parent.getData()->getBitmap());
+    if (al_get_target_bitmap() != parent.getData()->getBitmap()){
+        al_set_target_bitmap(parent.getData()->getBitmap());
+    }
     ALLEGRO_TRANSFORM transform;
     al_identity_transform(&transform);
     if (al_get_current_transform() != NULL){
         al_copy_transform(&transform, al_get_current_transform());
     }
     al_scale_transform(&transform, scale_x, scale_y);
-    al_set_target_bitmap(getData()->getBitmap());
+    if (al_get_target_bitmap() != getData()->getBitmap()){
+        al_set_target_bitmap(getData()->getBitmap());
+    }
     al_use_transform(&transform);
-    al_set_target_bitmap(old_target);
+    if (old_target != al_get_target_bitmap()){
+        al_set_target_bitmap(old_target);
+    }
 
     /* TODO: handle filter */
 }

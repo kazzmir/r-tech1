@@ -171,20 +171,20 @@ namespace ftalleg{
          * will occur.
          */
         // al_set_target_bitmap(alive.getData().getBitmap());
-        ALLEGRO_BITMAP * target = al_get_target_bitmap();
-        al_set_target_bitmap(NULL);
+        // ALLEGRO_BITMAP * target = al_get_target_bitmap();
+        // al_set_target_bitmap(NULL);
         int height = al_get_font_line_height(currentMemoryFont());
-        al_set_target_bitmap(target);
+        // al_set_target_bitmap(target);
         return height;
     }
 
     int freetype::getLength(const std::string & text) const {
         Util::Thread::ScopedLock locked(lock);
         // al_set_target_bitmap(alive.getData().getBitmap());
-        ALLEGRO_BITMAP * target = al_get_target_bitmap();
-        al_set_target_bitmap(NULL);
+        // ALLEGRO_BITMAP * target = al_get_target_bitmap();
+        // al_set_target_bitmap(NULL);
         int width = al_get_text_width(currentMemoryFont(), text.c_str());
-        al_set_target_bitmap(target);
+        // al_set_target_bitmap(target);
         return width;
     }
             
@@ -232,7 +232,9 @@ namespace ftalleg{
         va_end(ap);
 
         std::string fixedText(str.str());
-        al_set_target_bitmap(bmp.getData()->getBitmap());
+        if (al_get_target_bitmap() != bmp.getData()->getBitmap()){
+            al_set_target_bitmap(bmp.getData()->getBitmap());
+        }
         al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
         /* for setting the blend state and whatnot */
