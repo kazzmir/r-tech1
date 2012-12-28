@@ -191,10 +191,16 @@ void Bitmap::convertToVideo(){
 void changeTarget(const Bitmap & from, const Bitmap & who){
     /* pray that if drawing is held then who is already the current target */
     if (!al_is_bitmap_drawing_held()){
-        al_set_target_bitmap(who.getData()->getBitmap());
+        if (al_get_target_bitmap() != who.getData()->getBitmap()){
+            al_set_target_bitmap(who.getData()->getBitmap());
+        }
         if ((al_get_bitmap_flags(who.getData()->getBitmap()) & ALLEGRO_VIDEO_BITMAP) &&
             (al_get_bitmap_flags(from.getData()->getBitmap()) & ALLEGRO_MEMORY_BITMAP)){
+
             ((Bitmap&) from).convertToVideo();
+            /* How can from == who? If they were the same then the bitmap flags above
+             * would not have been different.
+             */
             if (&from == &who){
                 al_set_target_bitmap(who.getData()->getBitmap());
             }
