@@ -119,6 +119,37 @@ static inline bool is_nonalpha(char c){
     return strchr(nonalpha, c) != NULL;
 }
 
+class BufferedStream{
+public:
+    BufferedStream(Storage::File & input):
+    data(NULL),
+    position(0),
+    size(input.getSize()){
+        data = new unsigned char[size];
+        input.readLine((char*) data, size);
+    }
+
+    BufferedStream & operator>>(unsigned char & n){
+        if (position < size){
+            n = data[position];
+            position += 1;
+        }
+        return *this;
+    }
+
+    bool eof(){
+        return position >= size;
+    }
+
+    ~BufferedStream(){
+        delete[] data;
+    }
+
+    unsigned char * data;
+    int position;
+    int size;
+};
+
 void TokenReader::readTokens(Storage::File & input){
 
     /*
@@ -143,6 +174,8 @@ void TokenReader::readTokens(Storage::File & input){
     */
     // token_string += '(';
 
+    BufferedStream buffer(input);
+
     Token * currentToken = NULL;
     // Token * cur_token = new Token();
     // cur_token->setFile(myfile);
@@ -164,13 +197,10 @@ void TokenReader::readTokens(Storage::File & input){
 
     /* escaped unconditionally adds the next character to the string */
     bool escaped = false;
-    while (input.good() && !input.eof()){
+    while (!buffer.eof()){
             // char n;
         // slow as we go
-        input >> n;
-        if (input.eof()){
-            break;
-        }
+        buffer >> n;
         // position += 1;
         // printf("Read character '%c' %d at %d\n", n, n, input.tellg());
         // cout << "Read character '" << n << "' " << (int) n << " at " << input.tellg() << endl;
@@ -242,7 +272,7 @@ void TokenReader::readTokens(Storage::File & input){
             }
 
             if (n == '#' || n == ';'){
-                input >> n;
+                buffer >> n;
 
                 /* if the next character is a @ then ignore the next entire s-expression
                  * otherwise just ignore the current line
@@ -250,8 +280,8 @@ void TokenReader::readTokens(Storage::File & input){
                 if (n == '@'){
                     do_ignore = true;
                 } else {
-                    while (n != '\n' && !input.eof()){
-                        input >> n;
+                    while (n != '\n' && !buffer.eof()){
+                        buffer >> n;
                     }
                     continue;
                 }
