@@ -8,6 +8,7 @@
 #include "init.h"
 #include "ftalleg.h"
 #include "font_factory.h"
+#include "exceptions/exception.h"
 #include <string.h>
 
 using namespace std;
@@ -181,7 +182,7 @@ const Font & Font::getDefaultFont(){
         
 const Path::RelativePath & Font::getDefaultFontPath(){
     if (defaultFont.current() == NULL){
-        throw Exception::Base(__FILE__, __LINE__);
+        throw Exception::FontException(__FILE__, __LINE__, "No default font set");
     }
     return *defaultFont.current();
 }
@@ -189,7 +190,7 @@ const Path::RelativePath & Font::getDefaultFontPath(){
 const Font & Font::getDefaultFont(int width, int height){
     Font * font = FontFactory::getFont(getDefaultFontPath(), width, height);
     if (font == NULL){
-        throw Exception::Base(__FILE__, __LINE__);
+        throw Exception::FontException(__FILE__, __LINE__, "No default font set");
     }
     return *font;
 }
@@ -200,7 +201,7 @@ const Font & Font::getDefaultFont(int width, int height){
 const Font & Font::getFont(const Filesystem::RelativePath & name, const int x, const int y){
     Font * check = FontFactory::getFont(name, x, y);
     if (check == NULL){
-        throw Exception::Base(__FILE__, __LINE__);
+        throw Exception::FontException(__FILE__, __LINE__, "Could not get font");
     }
     Font & font = *check;
     /* sanity check */

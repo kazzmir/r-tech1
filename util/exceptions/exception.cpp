@@ -92,4 +92,28 @@ Base * Quit::copy() const {
     return new Quit(*this);
 }
 
+FontException::FontException(const std::string & file, int line, const std::string & reason):
+Base(file, line),
+reason(reason){
+}
+
+FontException::FontException(const std::string & file, int line, const Base & nested, const std::string & reason):
+Base(file, line, nested),
+reason(reason){
+}
+
+FontException::~FontException() throw(){
+}
+    
+const std::string FontException::getReason() const {
+    return reason;
+}
+
+void FontException::throwSelf() const {
+    throw *this;
+}
+
+Base * FontException::copy() const {
+}
+
 }
