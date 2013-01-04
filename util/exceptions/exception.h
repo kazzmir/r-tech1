@@ -63,6 +63,18 @@ protected:
     virtual Base * copy() const;
 };
 
+class FontException: public Base {
+public:
+    FontException(const std::string & file, int line, const std::string & reason);
+    FontException(const std::string & file, int line, const Base & nested, const std::string & reason);
+    virtual ~FontException() throw();
+    virtual void throwSelf() const;
+protected:
+    virtual const std::string getReason() const;
+    virtual Base * copy() const;
+    std::string reason;
+};
+
 }
 
 #endif

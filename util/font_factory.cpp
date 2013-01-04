@@ -59,7 +59,9 @@ Font * FontFactory::getRealFont(const Filesystem::AbsolutePath & path, int x, in
     }
     Font * font = font_mapper[path.path()];
     if (font == NULL){
-        throw Exception::Base(__FILE__, __LINE__);
+        std::ostringstream out;
+        out << "No font for " << path.path();
+        throw Exception::FontException(__FILE__, __LINE__, out.str());
     }
     if (x < 1){
         x = 1;
@@ -81,7 +83,9 @@ Font * FontFactory::getRealFont(const Filesystem::RelativePath & path, const int
 
         Font * f = font_mapper[path.path()];
         if (f == NULL){
-            throw Exception::Base(__FILE__, __LINE__);
+            std::ostringstream out;
+            out << "No font for " << path.path();
+            throw Exception::FontException(__FILE__, __LINE__, out.str());
         }
         f->setSize(x, y);
 
