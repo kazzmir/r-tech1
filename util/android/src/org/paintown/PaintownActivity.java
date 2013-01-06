@@ -53,29 +53,37 @@ import org.liballeg.app.AllegroActivity;
 import android.media.AudioManager;
 
 public class PaintownActivity extends AllegroActivity {
-   /* load allegro */
-   static {
-		/* FIXME: see if we can't load the allegro library name, or type from the manifest here */
-      System.loadLibrary("OpenSLES");
-      /*
-      System.loadLibrary("allegro");
-      System.loadLibrary("allegro_primitives");
-      System.loadLibrary("allegro_image");
-      System.loadLibrary("allegro_memfile");
-      System.loadLibrary("allegro_font");
-      System.loadLibrary("allegro_ttf");
-      System.loadLibrary("allegro_audio");
-      System.loadLibrary("allegro_acodec");
-      */
+    static void loadAllegroLibraries(String suffix){
+        System.loadLibrary("allegro" + suffix);
+        System.loadLibrary("allegro_primitives" + suffix);
+        System.loadLibrary("allegro_image" + suffix);
+        System.loadLibrary("allegro_memfile" + suffix);
+        System.loadLibrary("allegro_font" + suffix);
+        System.loadLibrary("allegro_ttf" + suffix);
+        System.loadLibrary("allegro_audio" + suffix);
+        System.loadLibrary("allegro_acodec" + suffix);
+    }
 
-      System.loadLibrary("allegro-debug");
-      System.loadLibrary("allegro_primitives-debug");
-      System.loadLibrary("allegro_image-debug");
-      System.loadLibrary("allegro_memfile-debug");
-      System.loadLibrary("allegro_font-debug");
-      System.loadLibrary("allegro_ttf-debug");
-      System.loadLibrary("allegro_audio-debug");
-      System.loadLibrary("allegro_acodec-debug");
+    static void loadAllegroNormal(){
+        loadAllegroLibraries("");
+    }
+
+    static void loadAllegroDebug(){
+        loadAllegroLibraries("-debug");
+    }
+
+    static void loadAllegro(){
+        try{
+            loadAllegroNormal();
+        } catch (UnsatisfiedLinkError fail){
+            loadAllegroDebug();
+        }
+    }
+
+    /* load allegro */
+    static {
+      System.loadLibrary("OpenSLES");
+      loadAllegro();
       System.loadLibrary("paintown");
    }
 
