@@ -44,6 +44,9 @@ Token * TokenReader::readTokenFromFile(const std::string & path){
     */
     Filesystem::AbsolutePath realPath(path);
     Util::ReferenceCount<Storage::File> file = Storage::instance().open(realPath);
+    if (file == NULL || !file->good()){
+        throw TokenException(__FILE__, __LINE__, string("Could not read ") + realPath.path());
+    }
     readTokens(*file.raw());
     // file.close();
     if (my_tokens.size() > 0){
