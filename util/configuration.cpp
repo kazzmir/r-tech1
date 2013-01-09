@@ -208,7 +208,7 @@ static void updateToken(Token * data, const string & path, const Value & value){
 }
 
 void Configuration::setProperty(const string & name, const string & value){
-    updateToken(data.raw(), string(config_configuration) + "/" + name, value);
+    updateToken(getRawData(), string(config_configuration) + "/" + name, value);
     saveConfiguration();
 }
 
@@ -304,7 +304,7 @@ void Configuration::setKey(int config, const string & name, int value){
     if (value != InvalidKey){
         ostringstream path;
         path << config_configuration << "/" << config_input << "/" << config << "/keys/" << name;
-        updateToken(data.raw(), path.str(), value);
+        updateToken(getRawData(), path.str(), value);
         saveConfiguration();
     }
 }
@@ -632,6 +632,13 @@ static Token * removeDuplicates(Token * token){
     return token;
 }
 
+Token * Configuration::getRawData(){
+    if (data == NULL){
+        data = new Token();
+    }
+    return data.raw();
+}
+
 void Configuration::loadConfigurations(){
     data = new Token();
     *data << config_configuration;
@@ -673,43 +680,43 @@ Util::ReferenceCount<Menu::FontInfo> Configuration::menuFont;
 bool Configuration::joystickEnabled = true;
 
 int Configuration::getProperty(const std::string & path, int defaultValue){
-    return getPropertyX(data.raw(), path, defaultValue);
+    return getPropertyX(getRawData(), path, defaultValue);
 }
 
 void Configuration::setProperty(const std::string & path, int value){
-    updateToken(data.raw(), string(config_configuration) + "/" + path, value);
+    updateToken(getRawData(), string(config_configuration) + "/" + path, value);
     saveConfiguration();
 }
 
 void Configuration::setProperty(const std::string & path, Token * value){
-    updateToken(data.raw(), string(config_configuration) + "/" + path, value);
+    updateToken(getRawData(), string(config_configuration) + "/" + path, value);
     saveConfiguration();
 }
     
 Token * Configuration::getProperty(const std::string & path){
-    return getPropertyX(data.raw(),path);
+    return getPropertyX(getRawData(),path);
 }
 
 double Configuration::getProperty(const std::string & path, double defaultValue){
-    return getPropertyX(data.raw(), path, defaultValue);
+    return getPropertyX(getRawData(), path, defaultValue);
 }
 
 void Configuration::setProperty(const std::string & path, double value){
-    updateToken(data.raw(), string(config_configuration) + "/" + path, value);
+    updateToken(getRawData(), string(config_configuration) + "/" + path, value);
     saveConfiguration();
 }
 
 bool Configuration::getProperty(const std::string & path, bool defaultValue){
-    return getPropertyX(data.raw(), path, defaultValue);
+    return getPropertyX(getRawData(), path, defaultValue);
 }
 
 void Configuration::setProperty(const std::string & path, bool value){
-    updateToken(data.raw(), string(config_configuration) + "/" + path, value);
+    updateToken(getRawData(), string(config_configuration) + "/" + path, value);
     saveConfiguration();
 }
 
 std::string Configuration::getProperty(const std::string & path, const std::string & defaultValue){
-    return getPropertyX(data.raw(), path, defaultValue);
+    return getPropertyX(getRawData(), path, defaultValue);
 }
 
 double Configuration::getGameSpeed(){
@@ -807,7 +814,7 @@ int Configuration::screen_height = 480;
 void Configuration::setScreenWidth(int i){
     int width = 640;
     int height = 480;
-    Token * screen = getPropertyX(data.raw(), config_screen_size);
+    Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
             screen->view() >> width >> height;
@@ -822,7 +829,7 @@ void Configuration::setScreenWidth(int i){
 int Configuration::getScreenWidth(){
     int width = 640;
     int height = 480;
-    Token * screen = getPropertyX(data.raw(), config_screen_size);
+    Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
             screen->view() >> width >> height;
@@ -837,7 +844,7 @@ int Configuration::getScreenWidth(){
 void Configuration::setScreenHeight(int i){
     int width = 640;
     int height = 480;
-    Token * screen = getPropertyX(data.raw(), config_screen_size);
+    Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
             screen->view() >> width >> height;
@@ -852,7 +859,7 @@ void Configuration::setScreenHeight(int i){
 int Configuration::getScreenHeight(){
     int width = 640;
     int height = 480;
-    Token * screen = getPropertyX(data.raw(), config_screen_size);
+    Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
             screen->view() >> width >> height;
