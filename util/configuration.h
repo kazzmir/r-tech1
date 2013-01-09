@@ -159,6 +159,8 @@ protected:
 
     Configuration & operator=(const Configuration & config);
 
+    static Token * getRawData();
+
     static int getKey(int config, const std::string & name, int defaultValue);
     static JoystickInput getJoystickKey(int config, const std::string & name, JoystickInput defaultValue);
 
