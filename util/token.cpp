@@ -86,6 +86,12 @@ std::string Token::toString() const {
     toString(out, "");
     return out.str();
 }
+    
+std::string Token::toStringCompact() const {
+    std::ostringstream out;
+    toStringCompact(out);
+    return out.str();
+}
 
 /* helper function */
 string Token::lowerCase( const string & s ) const {
@@ -460,6 +466,16 @@ Token & Token::operator<<( const string rhs ){
 }
 
 Token & Token::operator<<( const int rhs ){
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add raw integers to a token you don't own");
+    }
+
+    ostringstream o;
+    o << rhs;
+    return *this << o.str();
+}
+
+Token & Token::operator<<(const unsigned int rhs){
     if (!own){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw integers to a token you don't own");
     }
