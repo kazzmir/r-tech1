@@ -104,6 +104,7 @@ public:
     void toString(std::ostream & stream, const std::string & space) const;
     /* no extra whitespace */
     void toStringCompact(std::ostream & stream) const;
+    std::string toStringCompact() const;
 
     /*
     bool match(const std::string & subject) const {
@@ -204,10 +205,11 @@ public:
     Token & operator>>( bool & rhs ) throw( TokenException );
     */
 
-    Token & operator<<( const std::string rhs );
-    Token & operator<<( const int rhs );
+    Token & operator<<(const std::string rhs);
+    Token & operator<<(const int rhs);
+    Token & operator<<(const unsigned int rhs);
     Token & operator<<(Token * token);
-    Token & operator<<( const double rhs );
+    Token & operator<<(const double rhs);
     
 protected:
     friend class TokenReader;
