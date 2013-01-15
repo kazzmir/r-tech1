@@ -810,10 +810,18 @@ int Configuration::screen_height = 480;
 #endif
 */
 
+#ifdef GCW0
+static int DefaultWidth = 320;
+static int DefaultHeight = 240;
+#else
+static int DefaultWidth = 640;
+static int DefaultHeight = 480;
+#endif
+
 /* TODO: All the screen width/height stuff shares a lot of code. Refactor */
 void Configuration::setScreenWidth(int i){
-    int width = 640;
-    int height = 480;
+    int width = DefaultWidth;
+    int height = DefaultHeight;
     Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
@@ -827,8 +835,8 @@ void Configuration::setScreenWidth(int i){
 }
 
 int Configuration::getScreenWidth(){
-    int width = 640;
-    int height = 480;
+    int width = DefaultWidth;
+    int height = DefaultHeight;
     Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
@@ -842,8 +850,8 @@ int Configuration::getScreenWidth(){
 }
 
 void Configuration::setScreenHeight(int i){
-    int width = 640;
-    int height = 480;
+    int width = DefaultWidth;
+    int height = DefaultHeight;
     Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
@@ -857,8 +865,8 @@ void Configuration::setScreenHeight(int i){
 }
 
 int Configuration::getScreenHeight(){
-    int width = 640;
-    int height = 480;
+    int width = DefaultWidth;
+    int height = DefaultHeight;
     Token * screen = getPropertyX(getRawData(), config_screen_size);
     if (screen != NULL){
         try{
