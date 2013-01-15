@@ -52,6 +52,7 @@ input/psp/joystick.cpp
 input/wii/joystick.cpp
 graphics/sdl/hqx.cpp
 graphics/sdl/xbr.cpp
+lz4/lz4.c
 system.cpp
 version.cpp
 compress.cpp
