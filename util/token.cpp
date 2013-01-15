@@ -536,7 +536,7 @@ Token::~Token(){
 }
 
 TokenMatcher::TokenMatcher(){
-    throw std::exception();
+    throw TokenException(__FILE__, __LINE__, "Cannot instantiate a token matcher");
 }
 
 TokenMatcher & TokenMatcher::operator=(const TokenMatcher & matcher){
