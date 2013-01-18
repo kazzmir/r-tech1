@@ -455,6 +455,7 @@ fps(0){
 }
 
 void Draw::drawFirst(const Graphics::Bitmap & screen){
+    draw(screen);
 }
 
 Draw::~Draw(){
