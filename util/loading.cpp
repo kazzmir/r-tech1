@@ -359,7 +359,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
             /* work already contains the correct background */
             // work.Blit( load_x, load_y, *Bitmap::Screen );
             // work.BlitToScreen();
-            work.BlitAreaToScreen(load_x, load_y);
+            // work.BlitAreaToScreen(load_x, load_y);
         }
     };
 
@@ -447,7 +447,7 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Info & levelIn
                 /* real circle */
                 work.circleFill(middleX + x, middleY + y, 2, colors[i]);
             }
-            work.BlitAreaToScreen(0, 0);
+            // work.BlitAreaToScreen(0, 0);
         }
     };
 

@@ -1510,7 +1510,7 @@ void Menu::Menu::run(const Context & parentContext){
                 menu.render(localContext, work);
                 work.finish();
 
-                buffer.BlitToScreen();
+                // buffer.BlitToScreen();
             }
         };
 

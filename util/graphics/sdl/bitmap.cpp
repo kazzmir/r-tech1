@@ -621,6 +621,7 @@ int setGraphicsMode(int mode, int width, int height){
         } else {
             Scaler->updateSize(width, height);
         }
+
         /*
         if ( width != 0 && height != 0 && (width != SCALE_X || height != SCALE_Y) ){
             Scaler = new Bitmap(width, height);
@@ -1042,6 +1043,7 @@ void Bitmap::BlitMasked( const int mx, const int my, const int width, const int 
 }
 
 void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const {
+#if 0
     if (getWidth() != Screen->getWidth() || getHeight() != Screen->getHeight()){
         /*
         this->Blit( upper_left_x, upper_left_y, *Buffer );
@@ -1054,6 +1056,8 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
     } else {
         this->Blit( upper_left_x, upper_left_y, *Screen );
     }
+#endif
+    this->Blit(upper_left_x, upper_left_y, *Screen);
 
     /*
     if ( Scaler == NULL ){
