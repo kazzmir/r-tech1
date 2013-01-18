@@ -175,12 +175,14 @@ void EventManager::runSDL(Keyboard & keyboard, map<int, ReferenceCount<Joystick>
                 /* to keep the perspective correct
                  * 640/480 = 1.33333
                  */
+                /*
                 double ratio = (double) 640 / (double) 480;
                 if (width > height){
                     height = (int)((double) width / ratio);
                 } else {
                     width = (int)((double) height * ratio);
                 }
+                */
                 dispatch(ResizeScreen, width, height);
                 break;
             }
@@ -499,12 +501,30 @@ static void checkFullscreen(){
     }
 }
 
+static Graphics::Bitmap blackBars(const Graphics::Bitmap & screen){
+    double width = screen.getWidth();
+    double height = screen.getHeight();
+
+    double ratio = (double) 640 / (double) 480;
+    width = (double) height * ratio;
+    if (width > screen.getWidth()){
+        width = screen.getWidth();
+        height = (int)((double) width / ratio);
+    }
+
+    int x = (screen.getWidth() - width) / 2;
+    int y = (screen.getHeight() - height) / 2;
+    return Graphics::Bitmap(screen, x, y, (int) width, (int) height);
+}
+
 static void doStandardLoop(Logic & logic, Draw & draw){
     if (Graphics::screenParameter.current() == NULL){
         throw Exception::Base(__FILE__, __LINE__);
     }
     const Graphics::Bitmap & screen = *Graphics::screenParameter.current();
-    draw.drawFirst(screen);
+    screen.clear();
+    draw.drawFirst(blackBars(screen));
+    screen.BlitToScreen();
     Global::speed_counter4 = 0;
     double runCounter = 0;
     try{
@@ -550,7 +570,8 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     frameCount += 1;
                     draw.updateFrames();
                     uint64_t now = System::currentMilliseconds();
-                    draw.draw(screen);
+                    draw.draw(blackBars(screen));
+                    screen.BlitToScreen();
                     uint64_t later = System::currentMilliseconds();
                     frameTime += (later - now);
 
@@ -568,7 +589,8 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     rest(1);
                 } else {
                     draw.updateFrames();
-                    draw.draw(screen);
+                    draw.draw(blackBars(screen));
+                    screen.BlitToScreen();
                 }
             }
         }

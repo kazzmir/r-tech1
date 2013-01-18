@@ -715,7 +715,7 @@ public:
         sequences[current].draw(title, color, work);
         work.finish();
         
-        buffer.BlitToScreen();
+        // buffer.BlitToScreen();
     }
     
 };
@@ -2636,7 +2636,7 @@ public:
 
         work.finish();
         
-        buffer.BlitToScreen();
+        // buffer.BlitToScreen();
 
         /*
         Util::ReferenceCount<FontInfo> font = context.getFont();
