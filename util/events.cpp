@@ -223,16 +223,21 @@ static void handleResize(const ALLEGRO_EVENT & event){
     /* to keep the perspective correct
      * 640/480 = 1.33333
      */
+    /*
     double ratio = (double) 640 / (double) 480;
     if (width > height){
         height = width / ratio;
     } else {
         width = height * ratio;
     }
+    */
     
     ALLEGRO_DISPLAY * display = event.display.source;
     al_acknowledge_resize(display);
     al_resize_display(display, (int) width, (int) height);
+    
+    Graphics::getScreenBuffer()->clear();
+
     /*
     ALLEGRO_TRANSFORM transformation;
     al_identity_transform(&transformation);
