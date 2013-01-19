@@ -512,10 +512,11 @@ static Graphics::Bitmap blackBars(const Graphics::Bitmap & screen){
     double height = screen.getHeight();
 
     double ratio = (double) 640 / (double) 480;
+
     width = (double) height * ratio;
     if (width > screen.getWidth()){
         width = screen.getWidth();
-        height = (int)((double) width / ratio);
+        height = width / ratio;
     }
 
     int x = (screen.getWidth() - width) / 2;
