@@ -485,6 +485,16 @@ Token & Token::operator<<(const unsigned int rhs){
     return *this << o.str();
 }
 
+Token & Token::operator<<(const uint64_t rhs){
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add raw integers to a token you don't own");
+    }
+
+    ostringstream o;
+    o << rhs;
+    return *this << o.str();
+}
+
 Token & Token::operator<<( const double rhs ){
     if (!own){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw doubles to a token you don't own");

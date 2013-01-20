@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <ostream>
+#include <stdint.h>
 #include "token_exception.h"
 
 class TokenReader;
@@ -207,6 +208,7 @@ public:
 
     Token & operator<<(const std::string rhs);
     Token & operator<<(const int rhs);
+    Token & operator<<(const uint64_t rhs);
     Token & operator<<(const unsigned int rhs);
     Token & operator<<(Token * token);
     Token & operator<<(const double rhs);
