@@ -616,6 +616,34 @@ TokenView & TokenView::operator>>(int & item){
     return *this;
 }
 
+TokenView & TokenView::operator>>(unsigned char & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    istringstream out(child->getName());
+    out >> item;
+    current++;
+    return *this;
+}
+
+TokenView & TokenView::operator>>(uint64_t & item){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    if (!child->isData()){
+        throw TokenException(__FILE__, __LINE__, "Token is not a datum");
+    }
+    istringstream out(child->getName());
+    out >> item;
+    current++;
+    return *this;
+}
+
 TokenView & TokenView::operator>>(unsigned int & item){
     if (current == tokens.end()){
         throw TokenException(__FILE__, __LINE__, "No more elements");
