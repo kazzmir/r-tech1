@@ -328,6 +328,8 @@ void Channel::addUsers(const std::vector<std::string> & list){
 Client::Client(const std::string & hostname, int port):
 previousUsername("AUTH"),
 username("AUTH"),
+previousChannel(0),
+currentChannel(0),
 hostname(hostname),
 port(port),
 end(false){
@@ -404,24 +406,57 @@ void Client::sendCommand(const Command::Type & type, const std::string & param1,
 void Client::setName(const std::string & name){
     previousUsername = username;
     // Update channel list
-    channel.removeUser(username);
-    channel.addUser(name);
+    //channel.removeUser(username);
+    //channel.addUser(name);
+    for (std::vector< ChannelPointer >::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
+        ChannelPointer activeChannel = *i;
+        activeChannel->removeUser(username);
+        activeChannel->addUser(name);
+    }
     username = name;
     sendCommand(Command::Nick, name);
 }
 
 void Client::joinChannel(const std::string & chan){
-    previousChannel = channel;
-    Channel newChannel(chan);
-    if (!channel.getName().empty()){
-        sendCommand(Command::Part, channel.getName());
+    for (std::vector< ChannelPointer >::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
+        ChannelPointer activeChannel = *i;
+        if (activeChannel->getName() == chan){
+            // Already belonging to this channel
+            return;
+        }
     }
-    channel = newChannel;
-    sendCommand(Command::Join, channel.getName());
+    previousChannel = currentChannel;
+    ChannelPointer newChannel = ChannelPointer(new Channel(chan));
+    /*if (!currentChannel.getName().empty()){
+        sendCommand(Command::Part, currentChannel.getName());
+    }*/
+    activeChannels.push_back(newChannel);
+    currentChannel = activeChannels.size()-1;
+    sendCommand(Command::Join, getChannel()->getName());
+}
+
+void Client::removeChannel(const std::string & name){
+    for (std::vector< ChannelPointer >::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
+        ChannelPointer activeChannel = *i;
+        if (activeChannel->getName() == name){
+            activeChannels.erase(i);
+            return;
+        }
+    }
+}
+
+ChannelPointer Client::findChannel(const std::string & name){
+    for (std::vector< ChannelPointer >::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
+        ChannelPointer activeChannel = *i;
+        if (activeChannel->getName() == name){
+            return activeChannel;
+        }
+    }
+    return ChannelPointer(NULL);
 }
 
 void Client::sendMessage(const std::string & msg){
-    sendCommand(Command::PrivateMessage, channel.getName(), ":" + msg);
+    sendCommand(Command::PrivateMessage, getChannel()->getName(), ":" + msg);
 }
 
 void Client::sendPong(const Command & ping){
@@ -462,9 +497,9 @@ void Client::checkResponseAndHandle(const Command & command){
     if (command.getType() == Command::ErrorNickInUse){
         ::Util::Thread::ScopedLock scope(lock);
         // Change the username back to what it was
-        channel.removeUser(username);
+        getChannel()->removeUser(username);
         username = previousUsername;
-        channel.addUser(username);
+        getChannel()->addUser(username);
     } else if (command.getType() == Command::ErrorBannedFromChannel ||
                command.getType() == Command::ErrorInviteOnlyChannel ||
                command.getType() == Command::ErrorBadChannelKey ||
@@ -472,24 +507,29 @@ void Client::checkResponseAndHandle(const Command & command){
                command.getType() == Command::ErrorNoSuchChannel){
         ::Util::Thread::ScopedLock scope(lock);
         // Revert old channel
-        channel = previousChannel;
+        removeChannel(getChannel()->getName());
+        currentChannel = previousChannel;
     } else if (command.getType() == Command::ReplyTopic){
         ::Util::Thread::ScopedLock scope(lock);
         // Set topic
-        channel.setTopic(command.getParameters().at(2));
+        getChannel()->setTopic(command.getParameters().at(2));
     } else if (command.getType() == Command::ReplyTopicAuthor){
         ::Util::Thread::ScopedLock scope(lock);
         // Set topic and author
         const std::vector<std::string> & params = command.getParameters();
-        channel.setTopicAuthor(split(params.at(1), '!').at(0), atoi(params.at(2).c_str()));
+        getChannel()->setTopicAuthor(split(params.at(1), '!').at(0), atoi(params.at(2).c_str()));
     } else if (command.getType() == Command::ReplyNames){
         // Add names
         const std::vector<std::string> & params = command.getParameters();
-        if (params.at(1) == channel.getName()){
+        //if (params.at(1) == currentChannel->getName()){
             const std::vector<std::string> & names = split(params.at(2), ' ');
             ::Util::Thread::ScopedLock scope(lock);
-            channel.addUsers(names);
-        }
+            //currentChannel->addUsers(names);
+            ChannelPointer update = findChannel(params.at(1));
+            if (update != NULL){
+                update->addUsers(names);
+            }
+        //}
     }
 }
 
