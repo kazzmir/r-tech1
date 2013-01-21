@@ -171,6 +171,9 @@ namespace IRC{
         uint64_t topicDate;
         std::vector<std::string> users;
     };
+    
+    // Channel ReferenceCount 
+    typedef Util::ReferenceCount<Channel> ChannelPointer;
 
     class Client : public Chat::Threadable{
     public:
@@ -201,8 +204,8 @@ namespace IRC{
         
         virtual void joinChannel(const std::string &);
         
-        virtual inline const Channel & getChannel() const {
-            return this->channel;
+        virtual inline ChannelPointer getChannel() const {
+            return this->activeChannels[this->currentChannel];
         }
         
         virtual void sendMessage(const std::string &);
@@ -210,6 +213,11 @@ namespace IRC{
         virtual void sendPong(const Command &);
         
     protected:
+        
+        void removeChannel(const std::string &);
+        
+        ChannelPointer findChannel(const std::string &);
+        
         std::string readMessage();
         
         //! Doesn't do anything to the command just handle some internal changes like username and channel stuff
@@ -218,8 +226,9 @@ namespace IRC{
         Network::Socket socket;
         std::string previousUsername;
         std::string username;
-        Channel previousChannel;
-        Channel channel;
+        unsigned int previousChannel;
+        unsigned int currentChannel;
+        std::vector< ChannelPointer > activeChannels;
         std::string hostname;
         int port;
         bool end;
