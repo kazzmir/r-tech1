@@ -11,27 +11,59 @@
 
 using namespace std;
 
+static bool needQuotes(const std::string & what){
+    /* ripped from tokenreader.cpp, maybe use a variable for nice sharing.. */
+    const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
+    for (unsigned int position = 0; position < what.size(); position++){
+        if (strchr(alpha, what[position]) == NULL){
+            return true;
+        }
+
+        /*
+        if (what[position] == '"' ||
+            what[position] == ' ' ||
+            (unsigned char) what[position] > 127){
+            return true;
+        }
+        */
+    }
+
+    return false;
+}
+
+/* put quotes around a string if there are spaces in it */
+static string quoteify(const string & rhs){
+    if (needQuotes(rhs)){
+        return string("\"") + rhs + string("\"");
+    }
+
+    return rhs;
+}
+
 Token::Token():
 num_token(1),
 parent( NULL ),
 own(true){
-	name = "HEAD";
+    name = "HEAD";
 }
 
-Token::Token( string tok, bool parse ):
+Token::Token(string tok, bool parse):
 num_token( 1 ),
 parent( NULL ),
 own(true){
+    /* legacy code, not used much */
+    if (!parse){
+        name = tok;
+        while (name.find(' ') == 0){
+            name.erase(0, 1);
+        }
 
-	/* legacy code, not used much */
-	if ( !parse ){
-		name = tok;
-		while ( name.find(' ' ) == 0 )
-			name.erase( 0, 1 );
-		// lowerCase( name );
-		return;
-	}
-	
+        /*
+        if (name.find(' ') != string::npos){
+            name = string("\"") + name + string("\"");
+        }
+        */
+    }
 }
     
 Token::Token(Token const & copy):
@@ -418,35 +450,6 @@ TokenView Token::view() const {
     return TokenView(out);
 }
 
-static bool needQuotes(const std::string & what){
-    /* ripped from tokenreader.cpp, maybe use a variable for nice sharing.. */
-    const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
-    for (unsigned int position = 0; position < what.size(); position++){
-        if (strchr(alpha, what[position]) == NULL){
-            return true;
-        }
-
-        /*
-        if (what[position] == '"' ||
-            what[position] == ' ' ||
-            (unsigned char) what[position] > 127){
-            return true;
-        }
-        */
-    }
-
-    return false;
-}
-
-/* put quotes around a string if there are spaces in it */
-static string quoteify(const string & rhs){
-    if (needQuotes(rhs)){
-        return "\"" + rhs + "\"";
-    }
-
-    return rhs;
-}
-
 Token & Token::operator<<(Token * token){
     if (!own){
         throw TokenException(__FILE__, __LINE__, "Cannot add tokens to a token you don't own");
@@ -460,7 +463,7 @@ Token & Token::operator<<( const string rhs ){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw strings to a token you don't own");
     }
 
-    Token * n = new Token(quoteify(rhs), false );
+    Token * n = new Token(quoteify(rhs), false);
     this->addToken(n);
     return *this;
 }
@@ -724,6 +727,15 @@ TokenView & TokenView::operator>>(const Token* & item){
     item = child;
     current++;
     return *this;
+}
+    
+const Token * TokenView::next(){
+    if (current == tokens.end()){
+        throw TokenException(__FILE__, __LINE__, "No more elements");
+    }
+    const Token * child = *current;
+    current++;
+    return child;
 }
 
 TokenException::TokenException(const std::string & file, int line, const std::string reason):

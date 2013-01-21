@@ -28,6 +28,8 @@ public:
     TokenView & operator>>(uint64_t & item);
     TokenView & operator>>(double & item);
     TokenView & operator>>(bool & item);
+
+    const Token * next();
         
 protected:
     std::vector<const Token*> tokens;
@@ -69,7 +71,7 @@ public:
 
     Token();
     Token(Token const & copy);
-    Token(std::string tok, bool parse = true);
+    Token(std::string tok, bool parse = false);
     virtual ~Token();
 
     /* add an existing token to the tree */
