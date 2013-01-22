@@ -113,8 +113,9 @@ bool noDelay(Socket s, bool b);
 void listen(Socket s) throw (NetworkException);
 Socket accept(Socket s) throw (NetworkException);
 
-Socket open(int port) throw (InvalidPortException);
-Socket connect( std::string server, int port ) throw (NetworkException);
+Socket openReliable(int port);
+Socket openUnreliable(int port);
+Socket connect(std::string server, int port) throw (NetworkException);
 void close(Socket);
 void closeAll();
 
