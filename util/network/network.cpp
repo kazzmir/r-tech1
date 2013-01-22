@@ -186,10 +186,28 @@ void readBytes(Socket socket, uint8_t * data, int length){
 
 Util::Thread::Lock socketsLock;
 
-Socket open(int port) throw (InvalidPortException){
+Socket openReliable(int port){
     // NLsocket server = nlOpen( port, NL_RELIABLE_PACKETS );
-    Global::debug(1, "network") << "Attemping to open port " << port << endl;
-    Socket server = nlOpen( port, NL_RELIABLE );
+    Global::debug(1, "network") << "Attemping to open reliable port " << port << endl;
+    Socket server = nlOpen(port, NL_RELIABLE);
+    /* server will either be NL_INVALID (-1) or some low integer. hawknl
+     * sockets are mapped internally to real sockets, so don't be surprised
+     * if you get a socket back like 0.
+     */
+    if (server == NL_INVALID){
+        throw InvalidPortException(port, nlGetSystemErrorStr(nlGetSystemError()));
+    }
+    Global::debug(1, "network") << "Successfully opened a socket: " << server << endl;
+    Util::Thread::acquireLock(&socketsLock);
+    open_sockets.push_back(server);
+    Util::Thread::releaseLock(&socketsLock);
+    return server;
+}
+
+Socket openUnreliable(int port){
+    // NLsocket server = nlOpen( port, NL_RELIABLE_PACKETS );
+    Global::debug(1, "network") << "Attemping to open unreliable port " << port << endl;
+    Socket server = nlOpen(port, NL_UNRELIABLE);
     /* server will either be NL_INVALID (-1) or some low integer. hawknl
      * sockets are mapped internally to real sockets, so don't be surprised
      * if you get a socket back like 0.
@@ -206,12 +224,16 @@ Socket open(int port) throw (InvalidPortException){
 
 Socket connect(string server, int port) throw (NetworkException){
     NLaddress address;
-    nlGetAddrFromName( server.c_str(), &address);
+    nlGetAddrFromName(server.c_str(), &address);
     nlSetAddrPort(&address, port);
-    Socket socket = open( 0 );
+    /* The port that this socket has opened will be immediately rebound to some
+     * other port by sock_connect, but we still need to call openReliable to get
+     * an NL_RELIABLE socket.
+     */
+    Socket socket = openReliable(0);
     if (nlConnect(socket, &address) == NL_FALSE){
         close(socket);
-        throw NetworkException( "Could not connect" );
+        throw NetworkException("Could not connect");
     }
     return socket;
 }

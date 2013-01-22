@@ -235,7 +235,7 @@ bool Client::isValid() const {
 
 Server::Server(int port):
 end(false){
-    remote = Network::open(port);
+    remote = Network::openReliable(port);
     Network::listen(remote);
     Global::debug(0) << "Waiting for a connection on port " << port << std::endl;
 }
