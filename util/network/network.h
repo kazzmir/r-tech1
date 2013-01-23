@@ -116,7 +116,7 @@ Socket accept(Socket s) throw (NetworkException);
 Socket openReliable(int port);
 Socket openUnreliable(int port);
 Socket connectReliable(std::string server, int port);
-Socket connectUnReliable(std::string server, int port);
+Socket connectUnreliable(std::string server, int port);
 void close(Socket);
 void closeAll();
 

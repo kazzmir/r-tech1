@@ -238,7 +238,7 @@ Socket connectReliable(string server, int port){
     return socket;
 }
 
-Socket connectUnReliable(string server, int port){
+Socket connectUnreliable(string server, int port){
     NLaddress address;
     nlGetAddrFromName(server.c_str(), &address);
     nlSetAddrPort(&address, port);
