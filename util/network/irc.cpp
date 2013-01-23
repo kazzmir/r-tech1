@@ -343,7 +343,7 @@ void Client::connect(){
         throw NetworkException("Set username first.");
     }
     Global::debug(0) << "Connecting to " << hostname << " on port " << port << std::endl;
-    socket = Network::connect(hostname, port);
+    socket = Network::connectReliable(hostname, port);
     start();
     setName("paintown-test");
     Command user("AUTH", Command::User);

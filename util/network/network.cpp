@@ -222,7 +222,7 @@ Socket openUnreliable(int port){
     return server;
 }
 
-Socket connect(string server, int port) throw (NetworkException){
+Socket connectReliable(string server, int port){
     NLaddress address;
     nlGetAddrFromName(server.c_str(), &address);
     nlSetAddrPort(&address, port);
@@ -237,6 +237,23 @@ Socket connect(string server, int port) throw (NetworkException){
     }
     return socket;
 }
+
+Socket connectUnReliable(string server, int port){
+    NLaddress address;
+    nlGetAddrFromName(server.c_str(), &address);
+    nlSetAddrPort(&address, port);
+    /* The port that this socket has opened will be immediately rebound to some
+     * other port by sock_connect, but we still need to call openReliable to get
+     * an NL_RELIABLE socket.
+     */
+    Socket socket = openUnreliable(0);
+    if (nlConnect(socket, &address) == NL_FALSE){
+        close(socket);
+        throw NetworkException("Could not connect");
+    }
+    return socket;
+}
+
 
 void close(Socket s){
     Util::Thread::acquireLock(&socketsLock);
