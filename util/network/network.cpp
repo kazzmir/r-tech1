@@ -311,7 +311,7 @@ void listen( Socket s ) throw( NetworkException ){
 }
 
 Socket accept( Socket s ) throw( NetworkException ){
-    Socket connection = nlAcceptConnection( s );
+    Socket connection = nlAcceptConnection(s);
     if ( connection == NL_INVALID ){
         /*
            if ( nlGetError() == NL_NO_PENDING ){
