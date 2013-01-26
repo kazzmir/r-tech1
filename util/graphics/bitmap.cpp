@@ -39,6 +39,10 @@ const int SPRITE_TRANS = 3;
 static inline int max(int a, int b){
     return a > b ? a : b;
 }
+    
+INTERNAL_COLOR Color::defaultColor(){
+    return makeColor(0, 0, 0).color;
+}
 	
 void initializeExtraStuff();
         

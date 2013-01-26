@@ -153,7 +153,7 @@ int AllegroFont::getSizeY() const {
     return 0;
 }
 
-void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
+void AllegroFont::printf( int x, int y, int xSize, int ySize, Graphics::Color color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
 
@@ -161,10 +161,10 @@ void AllegroFont::printf( int x, int y, int xSize, int ySize, int color, const G
     Util::limitPrintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
-    textout_ex(work.getData()->getBitmap(), getInternalFont(), buf, x, y, color, -1);
+    textout_ex(work.getData()->getBitmap(), getInternalFont(), buf, x, y, color.color, -1);
 }
 	
-void AllegroFont::printf( int x, int y, int color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
+void AllegroFont::printf( int x, int y, Graphics::Color color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
 
@@ -172,7 +172,7 @@ void AllegroFont::printf( int x, int y, int color, const Graphics::Bitmap & work
     uvszprintf(buf, sizeof(buf), str.c_str(), ap);
     va_end(ap);
 
-    textout_ex(work.getData()->getBitmap(), getInternalFont(), buf, x, y, color, -1);
+    textout_ex(work.getData()->getBitmap(), getInternalFont(), buf, x, y, color.color, -1);
 }
 #endif
 

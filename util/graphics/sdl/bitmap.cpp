@@ -70,7 +70,7 @@ static inline unsigned int multiplyBlender(unsigned int x, unsigned int y, unsig
     int r = redX * redY / 256;
     int g = greenX * greenY / 256;
     int b = blueX * blueY / 256;
-    return transBlender(makeColor(r, g, b), y, n);
+    return transBlender(makeColor(r, g, b).color, y, n);
 }
 
 static inline unsigned int alphaBlender(unsigned int x, unsigned int y, unsigned int n){
@@ -107,7 +107,7 @@ static inline unsigned int alphaBlender(unsigned int x, unsigned int y, unsigned
 
     // return transBlender(makeColor(r, g, b), y, dest);
 
-    return makeColor(r, g, b);
+    return makeColor(r, g, b).color;
     // return y;
 }
 
@@ -129,7 +129,7 @@ static inline unsigned int addBlender(unsigned int x, unsigned int y, unsigned i
     g = Util::min(g, 255);
     b = Util::min(b, 255);
 
-    return makeColor(r, g, b);
+    return makeColor(r, g, b).color;
 }
 
 static inline int iabs(int x){
@@ -161,7 +161,7 @@ static inline unsigned int differenceBlender(unsigned int x, unsigned int y, uns
     if (b < 0){
         b = 0;
     }
-    return transBlender(makeColor(r, g, b), y, n);
+    return transBlender(makeColor(r, g, b).color, y, n);
 }
 
 static inline unsigned int burnBlender(unsigned int x, unsigned int y, unsigned int n){
@@ -186,7 +186,7 @@ static inline unsigned int burnBlender(unsigned int x, unsigned int y, unsigned 
     if (b < 0){
         g = 0;
     }
-    return transBlender(makeColor(r, g, b), y, n);
+    return transBlender(makeColor(r, g, b).color, y, n);
 }
 
 static inline unsigned int noBlender(unsigned int a, unsigned int b, unsigned int c){
@@ -228,8 +228,8 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
 static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * src, long long x, long long y, Bitmap::Filter * filter);
 static void paintown_light16(SDL_Surface * dst, const int x, const int y, int width, int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
 
-int MaskColor(){
-    static int mask = makeColor(255, 0, 255);
+Color MaskColor(){
+    static Color mask = makeColor(255, 0, 255);
     return mask;
 }
 
@@ -473,32 +473,32 @@ int Bitmap::getHeight() const {
     return 0;
 }
 
-int getRed(int c){
+int getRed(Color c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
-    SDL_GetRGB(c, &format565, &red, &green, &blue);
+    SDL_GetRGB(c.color, &format565, &red, &green, &blue);
     return red;
 }
 
-int getBlue(int c){
+int getBlue(Color c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
-    SDL_GetRGB(c, &format565, &red, &green, &blue);
+    SDL_GetRGB(c.color, &format565, &red, &green, &blue);
     return blue;
 }
 
-int getGreen(int c){
+int getGreen(Color c){
     Uint8 red = 0;
     Uint8 green = 0;
     Uint8 blue = 0;
-    SDL_GetRGB(c, &format565, &red, &green, &blue);
+    SDL_GetRGB(c.color, &format565, &red, &green, &blue);
     return green;
 }
 
-int makeColor(int red, int blue, int green){
-    return SDL_MapRGB(&format565, red, blue, green);
+Color makeColor(int red, int blue, int green){
+    return Color(SDL_MapRGB(&format565, red, blue, green));
 }
 
 void initializeExtraStuff(){
@@ -786,27 +786,27 @@ static void doPutPixel(SDL_Surface * surface, int x, int y, int pixel, bool tran
 
 }
 
-void Bitmap::putPixel(int x, int y, int pixel) const {
+void Bitmap::putPixel(int x, int y, Color pixel) const {
     /* clip it */
     if (getData()->isClipped(x, y)){
         return;
     }
 
     SDL_Surface * surface = getData()->getSurface();
-    doPutPixel(surface, x, y, pixel, false);
+    doPutPixel(surface, x, y, pixel.color, false);
 }
 	
-void Bitmap::putPixelNormal(int x, int y, int col) const {
+void Bitmap::putPixelNormal(int x, int y, Color col) const {
     putPixel(x, y, col);
 }
     
-void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
+void TranslucentBitmap::putPixelNormal(int x, int y, Color color) const {
     if (getData()->isClipped(x, y)){
         return;
     }
     
     SDL_Surface * surface = getData()->getSurface();
-    doPutPixel(surface, x, y, color, true);
+    doPutPixel(surface, x, y, color.color, true);
 }
 	
 bool Bitmap::getError(){
@@ -814,31 +814,31 @@ bool Bitmap::getError(){
     return false;
 }
 
-void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
-    SPG_Rect(getData()->getSurface(), x1, y1, x2, y2, color);
+void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color) const {
+    SPG_Rect(getData()->getSurface(), x1, y1, x2, y2, color.color);
 }
 
-void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, Color color) const {
     int alpha = globalBlend.alpha;
-    SPG_RectBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
+    SPG_RectBlend(getData()->getSurface(), x1, y1, x2, y2, color.color, alpha);
 }
 
-void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const {
-    SPG_RectFilled(getData()->getSurface(), x1, y1, x2, y2, color);
+void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color) const {
+    SPG_RectFilled(getData()->getSurface(), x1, y1, x2, y2, color.color);
 }
 
-void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, int color) const {
+void TranslucentBitmap::rectangleFill(int x1, int y1, int x2, int y2, Color color) const {
     int alpha = globalBlend.alpha;
-    SPG_RectFilledBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
+    SPG_RectFilledBlend(getData()->getSurface(), x1, y1, x2, y2, color.color, alpha);
 }
     
-void TranslucentBitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
+void TranslucentBitmap::ellipseFill( int x, int y, int rx, int ry, Color color) const {
     int alpha = globalBlend.alpha;
-    SPG_EllipseFilledBlend(getData()->getSurface(), x, y, rx, ry, color, alpha);
+    SPG_EllipseFilledBlend(getData()->getSurface(), x, y, rx, ry, color.color, alpha);
 }
 
-void Bitmap::circleFill(int x, int y, int radius, int color) const {
-    SPG_CircleFilled(getData()->getSurface(), x, y, radius, color);
+void Bitmap::circleFill(int x, int y, int radius, Color color) const {
+    SPG_CircleFilled(getData()->getSurface(), x, y, radius, color.color);
 
     /*
     if (Graphics::drawingMode == MODE_SOLID){
@@ -850,17 +850,17 @@ void Bitmap::circleFill(int x, int y, int radius, int color) const {
     */
 }
 
-void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
+void TranslucentBitmap::circleFill(int x, int y, int radius, Color color) const {
     int alpha = globalBlend.alpha;
-    SPG_CircleFilledBlend(getData()->getSurface(), x, y, radius, color, alpha);
+    SPG_CircleFilledBlend(getData()->getSurface(), x, y, radius, color.color, alpha);
 }
 
-void Bitmap::circle(int x, int y, int radius, int color) const {
+void Bitmap::circle(int x, int y, int radius, Color color) const {
     // Uint8 red, green, blue;
     // SDL_GetRGB(color, getData().getSurface()->format, &red, &green, &blue);
     // int alpha = 255;
     
-    SPG_Circle(getData()->getSurface(), x, y, radius, color);
+    SPG_Circle(getData()->getSurface(), x, y, radius, color.color);
     /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Circle(getData()->getSurface(), x, y, radius, color);
@@ -874,15 +874,15 @@ void Bitmap::circle(int x, int y, int radius, int color) const {
 }
 
 extern "C" unsigned short spg_thickness;
-void Bitmap::circle(int x, int y, int radius, int thickness, int color) const {
+void Bitmap::circle(int x, int y, int radius, int thickness, Color color) const {
     int old = spg_thickness;
     spg_thickness = thickness;
-    SPG_Circle(getData()->getSurface(), x, y, radius, color);
+    SPG_Circle(getData()->getSurface(), x, y, radius, color.color);
     spg_thickness = old;
 }
 
-void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const {
-    SPG_Line(getData()->getSurface(), x1, y1, x2, y2, color);
+void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const Color color) const {
+    SPG_Line(getData()->getSurface(), x1, y1, x2, y2, color.color);
     /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Line(getData().getSurface(), x1, y1, x2, y2, color);
@@ -893,9 +893,9 @@ void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const
     */
 }
 
-void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const int color ) const {
+void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const Color color ) const {
     int alpha = globalBlend.alpha;
-    SPG_LineBlend(getData()->getSurface(), x1, y1, x2, y2, color, alpha);
+    SPG_LineBlend(getData()->getSurface(), x1, y1, x2, y2, color.color, alpha);
 }
 
 void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
@@ -967,7 +967,7 @@ void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter,co
 void Bitmap::drawStretched( const int x, const int y, const int new_width, const int new_height, const Bitmap & who ) const {
 
     if (getData()->getSurface() != NULL){
-        SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, makeColor(255, 0, 255));
+        SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor().color);
 
         SDL_Surface * src = getData()->getSurface();
         SDL_Surface * dst = who.getData()->getSurface();
@@ -1018,7 +1018,7 @@ static void doBlit(SDL_Surface * mine, const int mx, const int my, const int wid
 }
 
 void Bitmap::Blit( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-    SDL_SetColorKey(getData()->getSurface(), 0, MaskColor());
+    SDL_SetColorKey(getData()->getSurface(), 0, MaskColor().color);
     doBlit(getData()->getSurface(), mx, my, width, height, wx, wy, where);
 
     /* FIXME: this is a hack, maybe put a call here for the other bitmap to update stuff
@@ -1030,7 +1030,7 @@ void Bitmap::Blit( const int mx, const int my, const int width, const int height
 }
 
 void Bitmap::BlitMasked( const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where ) const {
-    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor().color);
 
     doBlit(getData()->getSurface(),mx, my, width, height, wx, wy, where);
 
@@ -1288,9 +1288,9 @@ void Bitmap::save(const std::string & str) const {
     IMG_SavePNG(str.c_str(), getData()->getSurface(), IMG_COMPRESS_DEFAULT);
 }
 	
-void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const {
+void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const {
 
-    SPG_TrigonFilled(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color);
+    SPG_TrigonFilled(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color.color);
     /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_TrigonFilled(getData()->getSurface(), x1, y1, x2, y2, x3, y3, color);
@@ -1301,8 +1301,8 @@ void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color
     */
 }
 
-void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
-    SPG_Ellipse(getData()->getSurface(), x, y, rx, ry, color);
+void Bitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
+    SPG_Ellipse(getData()->getSurface(), x, y, rx, ry, color.color);
     /*
     if (Graphics::drawingMode == MODE_SOLID){
         SPG_Ellipse(getData()->getSurface(), x, y, rx, ry, color);
@@ -1313,25 +1313,25 @@ void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
     */
 }
 
-void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
+void TranslucentBitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
     int alpha = globalBlend.alpha;
-    SPG_EllipseBlend(getData()->getSurface(), x, y, rx, ry, color, alpha);
+    SPG_EllipseBlend(getData()->getSurface(), x, y, rx, ry, color.color, alpha);
 }
 
-void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
-    SPG_EllipseFilled(getData()->getSurface(), x, y, rx, ry, color);
+void Bitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
+    SPG_EllipseFilled(getData()->getSurface(), x, y, rx, ry, color.color);
 }
 
-void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
-    paintown_light16(getData()->getSurface(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, Color focus_color, Color edge_color) const {
+    paintown_light16(getData()->getSurface(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color.color, edge_color.color);
 }
 
-void Bitmap::applyTrans(const int color) const {
-    paintown_applyTrans16(getData()->getSurface(), color);
+void Bitmap::applyTrans(const Color color) const {
+    paintown_applyTrans16(getData()->getSurface(), color.color);
 }
 	
-void Bitmap::floodfill( const int x, const int y, const int color ) const {
-    SPG_FloodFill(getData()->getSurface(), x, y, color);
+void Bitmap::floodfill( const int x, const int y, const Color color ) const {
+    SPG_FloodFill(getData()->getSurface(), x, y, color.color);
 }
 
 /*
@@ -1340,26 +1340,26 @@ void Bitmap::horizontalLine( const int x1, const int y, const int x2, const int 
 }
 */
 
-void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
-    SPG_LineH(getData()->getSurface(), x1, y, x2, color);
+void Bitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
+    SPG_LineH(getData()->getSurface(), x1, y, x2, color.color);
 }
 
-void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const {
+void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
     int alpha = globalBlend.alpha;
-    SPG_LineHBlend(getData()->getSurface(), x1, y, x2, color, alpha);
+    SPG_LineHBlend(getData()->getSurface(), x1, y, x2, color.color, alpha);
 }
 
-void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const {
-    SPG_LineV(getData()->getSurface(), x, y1, y2, color);
+void Bitmap::vLine( const int y1, const int x, const int y2, const Color color ) const {
+    SPG_LineV(getData()->getSurface(), x, y1, y2, color.color);
 }
 	
-void Bitmap::polygon( const int * verts, const int nverts, const int color ) const {
+void Bitmap::polygon( const int * verts, const int nverts, const Color color ) const {
     SPG_Point * points = new SPG_Point[nverts];
     for (int i = 0; i < nverts; i++){
         points[i].x = verts[i*2];
         points[i].y = verts[i*2+1];
     }
-    SPG_PolygonFilled(getData()->getSurface(), nverts, points, color);
+    SPG_PolygonFilled(getData()->getSurface(), nverts, points, color.color);
     delete[] points;
 }
 
@@ -1373,31 +1373,31 @@ static double toDegrees(double radians){
 static const double arcPhase = -Util::pi / 2;
 
 /* 0 = right. pi/2 = up. pi = left. 3pi/2 = down */
-void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    SPG_Arc(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
+void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
+    SPG_Arc(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color.color);
 }
 
-void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
-    SPG_ArcFilled(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color);
+void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
+    SPG_ArcFilled(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color.color);
 }
 
-void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     int alpha = globalBlend.alpha;
-    SPG_ArcBlend(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
+    SPG_ArcBlend(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color.color, alpha);
 }
 
-void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     int alpha = globalBlend.alpha;
-    SPG_ArcFilledBlend(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color, alpha);
+    SPG_ArcFilledBlend(getData()->getSurface(), x, y, radius, toDegrees(ang1 + arcPhase), toDegrees(ang2 + arcPhase), color.color, alpha);
 }
 
-void Bitmap::fill(int color) const {
+void Bitmap::fill(Color color) const {
     SDL_Rect area;
     area.x = 0;
     area.y = 0;
     area.w = getWidth();
     area.h = getHeight();
-    SDL_FillRect(getData()->getSurface(), &area, color);
+    SDL_FillRect(getData()->getSurface(), &area, color.color);
 }
 
 /*
@@ -1408,12 +1408,12 @@ void TranslucentBitmap::fill(int color) const {
 
 
 
-void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
+void Bitmap::drawCharacter( const int x, const int y, const Color color, const int background, const Bitmap & where ) const {
     /* TODO */
 }
 
 void Bitmap::drawRotate( const int x, const int y, const int angle, const Bitmap & where ){
-    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor().color);
     SDL_Surface * src = getData()->getSurface();
     SDL_Surface * dst = where.getData()->getSurface();
     SPG_TransformX(src, dst, angle, 1, 1, 0, 0, x, y, SPG_TCOLORKEY);
@@ -1425,21 +1425,21 @@ static int fixAngle(int angle){
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const Bitmap & where ){
-    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor().color);
     SDL_Surface * src = getData()->getSurface();
     SDL_Surface * dst = where.getData()->getSurface();
     SPG_TransformX(src, dst, fixAngle(angle), 1, 1, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
 
 void Bitmap::drawPivot( const int centerX, const int centerY, const int x, const int y, const int angle, const double scale, const Bitmap & where ){
-    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor());
+    SDL_SetColorKey(getData()->getSurface(), SDL_SRCCOLORKEY, MaskColor().color);
     SDL_Surface * src = getData()->getSurface();
     SDL_Surface * dst = where.getData()->getSurface();
     SPG_TransformX(src, dst, angle, scale, scale, centerX, centerY, x, y, SPG_TCOLORKEY);
 }
         
 void Bitmap::replaceColor(const Color & original, const Color & replaced){
-    paintown_replace16(getData()->getSurface(), original, replaced);
+    paintown_replace16(getData()->getSurface(), original.color, replaced.color);
 }
 
 static SDL_Color pcxMaskColor(unsigned char * data, const int length){
@@ -1687,7 +1687,7 @@ Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask){
         SDL_Color color = pcx->format->palette->colors[pcx->format->colorkey];
 #endif
 
-        int bad = makeColor(color.r, color.g, color.b);
+        Color bad = makeColor(color.r, color.g, color.b);
         out.set8BitMaskColor(bad);
         // int mask = MaskColor();
         // out.replaceColor(bad, mask);
@@ -1700,11 +1700,11 @@ Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask){
     return out;
 }
 	
-int Bitmap::getPixel( const int x, const int y ) const {
-    return SPG_GetPixel(getData()->getSurface(), x, y);
+Color Bitmap::getPixel( const int x, const int y ) const {
+    return Color(SPG_GetPixel(getData()->getSurface(), x, y));
 }
 	
-void Bitmap::readLine( std::vector< int > & line, int y ){
+void Bitmap::readLine( std::vector<Color> & line, int y ){
     for (int x = 0; x < getWidth(); x++){
         line.push_back(getPixel(x, y));
     }
@@ -1786,7 +1786,7 @@ static void paintown_applyTrans16(SDL_Surface * dst, const int color){
     x2 = dst->clip_rect.x + dst->clip_rect.w;
 
     int bpp = dst->format->BytesPerPixel;
-    unsigned int mask = makeColor(255, 0, 255);
+    unsigned int mask = MaskColor().color;
     for (int y = y1; y < y2; y++) {
         Uint8 * sourceLine = computeOffset(dst, x1, y);
 
@@ -1987,7 +1987,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
             return;
     }
 
-    unsigned int mask = makeColor(255, 0, 255);
+    unsigned int mask = MaskColor().color;
     int bpp = src->format->BytesPerPixel;
     for (y = 0; y < h; y++) {
         Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
@@ -1996,7 +1996,7 @@ static void paintown_draw_sprite_filter_ex16(SDL_Surface * dst, SDL_Surface * sr
         for (x = w - 1; x >= 0; sourceLine += bpp, destLine += bpp * x_dir, x--) {
             unsigned long sourcePixel = *(Uint16*) sourceLine;
             if (!(sourcePixel == mask)){
-                *(Uint16 *)destLine = filter->filter(sourcePixel);
+                *(Uint16 *)destLine = filter->filter(Color(sourcePixel)).color;
             } else {
                 *(Uint16 *)destLine = mask;
             }
@@ -2177,7 +2177,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
 
         switch (mode){
             case SPRITE_NORMAL : {
-                unsigned int mask = makeColor(255, 0, 255);
+                unsigned int mask = MaskColor().color;
                 int bpp = src->format->BytesPerPixel;
                 for (y = 0; y < h; y++) {
                     Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
@@ -2189,7 +2189,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
                             // unsigned int destPixel = *(Uint16*) destLine;
                             // sourcePixel = globalBlend.currentBlender(destPixel, sourcePixel, globalBlend.alpha);
                             if (filter != NULL){
-                                *(Uint16 *)destLine = filter->filter(sourcePixel);
+                                *(Uint16 *)destLine = filter->filter(Color(sourcePixel)).color;
                             } else {
                                 *(Uint16 *)destLine = sourcePixel;
                             }
@@ -2200,8 +2200,8 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
              }
              case SPRITE_LIT : {
                 int bpp = src->format->BytesPerPixel;
-                int litColor = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
-                unsigned int mask = makeColor(255, 0, 255);
+                int litColor = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue).color;
+                unsigned int mask = MaskColor().color;
                 for (y = 0; y < h; y++) {
                     Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
                     Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
@@ -2211,7 +2211,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
                         if (!(sourcePixel == mask)){
                             // unsigned int destPixel = *(Uint16*) destLine;
                             if (filter != NULL){
-                                sourcePixel = globalBlend.currentBlender(litColor, filter->filter(sourcePixel), globalBlend.alpha);
+                                sourcePixel = globalBlend.currentBlender(litColor, filter->filter(Color(sourcePixel)).color, globalBlend.alpha);
                                 *(Uint16 *)destLine = sourcePixel;
                             } else {
                                 sourcePixel = globalBlend.currentBlender(litColor, sourcePixel, globalBlend.alpha);
@@ -2224,7 +2224,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
             }
             case SPRITE_TRANS : {
                 int bpp = src->format->BytesPerPixel;
-                unsigned int mask = makeColor(255, 0, 255);
+                unsigned int mask = MaskColor().color;
                 for (y = 0; y < h; y++) {
                     Uint8 * sourceLine = computeOffset(src, sxbeg, sybeg + y);
                     Uint8 * destLine = computeOffset(dst, dxbeg, dybeg + y * y_dir);
@@ -2234,7 +2234,7 @@ static void paintown_draw_sprite_ex16(SDL_Surface * dst, SDL_Surface * src, long
                         if (!(sourcePixel == mask)){
                             unsigned int destPixel = *(Uint16*) destLine;
                             if (filter != NULL){
-                                sourcePixel = globalBlend.currentBlender(filter->filter(sourcePixel), destPixel, globalBlend.alpha);
+                                sourcePixel = globalBlend.currentBlender(filter->filter(Color(sourcePixel)).color, destPixel, globalBlend.alpha);
                                 *(Uint16 *)destLine = sourcePixel;
                             } else {
                                 sourcePixel = globalBlend.currentBlender(sourcePixel, destPixel, globalBlend.alpha);
@@ -2299,11 +2299,11 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
     int dxbeg = x - width;
     int x_dir = 1;
     unsigned char * alphas = new unsigned char[width];
-    int * colors = new int[width];
+    Color * colors = new Color[width];
     for (int i = 0; i < width; i++){
         alphas[i] = (unsigned char)((double)(edge_alpha - focus_alpha) * (double)i / (double)width + focus_alpha);
     }
-    blend_palette(colors, width, focus_color, edge_color);
+    blend_palette(colors, width, Color(focus_color), Color(edge_color));
 
     if (SDL_MUSTLOCK(dst)){
         SDL_LockSurface(dst);
@@ -2346,7 +2346,7 @@ static void paintown_light16(SDL_Surface * dst, const int x, const int y, int wi
              */
             int sx_abs = (int) fabs((double) sx);
             int alphaUse = alphas[sx_abs];
-            int color = colors[sx_abs];
+            int color = colors[sx_abs].color;
 
             c = globalBlend.currentBlender(color, c, alphaUse);
 

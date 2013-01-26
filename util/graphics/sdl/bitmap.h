@@ -40,7 +40,7 @@ struct BitmapData{
     bool destroy;
 };
 
-typedef int Color;
+typedef int INTERNAL_COLOR;
 }
 
 #include "../software-renderer/bitmap.h"
