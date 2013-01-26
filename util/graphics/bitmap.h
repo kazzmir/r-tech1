@@ -18,6 +18,8 @@
 #include "allegro5/bitmap.h"
 #endif
 
+#include "color.h"
+
 #if !defined(USE_ALLEGRO) && !defined(USE_SDL) && !defined(USE_ALLEGRO5)
 #error No backend specified. Define one of USE_ALLEGRO, USE_SDL, or USE_ALLEGRO5
 #endif
@@ -27,6 +29,38 @@ namespace Storage{
 }
 
 namespace Graphics{
+
+class Color{
+public:
+    explicit Color(const INTERNAL_COLOR & color):
+    color(color){
+    }
+
+    static INTERNAL_COLOR defaultColor();
+
+    Color():
+    color(defaultColor()){
+    }
+
+    Color & operator=(const Color & him){
+        this->color = him.color;
+        return *this;
+    }
+
+    bool operator==(const Color & him) const {
+        return color == him.color;
+    }
+
+    bool operator!=(const Color & him) const {
+        return !(*this == him);
+    }
+
+    bool operator<(const Color & him) const {
+        return this->color < him.color;
+    }
+
+    INTERNAL_COLOR color;
+};
 
 enum ImageFormat{
     FormatPNG,
@@ -259,7 +293,7 @@ public:
 	virtual void ellipse( int x, int y, int rx, int ry, Color color ) const;
 	virtual void ellipseFill( int x, int y, int rx, int ry, Color color ) const;
 
-        virtual void light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, Color edge_color) const;
+        virtual void light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, Color focus_color, Color edge_color) const;
         virtual void applyTrans(const Color color) const;
 
 	virtual void border( int min, int max, Color color ) const;
@@ -285,7 +319,7 @@ public:
 	virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
 	virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, Filter * filter, const Bitmap & where) const;
-	virtual void drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const;
+	virtual void drawCharacter( const int x, const int y, const Color color, const int background, const Bitmap & where ) const;
 
         /* flip horizontally */
 	virtual void drawHFlip(const int x, const int y, const Bitmap & where) const;
@@ -451,7 +485,7 @@ public:
          *  g = c1.g + c2.g
          *  b = c1.b + c2.b
 	 */
-	static int addColor( int color1, int color2 );
+	static Color addColor( Color color1, Color color2 );
 
 	/*
 	inline static int makeColor( int r, int g, int b ){

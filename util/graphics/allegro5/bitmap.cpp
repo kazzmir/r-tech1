@@ -31,14 +31,14 @@ static BlendingData globalBlend;
 // Util::Thread::LockObject * allegroLock;
 
 Color makeColorAlpha(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha){
-    return al_map_rgba(red, green, blue, alpha);
+    return Color(al_map_rgba(red, green, blue, alpha));
 }
 
 Color MaskColor(){
     static Color mask = makeColorAlpha(0, 0, 0, 0);
     return mask;
 }
-
+    
 Color getBlendColor(){
     /* sort of a hack */
     if (globalBlend.type == Multiply){
@@ -49,7 +49,7 @@ Color getBlendColor(){
 
 Color doTransBlend(const Color & color, int alpha){
     unsigned char red, green, blue;
-    al_unmap_rgb(color, &red, &green, &blue);
+    al_unmap_rgb(color.color, &red, &green, &blue);
     return makeColorAlpha(red, green, blue, alpha);
     /*
     red *= alpha_f;
@@ -222,7 +222,7 @@ void changeTarget(const Bitmap * from, const Bitmap * who){
 
 void dumpColor(const Color & color){
     unsigned char red, green, blue, alpha;
-    al_unmap_rgba(color, &red, &green, &blue, &alpha);
+    al_unmap_rgba(color.color, &red, &green, &blue, &alpha);
     Global::debug(0) << "red " << (int) red << " green " << (int) green << " blue " << (int) blue << " alpha " << (int) alpha << std::endl;
 }
 
@@ -270,7 +270,7 @@ void Bitmap::replaceColor(const Color & original, const Color & replaced){
         for (int y = 0; y < height; y++){
             Color pixel = getPixel(x, y);
             if (pixel == original){
-                al_put_pixel(x, y, replaced);
+                al_put_pixel(x, y, replaced.color);
             }
         }
     }
@@ -437,24 +437,24 @@ int Bitmap::getWidth() const {
 
 int getRed(Color color){
     unsigned char red, green, blue;
-    al_unmap_rgb(color, &red, &green, &blue);
+    al_unmap_rgb(color.color, &red, &green, &blue);
     return red;
 }
 
 int getGreen(Color color){
     unsigned char red, green, blue;
-    al_unmap_rgb(color, &red, &green, &blue);
+    al_unmap_rgb(color.color, &red, &green, &blue);
     return green;
 }
 
 int getBlue(Color color){
     unsigned char red, green, blue;
-    al_unmap_rgb(color, &red, &green, &blue);
+    al_unmap_rgb(color.color, &red, &green, &blue);
     return blue;
 }
 
 Color makeColor(int red, int blue, int green){
-    return al_map_rgb(red, blue, green);
+    return Color(al_map_rgb(red, blue, green));
 }
 
 int Bitmap::getHeight() const {
@@ -548,13 +548,13 @@ void Bitmap::unlock() const {
 
 Color Bitmap::getPixel(const int x, const int y) const {
     // changeTarget(this, this);
-    return al_get_pixel(getData()->getBitmap(), x, y);
+    return Color(al_get_pixel(getData()->getBitmap(), x, y));
 }
 
 void Bitmap::putPixel(int x, int y, Color pixel) const {
     changeTarget(this, this);
     // al_put_pixel(x, y, pixel);
-    al_draw_pixel(x, y, pixel);
+    al_draw_pixel(x, y, pixel.color);
 }
 
 void Bitmap::putPixelNormal(int x, int y, Color col) const {
@@ -563,7 +563,7 @@ void Bitmap::putPixelNormal(int x, int y, Color col) const {
 
 void Bitmap::fill(Color color) const {
     changeTarget(this, this);
-    al_clear_to_color(color);
+    al_clear_to_color(color.color);
 }
 
 void Bitmap::startDrawing() const {
@@ -591,7 +591,7 @@ Color Bitmap::blendColor(const Color & input) const {
 Color TranslucentBitmap::blendColor(const Color & color) const {
     unsigned char red, green, blue;
     unsigned char alpha = globalBlend.alpha;
-    al_unmap_rgb(color, &red, &green, &blue);
+    al_unmap_rgb(color.color, &red, &green, &blue);
     return makeColorAlpha(red, green, blue, alpha);
 }
 
@@ -800,7 +800,7 @@ void Bitmap::vLine(const int y1, const int x, const int y2, const Color color) c
 
 void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     changeTarget(this, this);
-    al_draw_arc(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color, 1);
+    al_draw_arc(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color.color, 1);
 }
 
 void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
@@ -843,7 +843,7 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
 
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     changeTarget(this, this);
-    al_draw_filled_pieslice(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color);
+    al_draw_filled_pieslice(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color.color);
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
@@ -856,7 +856,7 @@ void Bitmap::floodfill( const int x, const int y, const Color color ) const {
 }
 
 void Bitmap::line(const int x1, const int y1, const int x2, const int y2, const Color color) const {
-    al_draw_line(x1, y1, x2, y2, color, 1.5);
+    al_draw_line(x1, y1, x2, y2, color.color, 1.5);
 }
 
 void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const Color color) const {
@@ -866,32 +866,32 @@ void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int
 
 void Bitmap::circleFill(int x, int y, int radius, Color color) const {
     changeTarget(this, this);
-    al_draw_filled_circle(x, y, radius, color);
+    al_draw_filled_circle(x, y, radius, color.color);
 }
 
 void Bitmap::circle(int x, int y, int radius, Color color) const {
     changeTarget(this, this);
-    al_draw_circle(x, y, radius, color, 0);
+    al_draw_circle(x, y, radius, color.color, 0);
 }
 
 void Bitmap::circle(int x, int y, int radius, int thickness, Color color) const {
     changeTarget(this, this);
-    al_draw_circle(x, y, radius, color, thickness);
+    al_draw_circle(x, y, radius, color.color, thickness);
 }
 
 void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
     changeTarget(this, this);
-    al_draw_rectangle(x1, y1, x2, y2, color, 0);
+    al_draw_rectangle(x1, y1, x2, y2, color.color, 0);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const {
     changeTarget(this, this);
-    al_draw_filled_rectangle(x1 - 0.5, y1 - 0.5, x2 + 0.5, y2 + 0.5, color);
+    al_draw_filled_rectangle(x1 - 0.5, y1 - 0.5, x2 + 0.5, y2 + 0.5, color.color);
 }
 
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const {
     changeTarget(this, this);
-    al_draw_filled_triangle(x1, y1, x2, y2, x3, y3, color);
+    al_draw_filled_triangle(x1, y1, x2, y2, x3, y3, color.color);
 }
 
 void Bitmap::polygon( const int * verts, const int nverts, const Color color ) const {
@@ -900,25 +900,25 @@ void Bitmap::polygon( const int * verts, const int nverts, const Color color ) c
 
 void Bitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
     changeTarget(this, this);
-    al_draw_ellipse(x, y, rx, ry, color, 0);
+    al_draw_ellipse(x, y, rx, ry, color.color, 0);
 }
 
 void Bitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
     changeTarget(this, this);
-    al_draw_filled_ellipse(x, y, rx, ry, color);
+    al_draw_filled_ellipse(x, y, rx, ry, color.color);
 }
 
 void Bitmap::applyTrans(const Color color) const {
     TransBlender blender;
     changeTarget(this, this);
-    al_draw_filled_rectangle(0, 0, getWidth(), getHeight(), transBlendColor(color));
+    al_draw_filled_rectangle(0, 0, getWidth(), getHeight(), transBlendColor(color).color);
 }
 
-void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, Color edge_color) const {
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, Color focus_color, Color edge_color) const {
     /* TODO */
 }
 
-void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
+void Bitmap::drawCharacter( const int x, const int y, const Color color, const int background, const Bitmap & where ) const {
     /* TODO */
 }
 
@@ -933,7 +933,7 @@ void Bitmap::readLine(std::vector<Color> & line, int y){
 void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
     changeTarget(this, where);
     TransBlender blender;
-    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor(), x, y, 0);
+    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, 0);
 }
 
 void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
@@ -975,7 +975,7 @@ void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bit
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
     changeTarget(this, where);
     TransBlender blender;
-    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor(), x, y, 0);
+    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, 0);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
@@ -1213,7 +1213,7 @@ static inline bool close(float x, float y){
     return fabs(x - y) < epsilon;
 }
 
-static inline bool sameColor(Graphics::Color color1, Graphics::Color color2){
+static inline bool sameColor(const ALLEGRO_COLOR & color1, const ALLEGRO_COLOR & color2){
     // return memcmp(&color1, &color2, sizeof(Graphics::Color)) == 0;
     float r1, g1, b1, a1;
     float r2, g2, b2, a2;

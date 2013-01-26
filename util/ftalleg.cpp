@@ -239,7 +239,7 @@ namespace ftalleg{
 
         /* for setting the blend state and whatnot */
         bmp.startDrawing();
-        al_draw_text(currentVideoFont(), bmp.blendColor(color), x, y, 0, fixedText.c_str());
+        al_draw_text(currentVideoFont(), bmp.blendColor(color).color, x, y, 0, fixedText.c_str());
         bmp.endDrawing();
     }
 #else

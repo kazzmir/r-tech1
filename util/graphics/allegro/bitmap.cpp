@@ -54,11 +54,11 @@ static int SCALE_Y;
 
 static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int dy, int mode, int flip, Bitmap::Filter * filter);
 static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int x, int y, const Bitmap::Filter & filter);
-static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color);
-static void paintown_applyTrans16(BITMAP * dst, const int color);
+static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const Color focus_color, const Color edge_color);
+static void paintown_applyTrans16(BITMAP * dst, const Color color);
 
-int MaskColor(){
-    return MASK_COLOR_16;
+Color MaskColor(){
+    return Color(MASK_COLOR_16);
 }
 
 static Bitmap * Scaler = NULL;
@@ -433,7 +433,7 @@ Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask){
     int maskR = (int)data[length - colors*3 + 0];
     int maskG = (int)data[length - colors*3 + 1];
     int maskB = (int)data[length - colors*3 + 2];
-    int maskColor = makeColor(maskR, maskG, maskB);
+    Color maskColor = makeColor(maskR, maskG, maskB);
 
 
 #if 0
@@ -486,16 +486,16 @@ int Bitmap::getHeight() const{
 	return getData()->getBitmap()->h;
 }
 	
-int getRed( int x ){
-	return ::getr( x );
+int getRed( Color x ){
+	return ::getr( x.color );
 }
 
-int getBlue( int x ){
-	return ::getb( x );
+int getBlue( Color x ){
+	return ::getb( x.color );
 }
 
-int getGreen( int x ){
-	return ::getg( x );
+int getGreen( Color x ){
+	return ::getg( x.color );
 }
 
 void Bitmap::setClipRect( int x1, int y1, int x2, int y2 ) const {
@@ -566,41 +566,41 @@ void Bitmap::release(){
 	release_bitmap( getData()->getBitmap() );
 }
 
-void Bitmap::circleFill( int x, int y, int radius, int color ) const {
-	::circlefill( getData()->getBitmap(), x, y, radius, color );
+void Bitmap::circleFill( int x, int y, int radius, Color color ) const {
+	::circlefill( getData()->getBitmap(), x, y, radius, color.color );
 }
 
-void TranslucentBitmap::circleFill(int x, int y, int radius, int color) const {
+void TranslucentBitmap::circleFill(int x, int y, int radius, Color color) const {
     drawingMode(MODE_TRANS);
     Bitmap::circleFill(x, y, radius, color);
     drawingMode(MODE_SOLID);
 }
 	
-void Bitmap::circle( int x, int y, int radius, int color ) const{
-    ::circle( getData()->getBitmap(), x, y, radius, color );
+void Bitmap::circle( int x, int y, int radius, Color color ) const{
+    ::circle( getData()->getBitmap(), x, y, radius, color.color );
 }
 
 /* FIXME */
-void Bitmap::circle( int x, int y, int radius, int thickness, int color ) const{
-    ::circle( getData()->getBitmap(), x, y, radius, color );
+void Bitmap::circle( int x, int y, int radius, int thickness, Color color ) const{
+    ::circle( getData()->getBitmap(), x, y, radius, color.color );
 }
 	
-void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const int color ) const{
-    ::fastline( getData()->getBitmap(), x1, y1, x2, y2, color );
+void Bitmap::line( const int x1, const int y1, const int x2, const int y2, const Color color ) const{
+    ::fastline( getData()->getBitmap(), x1, y1, x2, y2, color.color );
 }
 
-void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const int color) const{
+void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const Color color) const{
     drawingMode(MODE_TRANS);
     Bitmap::line(x1, y1, x2, y2, color);
     drawingMode(MODE_SOLID);
 }
 	
-void Bitmap::floodfill( const int x, const int y, const int color ) const {
-	::floodfill( getData()->getBitmap(), x, y, color );
+void Bitmap::floodfill( const int x, const int y, const Color color ) const {
+	::floodfill( getData()->getBitmap(), x, y, color.color );
 }
 	
-void Bitmap::drawCharacter( const int x, const int y, const int color, const int background, const Bitmap & where ) const {
-	::draw_character_ex( where.getData()->getBitmap(), getData()->getBitmap(), x, y, color, background );
+void Bitmap::drawCharacter( const int x, const int y, const Color color, const int background, const Bitmap & where ) const {
+	::draw_character_ex( where.getData()->getBitmap(), getData()->getBitmap(), x, y, color.color, background );
 }
 
 void Bitmap::alphaBlender(int source, int dest){
@@ -662,9 +662,9 @@ void Bitmap::replaceColor(const Color & original, const Color & replaced){
     for (int i = 0; i < height; ++i ){
         for( int j = 0; j < width; ++j ){
             /* use getPixel/putPixel? */
-            int pix = getpixel(bitmap, j,i);
-            if (pix == original){
-                putpixel(bitmap, j, i, replaced);
+            int pix = getpixel(bitmap, j, i);
+            if (pix == original.color){
+                putpixel(bitmap, j, i, replaced.color);
             }
         }
     }
@@ -732,36 +732,36 @@ const int Bitmap::getHeight() const{
 }
 */
 
-int Bitmap::getPixel( const int x, const int y ) const{
-	if ( x >= 0 && x < getData()->getBitmap()->w && y >= 0 && y < getData()->getBitmap()->h )
-		return _getpixel16( getData()->getBitmap(), x, y );
-	return -1;
+Color Bitmap::getPixel( const int x, const int y ) const{
+    if ( x >= 0 && x < getData()->getBitmap()->w && y >= 0 && y < getData()->getBitmap()->h )
+        return Color(_getpixel16( getData()->getBitmap(), x, y ));
+    return Color(-1);
 }
 
-void Bitmap::readLine( vector< int > & vec, int y ){
-	if ( y >= 0 && y < getData()->getBitmap()->h ){
-		for ( int q = 0; q < getData()->getBitmap()->w; q++ ){
-			// int col = my_bitmap->line[ y ][ q ];
-			int col = _getpixel16( getData()->getBitmap(), q, y );
-			vec.push_back( col );
-		}
-	}
+void Bitmap::readLine( vector< Color > & vec, int y ){
+    if ( y >= 0 && y < getData()->getBitmap()->h ){
+        for ( int q = 0; q < getData()->getBitmap()->w; q++ ){
+            // int col = my_bitmap->line[ y ][ q ];
+            int col = _getpixel16( getData()->getBitmap(), q, y );
+            vec.push_back(Color(col) );
+        }
+    }
 }
 
 int setGfxModeText(){
-	return setGraphicsMode(GFX_TEXT, 0, 0);
+    return setGraphicsMode(GFX_TEXT, 0, 0);
 }
 	
 int setGfxModeFullscreen(int x, int y){
-	return setGraphicsMode(GFX_AUTODETECT_FULLSCREEN, x, y);
+    return setGraphicsMode(GFX_AUTODETECT_FULLSCREEN, x, y);
 }
 
 int setGfxModeWindowed(int x, int y){
-	return setGraphicsMode(GFX_AUTODETECT_WINDOWED, x, y);
+    return setGraphicsMode(GFX_AUTODETECT_WINDOWED, x, y);
 }
 	
-int makeColor( int r, int g, int b ){
-    return ::makecol16( r, g, b );
+Color makeColor( int r, int g, int b ){
+    return Color(::makecol16( r, g, b ));
 }
 
 void hsvToRGB( float h, float s, float v, int * r, int * g, int * b ){
@@ -773,34 +773,34 @@ void Bitmap::rgbToHSV(int r, int g, int b, float * h, float * s, float * v){
 }
 
 
-int Bitmap::addColor( int color1, int color2 ){
-	return makeColor( getr( color1 ) + getr( color2 ),
-			  getg( color1 ) + getg( color2 ),
-			  getb( color1 ) + getb( color2 ) );
+Color Bitmap::addColor( Color color1, Color color2 ){
+    return makeColor( getr( color1.color ) + getr( color2.color ),
+                      getg( color1.color ) + getg( color2.color ),
+                      getb( color1.color ) + getb( color2.color ) );
 }
 	
-void Bitmap::putPixelNormal(int x, int y, int col) const {
+void Bitmap::putPixelNormal(int x, int y, Color col) const {
     BITMAP * dst = getData()->getBitmap();
-    ::putpixel(dst, x, y, col);
+    ::putpixel(dst, x, y, col.color);
 }
 
 /* FIXME: its pretty slow to keep setting the drawing mode. Either
  * 1) dont use translucent putpixel that much or
  * 2) somehow cache the drawing mode so that its not reset every time
  */
-void TranslucentBitmap::putPixelNormal(int x, int y, int color) const {
+void TranslucentBitmap::putPixelNormal(int x, int y, Color color) const {
     drawingMode(MODE_TRANS);
     Bitmap::putPixelNormal(x, y, color);
     drawingMode(MODE_SOLID);
 }
 	
-void Bitmap::putPixel( int x, int y, int col ) const{
+void Bitmap::putPixel( int x, int y, Color col ) const{
     BITMAP * dst = getData()->getBitmap();
     if (dst->clip && ((x < dst->cl) || (x >= dst->cr) || (y < dst->ct) || (y >= dst->cb))){
         return;
     }
     if ( x >= 0 && x < getData()->getBitmap()->w && y >= 0 && y < getData()->getBitmap()->h )
-        _putpixel16( getData()->getBitmap(), x, y, col );
+        _putpixel16( getData()->getBitmap(), x, y, col.color );
 }
 	
 /*
@@ -854,45 +854,45 @@ void Bitmap::printfNormal( int x, int y, int color, const string & str ) const{
 }
 */
 
-void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, int color ) const{
-	::triangle( getData()->getBitmap(), x1, y1, x2, y2, x3, y3, color );
+void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const{
+	::triangle( getData()->getBitmap(), x1, y1, x2, y2, x3, y3, color.color );
 }
 	
-void Bitmap::ellipse( int x, int y, int rx, int ry, int color ) const {
-	::ellipse( getData()->getBitmap(), x, y, rx, ry, color );
+void Bitmap::ellipse( int x, int y, int rx, int ry, Color color ) const {
+	::ellipse( getData()->getBitmap(), x, y, rx, ry, color.color );
 }
 
-void TranslucentBitmap::ellipse(int x, int y, int rx, int ry, int color) const {
+void TranslucentBitmap::ellipse(int x, int y, int rx, int ry, Color color) const {
     drawingMode(MODE_TRANS);
     Bitmap::ellipse(x, y, rx, ry, color);
     drawingMode(MODE_SOLID);
 }
 
-void TranslucentBitmap::ellipseFill(int x, int y, int rx, int ry, int color) const {
+void TranslucentBitmap::ellipseFill(int x, int y, int rx, int ry, Color color) const {
     drawingMode(MODE_TRANS);
     Bitmap::ellipseFill(x, y, rx, ry, color);
     drawingMode(MODE_SOLID);
 }
 
-void Bitmap::ellipseFill( int x, int y, int rx, int ry, int color ) const {
-	::ellipsefill( getData()->getBitmap(), x, y, rx, ry, color );
+void Bitmap::ellipseFill( int x, int y, int rx, int ry, Color color ) const {
+	::ellipsefill( getData()->getBitmap(), x, y, rx, ry, color.color );
 }
 
-void Bitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const{
-    ::rect( getData()->getBitmap(), x1, y1, x2, y2, color );
+void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const{
+    ::rect( getData()->getBitmap(), x1, y1, x2, y2, color.color );
 }
 
-void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, int color ) const {
+void TranslucentBitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
     drawingMode(MODE_TRANS);
     Bitmap::rectangle(x1, y1, x2, y2, color);
     drawingMode(MODE_SOLID);
 }
 	
-void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
-    ::rectfill( getData()->getBitmap(), x1, y1, x2, y2, color );
+void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const{
+    ::rectfill( getData()->getBitmap(), x1, y1, x2, y2, color.color );
 }
 
-void TranslucentBitmap::rectangleFill( int x1, int y1, int x2, int y2, int color ) const{
+void TranslucentBitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const{
     drawingMode(MODE_TRANS);
     Bitmap::rectangleFill(x1, y1, x2, y2, color);
     drawingMode(MODE_SOLID);
@@ -912,22 +912,22 @@ int Bitmap::makeColor( int r, int g, int b ){
 }
 */
 	
-void Bitmap::hLine( const int x1, const int y, const int x2, const int color ) const{
-    ::hline( getData()->getBitmap(), x1, y, x2, color );
+void Bitmap::hLine( const int x1, const int y, const int x2, const Color color ) const{
+    ::hline( getData()->getBitmap(), x1, y, x2, color.color );
 }
 
-void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const int color ) const{
+void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const Color color ) const{
     drawingMode(MODE_TRANS);
-    ::hline(getData()->getBitmap(), x1, y, x2, color);
+    ::hline(getData()->getBitmap(), x1, y, x2, color.color);
     drawingMode(MODE_SOLID);
 }
 	
-void Bitmap::vLine( const int y1, const int x, const int y2, const int color ) const{
-	::vline( getData()->getBitmap(), x, y1, y2, color );
+void Bitmap::vLine( const int y1, const int x, const int y2, const Color color ) const{
+	::vline( getData()->getBitmap(), x, y1, y2, color.color );
 }
 	
-void Bitmap::polygon( const int * verts, const int nverts, const int color ) const{
-	::polygon( getData()->getBitmap(), nverts, verts, color );
+void Bitmap::polygon( const int * verts, const int nverts, const Color color ) const{
+	::polygon( getData()->getBitmap(), nverts, verts, color.color );
 }
 
 /* These values are specified in 16.16 fixed point format, with 256 equal to
@@ -945,7 +945,7 @@ double toAllegroDegrees(double radians){
     return toDegrees(radians) * 256.0 / 365;
 }
 
-void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+void Bitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - Util::pi/2)));
     ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - Util::pi/2)));
     if (angle1 > angle2){
@@ -953,10 +953,10 @@ void Bitmap::arc(const int x, const int y, const double ang1, const double ang2,
         angle1 = angle2;
         angle2 = swap;
     }
-    ::arc(getData()->getBitmap(), x, y, angle1, angle2, radius, color);
+    ::arc(getData()->getBitmap(), x, y, angle1, angle2, radius, color.color);
 }
 
-void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+void TranslucentBitmap::arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     drawingMode(MODE_TRANS);
     Bitmap::arc(x, y, ang1, ang2, radius, color);
     drawingMode(MODE_SOLID);
@@ -1004,18 +1004,18 @@ void store_arc_points(BITMAP * _store, int x, int y, int color){
 void drawFilledArc(const int x, const int y, ::fixed angle1, ::fixed angle2, int radius, Color color, BITMAP * paint){
     // num_segments = fabs(delta_theta / (2 * ALLEGRO_PI) * ALLEGRO_PRIM_QUALITY * sqrtf(r));
     ArcPoints store(radius);
-    do_arc((BITMAP*) &store, x, y, angle1, angle2, radius, color, store_arc_points);
+    do_arc((BITMAP*) &store, x, y, angle1, angle2, radius, color.color, store_arc_points);
     /* for each point on the arc draw a vertical line */
     for (int index = 0; index < store.next; index += 1){
         int x1 = x;
         int y1 = y;
         int x2 = store.points[index].x;
         int y2 = store.points[index].y;
-        ::vline(paint, x2, y1, y2, color);
+        ::vline(paint, x2, y1, y2, color.color);
     }
 }
 
-void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const{
+void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const{
     ::fixed angle1 = ::ftofix(toAllegroDegrees(-(ang1 - Util::pi/2)));
     ::fixed angle2 = ::ftofix(toAllegroDegrees(-(ang2 - Util::pi/2)));
     if (angle1 > angle2){
@@ -1026,7 +1026,7 @@ void Bitmap::arcFilled(const int x, const int y, const double ang1, const double
     drawFilledArc(x, y, angle1, angle2, radius, color, getData()->getBitmap());
 }
 
-void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const int color ) const {
+void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     drawingMode(MODE_TRANS);
     Bitmap::arcFilled(x, y, ang1, ang2, radius, color);
     drawingMode(MODE_SOLID);
@@ -1038,8 +1038,8 @@ void Bitmap::clear(){
 }
 */
 
-void Bitmap::fill( int color ) const{
-    ::clear_to_color( getData()->getBitmap(), color );
+void Bitmap::fill( Color color ) const{
+    ::clear_to_color( getData()->getBitmap(), color.color );
 }
 
 /*
@@ -1144,51 +1144,51 @@ void Bitmap::drawStretched( const int x, const int y, const int new_width, const
 	::masked_stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, x,y, new_width, new_height );
 }
 
-void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, int focus_color, int edge_color) const {
+void Bitmap::light(int x, int y, int width, int height, int start_y, int focus_alpha, int edge_alpha, Color focus_color, Color edge_color) const {
     paintown_light16(getData()->getBitmap(), x, y, width, height, start_y, focus_alpha, edge_alpha, focus_color, edge_color);
 }
         
-void Bitmap::applyTrans(const int color) const {
+void Bitmap::applyTrans(const Color color) const {
     paintown_applyTrans16(getData()->getBitmap(), color);
 }
 
 void Bitmap::StretchBy2( const Bitmap & where ){
-	BITMAP * bmp = where.getData()->getBitmap();
+    BITMAP * bmp = where.getData()->getBitmap();
 
-	if ( where.getWidth() == getWidth() && where.getHeight() == getHeight() ){
-		::blit( getData()->getBitmap(), bmp, 0, 0, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
-		return;
-	}
+    if ( where.getWidth() == getWidth() && where.getHeight() == getHeight() ){
+        ::blit( getData()->getBitmap(), bmp, 0, 0, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h );
+        return;
+    }
 
-	if ( where.getWidth() != getWidth()*2 ||
-		where.getHeight() != getHeight()*2 ){
-			cout<<"Wrong dimensions"<<endl;
-			cout<<"My:  "<< getWidth() << " " << getHeight() << endl;
-			cout<<"Him: "<<where.getWidth()<< " " << where.getHeight()<<endl;
-			return;
-	}
-	// debug
-	::stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, 0, 0, bmp->w, bmp->h );
-	// fblend_2x_stretch( my_bitmap, bmp, 0, 0, 0, 0, my_bitmap->w, my_bitmap->h);
-	// scale2x_allegro( my_bitmap, bmp, 2 );
-	// debug
+    if ( where.getWidth() != getWidth()*2 ||
+         where.getHeight() != getHeight()*2 ){
+        cout<<"Wrong dimensions"<<endl;
+        cout<<"My:  "<< getWidth() << " " << getHeight() << endl;
+        cout<<"Him: "<<where.getWidth()<< " " << where.getHeight()<<endl;
+        return;
+    }
+    // debug
+    ::stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, 0, 0, bmp->w, bmp->h );
+    // fblend_2x_stretch( my_bitmap, bmp, 0, 0, 0, 0, my_bitmap->w, my_bitmap->h);
+    // scale2x_allegro( my_bitmap, bmp, 2 );
+    // debug
 
 }
 
 void Bitmap::StretchBy4( const Bitmap & where ){
 
-	BITMAP * bmp = where.getData()->getBitmap();
-	if ( where.getWidth() != getWidth()*4 ||
-		where.getHeight() != getHeight()*4 ){
-			cout<<"Wrong dimensions"<<endl;
-			cout<<"My:  "<< getWidth() << " " << getHeight() << endl;
-			cout<<"Him: "<<where.getWidth()<< " " << where.getHeight()<<endl;
-			cout<<"Scaled: "<<getWidth()*4<<" "<< getHeight()*4<<endl;
-			return;
-	}
-	// fblend_2x_stretch( my_bitmap, bmp, 0, 0, 0, 0, my_bitmap->w, my_bitmap->h);
-	// scale4x_allegro( my_bitmap, bmp, 2 );
-	::stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, 0, 0, bmp->w, bmp->h );
+    BITMAP * bmp = where.getData()->getBitmap();
+    if ( where.getWidth() != getWidth()*4 ||
+         where.getHeight() != getHeight()*4 ){
+        cout<<"Wrong dimensions"<<endl;
+        cout<<"My:  "<< getWidth() << " " << getHeight() << endl;
+        cout<<"Him: "<<where.getWidth()<< " " << where.getHeight()<<endl;
+        cout<<"Scaled: "<<getWidth()*4<<" "<< getHeight()*4<<endl;
+        return;
+    }
+    // fblend_2x_stretch( my_bitmap, bmp, 0, 0, 0, 0, my_bitmap->w, my_bitmap->h);
+    // scale4x_allegro( my_bitmap, bmp, 2 );
+    ::stretch_blit( getData()->getBitmap(), bmp, 0, 0, getData()->getBitmap()->w, getData()->getBitmap()->h, 0, 0, bmp->w, bmp->h );
 
 }
 
@@ -1473,13 +1473,13 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                     switch (mode){
                         case SPRITE_NORMAL: {
                             if (filter){
-                                c = filter->filter(c);
+                                c = filter->filter(Color(c)).color;
                             }
                             break;
                         }
                         case SPRITE_LIT : {
                             if (filter){
-                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
+                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, c);
                             }
@@ -1487,7 +1487,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                         }
                         case SPRITE_TRANS : {
                             if (filter){
-                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
+                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), c);
                             }
@@ -1511,7 +1511,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                         unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
                         if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
                             if (filter){
-                                PAINTOWN_PUT_MEMORY_PIXEL(d, filter->filter(c));
+                                PAINTOWN_PUT_MEMORY_PIXEL(d, filter->filter(Color(c)).color);
                             } else {
                                 PAINTOWN_PUT_MEMORY_PIXEL(d, c);
                             }
@@ -1530,7 +1530,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                         unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
                         if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
                             if (filter){
-                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
+                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, c);
                             }
@@ -1549,7 +1549,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
                         unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
                         if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
                             if (filter){
-                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
+                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), c);
                             }
@@ -1589,7 +1589,7 @@ static void paintown_draw_sprite_ex16( BITMAP * dst, BITMAP * src, int dx, int d
 }
 
 /* mix pixels with the given color in with each non-masking pixel in dst */
-static void paintown_applyTrans16(BITMAP * dst, const int color){
+static void paintown_applyTrans16(BITMAP * dst, const Color color){
     int y1 = 0;
     int y2 = dst->h;
     int x1 = 0;
@@ -1611,7 +1611,7 @@ static void paintown_applyTrans16(BITMAP * dst, const int color){
             for (int x = x2; x >= x1; PAINTOWN_INC_PIXEL_PTR_EX(d,1), x--) {
                 unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(d);
                 if (!PAINTOWN_IS_SPRITE_MASK(dst, c)) {
-                    c = PAINTOWN_DTS_BLEND(trans_blender, c, color);
+                    c = PAINTOWN_DTS_BLEND(trans_blender, c, color.color);
                     PAINTOWN_PUT_MEMORY_PIXEL(d, c);
                 }
             }
@@ -1622,12 +1622,12 @@ static void paintown_applyTrans16(BITMAP * dst, const int color){
 /* ultra special-case for drawing a light (like from a lamp).
  * center of light is x,y and shines in a perfect isosolese triangle.
  */
-static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const int focus_color, const int edge_color){
+static void paintown_light16(BITMAP * dst, const int x, const int y, const int width, const int height, const int start_y, const int focus_alpha, const int edge_alpha, const Color focus_color, const Color edge_color){
 
     int dxbeg = x - width;
     int x_dir = 1;
     unsigned char * alphas = new unsigned char[width];
-    int * colors = new int[width];
+    Color * colors = new Color[width];
     for (int i = 0; i < width; i++){
         alphas[i] = (unsigned char)((double)(edge_alpha - focus_alpha) * (double)i / (double)width + focus_alpha);
     }
@@ -1677,7 +1677,7 @@ static void paintown_light16(BITMAP * dst, const int x, const int y, const int w
                  */
                 int sx_abs = (int) fabs((double) sx);
                 PAINTOWN_SET_ALPHA(alphas[sx_abs]);
-                int color = colors[sx_abs];
+                int color = colors[sx_abs].color;
                 c = PAINTOWN_DTS_BLEND(trans_blender, c, color);
                 PAINTOWN_PUT_MEMORY_PIXEL(d, c);
             }
@@ -1775,7 +1775,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                         case SPRITE_NORMAL : break;
                         case SPRITE_LIT : {
                             if (filter){
-                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
+                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, c);
                             }
@@ -1783,7 +1783,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                         }
                         case SPRITE_TRANS : {
                             if (filter){
-                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
+                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), c);
                             }
@@ -1809,7 +1809,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                         case SPRITE_NORMAL : break;
                         case SPRITE_LIT : {
                             if (filter){
-                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(c));
+                                c = PAINTOWN_DLSX_BLEND(lit_blender, filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DLSX_BLEND(lit_blender, c);
                             }
@@ -1817,7 +1817,7 @@ static void paintown_draw_sprite_ex16_old( BITMAP * dst, BITMAP * src, int dx, i
                         }
                         case SPRITE_TRANS : {
                             if (filter){
-                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(c));
+                                c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), filter->filter(Color(c)).color);
                             } else {
                                 c = PAINTOWN_DTS_BLEND(trans_blender, PAINTOWN_GET_PIXEL(d), c);
                             }
@@ -1859,7 +1859,7 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
             return;
     }
 
-    unsigned int mask = makeColor(255, 0, 255);
+    unsigned int mask = MaskColor().color;
     // int bpp = src->format->BytesPerPixel;
     for (y = 0; y < h; y++) {
         PAINTOWN_PIXEL_PTR s = PAINTOWN_OFFSET_PIXEL_PTR(src->line[sybeg + y], sxbeg);
@@ -1868,7 +1868,7 @@ static void paintown_draw_sprite_filter_ex16(BITMAP * dst, BITMAP * src, int dx,
         for (x = w - 1; x >= 0; PAINTOWN_INC_PIXEL_PTR(s), PAINTOWN_INC_PIXEL_PTR_EX(d,x_dir), x--) {
             unsigned long c = PAINTOWN_GET_MEMORY_PIXEL(s);
             if (!PAINTOWN_IS_SPRITE_MASK(src, c)) {
-                PAINTOWN_PUT_MEMORY_PIXEL(d, filter.filter(c));
+                PAINTOWN_PUT_MEMORY_PIXEL(d, filter.filter(Color(c)).color);
             } else {
                 PAINTOWN_PUT_MEMORY_PIXEL(d, mask);
             }
