@@ -110,6 +110,9 @@ bool blocking(Socket s, bool b);
 /* Enable/disable NODELAY -- the Nagle algorithm for TCP */
 bool noDelay(Socket s, bool b);
 
+/* Whether or not new sockets re-use ports */
+void reuseSockets(bool what);
+
 void listen(Socket s) throw (NetworkException);
 Socket accept(Socket s) throw (NetworkException);
 

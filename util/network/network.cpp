@@ -288,6 +288,14 @@ void init(){
     // nlDisable( NL_BLOCKING_IO );
 }
 
+void reuseSockets(bool what){
+    if (what){
+        nlEnable(NL_REUSE_ADDRESS);
+    } else {
+        nlDisable(NL_REUSE_ADDRESS);
+    }
+}
+
 bool blocking(Socket s, bool b){
     return nlSetSocketOpt(s, NL_BLOCKING_IO, b) == NL_TRUE;
 }
