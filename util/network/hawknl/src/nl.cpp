@@ -1674,6 +1674,9 @@ HL_EXP NLboolean HL_APIENTRY nlEnable(NLenum name)
         nlBlocking = NL_TRUE;
         break;
 
+    case NL_REUSE_ADDRESS:
+        return nlHint(NL_REUSE_ADDRESS, (NLint) NL_TRUE);
+
     case NL_TCP_NO_DELAY:
         return nlHint(NL_TCP_NO_DELAY, (NLint)NL_TRUE);
 
@@ -1703,6 +1706,9 @@ HL_EXP NLboolean HL_APIENTRY nlDisable(NLenum name)
     case NL_BLOCKING_IO:
         nlBlocking = NL_FALSE;
         break;
+    
+    case NL_REUSE_ADDRESS:
+        return nlHint(NL_REUSE_ADDRESS, (NLint) NL_FALSE);
 
     case NL_TCP_NO_DELAY:
         return nlHint(NL_TCP_NO_DELAY, NL_FALSE);
