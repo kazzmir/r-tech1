@@ -539,6 +539,82 @@ public:
 
 };
 
+class IControlPad: public ButtonMapping {
+public:
+    enum Buttons{
+        A = 11,
+        B = 13,
+        X = 12,
+        Y = 10,
+        Start = 9,
+        Select = 8,
+        Up = 0,
+        Down = 3,
+        Left = 2,
+        Right = 1,
+        L1 = 4,
+        R1 = 14
+    };
+
+    int toNative(int button){
+        return 0;
+    }
+
+    int fromNative(int button){
+    	return 0;
+    }
+    
+    Joystick::Key toKey(int button){
+        switch (button){
+            case A: return Joystick::Button1;
+            case B: return Joystick::Button2;
+            case X: return Joystick::Button3;
+            case Y: return Joystick::Button4;
+            case L1: return Joystick::Button5;
+            case R1: return Joystick::Button6;
+            case Up: return Joystick::Up;
+            case Down: return Joystick::Down;
+            case Left: return Joystick::Left;
+            case Right: return Joystick::Right;
+            case Start: return Joystick::Start;
+            case Select: return Joystick::Quit;
+        }
+        return Joystick::Invalid;
+    }
+    
+    void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events){
+        // printf("axis %d motion %d\n", axis, motion);
+    }
+    
+    virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events){
+        /*
+        bool up = false;
+        bool down = false;
+        bool left = false;
+        bool right = false;
+        switch (motion){
+            case SDL_HAT_CENTERED: break;
+            case SDL_HAT_UP: up = true; break;
+            case SDL_HAT_RIGHT: right = true; break;
+            case SDL_HAT_DOWN: down = true; break;
+            case SDL_HAT_LEFT: left = true; break;
+            case SDL_HAT_RIGHTUP: right = true; up = true; break;
+            case SDL_HAT_RIGHTDOWN: right = true; down = true; break;
+            case SDL_HAT_LEFTUP: left = true; up = true; break;
+            case SDL_HAT_LEFTDOWN: left = true; down = true; break;
+        }
+
+        events.push_back(Joystick::Event(Joystick::Left, left));
+        events.push_back(Joystick::Event(Joystick::Right, right));
+        events.push_back(Joystick::Event(Joystick::Down, down));
+        events.push_back(Joystick::Event(Joystick::Up, up));
+        */
+    }
+
+};
+
+
+
 ButtonMapping * makeButtonMapping(string name){
 #ifdef PS3
     return new Ps3Controller();
@@ -558,6 +634,10 @@ ButtonMapping * makeButtonMapping(string name){
     if (name.find("Gamecube") != string::npos){
         return new GamecubePad();
     }
+    if (name.find("iControlPad") != string::npos){
+        return new IControlPad();
+    }
+    Global::debug(0) << "Unknown controller '" << name << "'. Using default mapping" << std::endl;
     return new DefaultButtonMapping();
 }
 
