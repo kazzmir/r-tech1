@@ -77,6 +77,7 @@ int8_t read8(Socket socket);
 int16_t read16(Socket socket);
 int32_t read32(Socket socket);
 char * dump16(char * where, int16_t length);
+char * dump32(char * where, uint32_t length);
 void send16(Socket socket, int16_t length);
 
 /* Reads a string by expecting the string to be terminated with a null byte */
@@ -88,12 +89,17 @@ std::string readStr(Socket socket, const uint16_t length);
 void sendStr(Socket socket, const std::string & str );
 void sendBytes(Socket socket, const uint8_t * data, int length);
 void readBytes(Socket socket, uint8_t * data, int length);
+/* reads as many bytes as possible in one go. useful for udp where partial packets
+ * are discarded.
+ */
+int readUptoBytes(Socket socket, uint8_t * data, int length);
 
 /* Copies the string plus its null byte to the `where' buffer.
  * Returns a pointer that is where + str.size() + 1
  */
 char * dumpStr(char * where, const std::string & str);
 char * parse16(char * where, uint16_t * out);
+char * parse32(char * where, uint32_t * out);
 
 /* Reads a string into 'out' from 'where' that is expected to be 'length' bytes.
  * Right now the function lies, it just does *out = string(where) so if the actual
