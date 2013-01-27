@@ -128,6 +128,17 @@ char * parse16(char * where, uint16_t * out){
     return where + sizeof(uint16_t);
 }
 
+char * dump32(char * where, uint32_t bytes){
+    bytes = htonl(bytes);
+    *(uint32_t*) where = bytes;
+    return where + sizeof(uint32_t);
+}
+
+char * parse32(char * where, uint32_t * out){
+    *out = ntohl(*(uint32_t*) where);
+    return where + sizeof(uint32_t);
+}
+
 char * parseString(char * where, string * out, uint16_t length){
     *out = string(where);
     return where + length;
@@ -166,6 +177,10 @@ void sendBytes(Socket socket, const uint8_t * data, int length){
         written += bytes;
         position += bytes;
     }
+}
+
+int readUptoBytes(Socket socket, uint8_t * data, int length){
+    return nlRead(socket, data, length);
 }
 
 void readBytes(Socket socket, uint8_t * data, int length){
