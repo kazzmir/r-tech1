@@ -1115,6 +1115,10 @@ static NLboolean sock_ConnectUDP(NLsocket socket, const NLaddress *address)
     }
     
     (void)time(&begin);
+
+    /* FIXME! If the udp server is not open then recvfrom will hang forever. Use
+     * select or something here to truly test if 6 seconds is up.
+     */
     
     /* try for six seconds */
     while((time(&t) - begin) < 6)
