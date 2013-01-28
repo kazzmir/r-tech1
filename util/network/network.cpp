@@ -166,6 +166,13 @@ void sendStr(Socket socket, const string & str){
     }
 }
 
+void sendAllBytes(Socket socket, const uint8_t * data, int length){
+    int sent = nlWrite(socket, data, length);
+    if (sent != length){
+        throw NetworkException(string("Could not send bytes.") + getHawkError());
+    }
+}
+
 void sendBytes(Socket socket, const uint8_t * data, int length){
     const uint8_t * position = data;
     int written = 0;
