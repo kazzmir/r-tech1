@@ -88,6 +88,7 @@ std::string readStr(Socket socket, const uint16_t length);
  */
 void sendStr(Socket socket, const std::string & str );
 void sendBytes(Socket socket, const uint8_t * data, int length);
+void sendAllBytes(Socket socket, const uint8_t * data, int length);
 void readBytes(Socket socket, uint8_t * data, int length);
 /* reads as many bytes as possible in one go. useful for udp where partial packets
  * are discarded.
