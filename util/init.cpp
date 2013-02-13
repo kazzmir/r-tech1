@@ -218,8 +218,10 @@ static void * do_timer(void * info){
     al_register_event_source(queue, source);
     while (run_timer_guard.get()){
         ALLEGRO_EVENT event;
-        al_wait_for_event(queue, &event);
-        timerInfo->tick();
+        /* Wait a maximum of 50ms in case we need to restart the timers */
+        if (al_wait_for_event_timed(queue, &event, 0.05)){
+            timerInfo->tick();
+        }
     }
 
     al_destroy_event_queue(queue);
