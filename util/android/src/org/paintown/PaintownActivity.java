@@ -62,6 +62,7 @@ public class PaintownActivity extends AllegroActivity {
         System.loadLibrary("allegro_ttf" + suffix);
         System.loadLibrary("allegro_audio" + suffix);
         System.loadLibrary("allegro_acodec" + suffix);
+        System.loadLibrary("allegro_shader" + suffix);
     }
 
     static void loadAllegroNormal(){
