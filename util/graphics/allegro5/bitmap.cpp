@@ -12,6 +12,8 @@ namespace Graphics{
 
 ALLEGRO_DISPLAY * the_display = NULL;
 static std::vector<ALLEGRO_SHADER*> shaders;
+static ALLEGRO_SHADER * shader_default;
+static ALLEGRO_SHADER * shader_shadow;
 
 enum BlendingType{
     Translucent,
@@ -476,6 +478,19 @@ void initializeExtraStuff(){
     // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
 }
 
+static std::string readFile(const Filesystem::AbsolutePath & path){
+    Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
+    if (file != NULL){
+        char * data = new char[file->getSize() + 1];
+        file->readLine(data, file->getSize());
+        data[file->getSize()] = 0;
+        std::string out(data);
+        delete[] data;
+        return out;
+    }
+    return "";
+}
+
 int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
 
@@ -535,15 +550,26 @@ int setGraphicsMode(int mode, int width, int height){
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
     /* Default shader */
-    ALLEGRO_SHADER * shader = al_create_shader(ALLEGRO_SHADER_GLSL);
-    al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
-    al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_glsl_pixel_shader());
-    if (!al_link_shader(shader)){
-        Global::debug(0) << "al_link_shader failed: " << al_get_shader_log(shader) << std::endl;
+    shader_default = al_create_shader(ALLEGRO_SHADER_GLSL);
+    al_attach_shader_source(shader_default, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
+    al_attach_shader_source(shader_default, ALLEGRO_PIXEL_SHADER, al_get_default_glsl_pixel_shader());
+    if (!al_link_shader(shader_default)){
+        Global::debug(0) << "al_link_shader failed: " << al_get_shader_log(shader_default) << std::endl;
         return 1;
     }
-    al_set_shader(the_display, shader);
-    shaders.push_back(shader);
+    al_set_shader(the_display, shader_default);
+    shaders.push_back(shader_default);
+
+    shader_shadow = al_create_shader(ALLEGRO_SHADER_GLSL);
+    al_attach_shader_source(shader_shadow, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
+    std::string pixel_shadow_string = readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl")));
+    // Global::debug(0) << "Shader source: " << pixel_shadow_string << std::endl;
+    al_attach_shader_source(shader_shadow, ALLEGRO_PIXEL_SHADER, pixel_shadow_string.c_str());
+    if (!al_link_shader(shader_shadow)){
+        Global::debug(0) << "al_link_shader failed: " << al_get_shader_log(shader_shadow) << std::endl;
+        return 1;
+    }
+    shaders.push_back(shader_shadow);
 
     return 0;
 }
@@ -801,7 +827,21 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
 }
 
 void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
-    /* TODO: implement */
+    changeTarget(this, where);
+    MaskedBlender blender;
+    int newHeight = fabs(scale) * getHeight();
+    int flags = 0;
+    if (!facingRight){
+        flags |= ALLEGRO_FLIP_HORIZONTAL;
+    }
+    al_set_shader(the_display, shader_shadow);
+    if (!al_set_shader_float(shader_shadow, "intensity", (float) intensity / 255.0)){
+        /* Well.. thats not good. Did the shader source get messed up? */
+    }
+    al_use_shader(shader_shadow, true);
+    al_draw_scaled_bitmap(getData()->getBitmap(), 0, 0, getWidth(), getHeight(), x, y - newHeight, getWidth(), newHeight, flags);
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
 }
 
 void Bitmap::hLine(const int x1, const int y, const int x2, const Color color) const {
