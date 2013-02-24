@@ -6,10 +6,12 @@
 #include <allegro5/allegro_shader_glsl.h>
 #include "util/debug.h"
 #include "util/thread.h"
+#include <vector>
 
 namespace Graphics{
 
 ALLEGRO_DISPLAY * the_display = NULL;
+static std::vector<ALLEGRO_SHADER*> shaders;
 
 enum BlendingType{
     Translucent,
@@ -28,9 +30,6 @@ struct BlendingData{
 };
 
 static BlendingData globalBlend;
-
-/* must be a pointer so it can be created dynamically after allegro init */
-// Util::Thread::LockObject * allegroLock;
 
 Color makeColorAlpha(unsigned char red, unsigned char green, unsigned char blue, unsigned char alpha){
     return Color(al_map_rgba(red, green, blue, alpha));
@@ -475,7 +474,6 @@ int Bitmap::getHeight() const {
 
 void initializeExtraStuff(){
     // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
-    // allegroLock = new Util::Thread::LockObject();
 }
 
 int setGraphicsMode(int mode, int width, int height){
@@ -536,6 +534,7 @@ int setGraphicsMode(int mode, int width, int height){
     /* default drawing mode */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
+    /* Default shader */
     ALLEGRO_SHADER * shader = al_create_shader(ALLEGRO_SHADER_GLSL);
     al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
     al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_glsl_pixel_shader());
@@ -544,6 +543,7 @@ int setGraphicsMode(int mode, int width, int height){
         return 1;
     }
     al_set_shader(the_display, shader);
+    shaders.push_back(shader);
 
     return 0;
 }
@@ -1118,10 +1118,19 @@ void Bitmap::drawingMode(int type){
 */
 
 void Bitmap::shutdown(){
+    /* Make sure the display is set */
+    al_set_target_bitmap(Screen->getData()->getBitmap());
+    for (std::vector<ALLEGRO_SHADER*>::iterator it = shaders.begin(); it != shaders.end(); it++){
+        ALLEGRO_SHADER * shader = *it;
+        al_use_shader(shader, false);
+        al_destroy_shader(shader);
+    }
+
     delete Screen;
     Screen = NULL;
-    // delete allegroLock;
-    // allegroLock = NULL;
+
+    al_destroy_display(the_display);
+    the_display = NULL;
     /*
     delete Scaler;
     Scaler = NULL;
