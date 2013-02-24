@@ -2,6 +2,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_memfile.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_shader.h>
+#include <allegro5/allegro_shader_glsl.h>
 #include "util/debug.h"
 #include "util/thread.h"
 
@@ -494,7 +496,9 @@ int setGraphicsMode(int mode, int width, int height){
             break;
         }
         case WINDOWED: {
-            al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE);
+            al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE |
+                                     ALLEGRO_USE_PROGRAMMABLE_PIPELINE |
+                                     ALLEGRO_OPENGL);
             break;
         }
         default: break;
@@ -531,6 +535,16 @@ int setGraphicsMode(int mode, int width, int height){
     // Scaler = new Bitmap(width, height);
     /* default drawing mode */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+
+    ALLEGRO_SHADER * shader = al_create_shader(ALLEGRO_SHADER_GLSL);
+    al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
+    al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, al_get_default_glsl_pixel_shader());
+    if (!al_link_shader(shader)){
+        Global::debug(0) << "al_link_shader failed: " << al_get_shader_log(shader) << std::endl;
+        return 1;
+    }
+    al_set_shader(the_display, shader);
+
     return 0;
 }
 
