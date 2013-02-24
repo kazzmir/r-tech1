@@ -488,7 +488,27 @@ static std::string readFile(const Filesystem::AbsolutePath & path){
         delete[] data;
         return out;
     }
-    return "";
+    return "nothing read";
+}
+
+static ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel){
+    ALLEGRO_SHADER * shader = al_create_shader(ALLEGRO_SHADER_GLSL);
+    if (shader == NULL){
+        return NULL;
+    }
+    if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vertex.c_str())){
+        Global::debug(0) << "attach vertex shader source failed: " << al_get_shader_log(shader) << std::endl << vertex << std::endl;
+        return NULL;
+    }
+    if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, pixel.c_str())){
+        Global::debug(0) << "attach pixel shader source failed: " << al_get_shader_log(shader) << std::endl << pixel << std::endl;
+        return NULL;
+    }
+    if (!al_link_shader(shader)){
+        Global::debug(0) << "shader al_link_shader failed: " << al_get_shader_log(shader) << std::endl;
+        return NULL;
+    }
+    return shader;
 }
 
 int setGraphicsMode(int mode, int width, int height){
@@ -502,9 +522,9 @@ int setGraphicsMode(int mode, int width, int height){
         case FULLSCREEN: {
 #ifdef IPHONE
             al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
-            al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
+            al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
 #else
-            al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+            al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
 #endif
             break;
         }
@@ -549,27 +569,33 @@ int setGraphicsMode(int mode, int width, int height){
     /* default drawing mode */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
+    shader_default = create_shader(al_get_default_glsl_vertex_shader(), al_get_default_glsl_pixel_shader());
+
     /* Default shader */
+    /*
     shader_default = al_create_shader(ALLEGRO_SHADER_GLSL);
     al_attach_shader_source(shader_default, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
     al_attach_shader_source(shader_default, ALLEGRO_PIXEL_SHADER, al_get_default_glsl_pixel_shader());
     if (!al_link_shader(shader_default)){
-        Global::debug(0) << "al_link_shader failed: " << al_get_shader_log(shader_default) << std::endl;
+        Global::debug(0) << "default shader al_link_shader failed: " << al_get_shader_log(shader_default) << std::endl;
         return 1;
     }
+    */
     al_set_shader(the_display, shader_default);
     shaders.push_back(shader_default);
+    Global::debug(0) << "Created default shader" << std::endl;
 
-    shader_shadow = al_create_shader(ALLEGRO_SHADER_GLSL);
-    al_attach_shader_source(shader_shadow, ALLEGRO_VERTEX_SHADER, al_get_default_glsl_vertex_shader());
-    std::string pixel_shadow_string = readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl")));
-    // Global::debug(0) << "Shader source: " << pixel_shadow_string << std::endl;
-    al_attach_shader_source(shader_shadow, ALLEGRO_PIXEL_SHADER, pixel_shadow_string.c_str());
-    if (!al_link_shader(shader_shadow)){
-        Global::debug(0) << "al_link_shader failed: " << al_get_shader_log(shader_shadow) << std::endl;
+    try{
+        shader_shadow = create_shader(al_get_default_glsl_vertex_shader(), readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
+        if (shader_shadow == NULL){
+            return 1;
+        }
+        shaders.push_back(shader_shadow);
+        Global::debug(0) << "Created shadow shader" << std::endl;
+    } catch (const Filesystem::NotFound & fail){
+        Global::debug(0) << "Could not load shadow shader: " << fail.getTrace() << std::endl;
         return 1;
     }
-    shaders.push_back(shader_shadow);
 
     return 0;
 }
