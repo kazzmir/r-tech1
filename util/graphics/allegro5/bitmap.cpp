@@ -14,6 +14,7 @@ ALLEGRO_DISPLAY * the_display = NULL;
 static std::vector<ALLEGRO_SHADER*> shaders;
 static ALLEGRO_SHADER * shader_default;
 static ALLEGRO_SHADER * shader_shadow;
+static ALLEGRO_SHADER * shader_lit_sprite;
 
 enum BlendingType{
     Translucent,
@@ -597,6 +598,18 @@ int setGraphicsMode(int mode, int width, int height){
         return 1;
     }
 
+    try{
+        shader_lit_sprite = create_shader(al_get_default_glsl_vertex_shader(), readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
+        if (shader_lit_sprite == NULL){
+            return 1;
+        }
+        shaders.push_back(shader_lit_sprite);
+        Global::debug(0) << "Created lit sprite shader" << std::endl;
+    } catch (const Filesystem::NotFound & fail){
+        Global::debug(0) << "Could not load lit sprite shader: " << fail.getTrace() << std::endl;
+        return 1;
+    }
+
     return 0;
 }
 
@@ -1020,23 +1033,76 @@ void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) con
 }
 
 void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
-    // changeTarget(this, where);
+    changeTarget(this, where);
+
+    // LitBlender blender(makeColorAlpha(globalBlend.red, globalBlend.green, globalBlend.blue, globalBlend.alpha));
+    // TransBlender blender;
+    // al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+    // al_draw_tinted_bitmap(getData()->getBitmap(), al_map_rgba_f(1, 0, 0, 1), x, y, 0);
+    
+    ALLEGRO_SHADER * shader = shader_lit_sprite;
+
+    float light[4];
+    Color color = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
+    al_unmap_rgb_f(color.color, &light[0], &light[1], &light[2]);
+    light[3] = 1;
+    float intensity = (float) globalBlend.alpha / 255.0;
+    al_set_shader(the_display, shader);
+    if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
+        /* Well.. thats not good. Did the shader source get messed up? */
+    }
+    if (!al_set_shader_float(shader, "light_intensity", intensity)){
+    }
+    al_use_shader(shader, true);
+    al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
+
+}
+
+static void doDrawLit(const int x, const int y, const Bitmap & who, int flags){
+    MaskedBlender blender;
+
+    ALLEGRO_SHADER * shader = shader_lit_sprite;
+
+    float light[4];
+    Color color = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
+    al_unmap_rgb_f(color.color, &light[0], &light[1], &light[2]);
+    light[3] = 1;
+    float intensity = (float) globalBlend.alpha / 255.0;
+    al_set_shader(the_display, shader);
+    if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
+        /* Well.. thats not good. Did the shader source get messed up? */
+    }
+    if (!al_set_shader_float(shader, "light_intensity", intensity)){
+    }
+    al_use_shader(shader, true);
+    al_draw_bitmap(who.getData()->getBitmap(), x, y, flags);
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
+}
+
+void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
+    changeTarget(this, where);
+
+    /* FIXME: handle filter */
+    doDrawLit(x, y, *this, 0);
+
     // LitBlender blender(makeColorAlpha(globalBlend.red, globalBlend.green, globalBlend.blue, globalBlend.alpha));
     // TransBlender blender;
     // al_draw_bitmap(getData()->getBitmap(), x, y, 0);
     // al_draw_tinted_bitmap(getData()->getBitmap(), al_map_rgba_f(1, 0, 0, 1), x, y, 0);
 }
 
-void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
-}
-
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    changeTarget(this, where);
+    doDrawLit(x, y, *this, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    changeTarget(this, where);
+    /* FIXME: handle filter */
+    doDrawLit(x, y, *this, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
