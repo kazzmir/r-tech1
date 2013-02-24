@@ -834,8 +834,11 @@ void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color
     if (!facingRight){
         flags |= ALLEGRO_FLIP_HORIZONTAL;
     }
+    float shadowColor[4];
+    al_unmap_rgb_f(color.color, &shadowColor[0], &shadowColor[1], &shadowColor[2]);
+    shadowColor[3] = (float) intensity / 255.0;
     al_set_shader(the_display, shader_shadow);
-    if (!al_set_shader_float(shader_shadow, "intensity", (float) intensity / 255.0)){
+    if (!al_set_shader_float_vector(shader_shadow, "shadow", 4, shadowColor, 1)){
         /* Well.. thats not good. Did the shader source get messed up? */
     }
     al_use_shader(shader_shadow, true);
