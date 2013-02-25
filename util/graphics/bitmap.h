@@ -16,6 +16,7 @@
 #endif
 #ifdef USE_ALLEGRO5
 #include "allegro5/bitmap.h"
+struct ALLEGRO_SHADER;
 #endif
 
 #include "color.h"
@@ -147,6 +148,18 @@ enum QualityFilter{
 
 QualityFilter qualityFilterName(const std::string & type);
 
+class Shader{
+public:
+    Shader();
+    virtual ~Shader();
+
+#ifdef USE_ALLEGRO5
+    Shader(ALLEGRO_SHADER * shader);
+    ALLEGRO_SHADER * getShader();
+    ALLEGRO_SHADER * shader;
+#endif
+};
+
 class Bitmap{
 private:
 	
@@ -159,6 +172,7 @@ public:
         class Filter{
         public:
             virtual Color filter(Color pixel) const = 0;
+            virtual Util::ReferenceCount<Shader> getShader() = 0;
             virtual ~Filter(){
             }
         };
