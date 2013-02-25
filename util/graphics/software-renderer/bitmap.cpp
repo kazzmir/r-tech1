@@ -174,4 +174,10 @@ void TranslatedBitmap::BlitToScreen() const {
 TranslatedBitmap::~TranslatedBitmap(){
 }
 
+Shader::Shader(){
+}
+
+Shader::~Shader(){
+}
+
 }

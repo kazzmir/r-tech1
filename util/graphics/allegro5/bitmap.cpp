@@ -861,8 +861,24 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
     /* FIXME */
     changeTarget(this, where);
     MaskedBlender blender;
+    Util::ReferenceCount<Shader> shader;
+    if (filter != NULL){
+        shader = filter->getShader();
+    }
+
+    if (shader != NULL && shader->getShader() != NULL){
+        ALLEGRO_SHADER * a5shader = shader->getShader();
+        al_set_shader(the_display, a5shader);
+        al_use_shader(a5shader, true);
+    }
+
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+
+    if (shader != NULL && shader->getShader() != NULL){
+        al_set_shader(the_display, shader_default);
+        al_use_shader(shader_default, true);
+    }
 }
 
 void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
@@ -1362,6 +1378,21 @@ RestoreState::RestoreState(){
 
 RestoreState::~RestoreState(){
     al_restore_state(&state);
+}
+
+Shader::Shader():
+shader(NULL){
+}
+
+Shader::~Shader(){
+}
+
+Shader::Shader(ALLEGRO_SHADER * shader):
+shader(shader){
+}
+
+ALLEGRO_SHADER * Shader::getShader(){
+    return shader;
 }
 
 }
