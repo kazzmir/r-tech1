@@ -1382,6 +1382,21 @@ Util::ReferenceCount<File> System::open(const AbsolutePath & path, File::Access 
     }
 }
 
+std::string readFile(const Path::AbsolutePath & path){
+    Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
+    if (file != NULL){
+        char * data = new char[file->getSize() + 1];
+        file->readLine(data, file->getSize());
+        data[file->getSize()] = 0;
+        std::string out(data);
+        delete[] data;
+        return out;
+    }
+    std::ostringstream out;
+    out << "Could not open file " << path.path();
+    throw Exception(__FILE__, __LINE__, out.str());
+}
+
 bool hasInstance(){
     // return true;
     return self != NULL;
