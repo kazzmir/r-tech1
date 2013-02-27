@@ -527,6 +527,8 @@ namespace Storage{
     bool hasInstance();
     System & setInstance(const Util::ReferenceCount<System> & what);
     bool isContainer(const Path::AbsolutePath & path);
+
+    std::string readFile(const Path::AbsolutePath & path);
 }
 
 /*

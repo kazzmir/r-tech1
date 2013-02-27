@@ -31,6 +31,8 @@ namespace Storage{
 
 namespace Graphics{
 
+class Bitmap;
+
 class Color{
 public:
     explicit Color(const INTERNAL_COLOR & color):
@@ -137,6 +139,7 @@ int setGraphicsMode(int mode, int width, int height);
 int getRed(Color x);
 int getBlue(Color x);
 int getGreen(Color x);
+int getAlpha(Color x);
 
 Color MaskColor();
 
@@ -159,6 +162,13 @@ public:
     ALLEGRO_SHADER * shader;
 #endif
 };
+
+#ifdef USE_ALLEGRO5
+ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel);
+void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit);
+std::string defaultVertexShader();
+std::string defaultPixelShader();
+#endif
 
 class Bitmap{
 private:
@@ -517,6 +527,9 @@ public:
         void convertToVideo();
 #endif
 protected:
+#ifdef USE_ALLEGRO5
+        void draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const;
+#endif
         /* release a reference count, and possibly destroy data */
         // void releaseInternalBitmap();
 

@@ -15,6 +15,10 @@ void Bitmap::startDrawing() const {
 
 void Bitmap::endDrawing() const {
 }
+
+int getAlpha(Color input){
+    return 255;
+}
         
 void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
     const double newheight = getHeight() * scale;

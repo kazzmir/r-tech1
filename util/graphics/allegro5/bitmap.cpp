@@ -445,6 +445,12 @@ int getRed(Color color){
     return red;
 }
 
+int getAlpha(Color color){
+    unsigned char red, green, blue, alpha;
+    al_unmap_rgba(color.color, &red, &green, &blue, &alpha);
+    return alpha;
+}
+
 int getGreen(Color color){
     unsigned char red, green, blue;
     al_unmap_rgb(color.color, &red, &green, &blue);
@@ -479,20 +485,22 @@ void initializeExtraStuff(){
     // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_RGB_565);
 }
 
-static std::string readFile(const Filesystem::AbsolutePath & path){
-    Util::ReferenceCount<Storage::File> file = Storage::instance().open(path);
-    if (file != NULL){
-        char * data = new char[file->getSize() + 1];
-        file->readLine(data, file->getSize());
-        data[file->getSize()] = 0;
-        std::string out(data);
-        delete[] data;
-        return out;
-    }
-    return "nothing read";
+std::string defaultVertexShader(){
+    return std::string(al_get_default_glsl_vertex_shader());
 }
 
-static ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel){
+std::string defaultPixelShader(){
+    return std::string(al_get_default_glsl_pixel_shader());
+}
+    
+void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit){
+    al_set_shader(the_display, shader);
+    al_set_shader_sampler(shader, name.c_str(), texture.getData()->getBitmap(), unit); 
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
+}
+
+ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel){
     ALLEGRO_SHADER * shader = al_create_shader(ALLEGRO_SHADER_GLSL);
     if (shader == NULL){
         return NULL;
@@ -587,7 +595,7 @@ int setGraphicsMode(int mode, int width, int height){
     Global::debug(0) << "Created default shader" << std::endl;
 
     try{
-        shader_shadow = create_shader(al_get_default_glsl_vertex_shader(), readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
+        shader_shadow = create_shader(al_get_default_glsl_vertex_shader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
         if (shader_shadow == NULL){
             return 1;
         }
@@ -599,7 +607,7 @@ int setGraphicsMode(int mode, int width, int height){
     }
 
     try{
-        shader_lit_sprite = create_shader(al_get_default_glsl_vertex_shader(), readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
+        shader_lit_sprite = create_shader(al_get_default_glsl_vertex_shader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
         if (shader_lit_sprite == NULL){
             return 1;
         }
@@ -638,6 +646,10 @@ void Bitmap::putPixel(int x, int y, Color pixel) const {
 
 void Bitmap::putPixelNormal(int x, int y, Color col) const {
     putPixel(x, y, col);
+    /*
+    changeTarget(this, this);
+    al_put_pixel(x, y, col.color);
+    */
 }
 
 void Bitmap::fill(Color color) const {
@@ -764,48 +776,27 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
 }
 
 void Bitmap::drawHFlip(const int x, const int y, const Bitmap & where) const {
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, ALLEGRO_FLIP_HORIZONTAL);
+    draw(x, y, NULL, where, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::drawHFlip(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    /* FIXME: deal with filter */
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, ALLEGRO_FLIP_HORIZONTAL);
+    draw(x, y, filter, where, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL);
+    draw(x, y, NULL, where, ALLEGRO_FLIP_VERTICAL);
 }
 
 void Bitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* FIXME: deal with filter */
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL);
+    draw(x, y, filter, where, ALLEGRO_FLIP_VERTICAL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL);
+    draw(x, y, NULL, where, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void Bitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* FIXME: deal with filter */
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL);
+    draw(x, y, filter, where, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void Bitmap::BlitMasked(const int mx, const int my, const int width, const int height, const int wx, const int wy, const Bitmap & where) const {
@@ -849,16 +840,7 @@ void Bitmap::BlitAreaToScreen(const int upper_left_x, const int upper_left_y) co
     al_flip_display();
 }
 
-void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
-    // TransBlender blender;
-    changeTarget(this, where);
-    MaskedBlender blender;
-    /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, 0);
-}
-
-void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
-    /* FIXME */
+void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const {
     changeTarget(this, where);
     MaskedBlender blender;
     Util::ReferenceCount<Shader> shader;
@@ -873,12 +855,28 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
     }
 
     /* any source pixels with an alpha value of 0 will be masked */
-    al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+    al_draw_bitmap(getData()->getBitmap(), x, y, flags);
 
     if (shader != NULL && shader->getShader() != NULL){
         al_set_shader(the_display, shader_default);
         al_use_shader(shader_default, true);
     }
+}
+
+void Bitmap::draw(const int x, const int y, const Bitmap & where) const {
+    draw(x, y, NULL, where, 0);
+
+    /*
+    // TransBlender blender;
+    changeTarget(this, where);
+    MaskedBlender blender;
+    / * any source pixels with an alpha value of 0 will be masked * /
+    al_draw_bitmap(getData()->getBitmap(), x, y, 0);
+    */
+}
+
+void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where) const {
+    draw(x, y, filter, where, 0);
 }
 
 void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
@@ -1385,6 +1383,9 @@ shader(NULL){
 }
 
 Shader::~Shader(){
+    if (shader != NULL){
+        al_destroy_shader(shader);
+    }
 }
 
 Shader::Shader(ALLEGRO_SHADER * shader):
