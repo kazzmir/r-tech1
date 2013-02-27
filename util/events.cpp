@@ -234,6 +234,8 @@ static void handleResize(const ALLEGRO_EVENT & event){
     
     ALLEGRO_DISPLAY * display = event.display.source;
     al_acknowledge_resize(display);
+    Configuration::setScreenWidth((int) width);
+    Configuration::setScreenHeight((int) height);
     al_resize_display(display, (int) width, (int) height);
     
     Graphics::getScreenBuffer()->clear();
