@@ -848,8 +848,12 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
         shader = filter->getShader();
     }
 
-    if (shader != NULL && shader->getShader() != NULL){
-        ALLEGRO_SHADER * a5shader = shader->getShader();
+    ALLEGRO_SHADER * a5shader = NULL;
+    if (shader != NULL){
+        a5shader = shader->getShader();
+    }
+
+    if (a5shader != NULL){
         al_set_shader(the_display, a5shader);
         al_use_shader(a5shader, true);
     }
@@ -857,7 +861,7 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData()->getBitmap(), x, y, flags);
 
-    if (shader != NULL && shader->getShader() != NULL){
+    if (a5shader != NULL){
         al_set_shader(the_display, shader_default);
         al_use_shader(shader_default, true);
     }
