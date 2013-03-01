@@ -166,6 +166,11 @@ public:
 #ifdef USE_ALLEGRO5
 ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel);
 void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit);
+void setShaderBool(ALLEGRO_SHADER * shader, const std::string & name, bool value);
+void setShaderInt(ALLEGRO_SHADER * shader, const std::string & name, int value);
+void setShaderFloat(ALLEGRO_SHADER * shader, const std::string & name, float value);
+void setShaderVec4(ALLEGRO_SHADER * shader, const std::string & name, float v1, float v2, float v3, float v4);
+
 std::string defaultVertexShader();
 std::string defaultPixelShader();
 #endif
