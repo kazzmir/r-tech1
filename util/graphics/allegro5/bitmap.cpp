@@ -2,8 +2,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_memfile.h>
 #include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_shader.h>
-#include <allegro5/allegro_shader_glsl.h>
+#include <allegro5/allegro_glsl.h>
 #include "util/debug.h"
 #include "util/thread.h"
 #include <vector>
@@ -496,6 +495,37 @@ std::string defaultPixelShader(){
 void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit){
     al_set_shader(the_display, shader);
     al_set_shader_sampler(shader, name.c_str(), texture.getData()->getBitmap(), unit); 
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
+}
+
+void setShaderBool(ALLEGRO_SHADER * shader, const std::string & name, bool value){
+    setShaderInt(shader, name, value);
+}
+
+void setShaderInt(ALLEGRO_SHADER * shader, const std::string & name, int value){
+    al_set_shader(the_display, shader);
+    al_set_shader_int(shader, name.c_str(), value); 
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
+}
+
+void setShaderFloat(ALLEGRO_SHADER * shader, const std::string & name, float value){
+    al_set_shader(the_display, shader);
+    al_set_shader_float(shader, name.c_str(), value); 
+    al_set_shader(the_display, shader_default);
+    al_use_shader(shader_default, true);
+}
+
+void setShaderVec4(ALLEGRO_SHADER * shader, const std::string & name, float v1, float v2, float v3, float v4){
+    al_set_shader(the_display, shader);
+    float vector[4];
+    vector[0] = v1;
+    vector[1] = v2;
+    vector[2] = v3;
+    vector[3] = v4;
+    al_set_shader_float_vector(shader, name.c_str(), 4, &vector[0], 1);
+    al_use_shader(shader, true);
     al_set_shader(the_display, shader_default);
     al_use_shader(shader_default, true);
 }
