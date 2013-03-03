@@ -533,7 +533,7 @@ public:
 #endif
 protected:
 #ifdef USE_ALLEGRO5
-        void draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const;
+        virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const;
 #endif
         /* release a reference count, and possibly destroy data */
         // void releaseInternalBitmap();
@@ -669,6 +669,7 @@ public:
     using Bitmap::draw;
     virtual void draw(const int x, const int y, const Bitmap & where) const;
     virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where) const;
+
     // virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, const Bitmap & where) const;
     // virtual void draw(const int x, const int y, const int startWidth, const int startHeight, const int width, const int height, Filter * filter, const Bitmap & where) const;
 
@@ -682,6 +683,10 @@ public:
     virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
     virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
 
+protected:
+#ifdef USE_ALLEGRO5
+    virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const;
+#endif
 };
 
 }

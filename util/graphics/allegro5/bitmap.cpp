@@ -493,10 +493,7 @@ std::string defaultPixelShader(){
 }
     
 void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit){
-    al_set_shader(the_display, shader);
     al_set_shader_sampler(shader, name.c_str(), texture.getData()->getBitmap(), unit); 
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
 }
 
 void setShaderBool(ALLEGRO_SHADER * shader, const std::string & name, bool value){
@@ -504,30 +501,21 @@ void setShaderBool(ALLEGRO_SHADER * shader, const std::string & name, bool value
 }
 
 void setShaderInt(ALLEGRO_SHADER * shader, const std::string & name, int value){
-    al_set_shader(the_display, shader);
     al_set_shader_int(shader, name.c_str(), value); 
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
 }
 
 void setShaderFloat(ALLEGRO_SHADER * shader, const std::string & name, float value){
-    al_set_shader(the_display, shader);
     al_set_shader_float(shader, name.c_str(), value); 
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
 }
 
 void setShaderVec4(ALLEGRO_SHADER * shader, const std::string & name, float v1, float v2, float v3, float v4){
-    al_set_shader(the_display, shader);
     float vector[4];
     vector[0] = v1;
     vector[1] = v2;
     vector[2] = v3;
     vector[3] = v4;
+
     al_set_shader_float_vector(shader, name.c_str(), 4, &vector[0], 1);
-    al_use_shader(shader, true);
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
 }
 
 ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel){
@@ -622,7 +610,7 @@ int setGraphicsMode(int mode, int width, int height){
     */
     al_set_shader(the_display, shader_default);
     shaders.push_back(shader_default);
-    Global::debug(0) << "Created default shader" << std::endl;
+    Global::debug(1) << "Created default shader" << std::endl;
 
     try{
         shader_shadow = create_shader(al_get_default_glsl_vertex_shader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
@@ -630,7 +618,7 @@ int setGraphicsMode(int mode, int width, int height){
             return 1;
         }
         shaders.push_back(shader_shadow);
-        Global::debug(0) << "Created shadow shader" << std::endl;
+        Global::debug(1) << "Created shadow shader" << std::endl;
     } catch (const Filesystem::NotFound & fail){
         Global::debug(0) << "Could not load shadow shader: " << fail.getTrace() << std::endl;
         return 1;
@@ -642,7 +630,7 @@ int setGraphicsMode(int mode, int width, int height){
             return 1;
         }
         shaders.push_back(shader_lit_sprite);
-        Global::debug(0) << "Created lit sprite shader" << std::endl;
+        Global::debug(1) << "Created lit sprite shader" << std::endl;
     } catch (const Filesystem::NotFound & fail){
         Global::debug(0) << "Could not load lit sprite shader: " << fail.getTrace() << std::endl;
         return 1;
@@ -1074,10 +1062,34 @@ void Bitmap::readLine(std::vector<Color> & line, int y){
     /* TODO */
 }
 
-void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
+void TranslucentBitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const {
     changeTarget(this, where);
     TransBlender blender;
-    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, 0);
+    Util::ReferenceCount<Shader> shader;
+    if (filter != NULL){
+        shader = filter->getShader();
+    }
+
+    ALLEGRO_SHADER * a5shader = NULL;
+    if (shader != NULL){
+        a5shader = shader->getShader();
+    }
+
+    if (a5shader != NULL){
+        al_set_shader(the_display, a5shader);
+        al_use_shader(a5shader, true);
+    }
+
+    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, flags);
+
+    if (a5shader != NULL){
+        al_set_shader(the_display, shader_default);
+        al_use_shader(shader_default, true);
+    }
+}
+
+void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) const {
+    draw(x, y, NULL, where, 0);
 }
 
 void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
@@ -1154,7 +1166,8 @@ void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitm
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    changeTarget(this, where);
+    doDrawLit(x, y, *this, ALLEGRO_FLIP_VERTICAL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
@@ -1162,7 +1175,8 @@ void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitm
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    changeTarget(this, where);
+    doDrawLit(x, y, *this, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
@@ -1170,37 +1184,36 @@ void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bit
 }
 
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    changeTarget(this, where);
-    TransBlender blender;
-    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, 0);
+    draw(x, y, filter, where, 0);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, NULL, where, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void TranslucentBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, filter, where, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void TranslucentBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, NULL, where, ALLEGRO_FLIP_VERTICAL);
 }
 
 void TranslucentBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, filter, where, ALLEGRO_FLIP_VERTICAL);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, NULL, where, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void TranslucentBitmap::drawHVFlip( const int x, const int y, Filter * filter,const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, filter, where, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void TranslucentBitmap::hLine( const int x1, const int y, const int x2, const Color color ) const {
-    /* TODO */
+    TransBlender blender;
+    Bitmap::hLine(x1, y, x2, doTransBlend(color, globalBlend.alpha));
 }
 
 void TranslucentBitmap::circleFill(int x, int y, int radius, Color color) const {
