@@ -207,6 +207,7 @@ void Console::draw(const Graphics::Bitmap & work){
         work.translucent().horizontalLine(0, height, work.getWidth(), Graphics::makeColor(200, 200, 200));
         const Font & font = Font::getFont(getFont(), textWidth, textHeight);
         int start = height - font.getHeight() * 2;
+        Graphics::Color white = Graphics::makeColor(255, 255, 255);
 
         int position = 0;
         if (pagePosition != -1){
@@ -214,17 +215,15 @@ void Console::draw(const Graphics::Bitmap & work){
         }
         for (std::vector<std::string>::reverse_iterator i = lines.rbegin() + position; i != lines.rend() && start > 0; ++i){
             std::string str = *i;
-            font.printf(x, start, Graphics::makeColor(255,255,255), work, str, 0);
+            font.printf(x, start, white, work, str, 0);
             start -= font.getHeight();
         }
         if (position != 0){
-            work.circleFill(x, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
-            work.circleFill(x + 5, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
-            work.circleFill(x + 10, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
-            work.circleFill(x + 15, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
-            work.circleFill(x + 20, height - font.getHeight() - 2, 1, Graphics::makeColor(255, 255, 255));
+            for (int x0 = 0; x0 < 5; x0++){
+                work.circleFill(x + x0 * 5, height - font.getHeight() - 2, 1, white);
+            }
         }
-        font.printf(x, height - font.getHeight(), Graphics::makeColor(255,255,255), work, "> " + textInput.getText() + "|", 0);
+        font.printf(x, height - font.getHeight(), white, work, "> " + textInput.getText() + "|", 0);
     }
 }
     

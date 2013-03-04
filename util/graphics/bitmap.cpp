@@ -12,6 +12,23 @@ static Bitmap * Screen = NULL;
 static std::vector<Bitmap*> needResize;
 
 Util::Parameter<Bitmap*> screenParameter;
+Util::Parameter<Util::ReferenceCount<ShaderManager> > shaderManager;
+
+ShaderManager::ShaderManager(){
+}
+
+ShaderManager::~ShaderManager(){
+}
+
+Util::ReferenceCount<Shader> ShaderManager::getShader(const std::string & name, Util::ReferenceCount<Shader> (*create)()){
+    std::map<std::string, Util::ReferenceCount<Shader> >::iterator it = shaders.find(name);
+    if (it == shaders.end()){
+        shaders[name] = create();
+        it = shaders.find(name);
+    }
+
+    return it->second;
+}
 
 /* implementation independant definitions can go here */
 
