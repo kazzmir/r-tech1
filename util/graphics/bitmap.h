@@ -6,6 +6,7 @@
 #include "../parameter.h"
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 
 #ifdef USE_ALLEGRO
@@ -162,6 +163,18 @@ public:
     ALLEGRO_SHADER * shader;
 #endif
 };
+
+class ShaderManager{
+public:
+    ShaderManager();
+    Util::ReferenceCount<Shader> getShader(const std::string & name, Util::ReferenceCount<Shader> (*create)());
+    virtual ~ShaderManager();
+
+protected:
+    std::map<std::string, Util::ReferenceCount<Shader> > shaders;
+};
+
+extern Util::Parameter<Util::ReferenceCount<ShaderManager> > shaderManager;
 
 #ifdef USE_ALLEGRO5
 ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel);
