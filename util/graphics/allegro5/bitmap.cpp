@@ -163,6 +163,12 @@ bit8MaskColor(makeColor(0, 0, 0)){
         out << "Could not create bitmap with dimensions " << width << ", " << height;
         throw BitmapException(__FILE__, __LINE__, out.str());
     }
+    if (al_get_bitmap_flags(bitmap) & ALLEGRO_VIDEO_BITMAP){
+        ALLEGRO_BITMAP * old = al_get_target_bitmap();
+        al_set_target_bitmap(bitmap);
+        al_use_shader(shader_default);
+        al_set_target_bitmap(old);
+    }
     setData(Util::ReferenceCount<BitmapData>(new BitmapData(bitmap)));
     this->width = al_get_bitmap_width(getData()->getBitmap());
     this->height = al_get_bitmap_height(getData()->getBitmap());
@@ -189,6 +195,13 @@ void Bitmap::convertToVideo(){
     }
     al_destroy_bitmap(getData()->getBitmap());
     getData()->setBitmap(copy);
+
+    if (al_get_bitmap_flags(copy) & ALLEGRO_VIDEO_BITMAP){
+        ALLEGRO_BITMAP * old = al_get_target_bitmap();
+        al_set_target_bitmap(copy);
+        al_use_shader(shader_default);
+        al_set_target_bitmap(old);
+    }
 }
 
 void changeTarget(const Bitmap & from, const Bitmap & who){
@@ -485,11 +498,11 @@ void initializeExtraStuff(){
 }
 
 std::string defaultVertexShader(){
-    return std::string(al_get_default_glsl_vertex_shader());
+    return std::string(al_get_default_vertex_shader(ALLEGRO_SHADER_GLSL));
 }
 
 std::string defaultPixelShader(){
-    return std::string(al_get_default_glsl_pixel_shader());
+    return std::string(al_get_default_pixel_shader(ALLEGRO_SHADER_GLSL));
 }
     
 void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit){
@@ -596,7 +609,8 @@ int setGraphicsMode(int mode, int width, int height){
     /* default drawing mode */
     al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
 
-    shader_default = create_shader(al_get_default_glsl_vertex_shader(), al_get_default_glsl_pixel_shader());
+    shader_default = create_shader(defaultVertexShader(), defaultPixelShader());
+    al_use_shader(shader_default);
 
     /* Default shader */
     /*
@@ -608,12 +622,12 @@ int setGraphicsMode(int mode, int width, int height){
         return 1;
     }
     */
-    al_set_shader(the_display, shader_default);
+    // al_set_shader(the_display, shader_default);
     shaders.push_back(shader_default);
     Global::debug(1) << "Created default shader" << std::endl;
 
     try{
-        shader_shadow = create_shader(al_get_default_glsl_vertex_shader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
+        shader_shadow = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
         if (shader_shadow == NULL){
             return 1;
         }
@@ -625,7 +639,7 @@ int setGraphicsMode(int mode, int width, int height){
     }
 
     try{
-        shader_lit_sprite = create_shader(al_get_default_glsl_vertex_shader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
+        shader_lit_sprite = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
         if (shader_lit_sprite == NULL){
             return 1;
         }
@@ -785,6 +799,7 @@ void Bitmap::Blit(const int mx, const int my, const int width, const int height,
 
     changeTarget(this, where);
     Bitmap part(*this, mx, my, width, height);
+    // al_use_shader(shader_default);
     // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
     al_draw_bitmap(part.getData()->getBitmap(), wx, wy, 0);
     /*
@@ -872,16 +887,14 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
     }
 
     if (a5shader != NULL){
-        al_set_shader(the_display, a5shader);
-        al_use_shader(a5shader, true);
+        al_use_shader(a5shader);
     }
 
     /* any source pixels with an alpha value of 0 will be masked */
     al_draw_bitmap(getData()->getBitmap(), x, y, flags);
 
     if (a5shader != NULL){
-        al_set_shader(the_display, shader_default);
-        al_use_shader(shader_default, true);
+        al_use_shader(shader_default);
     }
 }
 
@@ -912,14 +925,12 @@ void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color
     float shadowColor[4];
     al_unmap_rgb_f(color.color, &shadowColor[0], &shadowColor[1], &shadowColor[2]);
     shadowColor[3] = (float) intensity / 255.0;
-    al_set_shader(the_display, shader_shadow);
+    al_use_shader(shader_shadow);
     if (!al_set_shader_float_vector(shader_shadow, "shadow", 4, shadowColor, 1)){
         /* Well.. thats not good. Did the shader source get messed up? */
     }
-    al_use_shader(shader_shadow, true);
     al_draw_scaled_bitmap(getData()->getBitmap(), 0, 0, getWidth(), getHeight(), x, y - newHeight, getWidth(), newHeight, flags);
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
+    al_use_shader(shader_default);
 }
 
 void Bitmap::hLine(const int x1, const int y, const int x2, const Color color) const {
@@ -1076,15 +1087,13 @@ void TranslucentBitmap::draw(const int x, const int y, Filter * filter, const Bi
     }
 
     if (a5shader != NULL){
-        al_set_shader(the_display, a5shader);
-        al_use_shader(a5shader, true);
+        al_use_shader(a5shader);
     }
 
     al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, flags);
 
     if (a5shader != NULL){
-        al_set_shader(the_display, shader_default);
-        al_use_shader(shader_default, true);
+        al_use_shader(shader_default);
     }
 }
 
@@ -1093,6 +1102,7 @@ void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) con
 }
 
 void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
+    /*
     changeTarget(this, where);
 
     // LitBlender blender(makeColorAlpha(globalBlend.red, globalBlend.green, globalBlend.blue, globalBlend.alpha));
@@ -1109,7 +1119,7 @@ void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
     float intensity = (float) globalBlend.alpha / 255.0;
     al_set_shader(the_display, shader);
     if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
-        /* Well.. thats not good. Did the shader source get messed up? */
+        / * Well.. thats not good. Did the shader source get messed up? * /
     }
     if (!al_set_shader_float(shader, "light_intensity", intensity)){
     }
@@ -1117,10 +1127,39 @@ void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
     al_draw_bitmap(getData()->getBitmap(), x, y, 0);
     al_set_shader(the_display, shader_default);
     al_use_shader(shader_default, true);
+    */
 
+    draw(x, y, NULL, where, 0);
 }
 
-static void doDrawLit(const int x, const int y, const Bitmap & who, int flags){
+void LitBitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const {
+    changeTarget(this, where);
+
+    /*
+    TransBlender blender;
+    Util::ReferenceCount<Shader> shader;
+    if (filter != NULL){
+        shader = filter->getShader();
+    }
+
+    ALLEGRO_SHADER * a5shader = NULL;
+    if (shader != NULL){
+        a5shader = shader->getShader();
+    }
+
+    if (a5shader != NULL){
+        al_set_shader(the_display, a5shader);
+        al_use_shader(a5shader, true);
+    }
+
+    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, flags);
+
+    if (a5shader != NULL){
+        al_set_shader(the_display, shader_default);
+        al_use_shader(shader_default, true);
+    }
+    */
+
     MaskedBlender blender;
 
     ALLEGRO_SHADER * shader = shader_lit_sprite;
@@ -1130,23 +1169,18 @@ static void doDrawLit(const int x, const int y, const Bitmap & who, int flags){
     al_unmap_rgb_f(color.color, &light[0], &light[1], &light[2]);
     light[3] = 1;
     float intensity = (float) globalBlend.alpha / 255.0;
-    al_set_shader(the_display, shader);
+    al_use_shader(shader);
     if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
         /* Well.. thats not good. Did the shader source get messed up? */
     }
     if (!al_set_shader_float(shader, "light_intensity", intensity)){
     }
-    al_use_shader(shader, true);
-    al_draw_bitmap(who.getData()->getBitmap(), x, y, flags);
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
+    al_draw_bitmap(getData()->getBitmap(), x, y, flags);
+    al_use_shader(shader_default);
 }
 
 void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    changeTarget(this, where);
-
-    /* FIXME: handle filter */
-    doDrawLit(x, y, *this, 0);
+    draw(x, y, filter, where, 0);
 
     // LitBlender blender(makeColorAlpha(globalBlend.red, globalBlend.green, globalBlend.blue, globalBlend.alpha));
     // TransBlender blender;
@@ -1155,32 +1189,27 @@ void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & 
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, const Bitmap & where ) const {
-    changeTarget(this, where);
-    doDrawLit(x, y, *this, ALLEGRO_FLIP_HORIZONTAL);
+    draw(x, y, NULL, where, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void LitBitmap::drawHFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    changeTarget(this, where);
-    /* FIXME: handle filter */
-    doDrawLit(x, y, *this, ALLEGRO_FLIP_HORIZONTAL);
+    draw(x, y, filter, where, ALLEGRO_FLIP_HORIZONTAL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, const Bitmap & where ) const {
-    changeTarget(this, where);
-    doDrawLit(x, y, *this, ALLEGRO_FLIP_VERTICAL);
+    draw(x, y, NULL, where, ALLEGRO_FLIP_VERTICAL);
 }
 
 void LitBitmap::drawVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, filter, where, ALLEGRO_FLIP_VERTICAL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, const Bitmap & where ) const {
-    changeTarget(this, where);
-    doDrawLit(x, y, *this, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
+    draw(x, y, NULL, where, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void LitBitmap::drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const {
-    /* TODO */
+    draw(x, y, filter, where, ALLEGRO_FLIP_HORIZONTAL | ALLEGRO_FLIP_VERTICAL);
 }
 
 void TranslucentBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
@@ -1316,9 +1345,9 @@ void Bitmap::drawingMode(int type){
 void Bitmap::shutdown(){
     /* Make sure the display is set */
     al_set_target_bitmap(Screen->getData()->getBitmap());
+    al_use_shader(NULL);
     for (std::vector<ALLEGRO_SHADER*>::iterator it = shaders.begin(); it != shaders.end(); it++){
         ALLEGRO_SHADER * shader = *it;
-        al_use_shader(shader, false);
         al_destroy_shader(shader);
     }
 

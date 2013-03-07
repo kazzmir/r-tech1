@@ -622,6 +622,11 @@ public:
     virtual void drawHVFlip( const int x, const int y, const Bitmap & where ) const;
     virtual void drawHVFlip( const int x, const int y, Filter * filter, const Bitmap & where ) const;
     using Bitmap::operator=;
+
+protected:
+#ifdef USE_ALLEGRO5
+    virtual void draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const;
+#endif
 };
 
 class StretchedBitmap: public Bitmap {
