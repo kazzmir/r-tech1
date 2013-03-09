@@ -1102,81 +1102,62 @@ void TranslucentBitmap::draw(const int x, const int y, const Bitmap & where) con
 }
 
 void LitBitmap::draw(const int x, const int y, const Bitmap & where) const {
-    /*
-    changeTarget(this, where);
-
-    // LitBlender blender(makeColorAlpha(globalBlend.red, globalBlend.green, globalBlend.blue, globalBlend.alpha));
-    // TransBlender blender;
-    // al_draw_bitmap(getData()->getBitmap(), x, y, 0);
-    // al_draw_tinted_bitmap(getData()->getBitmap(), al_map_rgba_f(1, 0, 0, 1), x, y, 0);
-    
-    ALLEGRO_SHADER * shader = shader_lit_sprite;
-
-    float light[4];
-    Color color = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
-    al_unmap_rgb_f(color.color, &light[0], &light[1], &light[2]);
-    light[3] = 1;
-    float intensity = (float) globalBlend.alpha / 255.0;
-    al_set_shader(the_display, shader);
-    if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
-        / * Well.. thats not good. Did the shader source get messed up? * /
-    }
-    if (!al_set_shader_float(shader, "light_intensity", intensity)){
-    }
-    al_use_shader(shader, true);
-    al_draw_bitmap(getData()->getBitmap(), x, y, 0);
-    al_set_shader(the_display, shader_default);
-    al_use_shader(shader_default, true);
-    */
-
     draw(x, y, NULL, where, 0);
 }
 
 void LitBitmap::draw(const int x, const int y, Filter * filter, const Bitmap & where, int flags) const {
-    changeTarget(this, where);
 
-    /*
-    TransBlender blender;
-    Util::ReferenceCount<Shader> shader;
-    if (filter != NULL){
-        shader = filter->getShader();
+    if (filter == NULL){
+        changeTarget(this, where);
+
+        /*
+           TransBlender blender;
+           Util::ReferenceCount<Shader> shader;
+           if (filter != NULL){
+           shader = filter->getShader();
+           }
+
+           ALLEGRO_SHADER * a5shader = NULL;
+           if (shader != NULL){
+           a5shader = shader->getShader();
+           }
+
+           if (a5shader != NULL){
+           al_set_shader(the_display, a5shader);
+           al_use_shader(a5shader, true);
+           }
+
+           al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, flags);
+
+           if (a5shader != NULL){
+           al_set_shader(the_display, shader_default);
+           al_use_shader(shader_default, true);
+           }
+           */
+
+        MaskedBlender blender;
+
+        ALLEGRO_SHADER * shader = shader_lit_sprite;
+
+        float light[4];
+        Color color = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
+        al_unmap_rgb_f(color.color, &light[0], &light[1], &light[2]);
+        light[3] = 1;
+        float intensity = (float) globalBlend.alpha / 255.0;
+        al_use_shader(shader);
+        if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
+            /* Well.. thats not good. Did the shader source get messed up? */
+        }
+        if (!al_set_shader_float(shader, "light_intensity", intensity)){
+        }
+        al_draw_bitmap(getData()->getBitmap(), x, y, flags);
+        al_use_shader(shader_default);
+    } else {
+        Bitmap temp = temporaryBitmap(getWidth(), getHeight());
+        temp.fill(MaskColor());
+        Bitmap::draw(0, 0, filter, temp, 0);
+        LitBitmap(temp).draw(x, y, NULL, where, flags);
     }
-
-    ALLEGRO_SHADER * a5shader = NULL;
-    if (shader != NULL){
-        a5shader = shader->getShader();
-    }
-
-    if (a5shader != NULL){
-        al_set_shader(the_display, a5shader);
-        al_use_shader(a5shader, true);
-    }
-
-    al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, flags);
-
-    if (a5shader != NULL){
-        al_set_shader(the_display, shader_default);
-        al_use_shader(shader_default, true);
-    }
-    */
-
-    MaskedBlender blender;
-
-    ALLEGRO_SHADER * shader = shader_lit_sprite;
-
-    float light[4];
-    Color color = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
-    al_unmap_rgb_f(color.color, &light[0], &light[1], &light[2]);
-    light[3] = 1;
-    float intensity = (float) globalBlend.alpha / 255.0;
-    al_use_shader(shader);
-    if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
-        /* Well.. thats not good. Did the shader source get messed up? */
-    }
-    if (!al_set_shader_float(shader, "light_intensity", intensity)){
-    }
-    al_draw_bitmap(getData()->getBitmap(), x, y, flags);
-    al_use_shader(shader_default);
 }
 
 void LitBitmap::draw( const int x, const int y, Filter * filter, const Bitmap & where ) const {
