@@ -41,6 +41,9 @@ deferResize(false){
     if (al_is_keyboard_installed()){
         al_register_event_source(queue, al_get_keyboard_event_source());
     }
+    if (al_is_joystick_installed()){
+        al_register_event_source(queue, al_get_joystick_event_source());
+    }
     if (Graphics::the_display != NULL){
         al_register_event_source(queue, al_get_display_event_source(Graphics::the_display));
     }
@@ -250,8 +253,15 @@ static void handleResize(const ALLEGRO_EVENT & event){
     */
 }
 
-void EventManager::runAllegro5(Keyboard & keyboard, map<int, ReferenceCount<Joystick> > joystick){
+void EventManager::runAllegro5(Keyboard & keyboard, const map<int, ReferenceCount<Joystick> > & joysticks){
     keyboard.poll();
+
+    for (map<int, ReferenceCount<Joystick> >::const_iterator it = joysticks.begin(); it != joysticks.end(); it++){
+        ReferenceCount<Joystick> joystick = it->second;
+        if (joystick != NULL){
+            joystick->poll();
+        }
+    }
 
     ALLEGRO_EVENT event;
     while (al_get_next_event(queue, &event)){
@@ -274,6 +284,11 @@ void EventManager::runAllegro5(Keyboard & keyboard, map<int, ReferenceCount<Joys
             case ALLEGRO_EVENT_KEY_CHAR : {
                 // Global::debug(0) << "Key char " << event.keyboard.keycode << " unicode " << event.keyboard.unichar << std::endl;
                 handleKeyDown(keyboard, event);
+                break;
+            }
+            case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION: {
+                /* FIXME: tell input manager to reconfigure joysticks */
+                // al_reconfigure_joysticks();
                 break;
             }
         }
