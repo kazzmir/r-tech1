@@ -200,7 +200,12 @@ public:
         class Filter{
         public:
             virtual Color filter(Color pixel) const = 0;
+
+            /* getShader should only return the Shader object and not set any uniforms/attributes */
             virtual Util::ReferenceCount<Shader> getShader() = 0;
+
+            /* set the uniforms/attributes */
+            virtual void setupShader(const Util::ReferenceCount<Shader> &) = 0;
             virtual ~Filter(){
             }
         };
