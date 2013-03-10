@@ -260,6 +260,7 @@ static void initSystem(Global::stream_type & out){
     out << "Init image: " << (al_init_image_addon() ? "Ok" : "Failed") << endl;
     out << "Init primitives " << (al_init_primitives_addon() ? "Ok" : "Failed") << endl;
     out << "Init keyboard " << (al_install_keyboard() ? "Ok" : "Failed") << endl;
+    out << "Init joystick " << (al_install_joystick() ? "Ok" : "Failed") << endl;
     al_set_app_name("Paintown");
 }
 #endif

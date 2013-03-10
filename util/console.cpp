@@ -52,6 +52,16 @@ static void doPageDown(void * self){
     console->pageDown();
 }
 
+static void doFontIncrease(void * self){
+    Console * console = (Console*) self;
+    console->fontIncrease();
+}
+
+static void doFontDecrease(void * self){
+    Console * console = (Console*) self;
+    console->fontDecrease();
+}
+
 Console::Console(const int maxHeight, const Filesystem::RelativePath & font):
 state(Closed),
 maxHeight(maxHeight),
@@ -69,6 +79,8 @@ pagePosition(-1){
     textInput.addBlockingHandle(Keyboard::Key_TAB, doTabComplete, this);
     textInput.addBlockingHandle(Keyboard::Key_PGUP, doPageUp, this);
     textInput.addBlockingHandle(Keyboard::Key_PGDN, doPageDown, this);
+    textInput.addBlockingHandle(Keyboard::Key_EQUALS, doFontIncrease, this);
+    textInput.addBlockingHandle(Keyboard::Key_MINUS, doFontDecrease, this);
 }
 
 Console::~Console(){
@@ -101,6 +113,20 @@ void Console::addCommand(const std::string & name, const Util::ReferenceCount<Co
     
 void Console::addAlias(const std::string & alias, const std::string & name){
     addCommand(alias, commands[name]);
+}
+
+void Console::fontIncrease(){
+    textWidth += 1;
+    textHeight += 1;
+}
+
+void Console::fontDecrease(){
+    if (textWidth > 2){
+        textWidth -= 1;
+    }
+    if (textHeight > 2){
+        textHeight -= 1;
+    }
 }
 
 void Console::previousHistory(){

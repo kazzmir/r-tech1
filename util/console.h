@@ -70,6 +70,9 @@ public:
     inline void setTextHeight(int h){ textHeight = h; };
     inline void setTextWidth(int w){ textWidth = w; };
 
+    void fontIncrease();
+    void fontDecrease();
+
     inline const Filesystem::RelativePath & getFont() const {
         return font;
     }

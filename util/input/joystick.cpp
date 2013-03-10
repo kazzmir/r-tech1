@@ -10,6 +10,9 @@
 #ifdef USE_ALLEGRO
 #include "allegro/allegro-joystick.h"
 #endif
+#ifdef USE_ALLEGRO5
+#include "allegro5/joystick.h"
+#endif
 #ifdef USE_SDL
 #ifdef WII
 #include "wii/joystick.h"
@@ -35,6 +38,10 @@ Joystick * Joystick::create(int i){
     return new SDLJoystick(i);
 #endif
 #endif
+#ifdef USE_ALLEGRO5
+    return new Allegro5Joystick(i);
+#endif
+
     /* TODO: support allegro5 joystick */
 /*
 #ifdef LINUX
