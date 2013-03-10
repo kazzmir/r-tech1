@@ -358,6 +358,7 @@ static ALLEGRO_BITMAP * load_bitmap_from_memory(const char * data, int length, I
         case FormatTGA: return do_load_from_memory(data, length, ".tga");
         case FormatTIF: return do_load_from_memory(data, length, ".tif");
         case FormatXPM: return do_load_from_memory(data, length, ".xpm");
+        case FormatUnknown: break;
         case FormatGIF : {
             return memoryGIF(data, length);
             break;
@@ -510,7 +511,7 @@ std::string defaultPixelShader(){
 }
     
 void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit){
-    al_set_shader_sampler(shader, name.c_str(), texture.getData()->getBitmap(), unit); 
+    al_set_shader_sampler(name.c_str(), texture.getData()->getBitmap(), unit); 
 }
 
 void setShaderBool(ALLEGRO_SHADER * shader, const std::string & name, bool value){
@@ -518,11 +519,11 @@ void setShaderBool(ALLEGRO_SHADER * shader, const std::string & name, bool value
 }
 
 void setShaderInt(ALLEGRO_SHADER * shader, const std::string & name, int value){
-    al_set_shader_int(shader, name.c_str(), value); 
+    al_set_shader_int(name.c_str(), value); 
 }
 
 void setShaderFloat(ALLEGRO_SHADER * shader, const std::string & name, float value){
-    al_set_shader_float(shader, name.c_str(), value); 
+    al_set_shader_float(name.c_str(), value); 
 }
 
 void setShaderVec4(ALLEGRO_SHADER * shader, const std::string & name, float v1, float v2, float v3, float v4){
@@ -532,7 +533,7 @@ void setShaderVec4(ALLEGRO_SHADER * shader, const std::string & name, float v1, 
     vector[2] = v3;
     vector[3] = v4;
 
-    al_set_shader_float_vector(shader, name.c_str(), 4, &vector[0], 1);
+    al_set_shader_float_vector(name.c_str(), 4, &vector[0], 1);
 }
 
 ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel){
@@ -892,6 +893,7 @@ void Bitmap::draw(const int x, const int y, Filter * filter, const Bitmap & wher
 
     if (a5shader != NULL){
         al_use_shader(a5shader);
+        filter->setupShader(shader);
     }
 
     /* any source pixels with an alpha value of 0 will be masked */
@@ -930,7 +932,7 @@ void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color
     al_unmap_rgb_f(color.color, &shadowColor[0], &shadowColor[1], &shadowColor[2]);
     shadowColor[3] = (float) intensity / 255.0;
     al_use_shader(shader_shadow);
-    if (!al_set_shader_float_vector(shader_shadow, "shadow", 4, shadowColor, 1)){
+    if (!al_set_shader_float_vector("shadow", 4, shadowColor, 1)){
         /* Well.. thats not good. Did the shader source get messed up? */
     }
     al_draw_scaled_bitmap(getData()->getBitmap(), 0, 0, getWidth(), getHeight(), x, y - newHeight, getWidth(), newHeight, flags);
@@ -1092,6 +1094,7 @@ void TranslucentBitmap::draw(const int x, const int y, Filter * filter, const Bi
 
     if (a5shader != NULL){
         al_use_shader(a5shader);
+        filter->setupShader(shader);
     }
 
     al_draw_tinted_bitmap(getData()->getBitmap(), getBlendColor().color, x, y, flags);
@@ -1149,10 +1152,10 @@ void LitBitmap::draw(const int x, const int y, Filter * filter, const Bitmap & w
         light[3] = 1;
         float intensity = (float) globalBlend.alpha / 255.0;
         al_use_shader(shader);
-        if (!al_set_shader_float_vector(shader, "light_color", 4, light, 1)){
+        if (!al_set_shader_float_vector("light_color", 4, light, 1)){
             /* Well.. thats not good. Did the shader source get messed up? */
         }
-        if (!al_set_shader_float(shader, "light_intensity", intensity)){
+        if (!al_set_shader_float("light_intensity", intensity)){
         }
         al_draw_bitmap(getData()->getBitmap(), x, y, flags);
         al_use_shader(NULL);
