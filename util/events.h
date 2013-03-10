@@ -77,7 +77,7 @@ private:
     virtual void runAllegro(Keyboard & keyboard, std::map<int, ReferenceCount<Joystick> >);
 #endif
 #ifdef USE_ALLEGRO5
-    virtual void runAllegro5(Keyboard & keyboard, std::map<int, ReferenceCount<Joystick> >);
+    virtual void runAllegro5(Keyboard & keyboard, const std::map<int, ReferenceCount<Joystick> > &);
     ALLEGRO_EVENT_QUEUE * queue;
 #endif
 
