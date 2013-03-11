@@ -2569,13 +2569,17 @@ public:
         Exit
     };
 
-    JoystickLogicDraw(const Util::ReferenceCount<Joystick> & joystick, const ::Menu::Context & context):
+    static const int marginX = 20;
+
+    JoystickLogicDraw(int id, const Util::ReferenceCount<Joystick> & joystick, const ::Menu::Context & context):
+    id(id),
     joystick(joystick),
     quit(false),
     context(context, Menu::Context()){
         input.set(Keyboard::Key_ESC, Exit);
     }
 
+    const int id;
     Util::ReferenceCount<Joystick> joystick;
     bool quit;
     Menu::Context context;
@@ -2607,50 +2611,90 @@ public:
         return system * Global::ticksPerSecond(60);
     }
 
-    void drawButtons(const Font & font, const Graphics::Bitmap & buffer){
-        int y = 30;
+    void drawButtons(const Font & font, const Graphics::Bitmap & buffer, int y){
         Graphics::Color color = Graphics::makeColor(255, 255, 255);
-        font.printf(1, y, color, buffer, "Up: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Down: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Left: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Right: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Button1: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Button2: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Button3: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Button4: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Button5: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Button6: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Select: ", 0); y += font.getHeight() + 5;
-        font.printf(1, y, color, buffer, "Quit: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Up: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Down: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Left: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Right: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Button1: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Button2: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Button3: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Button4: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Button5: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Button6: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Select: ", 0); y += font.getHeight() + 5;
+        font.printf(marginX, y, color, buffer, "Quit: ", 0); y += font.getHeight() + 5;
     }
     
     void draw(const Graphics::Bitmap & buffer){
         const Font & font = Menu::menuFontParameter.current()->get();
         Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
         work.start();
-        context.renderBackground(buffer);
-        font.printf(1, 1, Graphics::makeColor(255, 255, 255), buffer, "Joystick: %s", 0, joystick->getName().c_str());
+        context.renderBackground(work);
+        
+        /* FIXME: scale the joystck name down to fit */
+        font.printf(marginX, 1, Graphics::makeColor(255, 255, 255), work, "Joystick %d: %s", 0, id, joystick->getName().c_str());
 
-        drawButtons(font, buffer);
-        context.renderForeground(buffer);
+        drawButtons(font, work, 1 + font.getHeight() + 5);
+        context.renderForeground(work);
 
         work.finish();
-        
-        // buffer.BlitToScreen();
-
-        /*
-        Util::ReferenceCount<FontInfo> font = context.getFont();
-        Font & font = font.get();
-        */
     }
 };
+
+static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick> & joystick, const ::Menu::Context & context){
+    Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
+    Menu::Menu menu(renderer.convert<Menu::Renderer>());
+
+    Gui::ContextBox & box = renderer->getBox();
+    box.setListType(ContextBox::Normal);
+
+    class JoystickButton: public MenuOption {
+    public:
+        JoystickButton(const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name):
+        MenuOption(parent, NULL),
+        joystick(joystick){
+            setText(name);
+            setInfoText(name);
+        }
+
+        void logic(){
+        }
+
+        void run(const Menu::Context & context){
+        }
+
+        Util::ReferenceCount<Joystick> joystick;
+    };
+
+    menu.addOption(new JoystickButton(box, joystick, "Up"));
+    menu.addOption(new JoystickButton(box, joystick, "Down"));
+    menu.addOption(new JoystickButton(box, joystick, "Left"));
+    menu.addOption(new JoystickButton(box, joystick, "Right"));
+    menu.addOption(new JoystickButton(box, joystick, "Button1"));
+    menu.addOption(new JoystickButton(box, joystick, "Button2"));
+    menu.addOption(new JoystickButton(box, joystick, "Button3"));
+    menu.addOption(new JoystickButton(box, joystick, "Button4"));
+    menu.addOption(new JoystickButton(box, joystick, "Button5"));
+    menu.addOption(new JoystickButton(box, joystick, "Button6"));
+    menu.addOption(new JoystickButton(box, joystick, "Select"));
+    menu.addOption(new JoystickButton(box, joystick, "Quit"));
+
+    try {
+        menu.run(context);
+    } catch (const Exception::Return & ignore){
+    } catch (const Menu::MenuException & ex){
+    }
+}
 
 void OptionJoystick::run(const Menu::Context & context){
     class JoystickOption: public MenuOption {
     public:
         JoystickOption(const Gui::ContextBox & parent, int id, const Util::ReferenceCount<Joystick> & joystick):
         MenuOption(parent, NULL),
-        joystick(joystick){
+        joystick(joystick),
+        id(id){
             ostringstream out;
             out << "Joystick " << (id + 1);
             setText(out.str());
@@ -2658,13 +2702,17 @@ void OptionJoystick::run(const Menu::Context & context){
         }
         
         const Util::ReferenceCount<Joystick> joystick;
+        const int id;
 
         virtual void logic(){
         }
 
         virtual void run(const ::Menu::Context & context){
-            JoystickLogicDraw mainLoop(joystick, context);
+            runJoystickMenu(id, joystick, context);
+            /*
+            JoystickLogicDraw mainLoop(id, joystick, context);
             Util::standardLoop(mainLoop, mainLoop);
+            */
             throw ::Menu::MenuException(__FILE__, __LINE__);
         }
     };

@@ -503,11 +503,11 @@ void initializeExtraStuff(){
 }
 
 std::string defaultVertexShader(){
-    return std::string(al_get_default_vertex_shader(ALLEGRO_SHADER_GLSL));
+    return std::string(al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_VERTEX_SHADER));
 }
 
 std::string defaultPixelShader(){
-    return std::string(al_get_default_pixel_shader(ALLEGRO_SHADER_GLSL));
+    return std::string(al_get_default_shader_source(ALLEGRO_SHADER_GLSL, ALLEGRO_PIXEL_SHADER));
 }
     
 void setShaderSampler(ALLEGRO_SHADER * shader, const std::string & name, const Bitmap & texture, int unit){
