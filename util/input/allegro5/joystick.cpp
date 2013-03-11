@@ -199,13 +199,13 @@ id(id){
 }
     
 void Allegro5Joystick::axis(int stick, int axis, float position){
-    // Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
+    Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
         
     buttons->axisMotionEvents(stick, axis, position, events);
 }
     
 void Allegro5Joystick::buttonDown(int button){
-    // Global::debug(0) << "Button down " << button << std::endl;
+    Global::debug(0) << "Button down " << button << std::endl;
 
     Key event = buttons->toKey(button);
     if (event != Invalid){
@@ -214,7 +214,7 @@ void Allegro5Joystick::buttonDown(int button){
 }
 
 void Allegro5Joystick::buttonUp(int button){
-    // Global::debug(0) << "Button up " << button << std::endl;
+    Global::debug(0) << "Button up " << button << std::endl;
 
     Key event = buttons->toKey(button);
     if (event != Invalid){
