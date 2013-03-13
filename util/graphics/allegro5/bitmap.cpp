@@ -549,7 +549,7 @@ ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & p
         Global::debug(0) << "attach pixel shader source failed: " << al_get_shader_log(shader) << std::endl << pixel << std::endl;
         return NULL;
     }
-    if (!al_link_shader(shader)){
+    if (!al_build_shader(shader)){
         Global::debug(0) << "shader al_link_shader failed: " << al_get_shader_log(shader) << std::endl;
         return NULL;
     }
