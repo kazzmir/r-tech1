@@ -355,7 +355,7 @@ void Configuration::setJump(int config, int i){
 
 int Configuration::getKey(int config, const string & name, int defaultValue){
     ostringstream path;
-    path << config_input << "/" << config << "/keys/" << name;
+    path << config_input << "/" << INPUT_TYPE << "/" << config << "/keys/" << name;
     return getProperty(path.str(), defaultValue);
 }
 
