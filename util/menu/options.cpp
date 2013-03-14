@@ -806,7 +806,7 @@ void OptionFullscreen::logic(){;
 static void changeScreenMode(){
     Configuration::setFullscreen(!Configuration::getFullscreen());
     int gfx = (Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED);
-    Graphics::setGraphicsMode(gfx, Graphics::Bitmap::getScreenWidth(), Graphics::Bitmap::getScreenHeight());
+    Graphics::changeGraphicsMode(gfx, Graphics::Bitmap::getScreenWidth(), Graphics::Bitmap::getScreenHeight());
 }
 
 void OptionFullscreen::run(const Menu::Context & context){
@@ -1835,14 +1835,14 @@ void OptionScreenSize::setMode(int width, int height){
 
         Global::debug(1) << "Changing mode to " << width << " x " << height << endl;
         int gfx = Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED;
-        int ok = Graphics::setGraphicsMode(gfx, width, height);
+        int ok = Graphics::changeGraphicsMode(gfx, width, height);
         if (ok == 0){
             Global::debug(1) << "Success" << endl;
             Configuration::setScreenWidth(width);
             Configuration::setScreenHeight(height);
         } else {
             Global::debug(1) << "Fail" << endl;
-            int ok = Graphics::setGraphicsMode(gfx, Configuration::getScreenWidth(), Configuration::getScreenHeight());
+            int ok = Graphics::changeGraphicsMode(gfx, Configuration::getScreenWidth(), Configuration::getScreenHeight());
             Global::debug(1) << "Set mode back " << ok << endl;
         }
     }

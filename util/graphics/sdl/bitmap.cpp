@@ -539,6 +539,10 @@ void getNativePs3Resolution(int * width, int * height){
 }
 #endif
 
+int changeGraphicsMode(int mode, int width, int height){
+    return setGraphicsMode(mode, width, height);
+}
+
 int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
 
