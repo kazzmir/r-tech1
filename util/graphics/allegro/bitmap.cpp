@@ -670,6 +670,10 @@ void Bitmap::replaceColor(const Color & original, const Color & replaced){
     }
 }
 
+int changeGraphicsMode(int mode, int width, int height){
+    return setGraphicsMode(mode, width, height);
+}
+
 int setGraphicsMode( int mode, int width, int height ){
     int ok = ::set_gfx_mode(mode, width, height, 0, 0);
     if ( ok == 0 ){

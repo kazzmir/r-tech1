@@ -134,7 +134,9 @@ void hsvToRGB( float h, float s, float v, int * r, int * g, int * b );
 int setGfxModeText();
 int setGfxModeFullscreen( int x, int y );
 int setGfxModeWindowed( int x, int y );
+/* Only call this method once, from init. After that call changeGraphicsMode */
 int setGraphicsMode(int mode, int width, int height);
+int changeGraphicsMode(int mode, int width, int height);
 
 /* get color components */
 int getRed(Color x);

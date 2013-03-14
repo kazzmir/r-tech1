@@ -555,6 +555,39 @@ ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & p
     return shader;
 }
 
+int changeGraphicsMode(int mode, int width, int height){
+    /* FIXME: handle mode */
+    return !al_resize_display(the_display, width, height);
+}
+
+static int createShaders(){
+    try{
+        shader_shadow = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
+        if (shader_shadow == NULL){
+            return 1;
+        }
+        shaders.push_back(shader_shadow);
+        Global::debug(1) << "Created shadow shader" << std::endl;
+    } catch (const Filesystem::NotFound & fail){
+        Global::debug(0) << "Could not load shadow shader: " << fail.getTrace() << std::endl;
+        return 1;
+    }
+
+    try{
+        shader_lit_sprite = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
+        if (shader_lit_sprite == NULL){
+            return 1;
+        }
+        shaders.push_back(shader_lit_sprite);
+        Global::debug(1) << "Created lit sprite shader" << std::endl;
+    } catch (const Filesystem::NotFound & fail){
+        Global::debug(0) << "Could not load lit sprite shader: " << fail.getTrace() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 int setGraphicsMode(int mode, int width, int height){
     initializeExtraStuff();
 
@@ -630,27 +663,7 @@ int setGraphicsMode(int mode, int width, int height){
     // shaders.push_back(shader_default);
     // Global::debug(1) << "Created default shader" << std::endl;
 
-    try{
-        shader_shadow = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
-        if (shader_shadow == NULL){
-            return 1;
-        }
-        shaders.push_back(shader_shadow);
-        Global::debug(1) << "Created shadow shader" << std::endl;
-    } catch (const Filesystem::NotFound & fail){
-        Global::debug(0) << "Could not load shadow shader: " << fail.getTrace() << std::endl;
-        return 1;
-    }
-
-    try{
-        shader_lit_sprite = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
-        if (shader_lit_sprite == NULL){
-            return 1;
-        }
-        shaders.push_back(shader_lit_sprite);
-        Global::debug(1) << "Created lit sprite shader" << std::endl;
-    } catch (const Filesystem::NotFound & fail){
-        Global::debug(0) << "Could not load lit sprite shader: " << fail.getTrace() << std::endl;
+    if (createShaders()){
         return 1;
     }
 
