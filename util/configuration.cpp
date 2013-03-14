@@ -13,7 +13,6 @@
 
 #include <map>
 
-/* FIXME: this backend stuff isn't used at the moment */
 #ifdef USE_SDL
 #if SDL_VERSION_ATLEAST(1, 3, 0)
 static const std::string INPUT_TYPE = "SDL1.3";

@@ -594,6 +594,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     frameCount += 1;
                     draw.updateFrames();
                     uint64_t now = System::currentMilliseconds();
+                    screen.clear();
                     draw.draw(blackBars(screen));
                     screen.BlitToScreen();
                     uint64_t later = System::currentMilliseconds();
@@ -613,6 +614,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     rest(1);
                 } else {
                     draw.updateFrames();
+                    screen.clear();
                     draw.draw(blackBars(screen));
                     screen.BlitToScreen();
                 }
