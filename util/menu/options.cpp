@@ -210,11 +210,11 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
                 break;
         }
         // FIXME temporary solution
-        const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(topWidth, topHeight);
+        const Graphics::Bitmap temp(topWidth, topHeight);
         //topAnimation->draw(x - xmod, y, topWidth, topHeight, work);
         topAnimation->draw(0, 0, topWidth, topHeight, temp);
         temp.translucent().draw(x-xmod, y, work);
-        currentY+=topHeight;
+        currentY += topHeight;
     }
     
     if (!title.empty()){
@@ -270,11 +270,11 @@ int OptionCredits::Block::print(int x, int y, Graphics::Color defaultTitleColor,
                 break;
         }
         // FIXME temporary solution
-        const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(topWidth, topHeight);
+        const Graphics::Bitmap temp(topWidth, topHeight);
         //bottomAnimation->draw(x - xmod, y, bottomWidth, bottomHeight, work);
         bottomAnimation->draw(0, 0, bottomWidth, bottomHeight, temp);
         temp.translucent().draw(x-xmod, y, work);
-        currentY+=bottomHeight;
+        currentY += bottomHeight;
     }
     
     currentY += font.getHeight() + spacing;
