@@ -503,7 +503,7 @@ void Draw::updateFrames(){
 static void changeScreenMode(){
     Configuration::setFullscreen(!Configuration::getFullscreen());
     int gfx = (Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED);
-    Graphics::setGraphicsMode(gfx, Graphics::Bitmap::getScreenWidth(), Graphics::Bitmap::getScreenHeight());
+    Graphics::changeGraphicsMode(gfx, Graphics::Bitmap::getScreenWidth(), Graphics::Bitmap::getScreenHeight());
 }
 
 static void checkFullscreen(){

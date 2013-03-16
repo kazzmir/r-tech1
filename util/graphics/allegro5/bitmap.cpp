@@ -599,15 +599,15 @@ int setGraphicsMode(int mode, int width, int height){
         case FULLSCREEN: {
 #ifdef IPHONE
             al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
-            al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+            al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_PROGRAMMABLE_PIPELINE);
 #else
-            al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_USE_PROGRAMMABLE_PIPELINE);
+            al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_PROGRAMMABLE_PIPELINE);
 #endif
             break;
         }
         case WINDOWED: {
             al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE |
-                                     ALLEGRO_USE_PROGRAMMABLE_PIPELINE |
+                                     ALLEGRO_PROGRAMMABLE_PIPELINE |
                                      ALLEGRO_OPENGL);
             break;
         }
