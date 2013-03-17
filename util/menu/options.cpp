@@ -2652,34 +2652,130 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
     class JoystickButton: public MenuOption {
     public:
-        JoystickButton(const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name):
+        JoystickButton(const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name, Joystick::Key key):
         MenuOption(parent, NULL),
-        joystick(joystick){
+        name(name),
+        joystick(joystick),
+        key(key){
             setText(name);
             setInfoText(name);
         }
 
+        string name;
+        Util::ReferenceCount<Joystick> joystick;
+        Joystick::Key key;
+
+        class ButtonListener: public JoystickListener {
+        public:
+            ButtonListener():
+            done(false),
+            chosen(-1){
+            }
+
+            map<int, int> presses;
+            map<int, bool> pressed;
+            bool done;
+            int chosen;
+
+            int getButton(){
+                return chosen;
+            }
+
+            virtual ~ButtonListener(){
+            }
+
+            bool isDone() const {
+                return done;
+            }
+
+            bool anyPressed(){
+                for (map<int, bool>::iterator it = pressed.begin(); it != pressed.end(); it++){
+                    if (it->second){
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            virtual void pressButton(Joystick * from, int button){
+                pressed[button] = true;
+                presses[button] += 1;
+                if (presses[button] > 3){
+                    chosen = button;
+                    done = true;
+                }
+            }
+
+            virtual void releaseButton(Joystick * from, int button){
+                pressed[button] = false;
+            }
+
+            virtual void axisMotion(Joystick * from, int axis, int motion){
+            }
+
+            virtual void hatMotion(Joystick * from, int motion){
+            }
+        };
+
         void logic(){
+            ostringstream out;
+            int button = joystick->getButton(key);
+            out << name << ": ";
+            if (button != -1){
+                out << joystick->getButton(key);
+            } else {
+                out << "unset";
+            }
+            setText(out.str());
         }
 
         void run(const Menu::Context & context){
-        }
+            Global::debug(1) << "Set button " << getName() << std::endl;
+            InputMap<int> input;
+            input.set(Keyboard::Key_ESC, 0);
+            ButtonListener listener;
+            joystick->addListener(&listener);
+            try{
+                while (!listener.isDone()){
+                    InputManager::poll();
 
-        Util::ReferenceCount<Joystick> joystick;
+                    vector<InputMap<int>::InputEvent> out = InputManager::getEvents(input, InputSource());
+                    for (vector<InputMap<int>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
+                        const InputMap<int>::InputEvent & event = *it;
+                        if (event.enabled){
+                            if (event.out == 0){
+                                throw Exception::Return(__FILE__, __LINE__);
+                            }
+                        }
+                    }
+                    Util::rest(1);
+                }
+                Global::debug(1) << "Chosen button " << listener.getButton() << std::endl;
+                joystick->customButton(listener.getButton(), key);
+            } catch (const Exception::Return & quit){
+            }
+
+            while (listener.anyPressed()){
+                InputManager::poll();
+                Util::rest(1);
+            }
+
+            joystick->removeListener(&listener);
+        }
     };
 
-    menu.addOption(new JoystickButton(box, joystick, "Up"));
-    menu.addOption(new JoystickButton(box, joystick, "Down"));
-    menu.addOption(new JoystickButton(box, joystick, "Left"));
-    menu.addOption(new JoystickButton(box, joystick, "Right"));
-    menu.addOption(new JoystickButton(box, joystick, "Button1"));
-    menu.addOption(new JoystickButton(box, joystick, "Button2"));
-    menu.addOption(new JoystickButton(box, joystick, "Button3"));
-    menu.addOption(new JoystickButton(box, joystick, "Button4"));
-    menu.addOption(new JoystickButton(box, joystick, "Button5"));
-    menu.addOption(new JoystickButton(box, joystick, "Button6"));
-    menu.addOption(new JoystickButton(box, joystick, "Select"));
-    menu.addOption(new JoystickButton(box, joystick, "Quit"));
+    menu.addOption(new JoystickButton(box, joystick, "Up", Joystick::Up));
+    menu.addOption(new JoystickButton(box, joystick, "Down", Joystick::Down));
+    menu.addOption(new JoystickButton(box, joystick, "Left", Joystick::Left));
+    menu.addOption(new JoystickButton(box, joystick, "Right", Joystick::Right));
+    menu.addOption(new JoystickButton(box, joystick, "Button1", Joystick::Button1));
+    menu.addOption(new JoystickButton(box, joystick, "Button2", Joystick::Button2));
+    menu.addOption(new JoystickButton(box, joystick, "Button3", Joystick::Button3));
+    menu.addOption(new JoystickButton(box, joystick, "Button4", Joystick::Button4));
+    menu.addOption(new JoystickButton(box, joystick, "Button5", Joystick::Button5));
+    menu.addOption(new JoystickButton(box, joystick, "Button6", Joystick::Button6));
+    menu.addOption(new JoystickButton(box, joystick, "Start", Joystick::Start));
+    menu.addOption(new JoystickButton(box, joystick, "Quit", Joystick::Quit));
 
     try {
         menu.run(context);

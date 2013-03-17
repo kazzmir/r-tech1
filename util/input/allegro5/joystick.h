@@ -13,6 +13,8 @@ public:
     virtual void poll();
     virtual int getDeviceId() const;
     virtual std::string getName() const;
+    virtual Key getKey(int button);
+    virtual int getButton(Key key);
 
     virtual ~Allegro5Joystick();
 
