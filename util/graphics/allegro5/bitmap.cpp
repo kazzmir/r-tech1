@@ -636,15 +636,18 @@ int setGraphicsMode(int mode, int width, int height){
     /* dont destroy the backbuffer */
     Screen->getData()->setDestroy(false);
 
+    /*
     ALLEGRO_TRANSFORM transformation;
     al_identity_transform(&transformation);
     al_scale_transform(&transformation, (double) Screen->getWidth() / (double) width, (double) Screen->getHeight() / (double) height);
     al_set_target_bitmap(Screen->getData()->getBitmap());
     al_use_transform(&transformation);
+    */
 
     // Scaler = new Bitmap(width, height);
     /* default drawing mode */
-    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    // al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 
     // shader_default = create_shader(defaultVertexShader(), defaultPixelShader());
     // al_use_shader(shader_default);

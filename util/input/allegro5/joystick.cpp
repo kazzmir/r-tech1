@@ -16,6 +16,7 @@ public:
     virtual ~ButtonMapping(){
     }
 
+    virtual int toNative(Joystick::Key key) = 0;
     virtual Joystick::Key toKey(int button) = 0;
     virtual void axisMotionEvents(int stick, int axis, float position, vector<Joystick::Event> & events) = 0;
     virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events) = 0;
@@ -24,6 +25,25 @@ public:
 class DefaultMapping: public ButtonMapping {
 public:
     DefaultMapping(){
+    }
+    
+    virtual int toNative(Joystick::Key key){
+        switch (key){
+            case Joystick::Button1: return 0;
+            case Joystick::Button2: return 1;
+            case Joystick::Button3: return 2;
+            case Joystick::Button4: return 3;
+            case Joystick::Button5: return 4;
+            case Joystick::Button6: return 5;
+            case Joystick::Start: return 6;
+            case Joystick::Quit: return 7;
+            case Joystick::Up: return 8;
+            case Joystick::Down: return 9;
+            case Joystick::Left: return 10;
+            case Joystick::Right: return 11;
+        }
+
+        return -1;
     }
     
     virtual Joystick::Key toKey(int button){
@@ -69,14 +89,21 @@ public:
         L1 = 4
     };
 
-    int toNative(int button){
+    int toNative(Joystick::Key key){
+        switch (key){
+            case Joystick::Button1: return Button1;
+            case Joystick::Button2: return Button2;
+            case Joystick::Button3: return Button3;
+            case Joystick::Button4: return Button4;
+            case Joystick::Button5: return L1;
+            case Joystick::Button6: return R1;
+            case Joystick::Start: return Start;
+            case Joystick::Quit: return Select;
+
+        }
         return -1;
     }
 
-    int fromNative(int button){
-        return -1;
-    }
-    
     Joystick::Key toKey(int button){
         switch (button){
             case Button1: return Joystick::Button1;
@@ -199,26 +226,52 @@ id(id){
 }
     
 void Allegro5Joystick::axis(int stick, int axis, float position){
-    Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
+    // Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
         
     buttons->axisMotionEvents(stick, axis, position, events);
 }
+
+Joystick::Key Allegro5Joystick::getKey(int button){
+    if (custom.find(button) != custom.end()){
+        return custom[button];
+    }
+    return buttons->toKey(button);
+}
+    
+int Allegro5Joystick::getButton(Key key){
+    for (std::map<int, Key>::iterator it = custom.begin(); it != custom.end(); it++){
+        if (it->second == key){
+            return it->first;
+        }
+    }
+
+    return buttons->toNative(key);
+}
     
 void Allegro5Joystick::buttonDown(int button){
-    Global::debug(0) << "Button down " << button << std::endl;
+    // Global::debug(0) << "Button down " << button << std::endl;
 
-    Key event = buttons->toKey(button);
+    std::set<JoystickListener*> listeners = getListeners();
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->pressButton(this, button);
+    }
+
+    Key event = getKey(button);
     if (event != Invalid){
-        events.push_back(Event(event, false));
+        events.push_back(Event(event, true));
     }
 }
 
 void Allegro5Joystick::buttonUp(int button){
-    Global::debug(0) << "Button up " << button << std::endl;
+    // Global::debug(0) << "Button up " << button << std::endl;
 
-    Key event = buttons->toKey(button);
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->releaseButton(this, button);
+    }
+
+    Key event = getKey(button);
     if (event != Invalid){
-        events.push_back(Event(event, true));
+        events.push_back(Event(event, false));
     }
 }
 

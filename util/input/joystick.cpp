@@ -23,6 +23,12 @@
 #include "sdl/joystick.h"
 #endif
 #endif
+    
+JoystickListener::JoystickListener(){
+}
+
+JoystickListener::~JoystickListener(){
+}
 
 Joystick * Joystick::create(int i){
 #ifdef USE_ALLEGRO
@@ -91,6 +97,10 @@ void Joystick::axisMotion(int axis, int motion){
 }
 
 void Joystick::hatMotion(int motion){
+}
+    
+void Joystick::customButton(int button, Key key){
+    custom[button] = key;
 }
     
 void Joystick::addListener(JoystickListener * listener){

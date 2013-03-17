@@ -55,6 +55,14 @@ AllegroJoystick::~AllegroJoystick(){
 AllegroJoystick::AllegroJoystick(){
 }
     
+Joystick::Key AllegroJoystick::getKey(int button){
+    return Joystick::Invalid;
+}
+
+int AllegroJoystick::getButton(Key key){
+    return -1;
+}
+    
 int AllegroJoystick::getDeviceId() const {
     return 0;
 }

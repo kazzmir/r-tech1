@@ -19,8 +19,7 @@ public:
     virtual ~ButtonMapping(){
     }
 
-    virtual int toNative(int button) = 0;
-    virtual int fromNative(int button) = 0;
+    virtual int toNative(Joystick::Key key) = 0;
     virtual Joystick::Key toKey(int button) = 0;
     virtual void axisMotionEvents(int axis, int motion, vector<Joystick::Event> & events) = 0;
     virtual void hatMotionEvents(int motion, vector<Joystick::Event> & events) = 0;
@@ -28,12 +27,18 @@ public:
 
 class DefaultButtonMapping: public ButtonMapping {
 public:
-    int toNative(int button){
-        return button;
-    }
-
-    int fromNative(int button){
-        return button;
+    int toNative(Joystick::Key key){
+        switch (key){
+            case Joystick::Button1: return 0;
+            case Joystick::Button2: return 1;
+            case Joystick::Button3: return 2;
+            case Joystick::Button4: return 3;
+            case Joystick::Quit: return 4;
+            case Joystick::Button5: return 5;
+            case Joystick::Button6: return 6;
+            default: return -1;
+        }
+        return -1;
     }
 
     Joystick::Key toKey(int button){
@@ -122,29 +127,17 @@ public:
         Ps3 = 16
     };
 
-    int toNative(int button){
-        switch (button){
-            case 0: return Square;
-            case 1: return Cross;
-            case 2: return Circle;
-            case 3: return Triangle;
-            case 4: return Start;
+    int toNative(Joystick::Key key){
+        switch (key){
+            case Joystick::Button1: return Square;
+            case Joystick::Button2: return Cross;
+            case Joystick::Button3: return Circle;
+            case Joystick::Button4: return Triangle;
+            case Joystick::Start: return Start;
+            default: return -1;
         }
 
-        return button;
-    }
-
-    int fromNative(int button){
-        switch (button){
-            case Square: return 0;
-            case Cross: return 1;
-            case Circle: return 2;
-            case Triangle: return 3;
-            case Start: return Start;
-            default: return 5;
-        }
-
-        return button;
+        return -1;
     }
 
     Joystick::Key toKey(int button){
@@ -188,11 +181,7 @@ public:
         L1 = 4
     };
 
-    int toNative(int button){
-        return -1;
-    }
-
-    int fromNative(int button){
+    int toNative(Joystick::Key key){
         return -1;
     }
     
@@ -280,27 +269,16 @@ public:
         R3 = 5
     };
 
-    int toNative(int button){
-        switch (button){
-            case 0: return Square;
-            case 1: return Cross;
-            case 2: return Circle;
-            case 3: return Triangle;
-            case 4: return Start;
+    int toNative(Joystick::Key key){
+        switch (key){
+            case Joystick::Button1: return Square;
+            case Joystick::Button2: return Cross;
+            case Joystick::Button3: return Circle;
+            case Joystick::Button4: return Triangle;
+            case Joystick::Start: return Start;
+            default: return -1;
         }
-        return button;
-    }
-
-    int fromNative(int button){
-        switch (button){
-            case Square: return 0;
-            case Cross: return 1;
-            case Circle: return 2;
-            case Triangle: return 3;
-            case Start: return Start;
-            default: return 5;
-        }
-        return button;
+        return -1;
     }
 
     Joystick::Key toKey(int button){
@@ -345,14 +323,10 @@ public:
         Select = 10
     };
 
-    int toNative(int button){
-        return 0;
+    int toNative(Joystick::Key key){
+        return -1;
     }
 
-    int fromNative(int button){
-    	return 0;
-    }
-    
     Joystick::Key toKey(int button){
         switch (button){
             case A: return Joystick::Button1;
@@ -429,14 +403,10 @@ public:
         Home = 6
     };
 
-    int toNative(int button){
-        return 0;
+    int toNative(Joystick::Key key){
+        return -1;
     }
 
-    int fromNative(int button){
-    	return 0;
-    }
-    
     /* FIXME: need a start key */
     Joystick::Key toKey(int button){
         switch (button){
@@ -490,14 +460,10 @@ public:
         Start = 7
     };
 
-    int toNative(int button){
-        return 0;
+    int toNative(Joystick::Key key){
+        return -1;
     }
 
-    int fromNative(int button){
-    	return 0;
-    }
-    
     Joystick::Key toKey(int button){
         switch (button){
             case A: return Joystick::Button1;
@@ -556,14 +522,10 @@ public:
         R1 = 14
     };
 
-    int toNative(int button){
-        return 0;
+    int toNative(Joystick::Key key){
+        return -1;
     }
 
-    int fromNative(int button){
-    	return 0;
-    }
-    
     Joystick::Key toKey(int button){
         switch (button){
             case A: return Joystick::Button1;
@@ -649,80 +611,6 @@ static bool read_button(SDL_Joystick * joystick, int button){
     return SDL_JoystickGetButton(joystick, button);
 }
 
-/*
-JoystickInput SDLJoystick::readAll(){
-    JoystickInput input;
-    return input;
-    if (joystick){
-        int buttons = SDL_JoystickNumButtons(joystick);
-        switch (buttons > 5 ? 5 : buttons){
-            case 5: input.quit = read_button(joystick, buttonMapping->toNative(4));
-            case 4: input.button4 = read_button(joystick, buttonMapping->toNative(3));
-            case 3: input.button3 = read_button(joystick, buttonMapping->toNative(2));
-            case 2: input.button2 = read_button(joystick, buttonMapping->toNative(1));
-            case 1: input.button1 = read_button(joystick, buttonMapping->toNative(0));
-            case 0: {
-                break;
-            }
-        }
-    }
-
-    int axis = SDL_JoystickNumAxes(joystick);
-    if (axis > 0){
-        int position = SDL_JoystickGetAxis(joystick, 0);
-        if (position < 0){
-            input.left = true;
-        } else if (position > 0){
-            input.right = true;
-        }
-    }
-
-    if (axis > 1){
-        int position = SDL_JoystickGetAxis(joystick, 1);
-        if (position < 0){
-            input.up = true;
-        } else if (position > 0){
-            input.down = true;
-        }
-    }
-
-    int hats = SDL_JoystickNumHats(joystick);
-    if (hats > 0){
-        int hat = SDL_JoystickGetHat(joystick, 0);
-        if ((hat & SDL_HAT_UP) == SDL_HAT_UP){
-            input.up = true;
-        }
-        if ((hat & SDL_HAT_DOWN) == SDL_HAT_DOWN){
-            input.down = true;
-        }
-        if ((hat & SDL_HAT_LEFT) == SDL_HAT_LEFT){
-            input.left = true;
-        }
-        if ((hat & SDL_HAT_RIGHT) == SDL_HAT_RIGHT){
-            input.right = true;
-        }
-        if ((hat & SDL_HAT_RIGHTUP) == SDL_HAT_RIGHTUP){
-            input.right = true;
-            input.up = true;
-        }
-        if ((hat & SDL_HAT_RIGHTDOWN) == SDL_HAT_RIGHTDOWN){
-            input.right = true;
-            input.down = true;
-        }
-        if ((hat & SDL_HAT_LEFTDOWN) == SDL_HAT_LEFTDOWN){
-            input.left = true;
-            input.down = true;
-        }
-        if ((hat & SDL_HAT_LEFTUP) == SDL_HAT_LEFTUP){
-            input.left = true;
-            input.up = true;
-        }
-    }
-
-    return input;
-}
-*/
-
 SDLJoystick::~SDLJoystick(){
     if (joystick){
         SDL_JoystickClose(joystick);
@@ -766,6 +654,23 @@ joystick(NULL){
     }
 }
     
+Joystick::Key SDLJoystick::getKey(int button){
+    if (custom.find(button) != custom.end()){
+        return custom[button];
+    }
+    return buttonMapping->toKey(button);
+}
+
+int SDLJoystick::getButton(Key key){
+    for (std::map<int, Key>::iterator it = custom.begin(); it != custom.end(); it++){
+        if (it->second == key){
+            return it->first;
+        }
+    }
+
+    return buttonMapping->toNative(key);
+}
+    
 void SDLJoystick::pressButton(int button){
     std::set<JoystickListener*> listeners = getListeners();
     for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
@@ -774,7 +679,7 @@ void SDLJoystick::pressButton(int button){
 
     // Global::debug(0) << "Pressed button " << button << std::endl;
     if (joystick){
-        Key event = buttonMapping->toKey(button);
+        Key event = getKey(button);
         if (event != Invalid){
             events.push_back(Event(event, true));
         }
@@ -788,7 +693,7 @@ void SDLJoystick::releaseButton(int button){
     }
 
     if (joystick){
-        Key event = buttonMapping->toKey(button);
+        Key event = getKey(button);
         if (event != Invalid){
             events.push_back(Event(event, false));
         }

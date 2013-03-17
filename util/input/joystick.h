@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <map>
 
 struct JoystickInput{
     JoystickInput():
@@ -79,6 +80,7 @@ public:
     virtual ~Joystick();
 
     virtual int getDeviceId() const = 0;
+
     virtual void pressButton(int button);
     virtual void releaseButton(int button);
     virtual void axisMotion(int axis, int motion);
@@ -118,6 +120,10 @@ public:
     virtual inline const std::vector<Event> & getEvents() const {
         return events;
     }
+    
+    virtual void customButton(int button, Key key);
+    virtual Key getKey(int button) = 0;
+    virtual int getButton(Key key) = 0;
 	
     static const char * keyToName(Key key);
 
@@ -130,6 +136,7 @@ protected:
 
     static std::set<JoystickListener*> listeners;
     std::vector<Event> events;
+    std::map<int, Key> custom;
 
     Joystick();
 };
