@@ -19,6 +19,7 @@
 #include "util/input/keyboard.h"
 #include "util/funcs.h"
 #include "util/file-system.h"
+#include "util/system.h"
 #include "util/font_factory.h"
 #include "util/exceptions/shutdown_exception.h"
 #include "util/exceptions/exception.h"
@@ -651,7 +652,7 @@ OptionCredits::~OptionCredits(){
 void OptionCredits::logic(){
 }
 
-class CreditsLogicDraw : public Util::Logic, public Util::Draw{
+class CreditsLogicDraw : public Util::Logic, public Util::Draw {
 public:
     CreditsLogicDraw(std::vector<OptionCredits::Sequence> & sequences, Graphics::Color clearColor, Graphics::Color title, Graphics::Color color, const Font & font, InputMap<OptionCredits::CreditKey> & input, Menu::Context & context):
     sequences(sequences),
@@ -2650,6 +2651,8 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
     Gui::ContextBox & box = renderer->getBox();
     box.setListType(ContextBox::Normal);
 
+#define WAIT_TIME_MS (0.7 * 1000)
+
     class JoystickButton: public MenuOption {
     public:
         JoystickButton(const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name, Joystick::Key key):
@@ -2672,12 +2675,16 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
             chosen(-1){
             }
 
-            map<int, int> presses;
+            map<int, uint64_t> presses;
             map<int, bool> pressed;
             bool done;
             int chosen;
 
-            int getButton(){
+            const map<int, uint64_t> & getPresses() const {
+                return presses;
+            }
+
+            int getButton() const {
                 return chosen;
             }
 
@@ -2685,11 +2692,21 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
             }
 
             bool isDone() const {
-                return done;
+                return getButton() != -1 && !anyPressed();
             }
 
-            bool anyPressed(){
-                for (map<int, bool>::iterator it = pressed.begin(); it != pressed.end(); it++){
+            void choose(){
+                uint64_t now = System::currentMilliseconds();
+                for (map<int, uint64_t>::const_iterator it = presses.begin(); it != presses.end(); it++){
+                    uint64_t what = it->second;
+                    if (what != 0 && now - what > WAIT_TIME_MS){
+                        chosen = it->first;
+                    }
+                }
+            }
+
+            bool anyPressed() const {
+                for (map<int, bool>::const_iterator it = pressed.begin(); it != pressed.end(); it++){
                     if (it->second){
                         return true;
                     }
@@ -2699,14 +2716,11 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
             virtual void pressButton(Joystick * from, int button){
                 pressed[button] = true;
-                presses[button] += 1;
-                if (presses[button] > 3){
-                    chosen = button;
-                    done = true;
-                }
+                presses[button] = System::currentMilliseconds();
             }
 
             virtual void releaseButton(Joystick * from, int button){
+                presses[button] = 0;
                 pressed[button] = false;
             }
 
@@ -2730,13 +2744,39 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
         }
 
         void run(const Menu::Context & context){
-            Global::debug(1) << "Set button " << getName() << std::endl;
-            InputMap<int> input;
-            input.set(Keyboard::Key_ESC, 0);
-            ButtonListener listener;
-            joystick->addListener(&listener);
-            try{
-                while (!listener.isDone()){
+
+            class SetButton: public Util::Logic, public Util::Draw {
+            public:
+                SetButton(const string & name, const Util::ReferenceCount<Joystick> & joystick):
+                name(name),
+                joystick(joystick){
+                    input.set(Keyboard::Key_ESC, 0);
+                    joystick->addListener(&listener);
+                }
+            
+                string name;
+                ButtonListener listener;
+                InputMap<int> input;
+                Util::ReferenceCount<Joystick> joystick;
+
+                ~SetButton(){
+                    joystick->removeListener(&listener);
+                }
+
+                void setButton(Joystick::Key key){
+                    Global::debug(1) << "Chosen button " << listener.getButton() << std::endl;
+                    joystick->customButton(listener.getButton(), key);
+                }
+
+                double ticks(double system){
+                    return system * Global::ticksPerSecond(60);
+                }
+
+                bool done(){
+                    return listener.isDone();
+                }
+
+                void run(){
                     InputManager::poll();
 
                     vector<InputMap<int>::InputEvent> out = InputManager::getEvents(input, InputSource());
@@ -2748,19 +2788,60 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                             }
                         }
                     }
-                    Util::rest(1);
+
+                    listener.choose();
                 }
-                Global::debug(1) << "Chosen button " << listener.getButton() << std::endl;
-                joystick->customButton(listener.getButton(), key);
+    
+                void draw(const Graphics::Bitmap & buffer){
+                    const Font & font = Menu::menuFontParameter.current()->get();
+                    int y = 50;
+                    int x = 20;
+                    uint64_t now = System::currentMilliseconds();
+                    const map<int, uint64_t> presses = listener.getPresses();
+                    for (map<int, uint64_t>::const_iterator it = presses.begin(); it != presses.end(); it++){
+                        int button = it->first;
+                        uint64_t time = it->second;
+                        if (time > 0){
+                            int delta = now - time;
+                            if (delta > WAIT_TIME_MS){
+                                delta = WAIT_TIME_MS;
+                            }
+
+                            /* this shouldn't happen... */
+                            if (delta < 0){
+                                delta = 0;
+                            }
+                            Graphics::Color color;
+                            color = Graphics::makeColor((int)(255.0 * (double) delta / (WAIT_TIME_MS)),
+                                                        0, 255);
+                            if (button == listener.getButton()){
+                                color = Graphics::makeColor(255, 255, 255);
+                            }
+                            ostringstream text;
+                            text << name << ":" << button;
+                            font.printf(x, y, color, buffer, text.str(), 0);
+                            y += font.getHeight() + 5;
+                        }
+                    }
+                }
+
+                void wait(){
+                    while (listener.anyPressed()){
+                        InputManager::poll();
+                        Util::rest(1);
+                    }
+                }
+            };
+
+            Global::debug(1) << "Set button " << getName() << std::endl;
+            SetButton set(name, joystick);
+            try{
+                Util::standardLoop(set, set);
+                set.setButton(key);
             } catch (const Exception::Return & quit){
             }
 
-            while (listener.anyPressed()){
-                InputManager::poll();
-                Util::rest(1);
-            }
-
-            joystick->removeListener(&listener);
+            set.wait();
         }
     };
 
