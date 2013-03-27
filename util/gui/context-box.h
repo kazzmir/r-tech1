@@ -84,9 +84,14 @@ public:
     virtual inline void setDistanceFadeMultiplier(double multiplier){
         this->distanceFadeMultiplier = multiplier;
     }
+
     virtual inline bool getDistanceFade() const {
         return this->fade;
     }
+
+    /* Whether or not non-selected items are faded proportional to their distance from the
+     * selected item.
+     */
     virtual inline void setDistanceFade(bool fade){
         this->fade = fade;
     }
@@ -160,6 +165,7 @@ public:
         Normal,
         Scroll,
     };
+
     virtual void setListType(const ListType &);
     virtual void setListWrap(bool wrap);
 
@@ -213,10 +219,10 @@ private:
     void drawText(const Graphics::Bitmap &, const Font & font);
 
     enum FadeState{
-    NotActive,
-    FadeIn,
-    Active,
-    FadeOut,
+        NotActive,
+        FadeIn,
+        Active,
+        FadeOut,
     };
 
     //! Current fade state

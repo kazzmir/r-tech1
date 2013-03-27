@@ -340,7 +340,7 @@ class Context{
         /*! Pass the widget (Menu ContextBox in this case) to be drawn
          * Allows for custom widget menus to be draw in place (ie for tabs or something)
         */
-        virtual void render(const Util::ReferenceCount<Renderer> &, const Graphics::Bitmap &);
+        virtual void render(const Util::ReferenceCount<Renderer> &, const Graphics::Bitmap &) const;
         
         virtual void renderBackground(const Graphics::Bitmap & bmp) const;
         virtual void renderForeground(const Graphics::Bitmap & bmp) const;
@@ -494,7 +494,7 @@ class Menu{
         virtual void act(Context &);
 
         /*! render pass local context and work */
-        virtual void render(Context &, const Graphics::Bitmap &);
+        virtual void render(const Context &, const Graphics::Bitmap &) const;
 
         virtual void setRenderer(const Renderer::Type &);
         virtual void setRenderer(const Util::ReferenceCount<Renderer> & renderer);
