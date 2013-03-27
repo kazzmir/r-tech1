@@ -277,6 +277,10 @@ void EventManager::runAllegro5(Keyboard & keyboard, const map<int, ReferenceCoun
                 handleResize(event);
                 break;
             }
+            case ALLEGRO_EVENT_DISPLAY_CLOSE: {
+                throw ShutdownException();
+                break;
+            }
             case ALLEGRO_EVENT_KEY_UP: {
                 handleKeyUp(keyboard, event);
                 break;

@@ -2650,20 +2650,25 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
     Gui::ContextBox & box = renderer->getBox();
     box.setListType(ContextBox::Normal);
+    Gui::ListValues attributes(box.getListValues());
+    attributes.setDistanceFade(false);
+    box.setListValues(attributes);
 
 #define WAIT_TIME_MS (0.7 * 1000)
 
     class JoystickButton: public MenuOption {
     public:
-        JoystickButton(const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name, Joystick::Key key):
+        JoystickButton(const Menu::Menu & menu, const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name, Joystick::Key key):
         MenuOption(parent, NULL),
         name(name),
+        menu(menu),
         joystick(joystick),
         key(key){
             setText(name);
             setInfoText(name);
         }
 
+        const Menu::Menu & menu;
         string name;
         Util::ReferenceCount<Joystick> joystick;
         Joystick::Key key;
@@ -2747,13 +2752,17 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
             class SetButton: public Util::Logic, public Util::Draw {
             public:
-                SetButton(const string & name, const Util::ReferenceCount<Joystick> & joystick):
+                SetButton(const Menu::Context & context, const Menu::Menu & menu, const string & name, const Util::ReferenceCount<Joystick> & joystick):
+                context(context),
+                menu(menu),
                 name(name),
                 joystick(joystick){
                     input.set(Keyboard::Key_ESC, 0);
                     joystick->addListener(&listener);
                 }
             
+                const Menu::Context & context;
+                const Menu::Menu & menu;
                 string name;
                 ButtonListener listener;
                 InputMap<int> input;
@@ -2793,6 +2802,9 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 }
     
                 void draw(const Graphics::Bitmap & buffer){
+                    Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+                    work.start();
+                    menu.render(context, work);
                     const Font & font = Menu::menuFontParameter.current()->get();
                     int y = 50;
                     int x = 20;
@@ -2819,10 +2831,12 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                             }
                             ostringstream text;
                             text << name << ":" << button;
-                            font.printf(x, y, color, buffer, text.str(), 0);
+                            font.printf(x, y, color, work, text.str(), 0);
                             y += font.getHeight() + 5;
                         }
                     }
+
+                    work.finish();
                 }
 
                 void wait(){
@@ -2834,7 +2848,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
             };
 
             Global::debug(1) << "Set button " << getName() << std::endl;
-            SetButton set(name, joystick);
+            SetButton set(context, menu, name, joystick);
             try{
                 Util::standardLoop(set, set);
                 set.setButton(key);
@@ -2845,18 +2859,18 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
         }
     };
 
-    menu.addOption(new JoystickButton(box, joystick, "Up", Joystick::Up));
-    menu.addOption(new JoystickButton(box, joystick, "Down", Joystick::Down));
-    menu.addOption(new JoystickButton(box, joystick, "Left", Joystick::Left));
-    menu.addOption(new JoystickButton(box, joystick, "Right", Joystick::Right));
-    menu.addOption(new JoystickButton(box, joystick, "Button1", Joystick::Button1));
-    menu.addOption(new JoystickButton(box, joystick, "Button2", Joystick::Button2));
-    menu.addOption(new JoystickButton(box, joystick, "Button3", Joystick::Button3));
-    menu.addOption(new JoystickButton(box, joystick, "Button4", Joystick::Button4));
-    menu.addOption(new JoystickButton(box, joystick, "Button5", Joystick::Button5));
-    menu.addOption(new JoystickButton(box, joystick, "Button6", Joystick::Button6));
-    menu.addOption(new JoystickButton(box, joystick, "Start", Joystick::Start));
-    menu.addOption(new JoystickButton(box, joystick, "Quit", Joystick::Quit));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Up", Joystick::Up));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Down", Joystick::Down));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Left", Joystick::Left));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Right", Joystick::Right));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Button1", Joystick::Button1));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Button2", Joystick::Button2));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Button3", Joystick::Button3));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Button4", Joystick::Button4));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Button5", Joystick::Button5));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Button6", Joystick::Button6));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Start", Joystick::Start));
+    menu.addOption(new JoystickButton(menu, box, joystick, "Quit", Joystick::Quit));
 
     try {
         menu.run(context);

@@ -167,6 +167,7 @@ scrollWait(4),
 selectedGradient(standardGradient(GradientMax)),
 renderOnlyText(false){
 }
+
 ContextBox::ContextBox( const ContextBox & copy ):
 fadeState(NotActive),
 list(new ScrollList()),

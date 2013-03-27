@@ -1158,7 +1158,7 @@ void Menu::Context::renderForeground(const Graphics::Bitmap & bmp) const {
     }
 }
 
-void Menu::Context::render(const Util::ReferenceCount<Renderer> & renderer, const Graphics::Bitmap & bmp){
+void Menu::Context::render(const Util::ReferenceCount<Renderer> & renderer, const Graphics::Bitmap & bmp) const {
     renderBackground(bmp);
 
     // Menu
@@ -1575,7 +1575,7 @@ void Menu::Menu::act(Context & ourContext){
     ourContext.act();
 }
 
-void Menu::Menu::render(Context & ourContext, const Graphics::Bitmap & bmp){
+void Menu::Menu::render(const Context & ourContext, const Graphics::Bitmap & bmp) const {
     // Render context
     ourContext.render(renderer, bmp);
 }
