@@ -446,6 +446,10 @@ overrideIndex(0){
 vector<Util::ReferenceCount<MenuOption> > Menu::DefaultRenderer::getOptions() const {
     return options;
 }
+        
+void Menu::DefaultRenderer::setPosition(const Gui::Coordinate & coordinate){
+    menu.location = coordinate;
+}
 
 void Menu::DefaultRenderer::invokeOverride(const Context & context){
     if (hasOverride){
@@ -671,7 +675,11 @@ overrideIndex(0){
 Menu::Renderer::Type Menu::TabRenderer::getType() const {
     return Tabbed;
 }
-        
+
+void Menu::TabRenderer::setPosition(const Gui::Coordinate & coordinate){
+    menu.location = coordinate;
+}
+
 vector<Util::ReferenceCount<MenuOption> > Menu::TabRenderer::getOptions() const {
     vector<Util::ReferenceCount<MenuOption> > options;
     for (vector<TabInfo *>::const_iterator it = tabs.begin(); it != tabs.end(); ++it){
@@ -1075,7 +1083,7 @@ void Menu::Context::addBackground(const std::string & image){
     }*/
     background.add(Util::ReferenceCount<Gui::Animation>(new Gui::Animation(image)));
 }
-
+        
 void Menu::Context::initialize(){
     if (fades){
         // state
@@ -1243,6 +1251,12 @@ Menu::Menu::~Menu(){
         if (i->second){
             delete i->second;
         }
+    }
+}
+
+void Menu::Menu::setPosition(const Gui::Coordinate & coordinate){
+    if (renderer != NULL){
+        renderer->setPosition(coordinate);
     }
 }
         
