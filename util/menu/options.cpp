@@ -2653,6 +2653,8 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
     Gui::ListValues attributes(box.getListValues());
     attributes.setDistanceFade(false);
     box.setListValues(attributes);
+    menu.setPosition(Gui::Coordinate(Gui::RelativePoint(-0.8, -0.3),
+                                     Gui::RelativePoint(0, 0.8)));
 
 #define WAIT_TIME_MS (0.7 * 1000)
 
@@ -2660,8 +2662,8 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
     public:
         JoystickButton(const Menu::Menu & menu, const Gui::ContextBox & parent, const Util::ReferenceCount<Joystick> & joystick, const string & name, Joystick::Key key):
         MenuOption(parent, NULL),
-        name(name),
         menu(menu),
+        name(name),
         joystick(joystick),
         key(key){
             setText(name);
@@ -2739,7 +2741,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
         void logic(){
             ostringstream out;
             int button = joystick->getButton(key);
-            out << name << ": ";
+            out << name << ":  ";
             if (button != -1){
                 out << joystick->getButton(key);
             } else {
@@ -2786,7 +2788,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 }
 
                 void run(){
-                    InputManager::poll();
+                    // InputManager::poll();
 
                     vector<InputMap<int>::InputEvent> out = InputManager::getEvents(input, InputSource());
                     for (vector<InputMap<int>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
@@ -2806,8 +2808,12 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                     work.start();
                     menu.render(context, work);
                     const Font & font = Menu::menuFontParameter.current()->get();
-                    int y = 50;
-                    int x = 20;
+                    Gui::RelativePoint start(0.2, -0.3);
+                    Gui::RelativePoint end(0.8, 0.8);
+                    int x = start.getX();
+                    int y = start.getY();
+                    font.printfWrap(x, y - font.getHeight() * 2 - 5, Graphics::makeColor(255, 255, 255), work, end.getX() - start.getX(), "Press and hold a button", 0);
+                    work.translucent(0, 0, 0, 128).rectangleFill(x, y, end.getX(), end.getY(), Graphics::makeColor(0, 0, 0));
                     uint64_t now = System::currentMilliseconds();
                     const map<int, uint64_t> presses = listener.getPresses();
                     for (map<int, uint64_t>::const_iterator it = presses.begin(); it != presses.end(); it++){
@@ -2830,7 +2836,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                                 color = Graphics::makeColor(255, 255, 255);
                             }
                             ostringstream text;
-                            text << name << ":" << button;
+                            text << name << ":  " << button;
                             font.printf(x, y, color, work, text.str(), 0);
                             y += font.getHeight() + 5;
                         }

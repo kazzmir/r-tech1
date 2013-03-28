@@ -19,6 +19,7 @@
 #include "util/gui/popup-box.h"
 #include "util/gui/tabbed-box.h"
 #include "util/gui/widget.h"
+#include "util/gui/coordinate.h"
 
 #ifdef _MSC_VER
 #ifndef uint32_t
@@ -209,6 +210,8 @@ class Renderer{
         
         /*! Invoke override */
         virtual void invokeOverride(const Context &)=0;
+
+        virtual void setPosition(const Gui::Coordinate & coordinate) = 0;
         
     protected:
         /*! Info boxes */
@@ -228,7 +231,7 @@ class Renderer{
 };
 
 /*! Regular Menu */
-class DefaultRenderer : public Renderer {
+class DefaultRenderer: public Renderer {
     public:
         DefaultRenderer();
         virtual ~DefaultRenderer();
@@ -244,6 +247,7 @@ class DefaultRenderer : public Renderer {
         virtual void doAction(const Actions &, Context &);
         virtual std::vector<Util::ReferenceCount<MenuOption> > getOptions() const;
         virtual void invokeOverride(const Context &);
+        virtual void setPosition(const Gui::Coordinate & coordinate);
 
         virtual Type getType() const;
 
@@ -301,6 +305,7 @@ class TabRenderer: public Renderer {
         virtual void doAction(const Actions &, Context &);
         virtual std::vector<Util::ReferenceCount<MenuOption> > getOptions() const;
         virtual void invokeOverride(const Context &);
+        virtual void setPosition(const Gui::Coordinate & coordinate);
         virtual Type getType() const;
         
         virtual Gui::TabbedBox & getBox(){
@@ -489,6 +494,9 @@ class Menu{
 
         /*! Run Menu pass parent context */
         virtual void run(const Context &);
+
+        /* Set position of the menu */
+        virtual void setPosition(const Gui::Coordinate & coordinate);
 
         /*! Logic pass local context */
         virtual void act(Context &);
