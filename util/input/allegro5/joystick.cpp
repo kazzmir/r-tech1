@@ -226,8 +226,17 @@ id(id){
 }
     
 void Allegro5Joystick::axis(int stick, int axis, float position){
-    // Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
+    /*
+    if (stick == 9){
+        Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
+    }
+    */
         
+    std::set<JoystickListener*> listeners = getListeners();
+    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->axisMotion(this, stick, axis, position);
+    }
+
     buttons->axisMotionEvents(stick, axis, position, events);
 }
 

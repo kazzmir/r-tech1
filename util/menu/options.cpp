@@ -2657,6 +2657,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                                      Gui::RelativePoint(0, 0.8)));
 
 #define WAIT_TIME_MS (0.7 * 1000)
+#define WAIT_TIME_AXIS_MS (1 * 1000)
 
     class JoystickButton: public MenuOption {
     public:
@@ -2684,8 +2685,61 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
             map<int, uint64_t> presses;
             map<int, bool> pressed;
+
+            struct Axis{
+                Axis():
+                    stick(0),
+                    axis(0),
+                    first(0),
+                    set(false),
+                    last(0),
+                    lastMotion(0){
+                    }
+
+                int stick;
+                int axis;
+
+                /* first value from this axis. we assume that
+                 * the first value is sufficiently close to 'zero' which 
+                 * can be any value, but most likely will either be
+                 * -1, 0, or 1
+                 */
+                double first;
+                /* true if first has been set */
+                bool set;
+
+                /* keep track of last value for this axis */
+                double last;
+
+                /* last time an event was produced (or at least last
+                 * time we read it). it might be better to get the actual
+                 * time from the event itself.
+                 */
+                uint64_t lastMotion;
+            };
+
+            vector<Axis> axis;
+
             bool done;
             int chosen;
+
+            Axis & getAxis(int stick, int axis){
+                for (vector<Axis>::iterator it = this->axis.begin(); it != this->axis.end(); it++){
+                    Axis & use = *it;
+                    if (use.stick == stick && use.axis == axis){
+                        return use;
+                    }
+                }
+                Axis out;
+                out.stick = stick;
+                out.axis = axis;
+                this->axis.push_back(out);
+                return getAxis(stick, axis);
+            }
+
+            const vector<Axis> & getAllAxis() const {
+                return axis;
+            }
 
             const map<int, uint64_t> & getPresses() const {
                 return presses;
@@ -2731,7 +2785,64 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 pressed[button] = false;
             }
 
-            virtual void axisMotion(Joystick * from, int axis, int motion){
+            /* either all increasing or all decreasing */
+            bool monotonic(const vector<double> & what){
+                if (what.size() == 0){
+                    return true;
+                }
+
+                double first = what[0];
+                int direction = -1;
+                vector<double>::const_iterator it = what.begin();
+                it++;
+                for (/**/; it != what.end(); it++){
+                    switch (direction){
+                        case -1: {
+                            if (*it < first){
+                                direction = 1;
+                            } else if (*it > first){
+                                direction = 2;
+                            }
+
+                            first = *it;
+                            break;
+                        }
+                        case 1: {
+                            if (*it > first){
+                                return false;
+                            }
+                            break;
+                        }
+                        case 2: {
+                            if (*it < first){
+                                return false;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            virtual void axisMotion(Joystick * from, int stick, int axis, double motion){
+                Axis & use = getAxis(stick, axis);
+                if (!use.set){
+                    use.first = motion;
+                    use.set = true;
+                }
+                    
+                use.last = motion;
+                use.lastMotion = System::currentMilliseconds();
+
+                /*
+                const double AXIS_THRESHOLD = 0.5;
+
+                Global::debug(0) << "stick " << stick << " axis " << axis << " first " << use.first << " last " << use.last << " diff " << fabs(use.last - use.first) << std::endl;
+                if (fabs(use.last - use.first) > AXIS_THRESHOLD){
+                    Global::debug(0) << "stick " << stick << " axis " << axis << " motion " << motion << std::endl;
+                }
+                */
             }
 
             virtual void hatMotion(Joystick * from, int motion){
@@ -2788,8 +2899,6 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 }
 
                 void run(){
-                    // InputManager::poll();
-
                     vector<InputMap<int>::InputEvent> out = InputManager::getEvents(input, InputSource());
                     for (vector<InputMap<int>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
                         const InputMap<int>::InputEvent & event = *it;
@@ -2809,13 +2918,14 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                     menu.render(context, work);
                     const Font & font = Menu::menuFontParameter.current()->get();
                     Gui::RelativePoint start(0.2, -0.3);
-                    Gui::RelativePoint end(0.8, 0.8);
+                    Gui::RelativePoint end(0.85, 0.8);
                     int x = start.getX();
                     int y = start.getY();
-                    font.printfWrap(x, y - font.getHeight() * 2 - 5, Graphics::makeColor(255, 255, 255), work, end.getX() - start.getX(), "Press and hold a button", 0);
+                    // font.printfWrap(x, y - font.getHeight() * 2 - 5, Graphics::makeColor(255, 255, 255), work, end.getX() - start.getX(), "Press and hold a button", 0);
+                    font.printf(x, y - 18 - 5, 18, 18, Graphics::makeColor(255, 255, 255), work, "Press and hold a button", 0);
                     work.translucent(0, 0, 0, 128).rectangleFill(x, y, end.getX(), end.getY(), Graphics::makeColor(0, 0, 0));
                     uint64_t now = System::currentMilliseconds();
-                    const map<int, uint64_t> presses = listener.getPresses();
+                    const map<int, uint64_t> & presses = listener.getPresses();
                     for (map<int, uint64_t>::const_iterator it = presses.begin(); it != presses.end(); it++){
                         int button = it->first;
                         uint64_t time = it->second;
@@ -2840,6 +2950,38 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                             font.printf(x, y, color, work, text.str(), 0);
                             y += font.getHeight() + 5;
                         }
+                    }
+                    
+                    const vector<ButtonListener::Axis> & axis = listener.getAllAxis();
+                    for (vector<ButtonListener::Axis>::const_iterator it = axis.begin(); it != axis.end(); it++){
+                        const ButtonListener::Axis & use = *it;
+                        const double AXIS_THRESHOLD = 0.7;
+
+                        if (fabs(use.last - use.first) > AXIS_THRESHOLD){
+                            int delta = now - use.lastMotion;
+                            if (delta > WAIT_TIME_AXIS_MS){
+                                delta = WAIT_TIME_AXIS_MS;
+                            }
+
+                            /* this shouldn't happen... */
+                            if (delta < 0){
+                                delta = 0;
+                            }
+                            Graphics::Color color;
+                            color = Graphics::makeColor((int)(255.0 * (double) delta / (WAIT_TIME_AXIS_MS)),
+                                                        0, 255);
+                            ostringstream text;
+                            text << name << ":  stick " << use.stick << " axis " << use.axis;
+                            if (use.last > use.first){
+                                text << " +";
+                            } else {
+                                text << " -";
+                            }
+                            font.printf(x, y, 18, 18, color, work, text.str(), 0);
+                            y += font.getHeight() + 5;
+
+                        }
+
                     }
 
                     work.finish();
