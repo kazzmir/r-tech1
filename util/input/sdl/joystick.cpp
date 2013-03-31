@@ -715,7 +715,10 @@ void SDLJoystick::hatMotion(int motion){
 void SDLJoystick::axisMotion(int axis, int motion){
     std::set<JoystickListener*> listeners = getListeners();
     for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
-        (*it)->axisMotion(this, axis, motion);
+        /* Stick is always 0.
+         * Motions should always fit inside a short, [-32767, 32767]
+         */
+        (*it)->axisMotion(this, 0, axis, motion / 32767.0);
     }
 
     // Global::debug(0) << "Axis motion on " << axis << " motion " << motion << std::endl;
