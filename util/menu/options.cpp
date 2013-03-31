@@ -2644,6 +2644,40 @@ public:
     }
 };
 
+namespace{
+    struct Axis{
+        Axis():
+            stick(0),
+            axis(0),
+            first(0),
+            set(false),
+            last(0),
+            lastMotion(0){
+            }
+
+        int stick;
+        int axis;
+
+        /* first value from this axis. we assume that
+         * the first value is sufficiently close to 'zero' which 
+         * can be any value, but most likely will either be
+         * -1, 0, or 1
+         */
+        double first;
+        /* true if first has been set */
+        bool set;
+
+        /* keep track of last value for this axis */
+        double last;
+
+        /* last time an event was produced (or at least last
+         * time we read it). it might be better to get the actual
+         * time from the event itself.
+         */
+        uint64_t lastMotion;
+    };
+}
+
 static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick> & joystick, const ::Menu::Context & context){
     Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
     Menu::Menu menu(renderer.convert<Menu::Renderer>());
@@ -2685,38 +2719,6 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
             map<int, uint64_t> presses;
             map<int, bool> pressed;
-
-            struct Axis{
-                Axis():
-                    stick(0),
-                    axis(0),
-                    first(0),
-                    set(false),
-                    last(0),
-                    lastMotion(0){
-                    }
-
-                int stick;
-                int axis;
-
-                /* first value from this axis. we assume that
-                 * the first value is sufficiently close to 'zero' which 
-                 * can be any value, but most likely will either be
-                 * -1, 0, or 1
-                 */
-                double first;
-                /* true if first has been set */
-                bool set;
-
-                /* keep track of last value for this axis */
-                double last;
-
-                /* last time an event was produced (or at least last
-                 * time we read it). it might be better to get the actual
-                 * time from the event itself.
-                 */
-                uint64_t lastMotion;
-            };
 
             vector<Axis> axis;
 
@@ -2952,9 +2954,9 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                         }
                     }
                     
-                    const vector<ButtonListener::Axis> & axis = listener.getAllAxis();
-                    for (vector<ButtonListener::Axis>::const_iterator it = axis.begin(); it != axis.end(); it++){
-                        const ButtonListener::Axis & use = *it;
+                    const vector<Axis> & axis = listener.getAllAxis();
+                    for (vector<Axis>::const_iterator it = axis.begin(); it != axis.end(); it++){
+                        const Axis & use = *it;
                         const double AXIS_THRESHOLD = 0.7;
 
                         if (fabs(use.last - use.first) > AXIS_THRESHOLD){
