@@ -675,7 +675,7 @@ public:
     unsigned int current;
 
     void run(){
-        vector<InputMap<OptionCredits::CreditKey>::InputEvent> out = InputManager::getEvents(input, InputSource());
+        vector<InputMap<OptionCredits::CreditKey>::InputEvent> out = InputManager::getEvents(input, InputSource(true));
         for (vector<InputMap<OptionCredits::CreditKey>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
             const InputMap<OptionCredits::CreditKey>::InputEvent & event = *it;
             if (event.enabled){
@@ -737,7 +737,7 @@ void OptionCredits::run(const Menu::Context & context){
     CreditsLogicDraw loop(sequences, clearColor, title, color, vFont, input, localContext);
     Util::standardLoop(loop, loop);
 
-    InputManager::waitForRelease(input, InputSource(), Exit);
+    InputManager::waitForRelease(input, InputSource(true), Exit);
     throw Menu::Reload(__FILE__, __LINE__);
 }
 
@@ -2587,7 +2587,7 @@ public:
     InputMap<Inputs> input;
 
     void doInput(){
-        vector<InputMap<Inputs>::InputEvent> out = InputManager::getEvents(input, InputSource());
+        vector<InputMap<Inputs>::InputEvent> out = InputManager::getEvents(input, InputSource(true));
         for (vector<InputMap<Inputs>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
             const InputMap<Inputs>::InputEvent & event = *it;
             if (event.enabled){
@@ -2948,7 +2948,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 }
 
                 void run(){
-                    vector<InputMap<int>::InputEvent> out = InputManager::getEvents(input, InputSource());
+                    vector<InputMap<int>::InputEvent> out = InputManager::getEvents(input, InputSource(true));
                     for (vector<InputMap<int>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
                         const InputMap<int>::InputEvent & event = *it;
                         if (event.enabled){

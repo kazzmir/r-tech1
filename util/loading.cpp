@@ -267,7 +267,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
             };
 
             Handler handler(active);
-            InputManager::handleEvents(input, InputSource(), handler);
+            InputManager::handleEvents(input, InputSource(true), handler);
         }
 
         void run(){

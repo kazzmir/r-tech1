@@ -214,15 +214,18 @@ protected:
             }
         }
 
-        if (source.getJoystick() >= 0 && (unsigned) source.getJoystick() < joysticks.size()){
-            Util::ReferenceCount<Joystick> joystick = joysticks[source.getJoystick()];
-            if (joystick != NULL){
-                const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();
-                for (std::vector<Joystick::Event>::const_iterator it = joystickEvents.begin(); it != joystickEvents.end(); it++){
-                    Joystick::Event event = *it;
-                    Util::ReferenceCount<JoystickState<X> > state = input.getJoystickState(event.key);
-                    if (state != NULL){
-                        events.push_back(typename InputMap<X>::InputEvent(state->out, -1, event.enabled));
+        for (std::vector<int>::const_iterator it = source.getJoystick().begin(); it != source.getJoystick().end(); it++){
+            int config = *it;
+            if (config >= 0 && config < joysticks.size()){
+                Util::ReferenceCount<Joystick> joystick = joysticks[config];
+                if (joystick != NULL){
+                    const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();
+                    for (std::vector<Joystick::Event>::const_iterator it = joystickEvents.begin(); it != joystickEvents.end(); it++){
+                        Joystick::Event event = *it;
+                        Util::ReferenceCount<JoystickState<X> > state = input.getJoystickState(event.key);
+                        if (state != NULL){
+                            events.push_back(typename InputMap<X>::InputEvent(state->out, -1, event.enabled));
+                        }
                     }
                 }
             }

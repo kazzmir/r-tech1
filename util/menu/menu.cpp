@@ -1544,8 +1544,9 @@ void Menu::Menu::run(const Context & parentContext){
 }
 
 void Menu::Menu::act(Context & ourContext){
+    InputSource source(true);
     // Keys
-    vector<InputMap<Actions>::InputEvent> events = InputManager::getEvents(input, InputSource());
+    vector<InputMap<Actions>::InputEvent> events = InputManager::getEvents(input, source);
 
     for (vector<InputMap<Actions>::InputEvent>::iterator it = events.begin(); it != events.end(); it++){
         InputMap<Actions>::InputEvent event = *it;
@@ -1556,11 +1557,11 @@ void Menu::Menu::act(Context & ourContext){
         
         if (event.out == Cancel){
             if (renderer != NULL){
-                InputManager::waitForRelease(input, InputSource(), Cancel);
+                InputManager::waitForRelease(input, source, Cancel);
                 renderer->doAction(Cancel, ourContext);
             } else {
                 ourContext.playSound(Cancel);
-                InputManager::waitForRelease(input, InputSource(), Cancel);
+                InputManager::waitForRelease(input, source, Cancel);
                 throw Exception::Return(__FILE__, __LINE__);
             }
         }
