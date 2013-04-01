@@ -111,7 +111,7 @@ bool TextInput::doInput(){
     const Keyboard::unicode_t control_w = 23;
 
     if (enabled){
-        vector<InputEvent> events = InputManager::getEvents(*this, InputSource());
+        vector<InputEvent> events = InputManager::getEvents(*this, InputSource(true));
 
         /* the order of reading input is arbitrary right now. I'm not
          * sure it matters what order things are done in, but probably

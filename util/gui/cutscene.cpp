@@ -251,7 +251,7 @@ void CutScene::playScene(unsigned int scene){
             }
 
         void run(){
-            std::vector<InputMap<Keys>::InputEvent> out = InputManager::getEvents(input, InputSource());
+            std::vector<InputMap<Keys>::InputEvent> out = InputManager::getEvents(input, InputSource(true));
             for (std::vector<InputMap<Keys>::InputEvent>::iterator it = out.begin(); it != out.end(); it++){
                 const InputMap<Keys>::InputEvent & event = *it;
                 if (event.enabled){
