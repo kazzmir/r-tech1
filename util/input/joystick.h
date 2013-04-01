@@ -121,7 +121,8 @@ public:
         return events;
     }
     
-    virtual void customButton(int button, Key key);
+    virtual void setCustomButton(int button, Key key);
+    virtual void setCustomAxis(Key key, int stick, int axis, double low, double high);
     virtual Key getKey(int button) = 0;
     virtual int getButton(Key key) = 0;
 	
@@ -136,7 +137,18 @@ protected:
 
     static std::set<JoystickListener*> listeners;
     std::vector<Event> events;
-    std::map<int, Key> custom;
+    std::map<int, Key> customButton;
+
+    struct Axis{
+        int stick;
+        int axis;
+        double low;
+        double high;
+        /* true if this axis was in range and should not output an event */
+        bool on;
+    };
+
+    std::map<Key, Axis> customAxis;
 
     Joystick();
 };

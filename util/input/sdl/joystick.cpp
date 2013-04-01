@@ -655,14 +655,14 @@ joystick(NULL){
 }
     
 Joystick::Key SDLJoystick::getKey(int button){
-    if (custom.find(button) != custom.end()){
-        return custom[button];
+    if (customButton.find(button) != customButton.end()){
+        return customButton[button];
     }
     return buttonMapping->toKey(button);
 }
 
 int SDLJoystick::getButton(Key key){
-    for (std::map<int, Key>::iterator it = custom.begin(); it != custom.end(); it++){
+    for (std::map<int, Key>::iterator it = customButton.begin(); it != customButton.end(); it++){
         if (it->second == key){
             return it->first;
         }

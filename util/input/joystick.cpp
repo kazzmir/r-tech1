@@ -99,8 +99,17 @@ void Joystick::axisMotion(int axis, int motion){
 void Joystick::hatMotion(int motion){
 }
     
-void Joystick::customButton(int button, Key key){
-    custom[button] = key;
+void Joystick::setCustomButton(int button, Key key){
+    customButton[button] = key;
+}
+
+void Joystick::setCustomAxis(Key key, int stick, int axis, double low, double high){
+    Axis & use = customAxis[key];
+    use.stick = stick;
+    use.axis = axis;
+    use.low = low;
+    use.high = high;
+    use.on = false;
 }
     
 void Joystick::addListener(JoystickListener * listener){

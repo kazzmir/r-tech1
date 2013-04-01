@@ -2692,6 +2692,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
 #define WAIT_TIME_MS (0.7 * 1000)
 #define WAIT_TIME_AXIS_MS (1 * 1000)
+#define AXIS_THRESHOLD 0.7
 
     class JoystickButton: public MenuOption {
     public:
@@ -2714,7 +2715,8 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
         public:
             ButtonListener():
             done(false),
-            chosen(-1){
+            chosen(-1),
+            chosenAxis(NULL){
             }
 
             map<int, uint64_t> presses;
@@ -2724,6 +2726,8 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
             bool done;
             int chosen;
+
+            Axis * chosenAxis;
 
             Axis & getAxis(int stick, int axis){
                 for (vector<Axis>::iterator it = this->axis.begin(); it != this->axis.end(); it++){
@@ -2751,11 +2755,16 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 return chosen;
             }
 
+            Axis * getChosenAxis() const {
+                return chosenAxis;
+            }
+
             virtual ~ButtonListener(){
             }
 
             bool isDone() const {
-                return getButton() != -1 && !anyPressed();
+                return (getButton() != -1 && !anyPressed()) ||
+                       (getChosenAxis() != NULL);
             }
 
             void choose(){
@@ -2764,6 +2773,14 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                     uint64_t what = it->second;
                     if (what != 0 && now - what > WAIT_TIME_MS){
                         chosen = it->first;
+                    }
+                }
+
+                for (vector<Axis>::iterator it = axis.begin(); it != axis.end(); it++){
+                    Axis & use = *it;
+                    if (fabs(use.last - use.first) > AXIS_THRESHOLD &&
+                        now - use.lastMotion > WAIT_TIME_AXIS_MS){
+                        chosenAxis = &use;
                     }
                 }
             }
@@ -2888,8 +2905,38 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 }
 
                 void setButton(Joystick::Key key){
-                    Global::debug(1) << "Chosen button " << listener.getButton() << std::endl;
-                    joystick->customButton(listener.getButton(), key);
+                    int button = listener.getButton();
+                    if (button != -1){
+                        Global::debug(1) << "Chosen button " << listener.getButton() << std::endl;
+                        joystick->setCustomButton(listener.getButton(), key);
+                    } else {
+                        Axis * axis = listener.getChosenAxis();
+                        double rangeLow = 0;
+                        double rangeHigh = 0;
+                        /* stick went negative and went to -1 */
+                        if (axis->first < 0 && axis->last < axis->first){
+                            rangeLow = -1;
+                            rangeHigh = -AXIS_THRESHOLD;
+                        /* stick started at negative and went positive, possibly
+                         * not above 0.
+                         */
+                        } else if (axis->first < 0 && axis->last > axis->first){
+                            rangeLow = 0;
+                            rangeHigh = 1;
+                        /* stick started positive and went to 1 */
+                        } else if (axis->first > 0 && axis->last > axis->first){
+                            rangeLow = AXIS_THRESHOLD;
+                            rangeHigh = 1;
+                        /* stick started positive and went towards -1 */
+                        } else if (axis->first > 0 && axis->last < axis->first){
+                            rangeLow = -1;
+                            rangeHigh = 0;
+                        }
+
+                        Global::debug(0) << "Set stick " << axis->stick << " axis " << axis->axis << " [" << rangeLow << ", " << rangeHigh << "]" << std::endl;
+
+                        joystick->setCustomAxis(key, axis->stick, axis->axis, rangeLow, rangeHigh);
+                    }
                 }
 
                 double ticks(double system){
@@ -2957,7 +3004,6 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                     const vector<Axis> & axis = listener.getAllAxis();
                     for (vector<Axis>::const_iterator it = axis.begin(); it != axis.end(); it++){
                         const Axis & use = *it;
-                        const double AXIS_THRESHOLD = 0.7;
 
                         if (fabs(use.last - use.first) > AXIS_THRESHOLD){
                             int delta = now - use.lastMotion;
@@ -2972,6 +3018,9 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                             Graphics::Color color;
                             color = Graphics::makeColor((int)(255.0 * (double) delta / (WAIT_TIME_AXIS_MS)),
                                                         0, 255);
+                            if (&use == listener.getChosenAxis()){
+                                color = Graphics::makeColor(255, 255, 255);
+                            }
                             ostringstream text;
                             text << name << ":  stick " << use.stick << " axis " << use.axis;
                             if (use.last > use.first){
