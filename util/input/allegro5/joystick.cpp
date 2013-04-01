@@ -41,6 +41,7 @@ public:
             case Joystick::Down: return 9;
             case Joystick::Left: return 10;
             case Joystick::Right: return 11;
+            case Joystick::Invalid: return -1;
         }
 
         return -1;
@@ -99,7 +100,11 @@ public:
             case Joystick::Button6: return R1;
             case Joystick::Start: return Start;
             case Joystick::Quit: return Select;
-
+            case Joystick::Invalid: return -1;
+            case Joystick::Left:
+            case Joystick::Right:
+            case Joystick::Up:
+            case Joystick::Down: return -1;
         }
         return -1;
     }
@@ -231,24 +236,56 @@ void Allegro5Joystick::axis(int stick, int axis, float position){
         Global::debug(0) << "stick " << stick << " axis " << axis << " position " << position << std::endl;
     }
     */
-        
+
     std::set<JoystickListener*> listeners = getListeners();
     for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
         (*it)->axisMotion(this, stick, axis, position);
     }
 
-    buttons->axisMotionEvents(stick, axis, position, events);
+    bool handled = false;
+    for (std::map<Key, Axis>::iterator it = customAxis.begin(); it != customAxis.end(); it++){
+        Key key = it->first;
+        Axis & use = it->second;
+        if (use.stick == stick && use.axis == axis){
+            handled = true;
+
+            bool output = false;
+
+            /* Only output an event if the new axis position is different from the last one */
+            if (position >= use.low && position <= use.high){
+                if (use.on == false){
+                    use.on = true;
+                    output = true;
+                }
+            } else {
+                /* Not in range, so if we output an event before then output a false event */
+                if (use.on == true){
+                    use.on = false;
+                    output = true;
+                }
+            }
+
+            if (output){
+                events.push_back(Joystick::Event(key, use.on));
+            }
+        }
+    }
+
+    /* If no custom axis then use the default joystick handler */
+    if (!handled){
+        buttons->axisMotionEvents(stick, axis, position, events);
+    }
 }
 
 Joystick::Key Allegro5Joystick::getKey(int button){
-    if (custom.find(button) != custom.end()){
-        return custom[button];
+    if (customButton.find(button) != customButton.end()){
+        return customButton[button];
     }
     return buttons->toKey(button);
 }
     
 int Allegro5Joystick::getButton(Key key){
-    for (std::map<int, Key>::iterator it = custom.begin(); it != custom.end(); it++){
+    for (std::map<int, Key>::iterator it = customButton.begin(); it != customButton.end(); it++){
         if (it->second == key){
             return it->first;
         }
