@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "util/configuration.h"
 #include "joystick.h"
 
 /*
@@ -104,6 +105,9 @@ void Joystick::setCustomButton(int button, Key key){
 }
 
 void Joystick::setCustomAxis(Key key, int stick, int axis, double low, double high){
+
+    Configuration::setCustomAxis(key, getDeviceId(), getName(), stick, axis, low, high);
+
     Axis & use = customAxis[key];
     use.stick = stick;
     use.axis = axis;

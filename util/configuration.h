@@ -18,8 +18,6 @@ public:
     
     virtual ~Configuration();
 
-    typedef Joystick::Key JoystickInput;
-
     static void setDefaultKeys(int x);
 
     static void loadConfigurations();
@@ -54,6 +52,8 @@ public:
     static int getAttack5(int config);
     static int getAttack6(int config);
     static int getJump(int config);
+
+    static void setCustomAxis(Joystick::Key key, int config, const std::string & name, int stick, int axis, double low, double high);
 
     /*
     static void setJoystickRight(int config, JoystickInput i);
@@ -162,10 +162,10 @@ protected:
     static Token * getRawData();
 
     static int getKey(int config, const std::string & name, int defaultValue);
-    static JoystickInput getJoystickKey(int config, const std::string & name, JoystickInput defaultValue);
+    static Joystick::Key getJoystickKey(int config, const std::string & name, Joystick::Key defaultValue);
 
     static void setKey(int config, const std::string & name, int value);
-    static void setJoystickKey(int config, const std::string & name, const JoystickInput & what);
+    static void setJoystickKey(int config, const std::string & name, const Joystick::Key & what);
 
 private:
     /* whether to save the configuration or not */

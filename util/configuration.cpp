@@ -75,7 +75,7 @@ define_config(version, "version");
 using namespace std;
 
 static const int InvalidKey = 0;
-static const Configuration::JoystickInput InvalidJoystick = Joystick::Invalid;
+static const Joystick::Key InvalidJoystick = Joystick::Invalid;
     
 /* don't save the configuration while loading it */
 class Disable{
@@ -297,6 +297,40 @@ void Configuration::setMenuFontHeight(int x){
 
 int Configuration::getMenuFontHeight(){
     return getProperty(config_menu_font_height, 24);
+}
+
+static string joystickKeyName(Joystick::Key key){
+    switch (key){
+        case Joystick::Up: return "up";
+        case Joystick::Down: return "down";
+        case Joystick::Left: return "left";
+        case Joystick::Right: return "right";
+        case Joystick::Button1: return "button1";
+        case Joystick::Button2: return "button2";
+        case Joystick::Button3: return "button3";
+        case Joystick::Button4: return "button4";
+        case Joystick::Button5: return "button5";
+        case Joystick::Button6: return "button6";
+        case Joystick::Start: return "start";
+        case Joystick::Quit: return "quit";
+        case Joystick::Invalid: return "invalid";
+    }
+    return "?";
+}
+    
+void Configuration::setCustomAxis(Joystick::Key key, int config, const string & name, int stick, int axis, double low, double high){
+    if (key != Joystick::Invalid){
+        ostringstream base;
+        base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
+        base << "joystick" << "/" << config << "/";
+        base << '"' << name << '"' << "/" << joystickKeyName(key);
+
+        updateToken(getRawData(), base.str() + "/stick", stick);
+        updateToken(getRawData(), base.str() + "/axis", axis);
+        updateToken(getRawData(), base.str() + "/low", low);
+        updateToken(getRawData(), base.str() + "/high", high);
+        saveConfiguration();
+    }
 }
 
 void Configuration::setKey(int config, const string & name, int value){
