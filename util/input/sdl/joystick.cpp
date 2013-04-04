@@ -10,6 +10,7 @@
 
 using std::string;
 using std::vector;
+using std::map;
 
 class ButtonMapping{
 public:
@@ -718,7 +719,7 @@ void SDLJoystick::axisMotion(int axis, int motion){
         /* Stick is always 0.
          * Motions should always fit inside a short, [-32767, 32767]
          */
-        (*it)->axisMotion(this, 0, axis, motion / 32767.0);
+        (*it)->axisMotion(this, 0, axis, (double) motion / 32768.0);
     }
 
     // Global::debug(0) << "Axis motion on " << axis << " motion " << motion << std::endl;
@@ -747,6 +748,20 @@ int SDLJoystick::getDeviceId() const {
     }
 
     return -1;
+}
+    
+std::map<int, std::map<int, double> > SDLJoystick::getCurrentAxisValues() const {
+    map<int, map<int, double> > out;
+
+    if (joystick){
+        int axis = SDL_JoystickNumAxes(joystick);
+        for (int i = 0; i < axis; i++){
+            /* always use stick 0 */
+            out[0][i] = (double) SDL_JoystickGetAxis(joystick, i) / 32768.0;
+        }
+    }
+
+    return out;
 }
 
 int Joystick::numberOfJoysticks(){

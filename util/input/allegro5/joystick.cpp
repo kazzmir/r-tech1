@@ -7,6 +7,7 @@
 
 using std::vector;
 using std::string;
+using std::map;
 
 class ButtonMapping{
 public:
@@ -346,6 +347,23 @@ void Allegro5Joystick::poll(){
             }
         }
     }
+}
+    
+std::map<int, std::map<int, double> > Allegro5Joystick::getCurrentAxisValues() const {
+    ALLEGRO_JOYSTICK_STATE state;
+    ALLEGRO_JOYSTICK * joystick = al_get_joystick(id);
+    al_get_joystick_state(joystick, &state);
+    map<int, map<int, double> > out;
+
+    int sticks = al_get_joystick_num_sticks(joystick);
+    for (int stick = 0; stick < sticks; stick++){
+        int axis = al_get_joystick_num_axes(joystick, stick);
+        for (int i = 0; i < axis; i++){
+            out[stick][i] = state.stick[stick].axis[i];
+        }
+    }
+
+    return out;
 }
 
 int Allegro5Joystick::getDeviceId() const {

@@ -125,6 +125,8 @@ public:
     virtual void setCustomAxis(Key key, int stick, int axis, double low, double high);
     virtual Key getKey(int button) = 0;
     virtual int getButton(Key key) = 0;
+
+    virtual std::map<int, std::map<int, double> > getCurrentAxisValues() const = 0;
 	
     static const char * keyToName(Key key);
 
