@@ -71,6 +71,12 @@ string AllegroJoystick::getName() const {
     /* FIXME */
     return "unknown";
 }
+    
+std::map<int, std::map<int, double> > AllegroJoystick::getCurrentAxisValues() const {
+    std::map<int, std::map<int, double> > out;
+    /* FIXME */
+    return out;
+}
 
 int Joystick::numberOfJoysticks(){
     return ::num_joysticks;

@@ -11,6 +11,8 @@ public:
     virtual std::string getName() const;
     virtual Key getKey(int button);
     virtual int getButton(Key key);
+    
+    virtual std::map<int, std::map<int, double> > getCurrentAxisValues() const;
 
     virtual ~AllegroJoystick();
 

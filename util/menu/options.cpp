@@ -2713,10 +2713,28 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
         class ButtonListener: public JoystickListener {
         public:
-            ButtonListener():
+            ButtonListener(const Util::ReferenceCount<Joystick> & joystick):
             done(false),
             chosen(-1),
             chosenAxis(NULL){
+                map<int, map<int, double> > axisValues = joystick->getCurrentAxisValues();
+                for (map<int, map<int, double> >::iterator it = axisValues.begin(); it != axisValues.end(); it++){
+                    int stick = it->first;
+                    const map<int, double> & subMap = it->second;
+                    for (map<int, double>::const_iterator it = subMap.begin(); it != subMap.end(); it++){
+                        int axis = it->first;
+                        double value = it->second;
+
+                        Axis use;
+                        use.stick = stick;
+                        use.axis = axis;
+                        use.first = value;
+                        use.set = true;
+                        use.last = value;
+                        use.lastMotion = 0;
+                        this->axis.push_back(use);
+                    }
+                }
             }
 
             map<int, uint64_t> presses;
@@ -2888,6 +2906,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 context(context),
                 menu(menu),
                 name(name),
+                listener(joystick),
                 joystick(joystick){
                     input.set(Keyboard::Key_ESC, 0);
                     joystick->addListener(&listener);
@@ -2914,7 +2933,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                         double rangeLow = 0;
                         double rangeHigh = 0;
                         /* stick went negative and went to -1 */
-                        if (axis->first < 0 && axis->last < axis->first){
+                        if (axis->first <= 0 && axis->last < axis->first){
                             rangeLow = -1;
                             rangeHigh = -AXIS_THRESHOLD;
                         /* stick started at negative and went positive, possibly
@@ -2924,7 +2943,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                             rangeLow = 0;
                             rangeHigh = 1;
                         /* stick started positive and went to 1 */
-                        } else if (axis->first > 0 && axis->last > axis->first){
+                        } else if (axis->first >= 0 && axis->last > axis->first){
                             rangeLow = AXIS_THRESHOLD;
                             rangeHigh = 1;
                         /* stick started positive and went towards -1 */

@@ -21,6 +21,7 @@ public:
     virtual Key getKey(int button);
     virtual int getButton(Key key);
     std::string getName() const;
+    virtual std::map<int, std::map<int, double> > getCurrentAxisValues() const;
 
     virtual ~SDLJoystick();
 
