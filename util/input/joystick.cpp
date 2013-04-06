@@ -102,10 +102,14 @@ void Joystick::hatMotion(int motion){
     
 void Joystick::setCustomButton(int button, Key key){
     customButton[button] = key;
+
+    /* Can only have one unique button/axis */
+    if (customAxis.find(key) != customAxis.end()){
+        customAxis.erase(key);
+    }
 }
 
 void Joystick::setCustomAxis(Key key, int stick, int axis, double low, double high){
-
     Configuration::setCustomAxis(key, getDeviceId(), getName(), stick, axis, low, high);
 
     Axis & use = customAxis[key];
@@ -114,6 +118,25 @@ void Joystick::setCustomAxis(Key key, int stick, int axis, double low, double hi
     use.low = low;
     use.high = high;
     use.on = false;
+
+    /* Can only have one unique button/axis */
+    if (customButton.find(key) != customButton.end()){
+        customButton.erase(key);
+    }
+}
+    
+bool Joystick::getAxis(Key key, int & stick, int & axis, double & low, double & high) const {
+    std::map<Key, Axis>::const_iterator find = customAxis.find(key);
+    if (find != customAxis.end()){
+        const Axis & use = find->second;
+        stick = use.stick;
+        axis = use.axis;
+        low = use.low;
+        high = use.high;
+        return true;
+    } else {
+        return false;
+    }
 }
     
 void Joystick::addListener(JoystickListener * listener){

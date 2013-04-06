@@ -2888,12 +2888,24 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
 
         void logic(){
             ostringstream out;
-            int button = joystick->getButton(key);
-            out << name << ":  ";
-            if (button != -1){
-                out << joystick->getButton(key);
+
+            int stick, axis;
+            double low, high;
+            if (joystick->getAxis(key, stick, axis, low, high)){
+                out << name << ": " << stick << "/" << axis << "/";
+                if (low < 0){
+                    out << "-";
+                } else {
+                    out << "+";
+                }
             } else {
-                out << "unset";
+                int button = joystick->getButton(key);
+                out << name << ":  ";
+                if (button != -1){
+                    out << joystick->getButton(key);
+                } else {
+                    out << "unset";
+                }
             }
             setText(out.str());
         }
