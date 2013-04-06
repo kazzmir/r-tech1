@@ -126,6 +126,9 @@ public:
     virtual Key getKey(int button) = 0;
     virtual int getButton(Key key) = 0;
 
+    /* returns true if there is an axis motion for the requested key */
+    virtual bool getAxis(Key key, int & stick, int & axis, double & low, double & high) const;
+
     virtual std::map<int, std::map<int, double> > getCurrentAxisValues() const = 0;
 	
     static const char * keyToName(Key key);
