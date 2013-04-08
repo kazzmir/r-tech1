@@ -64,6 +64,62 @@ Joystick::Joystick(){
     
 Joystick::~Joystick(){
 }
+
+void Joystick::readCustomButton(Key key){
+    int button;
+    if (Configuration::getCustomButton(key, getDeviceId(), getName(), button)){
+        customButton[button] = key;
+        if (customAxis.find(key) != customAxis.end()){
+            customAxis.erase(key);
+        }
+    }
+}
+
+void Joystick::readCustomButtons(){
+    readCustomButton(Up);
+    readCustomButton(Down);
+    readCustomButton(Left);
+    readCustomButton(Right);
+    readCustomButton(Button1);
+    readCustomButton(Button2);
+    readCustomButton(Button3);
+    readCustomButton(Button4);
+    readCustomButton(Button5);
+    readCustomButton(Button6);
+    readCustomButton(Quit);
+    readCustomButton(Start);
+}
+
+void Joystick::readCustomAxis(Key key){
+    int stick, axis;
+    double low, high;
+    if (Configuration::getCustomAxis(key, getDeviceId(), getName(), stick, axis, low, high)){
+        Axis & use = customAxis[key];
+        use.stick = stick;
+        use.axis = axis;
+        use.low = low;
+        use.high = high;
+        use.on = false;
+
+        eraseCustomButton(key);
+    }
+}
+
+void Joystick::readCustomAxes(){
+    readCustomAxis(Up);
+    readCustomAxis(Down);
+    readCustomAxis(Left);
+    readCustomAxis(Right);
+    readCustomAxis(Button1);
+    readCustomAxis(Button2);
+    readCustomAxis(Button3);
+    readCustomAxis(Button4);
+    readCustomAxis(Button5);
+    readCustomAxis(Button6);
+    readCustomAxis(Quit);
+    readCustomAxis(Start);
+
+}
     
 const char * Joystick::keyToName(Key key){
     switch (key){
@@ -111,6 +167,19 @@ void Joystick::setCustomButton(int button, Key key){
     }
 }
 
+void Joystick::eraseCustomButton(Key key){
+    std::vector<int> keys;
+    for (std::map<int, Key>::iterator it = customButton.begin(); it != customButton.end(); it++){
+        if (it->second == key){
+            keys.push_back(it->first);
+        }
+    }
+
+    for (std::vector<int>::iterator it = keys.begin(); it != keys.end(); it++){
+        customButton.erase(*it);
+    }
+}
+
 void Joystick::setCustomAxis(Key key, int stick, int axis, double low, double high){
     Configuration::setCustomAxis(key, getDeviceId(), getName(), stick, axis, low, high);
 
@@ -122,9 +191,7 @@ void Joystick::setCustomAxis(Key key, int stick, int axis, double low, double hi
     use.on = false;
 
     /* Can only have one unique button/axis */
-    if (customButton.find(key) != customButton.end()){
-        customButton.erase(key);
-    }
+    eraseCustomButton(key);
 }
     
 bool Joystick::getAxis(Key key, int & stick, int & axis, double & low, double & high) const {

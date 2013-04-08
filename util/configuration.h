@@ -53,7 +53,11 @@ public:
     static int getAttack6(int config);
     static int getJump(int config);
 
+    /* Returns true if there was a custom axis set, and modifies the output parameters */
+    static bool getCustomAxis(Joystick::Key key, int config, const std::string & name, int & stick, int & axis, double & low, double & high);
     static void setCustomAxis(Joystick::Key key, int config, const std::string & name, int stick, int axis, double low, double high);
+    /* Returns true if there was a custom button set, and modifies the output parameters */
+    static bool getCustomButton(Joystick::Key key, int config, const std::string & name, int & button);
     static void setCustomButton(Joystick::Key key, int config, const std::string & name, int button);
 
     /*

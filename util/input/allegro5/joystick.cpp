@@ -229,6 +229,9 @@ id(id){
         al_register_event_source(queue, al_get_joystick_event_source());
     }
     buttons = createMapping(al_get_joystick(id));
+
+    readCustomButtons();
+    readCustomAxes();
 }
     
 void Allegro5Joystick::axis(int stick, int axis, float position){

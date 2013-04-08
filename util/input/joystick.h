@@ -138,6 +138,12 @@ public:
 
 protected:
 
+    void readCustomButtons();
+    void readCustomButton(Key key);
+    void readCustomAxis(Key key);
+    void readCustomAxes();
+    void eraseCustomButton(Key key);
+
     static std::set<JoystickListener*> getListeners();
 
     static std::set<JoystickListener*> listeners;

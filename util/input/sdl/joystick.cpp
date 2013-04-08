@@ -652,6 +652,9 @@ joystick(NULL){
         }
         // printf("Opened joystick '%s'\n", SDL_JoystickName(4));
         buttonMapping = makeButtonMapping(SDL_JoystickName(id));
+
+        readCustomButtons();
+        readCustomAxes();
     }
 }
     
