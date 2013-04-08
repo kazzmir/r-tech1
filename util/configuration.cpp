@@ -343,6 +343,29 @@ void Configuration::setCustomButton(Joystick::Key key, int config, const std::st
     }
 }
     
+bool Configuration::getCustomButton(Joystick::Key key, int config, const std::string & name, int & button){
+    /* FIXME: use a helper function for the joystick path */
+    ostringstream base;
+    base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
+    base << "joystick" << "/" << config << "/";
+    base << name << "/" << joystickKeyName(key);
+
+    return getRawData()->match(base.str() + "/button", button);
+}
+    
+bool Configuration::getCustomAxis(Joystick::Key key, int config, const std::string & name, int & stick, int & axis, double & low, double & high){
+    /* FIXME: use a helper function for the joystick path */
+    ostringstream base;
+    base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
+    base << "joystick" << "/" << config << "/";
+    base << name << "/" << joystickKeyName(key);
+
+    return getRawData()->match(base.str() + "/stick", stick) &&
+           getRawData()->match(base.str() + "/axis", axis) &&
+           getRawData()->match(base.str() + "/low", low) &&
+           getRawData()->match(base.str() + "/high", high);
+}
+    
 void Configuration::setCustomAxis(Joystick::Key key, int config, const string & name, int stick, int axis, double low, double high){
     if (key != Joystick::Invalid){
         ostringstream base;
