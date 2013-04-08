@@ -147,6 +147,18 @@ static Token * createToken(const string & path, const Value & value, const Value
     return out;
 }
 
+/* remove a path if it exists */
+static void removeToken(Token * data, const std::string & path){
+    Token * found = data->findToken(path);
+    /* See if the token already exists. If it does then remove it from its
+     * parent and add a new token to the parent with the updated value.
+     */
+    if (found != NULL){
+        Token * parent = found->getParent();
+        parent->removeToken(found);
+    }
+}
+
 static void updateToken(Token * data, const std::string & path, Token * add){
     if (data == NULL){
         delete add;
@@ -318,6 +330,19 @@ static string joystickKeyName(Joystick::Key key){
     return "?";
 }
     
+void Configuration::setCustomButton(Joystick::Key key, int config, const std::string & name, int button){
+    if (key != Joystick::Invalid){
+        ostringstream base;
+        base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
+        base << "joystick" << "/" << config << "/";
+        base << '"' << name << '"' << "/" << joystickKeyName(key);
+
+        removeToken(getRawData(), base.str());
+        updateToken(getRawData(), base.str() + "/button", button);
+        saveConfiguration();
+    }
+}
+    
 void Configuration::setCustomAxis(Joystick::Key key, int config, const string & name, int stick, int axis, double low, double high){
     if (key != Joystick::Invalid){
         ostringstream base;
@@ -325,6 +350,7 @@ void Configuration::setCustomAxis(Joystick::Key key, int config, const string & 
         base << "joystick" << "/" << config << "/";
         base << '"' << name << '"' << "/" << joystickKeyName(key);
 
+        removeToken(getRawData(), base.str());
         updateToken(getRawData(), base.str() + "/stick", stick);
         updateToken(getRawData(), base.str() + "/axis", axis);
         updateToken(getRawData(), base.str() + "/low", low);

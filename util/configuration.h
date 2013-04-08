@@ -54,6 +54,7 @@ public:
     static int getJump(int config);
 
     static void setCustomAxis(Joystick::Key key, int config, const std::string & name, int stick, int axis, double low, double high);
+    static void setCustomButton(Joystick::Key key, int config, const std::string & name, int button);
 
     /*
     static void setJoystickRight(int config, JoystickInput i);

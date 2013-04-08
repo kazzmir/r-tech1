@@ -101,6 +101,8 @@ void Joystick::hatMotion(int motion){
 }
     
 void Joystick::setCustomButton(int button, Key key){
+    Configuration::setCustomButton(key, getDeviceId(), getName(), button);
+
     customButton[button] = key;
 
     /* Can only have one unique button/axis */
