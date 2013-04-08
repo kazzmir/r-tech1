@@ -335,7 +335,7 @@ void Configuration::setCustomButton(Joystick::Key key, int config, const std::st
         ostringstream base;
         base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
         base << "joystick" << "/" << config << "/";
-        base << '"' << name << '"' << "/" << joystickKeyName(key);
+        base << name << "/" << joystickKeyName(key);
 
         removeToken(getRawData(), base.str());
         updateToken(getRawData(), base.str() + "/button", button);
@@ -348,7 +348,7 @@ void Configuration::setCustomAxis(Joystick::Key key, int config, const string & 
         ostringstream base;
         base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
         base << "joystick" << "/" << config << "/";
-        base << '"' << name << '"' << "/" << joystickKeyName(key);
+        base << name << "/" << joystickKeyName(key);
 
         removeToken(getRawData(), base.str());
         updateToken(getRawData(), base.str() + "/stick", stick);

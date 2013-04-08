@@ -12,6 +12,12 @@
 using namespace std;
 
 static bool needQuotes(const std::string & what){
+
+    /* if it begins with a " and ends with " then it doesnt need more quotes */
+    if (what.size() > 0 && what[0] == '"' && what[what.size() - 1] == '"'){
+        return false;
+    }
+
     /* ripped from tokenreader.cpp, maybe use a variable for nice sharing.. */
     const char * alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_!:";
     for (unsigned int position = 0; position < what.size(); position++){
@@ -86,9 +92,9 @@ void Token::print( const string space ) const {
 
 void Token::toStringCompact(ostream & stream) const {
     if (numTokens() == -1){
-        stream << getName();
+        stream << quoteify(getName());
     } else {
-        stream << "(" << getName();
+        stream << "(" << quoteify(getName());
         for (signed int i = 0; i < numTokens(); i++){
             Token * x = getToken(i);
             stream << " ";
@@ -100,10 +106,10 @@ void Token::toStringCompact(ostream & stream) const {
 
 void Token::toString(ostream & stream, const string & space) const {
     if (numTokens() == -1){
-        stream << getName();
+        stream << quoteify(getName());
     } else {
         stream << endl;
-        stream << space << "(" << getName();
+        stream << space << "(" << quoteify(getName());
         for ( signed int i = 0; i < numTokens(); i++ ){
             Token * x = getToken(i);
             stream << " ";
@@ -463,7 +469,8 @@ Token & Token::operator<<( const string rhs ){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw strings to a token you don't own");
     }
 
-    Token * n = new Token(quoteify(rhs), false);
+    // Token * n = new Token(quoteify(rhs), false);
+    Token * n = new Token(rhs, false);
     this->addToken(n);
     return *this;
 }
