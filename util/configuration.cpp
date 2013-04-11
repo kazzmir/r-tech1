@@ -330,11 +330,19 @@ static string joystickKeyName(Joystick::Key key){
     return "?";
 }
 
+static string removeQuotes(string input){
+    size_t find = input.find('"');
+    while (find != string::npos){
+        input.erase(find, 1);
+    }
+    return input;
+}
+
 static string joystickPath(Joystick::Key key, int config, const std::string & name){
     ostringstream base;
     base << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/";
     base << "joystick" << "/" << config << "/";
-    base << name << "/" << joystickKeyName(key);
+    base << removeQuotes(name) << "/" << joystickKeyName(key);
     return base.str();
 }
     
