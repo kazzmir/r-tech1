@@ -529,6 +529,8 @@ namespace Storage{
     bool isContainer(const Path::AbsolutePath & path);
 
     std::string readFile(const Path::AbsolutePath & path);
+
+    std::vector<std::string> containerTypes();
 }
 
 /*

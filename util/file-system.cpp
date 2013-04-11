@@ -1310,6 +1310,13 @@ bool isContainer(const Path::AbsolutePath & path){
     return path.getExtension() == "zip" ||
            path.getExtension() == "7z";
 }
+    
+vector<std::string> containerTypes(){
+    vector<string> types;
+    types.push_back("zip");
+    types.push_back("7z");
+    return types;
+}
 
 bool System::isDirectory(const AbsolutePath & path){
     return virtualDirectory.isDirectory(path) || systemIsDirectory(path);
