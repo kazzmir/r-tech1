@@ -296,7 +296,7 @@ int Util::getPipe(int files[2]){
 */
 
 void Util::showError(const Graphics::Bitmap & screen, const Exception::Base & exception, const string & info){
-    screen.BlitFromScreen(0, 0);
+    // screen.BlitFromScreen(0, 0);
     Graphics::Bitmap error(screen.getWidth() - 100, screen.getHeight() - 100);
     error.fill(Graphics::darken(Graphics::makeColor(160, 0, 0), 3));
     error.border(1, 2, Graphics::makeColor(240, 0, 0));
