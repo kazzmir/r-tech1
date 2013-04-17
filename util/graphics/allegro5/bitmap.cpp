@@ -746,16 +746,20 @@ void Bitmap::StretchXbr(const Bitmap & where, const int sourceX, const int sourc
     /* TODO */
 }
 
-void Bitmap::Stretch( const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight ) const {
-    /* TODO */
+void Bitmap::Stretch(const Bitmap & where, const int sourceX, const int sourceY, const int sourceWidth, const int sourceHeight, const int destX, const int destY, const int destWidth, const int destHeight) const {
+    changeTarget(this, where);
+    al_draw_scaled_bitmap(getData()->getBitmap(),
+                          sourceX, sourceY, sourceWidth, sourceHeight,
+                          destX, destY, destWidth, destHeight,
+                          0);
 }
 
-void Bitmap::StretchBy2( const Bitmap & where ){
-    /* TODO */
+void Bitmap::StretchBy2(const Bitmap & where){
+    Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, getWidth() * 2, getHeight() * 2);
 }
 
-void Bitmap::StretchBy4( const Bitmap & where ){
-    /* TODO */
+void Bitmap::StretchBy4(const Bitmap & where){
+    Stretch(where, 0, 0, getWidth(), getHeight(), 0, 0, getWidth() * 4, getHeight() * 4);
 }
 
 void Bitmap::drawRotate(const int x, const int y, const int angle, const Bitmap & where ){
