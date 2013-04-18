@@ -6,6 +6,8 @@
 #include "util/pointer.h"
 #include "util/thread.h"
 
+#include "util/gui/tabbed-box.h"
+
 #include <string>
 #include <vector>
 #include <queue>
@@ -208,6 +210,22 @@ namespace IRC{
             return this->activeChannels[this->currentChannel];
         }
         
+        virtual inline std::vector< ChannelPointer > & channelList(){
+            return this->activeChannels;
+        }
+        
+        virtual std::string channelListAsString();
+        
+        virtual unsigned int getChannelIndex(const std::string &);
+        
+        virtual bool isCurrentChannel(const std::string &);
+        
+        virtual void setChannel(unsigned int channel);
+        
+        virtual void nextChannel();
+        
+        virtual void previousChannel();
+        
         virtual void sendMessage(const std::string &);
         
         virtual void sendPong(const Command &);
@@ -226,13 +244,27 @@ namespace IRC{
         Network::Socket socket;
         std::string previousUsername;
         std::string username;
-        unsigned int previousChannel;
+        unsigned int previousActiveChannel;
         unsigned int currentChannel;
         std::vector< ChannelPointer > activeChannels;
         std::string hostname;
         int port;
         bool end;
         mutable std::queue< Command > commands;
+    };
+    
+    // Create a tabbed chatter to implement in games
+    class ChatInterface{
+    public:
+        ChatInterface();
+        virtual ~ChatInterface();
+        void act();
+        void draw(const Graphics::Bitmap &);
+        
+        Util::ReferenceCount<Client> getClient();
+    protected:
+        Util::ReferenceCount<Client> client;
+        Gui::TabbedBox chatBox;
     };
     
 }// end irc

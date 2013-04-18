@@ -2,6 +2,8 @@
 
 #include "util/regex.h"
 
+#include "util/graphics/bitmap.h"
+
 #include <stdexcept>
 
 namespace Network{
@@ -328,7 +330,7 @@ void Channel::addUsers(const std::vector<std::string> & list){
 Client::Client(const std::string & hostname, int port):
 previousUsername("AUTH"),
 username("AUTH"),
-previousChannel(0),
+previousActiveChannel(0),
 currentChannel(0),
 hostname(hostname),
 port(port),
@@ -425,7 +427,7 @@ void Client::joinChannel(const std::string & chan){
             return;
         }
     }
-    previousChannel = currentChannel;
+    previousActiveChannel = currentChannel;
     ChannelPointer newChannel = ChannelPointer(new Channel(chan));
     /*if (!currentChannel.getName().empty()){
         sendCommand(Command::Part, currentChannel.getName());
@@ -433,6 +435,47 @@ void Client::joinChannel(const std::string & chan){
     activeChannels.push_back(newChannel);
     currentChannel = activeChannels.size()-1;
     sendCommand(Command::Join, getChannel()->getName());
+}
+
+std::string Client::channelListAsString(){
+    std::string list;
+    for (std::vector<ChannelPointer>::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
+        ChannelPointer activeChannel = *i;
+        list += activeChannel->getName() + ", ";
+    }
+    return list.substr(0, list.size()-2);
+}
+
+unsigned int Client::getChannelIndex(const std::string & channel){
+    for (unsigned int i = 0; i < activeChannels.size(); ++i){
+        if (activeChannels[i]->getName() == channel){
+            return i;
+        }
+    }
+    return 0;
+}
+
+bool Client::isCurrentChannel(const std::string & channel){
+    return (activeChannels[currentChannel]->getName() == channel);
+}
+
+void Client::setChannel(unsigned int channel){
+    if (channel >= activeChannels.size()){
+        return;
+    }
+    currentChannel = channel;
+}
+
+void Client::nextChannel(){
+    currentChannel = (currentChannel + 1) % activeChannels.size();
+}
+
+void Client::previousChannel(){
+    if (currentChannel == 0){
+        currentChannel = activeChannels.size()-1;
+    } else {
+        currentChannel--;
+    }
 }
 
 void Client::removeChannel(const std::string & name){
@@ -508,7 +551,7 @@ void Client::checkResponseAndHandle(const Command & command){
         ::Util::Thread::ScopedLock scope(lock);
         // Revert old channel
         removeChannel(getChannel()->getName());
-        currentChannel = previousChannel;
+        currentChannel = previousActiveChannel;
     } else if (command.getType() == Command::ReplyTopic){
         ::Util::Thread::ScopedLock scope(lock);
         // Set topic
@@ -549,6 +592,25 @@ void Client::run(){
             end = true;
         }
     }
+}
+
+ChatInterface::ChatInterface(){
+    // Just go to irc.freenode.net for now
+    //client = Util::ReferenceCount< Client >(new Client("irc.freenode.net", 8001));
+    //client->connect();
+}
+
+ChatInterface::~ChatInterface(){
+}
+
+void ChatInterface::act(){
+}
+
+void ChatInterface::draw(const Graphics::Bitmap & work){
+}
+
+Util::ReferenceCount<Client> ChatInterface::getClient(){
+    return client;
 }
 
 }
