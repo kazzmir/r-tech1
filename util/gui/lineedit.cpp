@@ -43,7 +43,7 @@ void drawBox(int radius, int x, int y, int width, int height, const Gui::ColorIn
 }
 
 LineEdit::LineEdit():
-blinkRate(60),
+blinkRate(30),
 cursorTime(0),
 changed(false){
     colors.body = Graphics::makeColor(0,0,60);
@@ -108,9 +108,9 @@ void LineEdit::toggleEnabled(){
 
 void LineEdit::setFocused(bool enabled){
     if (enabled){
-        input.disable();
-    } else {
         input.enable();
+    } else {
+        input.disable();
     }
 }
 
