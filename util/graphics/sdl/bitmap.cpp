@@ -435,6 +435,18 @@ bit8MaskColor(copy.bit8MaskColor){
         x = 0;
     if (y < 0)
         y = 0;
+
+    if (width < 1 || height < 1){
+        std::ostringstream out;
+        out << "Attempting to create a sub-bitmap.";
+        if (width < 1){
+            out << " Width was less than 1: " << width;
+        }
+        if (height < 1){
+            out << " Height was less than 1: " << height;
+        }
+        throw BitmapException(__FILE__, __LINE__, out.str());
+    }
     if (width + x > his->w )
         width = his->w - x;
     if (height + y > his->h)
