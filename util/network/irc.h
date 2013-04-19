@@ -263,10 +263,20 @@ namespace IRC{
         void draw(const Graphics::Bitmap &);
         
         Util::ReferenceCount<Client> getClient();
+        
+        inline void setWidthRatio(double ratio){
+            this->widthRatio = ratio;
+        }
+        inline void setHeightRatio(double ratio){
+            this->heightRatio = ratio;
+        }
+        
     protected:
         Util::ReferenceCount<Client> client;
         Gui::TabbedBox chatBox;
         Gui::LineEdit inputBox;
+        double widthRatio;
+        double heightRatio;
     };
     
 }// end irc
