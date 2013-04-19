@@ -271,6 +271,10 @@ namespace IRC{
             this->heightRatio = ratio;
         }
         
+        inline Gui::LineEdit & getInputBox() { 
+            return this->inputBox;
+        }
+        
     protected:
         Util::ReferenceCount<Client> client;
         Gui::TabbedBox chatBox;
