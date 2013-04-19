@@ -1,8 +1,9 @@
 #include "irc.h"
 
+#include "util/font.h"
 #include "util/regex.h"
-
 #include "util/graphics/bitmap.h"
+#include "util/configuration.h"
 
 #include <stdexcept>
 
@@ -594,19 +595,36 @@ void Client::run(){
     }
 }
 
-ChatInterface::ChatInterface(){
-    // Just go to irc.freenode.net for now
-    //client = Util::ReferenceCount< Client >(new Client("irc.freenode.net", 8001));
+ChatInterface::ChatInterface(const std::string & host, int port){
+    //client = Util::ReferenceCount< Client >(new Client(host, port));
     //client->connect();
+    
+    // Setup window size and chat list
+    int width = Configuration::getScreenWidth();
+    int height = Configuration::getScreenHeight();
+    
+    Global::debug(0) << "Current Height: " << height * .8 << " Current Width: " << width *.09 << std::endl;
+    
+    // chat panel 80% width 90% height
+    chatBox.location.set(0, 0, 0, 0);
+    chatBox.location.setDimensions(width * .8, height * .9);
+    // edit box
+    inputBox.location.set(0, height * .91, 0, 0);
+    inputBox.location.setDimensions(width * .8, height * .09);
+    // Set the location of user list width * .8 and height
 }
 
 ChatInterface::~ChatInterface(){
 }
 
 void ChatInterface::act(){
+    chatBox.act(Font::getDefaultFont());
+    inputBox.act(Font::getDefaultFont());
 }
 
 void ChatInterface::draw(const Graphics::Bitmap & work){
+    chatBox.render(work);
+    inputBox.render(work);
 }
 
 Util::ReferenceCount<Client> ChatInterface::getClient(){

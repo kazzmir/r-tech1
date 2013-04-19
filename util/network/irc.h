@@ -7,6 +7,7 @@
 #include "util/thread.h"
 
 #include "util/gui/tabbed-box.h"
+#include "util/gui/lineedit.h"
 
 #include <string>
 #include <vector>
@@ -256,7 +257,7 @@ namespace IRC{
     // Create a tabbed chatter to implement in games
     class ChatInterface{
     public:
-        ChatInterface();
+        ChatInterface(const std::string &, int port);
         virtual ~ChatInterface();
         void act();
         void draw(const Graphics::Bitmap &);
@@ -265,6 +266,7 @@ namespace IRC{
     protected:
         Util::ReferenceCount<Client> client;
         Gui::TabbedBox chatBox;
+        Gui::LineEdit inputBox;
     };
     
 }// end irc
