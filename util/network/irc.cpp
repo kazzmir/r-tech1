@@ -595,36 +595,43 @@ void Client::run(){
     }
 }
 
-ChatInterface::ChatInterface(const std::string & host, int port){
+ChatInterface::ChatInterface(const std::string & host, int port):
+widthRatio(.8),
+heightRatio(.92){
     //client = Util::ReferenceCount< Client >(new Client(host, port));
     //client->connect();
     
     // Setup window size and chat list
-    int width = Configuration::getScreenWidth();
-    int height = Configuration::getScreenHeight();
+    const int width = Configuration::getScreenWidth();
+    const int height = Configuration::getScreenHeight();
     
-    Global::debug(0) << "Current Height: " << height * .8 << " Current Width: " << width *.09 << std::endl;
-    
-    // chat panel 80% width 90% height
-    chatBox.location.set(0, 0, 0, 0);
-    chatBox.location.setDimensions(width * .8, height * .9);
-    // edit box
-    inputBox.location.set(0, height * .91, 0, 0);
-    inputBox.location.setDimensions(width * .8, height * .09);
-    // Set the location of user list width * .8 and height
+    // chat panel widthRatio% heightRatio%
+    chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
+    chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
+    // edit box widthRatio% remaining (heightRatio + .01)%
+    const double inputStart = heightRatio + .01;
+    inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
+    inputBox.location.setDimensions(width * widthRatio, height * (1 - inputStart));
+    // Set the location of user list width * widthRatio and height
 }
 
 ChatInterface::~ChatInterface(){
 }
 
 void ChatInterface::act(){
-    chatBox.act(Font::getDefaultFont());
-    inputBox.act(Font::getDefaultFont());
+    // Default size of fonts
+    const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
+    // Size is important
+    const Font & font = Font::getDefaultFont(size, size);
+    chatBox.act(font);
+    inputBox.act(font);
 }
 
 void ChatInterface::draw(const Graphics::Bitmap & work){
+    const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
+    const Font & font = Font::getDefaultFont(size, size);
     chatBox.render(work);
-    inputBox.render(work);
+    inputBox.draw(font, work);
 }
 
 Util::ReferenceCount<Client> ChatInterface::getClient(){

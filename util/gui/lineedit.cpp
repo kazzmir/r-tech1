@@ -11,248 +11,119 @@ static Global::stream_type & debug(int level){
     return Global::debug(level);
 }
 
-LineEdit::LineEdit() : 
-currentSetFont(0), 
-hAlignment(T_Middle),
-hAlignMod(T_Middle),
-vAlignment(T_Middle),
-inputTypeValue(inputGeneral),
-changed_(0),
-autoResizable(0),
-textX(0),
-textY(0),
-cursorX(0),
-cursorY(0),
-cursorIndex(0),
-textColor(Graphics::makeColor(0, 0, 0)),
-textSizeH(0),
-limit(0),
-blinkRate(500),
-blink(false),
-focused(false),
-changeCounter(0){
-    cursorTime.reset();
+void drawBox(int radius, int x, int y, int width, int height, const Gui::ColorInfo & colors, const Graphics::Bitmap & where){
+    if (radius > 0){
+        if (colors.bodyAlpha < 255){
+            Graphics::Bitmap::transBlender(0,0,0,colors.bodyAlpha);
+            where.translucent().roundRectFill(radius, x, y, x+width, y+height, colors.body);
+        } else {
+            where.roundRectFill(radius, x, y, x+width, y+height, colors.body);
+        }
+        
+        if (colors.borderAlpha < 255){
+            Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
+            where.translucent().roundRect(radius, x, y, x+width, y+height, colors.border);
+        } else {
+            where.roundRect(radius, x, y, x+width, y+height, colors.border);
+        }
+    } else {
+        if (colors.bodyAlpha < 255){
+            Graphics::Bitmap::transBlender(0,0,0,colors.bodyAlpha);
+            where.translucent().rectangleFill(x, y, x+width, y+height, colors.body);
+        } else {
+            where.rectangleFill(x, y, x+width, y+height, colors.body);
+        }
+        if (colors.borderAlpha < 255){
+            Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
+            where.translucent().rectangle(x, y, x+width, y+height, colors.border);
+        } else {
+            where.rectangle(x, y, x+width, y+height, colors.border);
+        }
+    }
+}
+
+LineEdit::LineEdit():
+blinkRate(60),
+cursorTime(0),
+changed(false){
+    colors.body = Graphics::makeColor(0,0,60);
+    colors.border = Graphics::makeColor(0,0,20);
+    colors.bodyAlpha = colors.borderAlpha = 150;
+    textColor = Graphics::makeColor(255,255,255);
+    cursorColor = Graphics::makeColor(128,128,128);
+    transforms.setRadius(10);
+    input.enable();
 }
 
 LineEdit::~LineEdit(){
-    if (focused){
-        input.disable();
-    }
-}
-    
-void LineEdit::hookKey(int key, void (*callback)(void *), void * arg){
-    input.addBlockingHandle(key, callback, arg);
-}
-	
-bool LineEdit::didChanged(unsigned long long & counter){
-    bool did = counter < changeCounter;
-    counter = changeCounter;
-    return did;
 }
 
-// If the font size changes
-void LineEdit::fontChange(){
-    changed();
-}
-
-// Update
-void LineEdit::act(const Font & font){
-    if (currentSetFont == NULL){
-        currentSetFont = &font;
-    }
-    if (cursorTime.msecs() >= blinkRate){
-        cursorTime.reset();
-        blink = !blink;
-        changed();
-    }
-    /*
-    if ((blinkRate * 2) <= cursorTime.msecs()){
-        cursorTime.reset();
-        changed();
-    }
-    */
-
-    if (input.doInput()){
-        changed();
-        cursorIndex = input.getText().size();
-    }
-
-    if (changed_){
-        textSizeH = currentSetFont->getHeight();
-        if (autoResizable) {
-            location.setDimensions(textSizeH+2, currentSetFont->textLength(input.getText().c_str()) + 4);
-        } else {
-            if (hAlignMod==T_Left){
-                if (currentSetFont->textLength(input.getText().c_str())>location.getWidth()){
-                    hAlignment = T_Right;
-                } else {
-                    hAlignment = T_Left;
-                }
-            }
-        }
-
-        switch (hAlignment) {
-            case T_Left:
-                textX = 2;
-                cursorX = textX + currentSetFont->textLength(input.getText().substr(0,cursorIndex).c_str()) + 1;
-                break;
-            case T_Middle:
-                textX = (location.getWidth()/2) - (currentSetFont->textLength(input.getText().c_str())/2);
-                cursorX = (textX) + currentSetFont->textLength(input.getText().substr(0,cursorIndex).c_str()) + 1;
-                break;
-            case T_Right:
-                textX = location.getWidth() - currentSetFont->textLength(input.getText().c_str());//(position.width - 1)-2;
-                cursorX = location.getWidth() - currentSetFont->textLength(input.getText().substr(0, input.getText().length()-cursorIndex).c_str());
-                break;
-            case T_Bottom:
-            case T_Top:
-                break;
-        }
-
-        switch (vAlignment) {
-            case T_Top:
-                textY = 1;
-                cursorY = 1;
-                break;
-            case T_Middle:
-                textY = cursorY = (location.getHeight() - textSizeH-(5))/2;
-                break;
-            case T_Bottom:
-                textY = (location.getHeight() - 1) - textSizeH - 1;
-                cursorY = textY - textSizeH;
-                break;
-            case T_Right:
-            case T_Left:
-                break;
-        }
-
-        //textY++;
-        //textX++;
-        stable();
-    }
-}
-
-// Draw
-void LineEdit::render(const Graphics::Bitmap & work){
-
-    //Util::ReferenceCount<Graphics::Bitmap> workArea = checkWorkArea(work);
-    Graphics::Bitmap workArea = Graphics::Bitmap(workArea, location.getX(), location.getY(), location.getWidth(), location.getHeight());
-
-    /* Check if we are using a rounded box */
-    if (transforms.getRadius() > 0){
-        workArea.translucent(0, 0, 0, colors.bodyAlpha).roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea.translucent(0, 0, 0, colors.borderAlpha).roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
-    } else {
-        workArea.translucent(0, 0, 0, colors.bodyAlpha).rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
-        workArea.translucent(0, 0, 0, colors.borderAlpha).rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
-    }
-
-    if (currentSetFont){
-        currentSetFont->printf(textX, textY, textColor, workArea, input.getText(), 0);
-    }
-
-    if (focused){
-        if (blink){
-            workArea.line(cursorX, cursorY, cursorX, cursorY+textSizeH-5, textColor);
-        }
-    }
-}
-
-// Set text
-void LineEdit::setText(const std::string & text){
-    input.setText(text);
-    if (limit!=0) {
-        if (input.getText().length() > limit) {
-            while (input.getText().length() > limit){
-                // currentSetText.erase(currentSetText.begin()+currentSetText.length()-1);
-            }
-        }
-    }
-    cursorIndex = input.getText().length();
-    changed();
-}
-
-
-//! Get text
-const std::string LineEdit::getText(){
-    return input.getText();
-}
-		
-//! Clear text
-void LineEdit::clearText(){
-    input.clearInput();
-    cursorIndex=0;
-    changed();
-}
-
-//! Set text limit
-void LineEdit::setLimit(unsigned int l){
-    limit = l;
-    if (limit!=0){
-        if (input.getText().length()>limit){
-            while (input.getText().length()>limit){
-                // currentSetText.erase(currentSetText.begin()+currentSetText.length()-1);
-            }
-        }
-    }
-    cursorIndex = input.getText().length();
-    changed();
-}
-		
-// Set Horizontal Alignment
-void LineEdit::setHorizontalAlign(const textAlign & a){
-    hAlignment = hAlignMod = a;
-    changed();
-}
-		
-// Set Vertical Alignment
-void LineEdit::setVerticalAlign(const textAlign & a){
-    vAlignment = a;
-    changed();
-}
-
-//! Set the type of input default general
-void LineEdit::setInputType(const inputType i){
-    inputTypeValue = i;
-}
-		
-// Set textColor
 void LineEdit::setTextColor(const Graphics::Color color){
     textColor = color;
 }
 
-//! Set textColor
 void LineEdit::setCursorColor(const Graphics::Color color){
-    textColor = color;
+    cursorColor = color;
 }
 
-// Set font
-void LineEdit::setFont(const Font *f){
-    currentSetFont = f;
-    if (currentSetFont) changed();
-}
-
-// Set autoResizeable
-void LineEdit::setAutoResize(bool r){
-    autoResizable = r;
-}
-
-// Set the cursor blink rate in miliseconds (default 500)
-void LineEdit::setCursorBlinkRate(unsigned int msecs){
-    blinkRate = msecs;
-}
-
-//! set Focus
-void LineEdit::setFocused(bool focus){
-    focused = focus;
-    if (focus){
-        input.enable();
+void LineEdit::act(const Font &){
+    if (input.doInput()){
+        changed = true;
     } else {
-        input.disable();
+        changed = false;
+    }
+    cursorTime++;
+    if (cursorTime > blinkRate*2){
+        cursorTime = 0;
     }
 }
 
-//! check Focus
-bool LineEdit::isFocused(){
-    return focused;
+void LineEdit::draw(const Font & font, const Graphics::Bitmap & work){
+    
+    Graphics::Bitmap temp = Graphics::Bitmap(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
+    
+    drawBox(10, 0, 0, location.getWidth(), location.getHeight(), colors, temp);
+    
+    Graphics::Bitmap textTemp = Graphics::Bitmap(temp, 10, 0, temp.getWidth()-10, temp.getHeight());
+    int fontLength = font.textLength(input.getText().c_str());
+    if (fontLength >= textTemp.getWidth()){
+        font.printf(textTemp.getWidth()-10 - fontLength, 0, textColor, textTemp, input.getText(), 0);
+        renderCursor(textTemp.getWidth()-11, 0, font, textTemp);
+    } else {
+        font.printf(0, 0, textColor, textTemp, input.getText(), 0);
+        renderCursor(fontLength+1, 0, font, textTemp);
+    }
+}
+
+void LineEdit::render(const Graphics::Bitmap &){
+}
+
+void LineEdit::toggleEnabled(){
+    if (input.isEnabled()){
+        input.disable();
+    } else {
+        input.enable();
+    }
+}
+
+void LineEdit::setFocused(bool enabled){
+    if (enabled){
+        input.disable();
+    } else {
+        input.enable();
+    }
+}
+
+void LineEdit::addHook(int key, void (*callback)(void *), void * arg){
+    input.addBlockingHandle(key, callback, arg);
+}
+
+bool LineEdit::didChanged(unsigned long long &){
+    return changed;
+}
+
+void LineEdit::renderCursor(int x, int y, const Font & font, const Graphics::Bitmap & work){
+    if (cursorTime <= blinkRate){
+        font.printf(x, y, cursorColor, work, "|", 0);
+    }
 }
