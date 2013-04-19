@@ -57,6 +57,9 @@ void LineEdit::fontChange(){
 
 // Update
 void LineEdit::act(const Font & font){
+    if (currentSetFont == NULL){
+        currentSetFont = &font;
+    }
     if (cursorTime.msecs() >= blinkRate){
         cursorTime.reset();
         blink = !blink;
@@ -132,24 +135,25 @@ void LineEdit::act(const Font & font){
 // Draw
 void LineEdit::render(const Graphics::Bitmap & work){
 
-    Util::ReferenceCount<Graphics::Bitmap> workArea = checkWorkArea(work);
+    //Util::ReferenceCount<Graphics::Bitmap> workArea = checkWorkArea(work);
+    Graphics::Bitmap workArea = Graphics::Bitmap(workArea, location.getX(), location.getY(), location.getWidth(), location.getHeight());
 
     /* Check if we are using a rounded box */
     if (transforms.getRadius() > 0){
-        workArea->translucent(0, 0, 0, colors.bodyAlpha).roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
-        workArea->translucent(0, 0, 0, colors.borderAlpha).roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+        workArea.translucent(0, 0, 0, colors.bodyAlpha).roundRectFill((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.body );
+        workArea.translucent(0, 0, 0, colors.borderAlpha).roundRect((int)transforms.getRadius(), 0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
     } else {
-        workArea->translucent(0, 0, 0, colors.bodyAlpha).rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
-        workArea->translucent(0, 0, 0, colors.borderAlpha).rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
+        workArea.translucent(0, 0, 0, colors.bodyAlpha).rectangleFill(0, 0, location.getWidth()-1, location.getHeight()-1, colors.body);
+        workArea.translucent(0, 0, 0, colors.borderAlpha).rectangle(0, 0, location.getWidth()-1, location.getHeight()-1, colors.border);
     }
 
     if (currentSetFont){
-        currentSetFont->printf(textX, textY, textColor, *workArea, input.getText(), 0);
+        currentSetFont->printf(textX, textY, textColor, workArea, input.getText(), 0);
     }
 
     if (focused){
         if (blink){
-            workArea->line(cursorX, cursorY, cursorX, cursorY+textSizeH-5, textColor);
+            workArea.line(cursorX, cursorY, cursorX, cursorY+textSizeH-5, textColor);
         }
     }
 }
