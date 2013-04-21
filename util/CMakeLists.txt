@@ -84,6 +84,7 @@ gui/rectarea.cpp
 gui/popup-box.cpp
 gui/scroll-list.cpp
 gui/select-list.cpp
+gui/tab-container.cpp
 gui/tabbed-box.cpp
 gui/timer.cpp
 gui/widget.cpp
