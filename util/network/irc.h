@@ -6,7 +6,7 @@
 #include "util/pointer.h"
 #include "util/thread.h"
 
-#include "util/gui/tabbed-box.h"
+#include "util/gui/tab-container.h"
 #include "util/gui/lineedit.h"
 
 #include <string>
@@ -277,7 +277,7 @@ namespace IRC{
         
     protected:
         Util::ReferenceCount<Client> client;
-        Gui::TabbedBox chatBox;
+        Gui::TabContainer chatBox;
         Gui::LineEdit inputBox;
         double widthRatio;
         double heightRatio;
