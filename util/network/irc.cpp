@@ -612,12 +612,13 @@ heightRatio(.92){
     tabbed.bodyAlpha = 128;
     tabbed.border = Graphics::makeColor(200,200,200);
     tabbed.borderAlpha = 255;
-    chatBox.colors = chatBox.tabColors = chatBox.selectedTabColors = chatBox.runningTabColors = tabbed;
+    //chatBox.colors = chatBox.tabColors = chatBox.selectedTabColors = chatBox.runningTabColors = tabbed;
+    chatBox.colors = tabbed;
     
     // chat panel widthRatio% heightRatio%
     chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
     chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
-    chatBox.addTab("Test", std::vector<Util::ReferenceCount<Gui::ContextItem> >());
+    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test")));
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
     inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
@@ -640,7 +641,7 @@ void ChatInterface::act(){
 void ChatInterface::draw(const Graphics::Bitmap & work){
     const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
     const Font & font = Font::getDefaultFont(size, size);
-    chatBox.render(work, font);
+    chatBox.draw(font, work);
     inputBox.draw(font, work);
 }
 
