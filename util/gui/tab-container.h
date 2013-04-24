@@ -26,7 +26,14 @@ public:
     virtual inline const std::string & getName() const {
         return this->name;
     } 
+    virtual inline bool isActive() const {
+        return this->active;
+    }
+    virtual inline void toggleActive() {
+        this->active = !this->active;
+    }
 protected:
+    bool active;
     std::string name;    
 };
 
@@ -65,6 +72,8 @@ public:
     }
 	
 protected:
+
+    virtual void drawTabs(const Font &, const Graphics::Bitmap &);
 
     std::vector< Util::ReferenceCount<TabItem> > tabs;
     
