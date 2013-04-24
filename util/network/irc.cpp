@@ -598,7 +598,7 @@ void Client::run(){
 
 ChatInterface::ChatInterface(const std::string & host, int port):
 widthRatio(.8),
-heightRatio(.92){
+heightRatio(.95){
     //client = Util::ReferenceCount< Client >(new Client(host, port));
     //client->connect();
     
@@ -608,19 +608,21 @@ heightRatio(.92){
     
     chatBox.transforms.setRadius(15);
     Gui::ColorInfo tabbed;
-    tabbed.body = Graphics::makeColor(0,0,0);
+    tabbed.body = Graphics::makeColor(255,255,255);
     tabbed.bodyAlpha = 128;
-    tabbed.border = Graphics::makeColor(200,200,200);
+    tabbed.border = Graphics::makeColor(0,0,255);
     tabbed.borderAlpha = 255;
-    //chatBox.colors = chatBox.tabColors = chatBox.selectedTabColors = chatBox.runningTabColors = tabbed;
     chatBox.colors = tabbed;
     
     // chat panel widthRatio% heightRatio%
     chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
     chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test")));
+    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test2")));
+    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test3")));
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
+    inputBox.transforms.setRadius(15);
     inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
     inputBox.location.setDimensions(width * widthRatio, height * (1 - inputStart));
     // Set the location of user list width * widthRatio and height
