@@ -65,6 +65,20 @@ public:
     
     // Add
     virtual void add(Util::ReferenceCount<TabItem> tab);
+    
+    // Set size of Content Body Area
+    virtual void setBodySize(int width, int height);
+    
+    // Next
+    virtual void next();
+    
+    // Previous
+    virtual void previous();
+    
+    // Get the Content Body Area
+    virtual inline const Graphics::Bitmap & getBody() const {
+        return this->body;
+    }
 	    
     // Empty
     virtual inline bool empty() const {
@@ -78,6 +92,9 @@ protected:
     std::vector< Util::ReferenceCount<TabItem> > tabs;
     
     unsigned int current;
+    
+    // Body defaults to 640x480
+    Graphics::Bitmap body;
     
     /*! Gradient for active selection */
     Effects::Gradient  * activeColor;
