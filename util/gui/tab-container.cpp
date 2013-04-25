@@ -31,7 +31,9 @@ void DummyTab::draw(const Font&, const Graphics::Bitmap & work){
     work.fill(Graphics::makeColor(220, 220, 220));
 }
 
-TabContainer::TabContainer(){
+TabContainer::TabContainer():
+current(0),
+body(640,480){
 }
 
 TabContainer::TabContainer(const TabContainer & copy){
@@ -45,6 +47,10 @@ TabContainer & TabContainer::operator=(const TabContainer & copy){
 }
 
 void TabContainer::act(const Font & font){
+    for (std::vector< Util::ReferenceCount<TabItem> >::iterator i = tabs.begin(); i != tabs.end(); ++i){
+        Util::ReferenceCount<TabItem> tab = *i;
+        tab->act();
+    }
 }
 
 void TabContainer::render(const Graphics::Bitmap &){
@@ -86,8 +92,13 @@ void TabContainer::draw(const Font & font, const Graphics::Bitmap & work){
     // Draw tabs
     drawTabs(font, Graphics::Bitmap(work, location.getX(), location.getY(), location.getWidth(), tabHeight+1));
     
+    // Draw body
     Graphics::Bitmap area(work, location.getX(), location.getY() + tabHeight+1, location.getWidth(), height);
     drawBox(transforms.getRadius(), 0, -(tabHeight+1), location.getWidth(), height, colors, area);
+    
+    // Draw body content
+    const int modifier = (area.getWidth() * (transforms.getRadius()*.001)) == 0 ? 2 : area.getWidth() * (transforms.getRadius()*.001);
+    body.drawStretched(modifier, modifier, area.getWidth() - modifier*2, area.getHeight() - modifier*2, area);
 }
 
 void TabContainer::add(Util::ReferenceCount<TabItem> tab){
@@ -95,6 +106,30 @@ void TabContainer::add(Util::ReferenceCount<TabItem> tab){
     if (tabs.size() == 1){
         tab->toggleActive();
     }
+}
+
+void TabContainer::setBodySize(int width, int height){
+    if (body.getWidth() == width && body.getHeight() == height){
+        return;
+    }
+    
+    body = Graphics::Bitmap(width, height);
+}
+
+void TabContainer::next(){
+    tabs[current]->toggleActive();
+    current = (current + 1) % tabs.size();
+    tabs[current]->toggleActive();
+}
+
+void TabContainer::previous(){
+    tabs[current]->toggleActive();
+    if (current == 0){
+        current = tabs.size()-1;
+    } else {
+        current--;
+    }
+    tabs[current]->toggleActive();
 }
 
 void TabContainer::drawTabs(const Font & font, const Graphics::Bitmap & work){
@@ -105,21 +140,25 @@ void TabContainer::drawTabs(const Font & font, const Graphics::Bitmap & work){
     }
     const int width = work.getWidth() / tabs.size();
     const int inactiveY = work.getHeight() * .25;
+    const int modifier = (width * (transforms.getRadius()*.005)) == 0 ? 2 : (width * (transforms.getRadius()*.005));
     int currentX = 0;
     for (std::vector< Util::ReferenceCount<TabItem> >::iterator i = tabs.begin(); i != tabs.end(); ++i){
         Util::ReferenceCount<TabItem> tab = *i;
         if (tab->isActive()){
-            drawBox(transforms.getRadius(), currentX, 0, width, work.getHeight()*2, colors, work);
-            font.printf(currentX + (width/2) - (font.textLength(tab->getName().c_str())/2), 0, Graphics::makeColor(255,255,255), work, tab->getName(), 0);
+            drawBox(transforms.getRadius(), currentX, 0, currentX + width, work.getHeight()*2, colors, work);
+            Graphics::Bitmap fontArea(work, currentX + modifier, 0, width - (modifier*2), work.getHeight());
+            font.printf((fontArea.getWidth()/2) - (font.textLength(tab->getName().c_str())/2), 0, Graphics::makeColor(255,255,255), fontArea, tab->getName(), 0);
+            tab->draw(font, body);
         } else {
-            drawBox(transforms.getRadius(), currentX, inactiveY, width, work.getHeight()*2, colors, work);
-            font.printf(currentX + (width/2) - (font.textLength(tab->getName().c_str())/2), inactiveY, Graphics::makeColor(255,255,255), work, tab->getName(), 0);
+            drawBox(transforms.getRadius(), currentX, inactiveY, currentX + width, work.getHeight()*2, colors, work);
             if (colors.bodyAlpha < 255){
                 Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
                 work.translucent().hLine(currentX,work.getHeight()-1,currentX + width,colors.border);
             } else {
                 work.hLine(currentX,work.getHeight()-1,currentX + width,colors.border);
             }
+            Graphics::Bitmap fontArea(work, currentX + modifier, inactiveY, width - (modifier*2), work.getHeight());
+            font.printf((fontArea.getWidth()/2) - (font.textLength(tab->getName().c_str())/2), 0, Graphics::makeColor(255,255,255), fontArea, tab->getName(), 0);
         }
         currentX += width;
     }

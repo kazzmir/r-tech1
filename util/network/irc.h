@@ -262,6 +262,9 @@ namespace IRC{
         void act();
         void draw(const Graphics::Bitmap &);
         
+        void nextChannel();
+        void previousChannel();
+        
         Util::ReferenceCount<Client> getClient();
         
         inline void setWidthRatio(double ratio){

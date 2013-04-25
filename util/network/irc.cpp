@@ -596,6 +596,16 @@ void Client::run(){
     }
 }
 
+static void nextTab(void * i){
+    ChatInterface * interface = (ChatInterface *)i;
+    interface->nextChannel();
+}
+
+static void previousTab(void * i){
+    ChatInterface * interface = (ChatInterface *)i;
+    interface->previousChannel();
+}
+
 ChatInterface::ChatInterface(const std::string & host, int port):
 widthRatio(.8),
 heightRatio(.95){
@@ -618,8 +628,10 @@ heightRatio(.95){
     chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
     chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test")));
-    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test2")));
+    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("ABCDEFGHIJKLMNOPQRSTUVWXYZ")));
     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test3")));
+    inputBox.addHook(Keyboard::Key_TAB, nextTab, &chatBox);
+    //inputBox.addHook(Keyboard::Key_TAB, previousTab, &chatBox);
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
     inputBox.transforms.setRadius(15);
@@ -645,6 +657,16 @@ void ChatInterface::draw(const Graphics::Bitmap & work){
     const Font & font = Font::getDefaultFont(size, size);
     chatBox.draw(font, work);
     inputBox.draw(font, work);
+}
+
+void ChatInterface::nextChannel(){
+    //client->nextChannel();
+    chatBox.next();
+}
+
+void ChatInterface::previousChannel(){
+    //client->previousChannel();
+    chatBox.previous();
 }
 
 Util::ReferenceCount<Client> ChatInterface::getClient(){
