@@ -88,6 +88,12 @@ std::string lowerCaseAll(std::string str);
 /* upper cases the entire string */
 std::string upperCaseAll(std::string str);
 
+// Split string
+std::vector<std::string> splitString(std::string str, char splitter);
+
+// Join strings
+std::string joinStrings(const std::vector< std::string > & message, unsigned int start = 0);
+
 /* convert a size in bytes into human readable form.
  * 234823592 = 223.94m
  */
