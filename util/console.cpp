@@ -160,7 +160,7 @@ void Console::pageDown(){
     if (pagePosition != -1){
         pagePosition += PAGE_MOVEMENT;
     }
-    if (pagePosition >= lines.size()){
+    if (pagePosition >= (int) lines.size()){
         pagePosition = -1;
     }
 }
