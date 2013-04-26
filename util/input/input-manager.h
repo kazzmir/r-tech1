@@ -216,7 +216,7 @@ protected:
 
         for (std::vector<int>::const_iterator it = source.getJoystick().begin(); it != source.getJoystick().end(); it++){
             int config = *it;
-            if (config >= 0 && config < joysticks.size()){
+            if (config >= 0 && config < (int) joysticks.size()){
                 Util::ReferenceCount<Joystick> joystick = joysticks[config];
                 if (joystick != NULL){
                     const std::vector<typename Joystick::Event> & joystickEvents = joystick->getEvents();

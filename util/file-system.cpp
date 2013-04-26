@@ -721,8 +721,8 @@ public:
         if (ok == SZ_OK){
             /* Can read files */
             UInt16 * name = NULL;
-            int tempSize = 0;
-            for (int index = 0; index < database.db.NumFiles; index++){
+            size_t tempSize = 0;
+            for (unsigned int index = 0; index < database.db.NumFiles; index++){
                 size_t offset = 0;
                 size_t outSizeProcessed = 0;
                 const CSzFileItem * file = database.db.Files + index;
@@ -735,6 +735,7 @@ public:
                     delete[] name;
                     name = new UInt16[length];
                     memset(name, 0, length);
+                    tempSize = length;
                 }
 
                 SzArEx_GetFileNameUtf16(&database, index, name);
@@ -1147,7 +1148,7 @@ public:
         int total = 0;
         while (bytes > 0){
             /* Calls the zip file directly here so we don't mess up position */
-            int read = zip->read(dummy, bytes > sizeof(dummy) ? sizeof(dummy) : bytes);
+            int read = zip->read(dummy, bytes > (int) sizeof(dummy) ? (int) sizeof(dummy) : bytes);
             total += read;
             if (read == 0){
                 return total;
@@ -1206,7 +1207,7 @@ public:
     }
 
     bool eof(){
-        return position >= size;
+        return position >= (int) size;
     }
 
     virtual bool good(){
@@ -1253,14 +1254,14 @@ public:
         if (this->position < 0){
             this->position = 0;
         }
-        if (this->position > size){
+        if (this->position > (int) size){
             this->position = size;
         }
         return this->position;
     }
 
     virtual File & operator>>(unsigned char & out){
-        if (this->position < size){
+        if (this->position < (int) size){
             out = memory[position];
             position += 1;
         }
@@ -1268,7 +1269,7 @@ public:
     }
 
     virtual int readLine(char * output, int size){
-        if (size > (this->size - this->position)){
+        if (size > (int) (this->size - this->position)){
             size = this->size - this->position;
         }
         memmove(output, memory + this->position, size);
