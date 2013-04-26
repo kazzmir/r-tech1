@@ -596,16 +596,6 @@ void Client::run(){
     }
 }
 
-static void nextTab(void * i){
-    ChatInterface * interface = (ChatInterface *)i;
-    interface->nextChannel();
-}
-
-static void previousTab(void * i){
-    ChatInterface * interface = (ChatInterface *)i;
-    interface->previousChannel();
-}
-
 ChatInterface::ChatInterface(const std::string & host, int port):
 widthRatio(.8),
 heightRatio(.95){
@@ -630,8 +620,6 @@ heightRatio(.95){
     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test")));
     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("ABCDEFGHIJKLMNOPQRSTUVWXYZ")));
     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test3")));
-    inputBox.addHook(Keyboard::Key_TAB, nextTab, &chatBox);
-    //inputBox.addHook(Keyboard::Key_TAB, previousTab, &chatBox);
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
     inputBox.transforms.setRadius(15);

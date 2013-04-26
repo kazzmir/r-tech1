@@ -9,8 +9,6 @@
 #include "util/pointer.h"
 #include "util/graphics/gradient.h"
 
-class Token;
-
 namespace Gui{
 
 class TabItem{
@@ -85,7 +83,7 @@ public:
         return this->tabs.empty();
     }
 	
-protected:
+protected: 
 
     virtual void drawTabs(const Font &, const Graphics::Bitmap &);
 
