@@ -223,6 +223,31 @@ string Util::lowerCaseAll(std::string str){
     return str;
 }
 
+// Split string
+std::vector<std::string> Util::splitString(std::string str, char splitter){
+    std::vector<std::string> strings;
+    size_t next = str.find(splitter);
+    while (next != std::string::npos){
+        strings.push_back(str.substr(0, next));
+        str = str.substr(next+1);
+        next = str.find(splitter);
+    }
+    if (str != ""){
+        strings.push_back(str);
+    }
+
+    return strings;
+}
+
+// Join strings
+std::string Util::joinStrings(const std::vector< std::string > & message, unsigned int start){
+    std::string all;
+    for (unsigned int i = start; i < message.size(); ++i){
+        all+=message.at(i) + (i < message.size()-1 ? " " : "");
+    }
+    return all;
+}
+
 /*Gets the minimum of three values*/
 static int minimum(int a,int b,int c){
   int min=a;

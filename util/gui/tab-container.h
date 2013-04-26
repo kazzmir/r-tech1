@@ -16,8 +16,9 @@ public:
     TabItem();
     TabItem(const std::string &);
     virtual ~TabItem();
-    virtual void act() = 0;
-    virtual void draw(const Font&, const Graphics::Bitmap &) = 0;
+    virtual void inspectBody(const Graphics::Bitmap &);
+    virtual void act(const Font &) = 0;
+    virtual void draw(const Font &, const Graphics::Bitmap &) = 0;
     virtual inline void setName(const std::string & name) {
         this->name = name;
     } 
@@ -39,8 +40,8 @@ class DummyTab: public TabItem{
 public:
     DummyTab(const std::string &);
     virtual ~DummyTab();
-    virtual void act();
-    virtual void draw(const Font&, const Graphics::Bitmap &);
+    virtual void act(const Font &);
+    virtual void draw(const Font &, const Graphics::Bitmap &);
 };
     
 

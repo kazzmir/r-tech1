@@ -1,12 +1,15 @@
 #include "irc.h"
 
+#include "util/funcs.h"
 #include "util/font.h"
 #include "util/regex.h"
+#include "util/system.h"
 #include "util/graphics/bitmap.h"
 #include "util/configuration.h"
 #include "util/gui/context-box.h"
 
 #include <stdexcept>
+#include <queue>
 
 namespace Network{
 namespace IRC{
@@ -596,11 +599,122 @@ void Client::run(){
     }
 }
 
+class ChannelTab: public Gui::TabItem{
+public:
+    ChannelTab(const std::string & name):
+    TabItem(name),
+    width(0),
+    height(0),
+    changed(false){
+    }
+    virtual ~ChannelTab(){
+    }
+    void act(const Font & font){
+        processMessages(font);
+    }
+    void draw(const Font& font, const Graphics::Bitmap & work){
+        if (!isActive()){
+            return;
+        }
+        work.clear();
+        int mod = height-(font.getHeight()+2);
+        for (std::deque<std::string>::iterator i = buffer.begin(); i != buffer.end(); ++i){
+            const std::string & text = *i;
+            font.printf(0, mod, Graphics::makeColor(255,255,255), work, text, 0);
+            mod-=(font.getHeight()+2);
+        }
+    }
+    
+    void addMessage(const std::string & message){
+        if (!isActive() && !changed){
+            changed = true;
+        }
+        messages.push(message);
+    }
+    void addMessage(const std::string & name, const std::string & message){
+        addMessage("<"+name+"> " + message);
+    }
+    
+    void processMessages(const Font & font){
+        while (!messages.empty()){
+            const std::string message = messages.front();
+            messages.pop();
+            // Check message if it exceeds the length of the box so we can split it
+            if (font.textLength(message.c_str()) > width-15){
+                unsigned int marker = 0;
+                unsigned int length = 0;
+                while ((marker+length) < message.size()){
+                    //Global::debug(0) << "Substring: " << message.substr(marker, length) << " Marker: " << marker << " and Current length: " << length << std::endl;
+                    if (font.textLength(message.substr(marker, length).c_str()) < width-15){
+                        length++;
+                        continue;
+                    } else {
+                        if (message[marker+length] == ' '){
+                            buffer.push_front(message.substr(marker, length));
+                            marker += length+1;
+                            length = 0;
+                        } else {
+                            // Search for previous space
+                            unsigned int cutoff = marker+length;
+                            while ((marker+length) > marker){
+                                if (message[marker+length] == ' '){
+                                    break;
+                                }
+                                length--;
+                            }
+                            if ((marker+length) > marker){
+                                buffer.push_front(message.substr(marker, length));
+                                marker += length+1;
+                                length = 0;
+                            } else {
+                                buffer.push_front(message.substr(marker, cutoff));
+                                marker = cutoff+1;
+                                length = 0;
+                            }
+                        }
+                    }
+                }
+                // Add last item
+                if ((marker+length) > marker){
+                    buffer.push_front(message.substr(marker, length));
+                }
+            } else {
+                buffer.push_front(message);
+            }
+            
+            // Drop out of sight
+            if ((buffer.size() * (font.getHeight()+2)) > (unsigned int)height){
+                buffer.pop_back();
+            }
+        }
+    }
+    void inspectBody(const Graphics::Bitmap & body){
+        width = body.getWidth();
+        height = body.getHeight();
+    }
+    void toggleActive(){
+        if (!active){
+            active = true;
+            changed = false;
+        } else {
+            active = false;
+        }
+    }
+private:
+    std::queue<std::string> messages;
+    std::deque<std::string> buffer;
+    int width;
+    int height;
+    bool changed;
+};
+
+
 ChatInterface::ChatInterface(const std::string & host, int port):
 widthRatio(.8),
-heightRatio(.95){
-    //client = Util::ReferenceCount< Client >(new Client(host, port));
-    //client->connect();
+heightRatio(.95),
+serverTab(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(host))){
+    client = Util::ReferenceCount< Client >(new Client(host, port));
+    client->connect();
     
     // Setup window size and chat list
     const int width = Configuration::getScreenWidth();
@@ -617,9 +731,7 @@ heightRatio(.95){
     // chat panel widthRatio% heightRatio%
     chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
     chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
-    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test")));
-    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("ABCDEFGHIJKLMNOPQRSTUVWXYZ")));
-    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new Gui::DummyTab("Test3")));
+    chatBox.add(serverTab);
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
     inputBox.transforms.setRadius(15);
@@ -636,6 +748,9 @@ void ChatInterface::act(){
     const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
     // Size is important
     const Font & font = Font::getDefaultFont(size, size);
+    
+    processMessages();
+        
     chatBox.act(font);
     inputBox.act(font);
 }
@@ -659,6 +774,87 @@ void ChatInterface::previousChannel(){
 
 Util::ReferenceCount<Client> ChatInterface::getClient(){
     return client;
+}
+
+void ChatInterface::processMessages(){
+    while (client->hasCommands()){
+        ::Network::IRC::Command command = client->nextCommand();
+        std::vector<std::string> params = command.getParameters();
+        //Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
+        try {
+            if (command.getType() == ::Network::IRC::Command::Ping){
+                client->sendPong(command);
+                serverTab.convert<ChannelTab>()->addMessage(command.getOwner(), "*** Ping!");
+            } else if (command.getType() == ::Network::IRC::Command::PrivateMessage){
+                // Check channel
+                const std::string & channel = params.at(0);
+                if (client->isCurrentChannel(channel)){
+                    // Username and message 
+                    //panel.addMessage(command.getOwner(), params.at(1));
+                }
+            } else if (command.getType() == ::Network::IRC::Command::Notice){
+                // Username and message 
+                serverTab.convert<ChannelTab>()->addMessage(command.getOwner(), params.at(1));
+            } else if (command.getType() == ::Network::IRC::Command::ReplyMOTD ||
+                       command.getType() == ::Network::IRC::Command::ReplyMOTDStart ||
+                       command.getType() == ::Network::IRC::Command::ReplyMOTDEndOf){
+                serverTab.convert<ChannelTab>()->addMessage("*** MOTD " + params.at(1));
+            } else if (command.getType() == ::Network::IRC::Command::Join){
+                serverTab.convert<ChannelTab>()->addMessage("*** You have joined the channel " + params.at(0) + ".");
+            } else if (command.getType() == ::Network::IRC::Command::ReplyNoTopic){
+                serverTab.convert<ChannelTab>()->addMessage("*** The channel " + params.at(1) + " has no topic set.");
+            } else if (command.getType() == ::Network::IRC::Command::ReplyTopic){
+                serverTab.convert<ChannelTab>()->addMessage("*** The channel topic for " + params.at(1) + " is: \"" + params.at(2) + "\".");
+            } else if (command.getType() == ::Network::IRC::Command::ReplyNames){
+                std::vector<std::string> names = split(params.at(2), ' ');
+                std::map<std::string, std::vector<std::string> >::iterator check = namesRequest.find(params.at(1));
+                if (check == namesRequest.end()){
+                    namesRequest[params.at(1)] = std::vector<std::string>();
+                    check = namesRequest.find(params.at(1));
+                }
+                check->second.insert(check->second.begin(), names.begin(), names.end());
+            } else if (command.getType() == ::Network::IRC::Command::ReplyNamesEndOf){
+                std::map<std::string, std::vector<std::string> >::iterator check = namesRequest.find(params.at(1));
+                if (check != namesRequest.end()){
+                    serverTab.convert<ChannelTab>()->addMessage("*** Current users on " + params.at(1) + " \"" + Util::joinStrings(check->second) + "\".");
+                    namesRequest.erase(check);
+                }
+            } else if (command.getType() == ::Network::IRC::Command::ErrorNickInUse){
+                serverTab.convert<ChannelTab>()->addMessage("[Error] " + params.at(1) + ": Nick already in use.");
+            } else if (command.getType() == ::Network::IRC::Command::ErrorNoSuchNick){
+                serverTab.convert<ChannelTab>()->addMessage("[Error] " + params.at(1) + ": No such nick.");
+            } else if (command.getType() == ::Network::IRC::Command::ErrorNoSuchChannel){
+                serverTab.convert<ChannelTab>()->addMessage("[Error] " + params.at(1) + ": No such channel.");
+            } else if (command.getType() == ::Network::IRC::Command::Error){
+                Global::debug(0) << "Received Error: " << command.getSendable() << "... Aborting." << std::endl;
+                throw Exception::Return(__FILE__, __LINE__);
+            }
+        } catch (const std::out_of_range & ex){
+        }
+        // Check if we got any CTCP delimited messages
+        if (command.hasCtcp()){
+            std::vector<std::string> ctcp = command.getCtcp();
+            try {
+                if (ctcp.at(0) == "PING"){
+                    // Lets check if there is an existing query otherwise send off request
+                    if (command.getType() == ::Network::IRC::Command::Notice){
+                        std::map<std::string, uint64_t>::iterator check = pingReply.find(command.getOwner());
+                        if (check != pingReply.end()){
+                            // there is an existing entry lets display our ping
+                            std::ostringstream difference;
+                            difference << (double)((System::currentMilliseconds() - check->second)/1000000);
+                            serverTab.convert<ChannelTab>()->addMessage("[CTCP] Received CTCP-PING reply from " + check->first + ": " + difference.str() + "second(s)" );
+                            pingReply.erase(check);
+                        }
+                    } else if (command.getType() == ::Network::IRC::Command::PrivateMessage){
+                        client->sendCommand(::Network::IRC::Command::Notice, command.getOwner(), ":\001PING " + ctcp.at(1) + "\001");
+                        serverTab.convert<ChannelTab>()->addMessage("[CTCP] Received CTCP-PING request from " + command.getOwner() + ", sending answer.");
+                    }
+                }
+            } catch (const std::out_of_range & ex){
+            }
+        }
+    }
 }
 
 }

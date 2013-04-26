@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <map>
 
 namespace Network{
 namespace IRC{
@@ -279,11 +280,16 @@ namespace IRC{
         }
         
     protected:
+        void processMessages();
         Util::ReferenceCount<Client> client;
         Gui::TabContainer chatBox;
         Gui::LineEdit inputBox;
         double widthRatio;
         double heightRatio;
+        Util::ReferenceCount<Gui::TabItem> serverTab;
+        // check ctcp reply
+        std::map<std::string, uint64_t> pingReply;
+        std::map< std::string, std::vector<std::string> > namesRequest;
     };
     
 }// end irc

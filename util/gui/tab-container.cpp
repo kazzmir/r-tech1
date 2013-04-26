@@ -17,6 +17,9 @@ name(name){
 TabItem::~TabItem(){
 }
 
+void TabItem::inspectBody(const Graphics::Bitmap &){
+}
+
 DummyTab::DummyTab(const std::string & name):
 TabItem(name){
 }
@@ -24,10 +27,10 @@ TabItem(name){
 DummyTab::~DummyTab(){
 }
 
-void DummyTab::act(){
+void DummyTab::act(const Font &){
 }
 
-void DummyTab::draw(const Font&, const Graphics::Bitmap & work){
+void DummyTab::draw(const Font &, const Graphics::Bitmap & work){
     work.fill(Graphics::makeColor(220, 220, 220));
 }
 
@@ -55,7 +58,8 @@ TabContainer & TabContainer::operator=(const TabContainer & copy){
 void TabContainer::act(const Font & font){
     for (std::vector< Util::ReferenceCount<TabItem> >::iterator i = tabs.begin(); i != tabs.end(); ++i){
         Util::ReferenceCount<TabItem> tab = *i;
-        tab->act();
+        tab->inspectBody(body);
+        tab->act(font);
     }
 }
 
