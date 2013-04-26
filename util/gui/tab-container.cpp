@@ -36,13 +36,19 @@ current(0),
 body(640,480){
 }
 
-TabContainer::TabContainer(const TabContainer & copy){
+TabContainer::TabContainer(const TabContainer & copy):
+tabs(copy.tabs),
+current(copy.current),
+body(copy.body){
 }
 
 TabContainer::~TabContainer(){
 }
 
 TabContainer & TabContainer::operator=(const TabContainer & copy){
+    tabs = copy.tabs;
+    current = copy.current;
+    body = copy.body;
     return *this;
 }
 
