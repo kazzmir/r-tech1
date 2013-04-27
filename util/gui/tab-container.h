@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <exception>
 
 #include "widget.h"
 #include "util/file-system.h"
@@ -83,6 +84,21 @@ public:
     virtual inline bool empty() const {
         return this->tabs.empty();
     }
+    
+    // Get current tab
+    virtual inline Util::ReferenceCount<TabItem> getCurrent() {
+        return this->tabs[current];
+    }
+    
+    class NoSuchName: public std::exception{
+    public:
+        NoSuchName(const std::string &) throw();
+        virtual ~NoSuchName() throw();
+        virtual const char* what() const throw();
+    private:
+        std::string name;
+    };
+    virtual Util::ReferenceCount<TabItem> getByName(const std::string &);
 	
 protected: 
 

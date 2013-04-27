@@ -232,6 +232,10 @@ namespace IRC{
         
         virtual void sendPong(const Command &);
         
+        virtual inline void setMessagesDisabled(bool disabled){
+            this->disableMessages = disabled;
+        }
+        
     protected:
         
         void removeChannel(const std::string &);
@@ -253,6 +257,7 @@ namespace IRC{
         int port;
         bool end;
         mutable std::queue< Command > commands;
+        bool disableMessages;
     };
     
 namespace Message{
@@ -310,7 +315,7 @@ namespace Message{
     };
 }
     // Create a tabbed chatter to implement in games
-    class ChatInterface{
+    class ChatInterface: public Message::HandlerInterface{
     public:
         ChatInterface(const std::string &, int port);
         virtual ~ChatInterface();
@@ -321,6 +326,10 @@ namespace Message{
         void previousChannel();
         
         Util::ReferenceCount<Client> getClient();
+        
+        Util::ReferenceCount<Gui::TabItem> getCurrentTab();
+        
+        Util::ReferenceCount<Gui::TabItem> getTabByName(const std::string &);
         
         inline void setWidthRatio(double ratio){
             this->widthRatio = ratio;
@@ -333,9 +342,14 @@ namespace Message{
             return this->inputBox;
         }
         
+        // EventInterface
+        virtual void notify(const std::string &);
+        virtual void handleCommand(const std::vector<std::string> &);
+        
     protected:
         void processMessages();
         Util::ReferenceCount<Client> client;
+        const std::string & host;
         Gui::TabContainer chatBox;
         Gui::LineEdit inputBox;
         double widthRatio;
