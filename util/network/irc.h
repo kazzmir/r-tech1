@@ -255,6 +255,60 @@ namespace IRC{
         mutable std::queue< Command > commands;
     };
     
+namespace Message{
+    
+    class EventInterface{
+    public:
+        EventInterface();
+        virtual ~EventInterface();
+        // Notify by message
+        virtual void notify(const std::string &) = 0;
+        // Handle commands 
+        virtual void handleCommand(const std::vector<std::string> &);
+    };
+    
+    class HandlerInterface{
+    public:
+        HandlerInterface();
+        virtual ~HandlerInterface();
+        
+        typedef void *(*NotifyCallback)(const std::string &);
+        
+        virtual inline void subscribe(NotifyCallback subscriber){
+            this->callbacks.push_back(subscriber);
+        }
+        
+        virtual inline void subscribe(EventInterface * subscriber){
+            this->subscribers.push_back(subscriber);
+        }
+    protected:
+        // Callbacks for events and messages
+        std::vector<NotifyCallback> callbacks;
+        std::vector<EventInterface *> subscribers;
+    };
+    
+    class QueueInterface{
+    public:
+        QueueInterface();
+        virtual ~QueueInterface();
+        
+        virtual void addMessage(const std::string &) = 0;
+        
+        class FontWrapper{
+        public:
+            FontWrapper();
+            virtual ~FontWrapper();
+            
+            virtual int getWidth(const std::string &)=0;
+            virtual int getHeight()=0;
+        };
+        virtual void processMessages(FontWrapper &, int width, int height);
+        
+    protected:        
+        std::queue<std::string> messages;
+        std::deque<std::string> buffer;
+    };
+}
     // Create a tabbed chatter to implement in games
     class ChatInterface{
     public:

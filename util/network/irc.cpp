@@ -599,7 +599,88 @@ void Client::run(){
     }
 }
 
-class ChannelTab: public Gui::TabItem{
+Message::EventInterface::EventInterface(){
+}
+
+Message::EventInterface::~EventInterface(){
+}
+
+void Message::EventInterface::EventInterface::handleCommand(const std::vector<std::string> & command){
+}
+
+Message::HandlerInterface::HandlerInterface(){
+}
+
+Message::HandlerInterface::~HandlerInterface(){
+}
+
+Message::QueueInterface::QueueInterface(){
+}
+
+Message::QueueInterface::~QueueInterface(){
+}
+
+Message::QueueInterface::FontWrapper::FontWrapper(){
+}
+
+Message::QueueInterface::FontWrapper::~FontWrapper(){
+}
+
+void Message::QueueInterface::processMessages(Message::QueueInterface::FontWrapper & wrapper, int width, int height){
+    while (!messages.empty()){
+        const std::string message = messages.front();
+        messages.pop();
+        // Check message if it exceeds the length of the box so we can split it
+        if (wrapper.getWidth(message) > width-15){
+            unsigned int marker = 0;
+            unsigned int length = 0;
+            while ((marker+length) < message.size()){
+                //Global::debug(0) << "Substring: " << message.substr(marker, length) << " Marker: " << marker << " and Current length: " << length << std::endl;
+                if (wrapper.getWidth(message.substr(marker, length)) < width-15){
+                    length++;
+                    continue;
+                } else {
+                    if (message[marker+length] == ' '){
+                        buffer.push_front(message.substr(marker, length));
+                        marker += length+1;
+                        length = 0;
+                    } else {
+                        // Search for previous space
+                        unsigned int cutoff = marker+length;
+                        while ((marker+length) > marker){
+                            if (message[marker+length] == ' '){
+                                break;
+                            }
+                            length--;
+                        }
+                        if ((marker+length) > marker){
+                            buffer.push_front(message.substr(marker, length));
+                            marker += length+1;
+                            length = 0;
+                        } else {
+                            buffer.push_front(message.substr(marker, cutoff));
+                            marker = cutoff+1;
+                            length = 0;
+                        }
+                    }
+                }
+            }
+            // Add last item
+            if ((marker+length) > marker){
+                buffer.push_front(message.substr(marker, length));
+            }
+        } else {
+            buffer.push_front(message);
+        }
+        
+        // Drop out of sight
+        if ((buffer.size() * (wrapper.getHeight()+2)) > (unsigned int)height){
+            buffer.pop_back();
+        }
+    }
+}
+
+class ChannelTab: public Gui::TabItem, Message::QueueInterface{
 public:
     ChannelTab(const std::string & name):
     TabItem(name),
@@ -610,7 +691,24 @@ public:
     virtual ~ChannelTab(){
     }
     void act(const Font & font){
-        processMessages(font);
+        class Wrapper: public Message::QueueInterface::FontWrapper{
+        public:
+            Wrapper(const Font & font):
+            font(font){
+            }
+            virtual ~Wrapper(){
+            }
+            const Font & font;
+            int getWidth(const std::string & text){
+                return font.textLength(text.c_str());
+            }
+            int getHeight(){
+                return font.getHeight();
+            }
+                
+        };
+        Wrapper wrapper(font);
+        processMessages(wrapper, width, height);
     }
     void draw(const Font& font, const Graphics::Bitmap & work){
         if (!isActive()){
@@ -635,7 +733,7 @@ public:
         addMessage("<"+name+"> " + message);
     }
     
-    void processMessages(const Font & font){
+    /*void processMessages(const Font & font){
         while (!messages.empty()){
             const std::string message = messages.front();
             messages.pop();
@@ -687,7 +785,7 @@ public:
                 buffer.pop_back();
             }
         }
-    }
+    }*/
     void inspectBody(const Graphics::Bitmap & body){
         width = body.getWidth();
         height = body.getHeight();
@@ -701,8 +799,8 @@ public:
         }
     }
 private:
-    std::queue<std::string> messages;
-    std::deque<std::string> buffer;
+    /*std::queue<std::string> messages;
+    std::deque<std::string> buffer;*/
     int width;
     int height;
     bool changed;
