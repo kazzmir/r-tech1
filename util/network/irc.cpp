@@ -358,8 +358,6 @@ void Client::connect(){
     user.setParameters(username, "*", "0", ":auth");
     sendCommand(user);
     //  ^^^^^^^^ Should get a response from this crap!
-    joinChannel("#paintown");
-    
     Global::debug(0) << "Connected" << std::endl;
 }
 
