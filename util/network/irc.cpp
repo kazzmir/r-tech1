@@ -339,7 +339,8 @@ previousActiveChannel(0),
 currentChannel(0),
 hostname(hostname),
 port(port),
-end(false){
+end(false),
+disableMessages(true){
 }
 
 Client::~Client(){
@@ -504,7 +505,9 @@ ChannelPointer Client::findChannel(const std::string & name){
 }
 
 void Client::sendMessage(const std::string & msg){
-    sendCommand(Command::PrivateMessage, getChannel()->getName(), ":" + msg);
+    if (!disableMessages){
+        sendCommand(Command::PrivateMessage, getChannel()->getName(), ":" + msg);
+    }
 }
 
 void Client::sendPong(const Command & ping){
@@ -729,63 +732,11 @@ public:
         }
         messages.push(message);
     }
+    
     void addMessage(const std::string & name, const std::string & message){
         addMessage("<"+name+"> " + message);
     }
-    
-    /*void processMessages(const Font & font){
-        while (!messages.empty()){
-            const std::string message = messages.front();
-            messages.pop();
-            // Check message if it exceeds the length of the box so we can split it
-            if (font.textLength(message.c_str()) > width-15){
-                unsigned int marker = 0;
-                unsigned int length = 0;
-                while ((marker+length) < message.size()){
-                    //Global::debug(0) << "Substring: " << message.substr(marker, length) << " Marker: " << marker << " and Current length: " << length << std::endl;
-                    if (font.textLength(message.substr(marker, length).c_str()) < width-15){
-                        length++;
-                        continue;
-                    } else {
-                        if (message[marker+length] == ' '){
-                            buffer.push_front(message.substr(marker, length));
-                            marker += length+1;
-                            length = 0;
-                        } else {
-                            // Search for previous space
-                            unsigned int cutoff = marker+length;
-                            while ((marker+length) > marker){
-                                if (message[marker+length] == ' '){
-                                    break;
-                                }
-                                length--;
-                            }
-                            if ((marker+length) > marker){
-                                buffer.push_front(message.substr(marker, length));
-                                marker += length+1;
-                                length = 0;
-                            } else {
-                                buffer.push_front(message.substr(marker, cutoff));
-                                marker = cutoff+1;
-                                length = 0;
-                            }
-                        }
-                    }
-                }
-                // Add last item
-                if ((marker+length) > marker){
-                    buffer.push_front(message.substr(marker, length));
-                }
-            } else {
-                buffer.push_front(message);
-            }
-            
-            // Drop out of sight
-            if ((buffer.size() * (font.getHeight()+2)) > (unsigned int)height){
-                buffer.pop_back();
-            }
-        }
-    }*/
+
     void inspectBody(const Graphics::Bitmap & body){
         width = body.getWidth();
         height = body.getHeight();
@@ -799,15 +750,40 @@ public:
         }
     }
 private:
-    /*std::queue<std::string> messages;
-    std::deque<std::string> buffer;*/
     int width;
     int height;
     bool changed;
 };
 
+static Util::ReferenceCount<ChannelTab> convertTab(ChatInterface * chat, std::string name = ""){
+    if (!name.empty()){
+        try{
+            return chat->getTabByName(name).convert<ChannelTab>();
+        } catch (const Gui::TabContainer::NoSuchName & ex){
+        }
+    }
+    return chat->getCurrentTab().convert<ChannelTab>();
+}
+
+static void submit(void * interface){
+    ChatInterface * chat = (ChatInterface *)interface;
+    if (!chat->getInputBox().getText().empty()){
+        const std::string & text = chat->getInputBox().getText();
+        // check if it's a command
+        if (Util::matchRegex(text, Util::Regex("^/.*"))){
+            const std::vector<std::string> & command = Util::splitString(text.substr(1), ' ');
+            chat->handleCommand(command);
+        } else {
+            convertTab(chat)->addMessage(chat->getClient()->getName(), text);
+            chat->getClient()->sendMessage(text);
+            chat->notify(text);
+        }
+        chat->getInputBox().clear();
+    }
+}
 
 ChatInterface::ChatInterface(const std::string & host, int port):
+host(host),
 widthRatio(.8),
 heightRatio(.95),
 serverTab(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(host))){
@@ -835,6 +811,7 @@ serverTab(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(host))){
     inputBox.transforms.setRadius(15);
     inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
     inputBox.location.setDimensions(width * widthRatio, height * (1 - inputStart));
+    inputBox.addHook(Keyboard::Key_ENTER, submit, this);
     // Set the location of user list width * widthRatio and height
 }
 
@@ -861,17 +838,37 @@ void ChatInterface::draw(const Graphics::Bitmap & work){
 }
 
 void ChatInterface::nextChannel(){
-    //client->nextChannel();
     chatBox.next();
+    const std::string & name = chatBox.getCurrent()->getName();
+    if (name == host){
+        client->setMessagesDisabled(true);
+    } else {
+        client->setMessagesDisabled(false);
+        client->setChannel(client->getChannelIndex(name));
+    }
 }
 
 void ChatInterface::previousChannel(){
-    //client->previousChannel();
     chatBox.previous();
+    const std::string & name = chatBox.getCurrent()->getName();
+    if (chatBox.getCurrent()->getName() == host){
+        client->setMessagesDisabled(true);
+    } else {
+        client->setMessagesDisabled(false);
+        client->setChannel(client->getChannelIndex(name));
+    }
 }
 
 Util::ReferenceCount<Client> ChatInterface::getClient(){
     return client;
+}
+
+Util::ReferenceCount<Gui::TabItem> ChatInterface::getCurrentTab(){
+    return chatBox.getCurrent();
+}
+
+Util::ReferenceCount<Gui::TabItem> ChatInterface::getTabByName(const std::string & name){
+    return chatBox.getByName(name);
 }
 
 void ChatInterface::processMessages(){
@@ -888,7 +885,7 @@ void ChatInterface::processMessages(){
                 const std::string & channel = params.at(0);
                 if (client->isCurrentChannel(channel)){
                     // Username and message 
-                    //panel.addMessage(command.getOwner(), params.at(1));
+                    convertTab(this, channel)->addMessage(command.getOwner(), params.at(1));
                 }
             } else if (command.getType() == ::Network::IRC::Command::Notice){
                 // Username and message 
@@ -899,6 +896,7 @@ void ChatInterface::processMessages(){
                 serverTab.convert<ChannelTab>()->addMessage("*** MOTD " + params.at(1));
             } else if (command.getType() == ::Network::IRC::Command::Join){
                 serverTab.convert<ChannelTab>()->addMessage("*** You have joined the channel " + params.at(0) + ".");
+                chatBox.add(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(params.at(0))));
             } else if (command.getType() == ::Network::IRC::Command::ReplyNoTopic){
                 serverTab.convert<ChannelTab>()->addMessage("*** The channel " + params.at(1) + " has no topic set.");
             } else if (command.getType() == ::Network::IRC::Command::ReplyTopic){
@@ -953,6 +951,103 @@ void ChatInterface::processMessages(){
             }
         }
     }
+}
+
+void ChatInterface::notify(const std::string & message){
+    for (std::vector<NotifyCallback>::iterator i = callbacks.begin(); i != callbacks.end(); ++i){
+        (*i)(message);
+    }
+    
+    for (std::vector<Message::EventInterface *>::iterator i = subscribers.begin(); i != subscribers.end(); ++i){
+        (*i)->notify(message);
+    }
+}
+
+void ChatInterface::handleCommand(const std::vector<std::string> & command){
+    if (command.at(0) == "help"){
+        convertTab(this)->addMessage("* commands: help, nick, whisper, ping, join, names, topic, previous, next, channels, quit");
+    } else if (command.at(0) == "nick"){
+        try {
+            const std::string & nick = command.at(1);
+            if (!nick.empty()){
+                client->setName(nick);
+                convertTab(this)->addMessage("* nick changed to " + nick);
+            } 
+        } catch (const std::out_of_range & ex){
+            convertTab(this)->addMessage("* /nick [name]");
+        }
+    } else if (command.at(0) == "whisper"){
+        try {
+            const std::string & who = command.at(1);
+            const std::string & message = Util::joinStrings(command, 2);
+            if (!who.empty() && !message.empty()){
+                client->sendCommand(::Network::IRC::Command::PrivateMessage, who, ":" + message);
+                convertTab(this)->addMessage("-> " + who + " " + message); 
+            }
+        } catch (const std::out_of_range & ex){
+            convertTab(this)->addMessage("* /whisper [nick] [message]");
+        }
+    } else if (command.at(0) == "ping"){
+        try {
+            const std::string & who = command.at(1);
+            if (!who.empty()){
+                std::ostringstream timestamp;
+                uint64_t time = System::currentMilliseconds();
+                timestamp << time;
+                client->sendCommand(::Network::IRC::Command::PrivateMessage, who, ":\001PING " + timestamp.str() + "\001");
+                convertTab(this)->addMessage("[CTCP] Sending CTCP-PING request to " + who);
+                // Log user
+                pingReply[who] = time;
+            }
+        } catch (const std::out_of_range & ex){
+            convertTab(this)->addMessage("* /ping [nick]");
+        }
+    } else if (command.at(0) == "join"){
+        try {
+            const std::string & channel = command.at(1);
+            if (!channel.empty()){
+                client->joinChannel(channel);
+            }
+        } catch (const std::out_of_range & ex){
+            convertTab(this)->addMessage("* /join [channel]");
+        }
+    } else if (command.at(0) == "names"){
+        try {
+            const std::string & channel = command.at(1);
+            if (!channel.empty()){
+                client->sendCommand(::Network::IRC::Command::Names, channel);
+                namesRequest[channel] = std::vector<std::string>();
+            }
+        } catch (const std::out_of_range & ex){
+            convertTab(this)->addMessage("* /names [channel]");
+        }
+    } else if (command.at(0) == "topic"){
+        try {
+            const std::string & channel = command.at(1);
+            if (!channel.empty()){
+                client->sendCommand(::Network::IRC::Command::Topic, channel);
+            }
+        } catch (const std::out_of_range & ex){
+            client->sendCommand(::Network::IRC::Command::Topic, client->getChannel()->getName());
+        }
+    } else if (command.at(0) == "previous"){
+        client->previousChannel();
+    } else if (command.at(0) == "next"){
+        client->nextChannel();
+    } else if (command.at(0) == "channels"){
+        convertTab(this)->addMessage("* Current Channels: " + client->channelListAsString());
+    } else if (command.at(0) == "quit"){
+        const std::string & message = Util::joinStrings(command, 1);
+        if (!message.empty()){
+            client->sendCommand(::Network::IRC::Command::Quit, ":" + message);
+            Global::debug(0) << "Quit (" + message + "). Waiting for server to close connection..." << std::endl;
+        } else {
+            client->sendCommand(::Network::IRC::Command::Quit);
+            Global::debug(0) << "Quit. Waiting for server to close connection..." << std::endl;
+        }
+    } else {
+        convertTab(this)->addMessage("* Uknown command.");
+    }    
 }
 
 }

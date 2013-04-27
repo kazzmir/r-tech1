@@ -142,6 +142,27 @@ void TabContainer::previous(){
     tabs[current]->toggleActive();
 }
 
+TabContainer::NoSuchName::NoSuchName(const std::string & name) throw():
+name(name){
+}
+
+TabContainer::NoSuchName::~NoSuchName() throw() {
+}
+
+const char* TabContainer::NoSuchName::what() const throw() {
+    return name.c_str();
+}
+
+Util::ReferenceCount<TabItem> TabContainer::getByName(const std::string & name){
+    for (std::vector< Util::ReferenceCount<TabItem> >::iterator i = tabs.begin(); i != tabs.end(); ++i){
+        Util::ReferenceCount<TabItem> tab = *i;
+        if (name == tab->getName()){
+            return tab;
+        }
+    }
+    throw TabContainer::NoSuchName(name);
+}
+
 void TabContainer::drawTabs(const Font & font, const Graphics::Bitmap & work){
     if (tabs.empty()){
         drawBox(transforms.getRadius(), 0, 0, work.getWidth(), work.getHeight()*2, colors, work);
