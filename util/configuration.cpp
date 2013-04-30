@@ -175,7 +175,7 @@ static void updateToken(Token * data, const std::string & path, Token * add){
     } else {
         const vector<string> paths = split(path, '/');
         Token * start = data;
-        for (int index = 1; index < paths.size() - 1; index++){
+        for (unsigned int index = 1; index < paths.size() - 1; index++){
             string where = paths[index];
             Token * next = start->findToken(string("_/") + where);
             if (next == NULL){
@@ -715,7 +715,8 @@ static Token * removeDuplicates(Token * token){
 
 Token * Configuration::getRawData(){
     if (data == NULL){
-        data = new Token();
+        loadConfigurations();
+        // data = new Token();
     }
     return data.raw();
 }
@@ -773,7 +774,7 @@ void Configuration::setProperty(const std::string & path, Token * value){
     updateToken(getRawData(), string(config_configuration) + "/" + path, value);
     saveConfiguration();
 }
-    
+
 Token * Configuration::getProperty(const std::string & path){
     return getPropertyX(getRawData(),path);
 }
