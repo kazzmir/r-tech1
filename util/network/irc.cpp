@@ -8,6 +8,8 @@
 #include "util/configuration.h"
 #include "util/gui/context-box.h"
 
+#include "util/timedifference.h"
+
 #include <stdexcept>
 #include <queue>
 

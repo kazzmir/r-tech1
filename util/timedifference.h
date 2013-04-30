@@ -26,4 +26,26 @@ protected:
 
 };
 
+/* Put this in a scope where you want to measure time differences. The constructor will
+ * get the start time and the destructor will get the end time and also print the difference
+ * between the two.
+ * {
+ *   TimeCheck check;
+ *   call_some_stuff();
+ * }
+ *
+ * Will print out how long `call_some_stuff' took. This class is somewhat useful in cases that the
+ * code could abort early due to a return or an exception so its not always clear where to
+ * call endTime() for a TimeDifference object.
+ */
+class TimeCheck{
+public:
+    TimeCheck(const std::string & description);
+    virtual ~TimeCheck();
+
+protected:
+    std::string description;
+    TimeDifference time;
+};
+
 #endif

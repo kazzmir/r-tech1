@@ -4,6 +4,7 @@
 #include <string>
 #include <math.h>
 #include "system.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -72,4 +73,14 @@ const string TimeDifference::printTime(const string & description, int runs){
 }
 
 TimeDifference::~TimeDifference(){
+}
+    
+TimeCheck::TimeCheck(const std::string & description):
+description(description){
+    time.startTime();
+}
+
+TimeCheck::~TimeCheck(){
+    time.endTime();
+    Global::debug(0) << time.printTime(description) << std::endl;
 }
