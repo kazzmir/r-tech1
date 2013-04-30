@@ -822,10 +822,10 @@ void ChatInterface::act(){
     // Default size of fonts
     const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
     // Size is important
+
     const Font & font = Font::getDefaultFont(size, size);
     
     processMessages();
-        
     chatBox.act(font);
     inputBox.act(font);
 }
