@@ -995,7 +995,7 @@ void ChatInterface::processRemoteCommands(){
                 if (channel == client->getName()){
                     // Private message to user (not channel)
                     convertTab(this, channel)->addMessage("\""+command.getOwner() + "\" whispered: " + params.at(1));
-                } else if (client->isCurrentChannel(channel)){
+                } else {
                     // Username and message 
                     convertTab(this, channel)->addMessage(command.getOwner(), params.at(1));
                 }
@@ -1198,11 +1198,11 @@ void ChatInterface::updateUserList(){
         }
     } else if (chatBox.getCurrent()->getName() != host){
         // Update
-        bool update = false;
+        /*bool update = false;
         for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
             update = !inList(listBox.getList(), *i);
-        }
-        if (update){
+        }*/
+        if (listBox.getList().size() != users.size()){
             listBox.clear();
             for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
                 listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(*i, client)));
