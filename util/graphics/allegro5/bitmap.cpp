@@ -1190,7 +1190,7 @@ void LitBitmap::draw(const int x, const int y, Filter * filter, const Bitmap & w
         al_draw_bitmap(getData()->getBitmap(), x, y, flags);
         al_use_shader(NULL);
     } else {
-        Bitmap temp = temporaryBitmap(getWidth(), getHeight());
+        Bitmap temp(getWidth(), getHeight());
         temp.fill(MaskColor());
         Bitmap::draw(0, 0, filter, temp, 0);
         LitBitmap(temp).draw(x, y, NULL, where, flags);

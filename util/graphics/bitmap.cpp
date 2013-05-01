@@ -123,6 +123,7 @@ static Bitmap makeTemporaryBitmap(Bitmap *& temporary, int w, int h){
     return Bitmap(*temporary, 0, 0, w, h);
 }
 
+/*
 Bitmap Bitmap::temporaryBitmap(int w, int h){
     return makeTemporaryBitmap(temporary_bitmap, w, h);
 }
@@ -130,6 +131,7 @@ Bitmap Bitmap::temporaryBitmap(int w, int h){
 Bitmap Bitmap::temporaryBitmap2(int w, int h){
     return makeTemporaryBitmap(temporary_bitmap2, w, h);
 }
+*/
         
 void Bitmap::cleanupTemporaryBitmaps(){
     if (temporary_bitmap != NULL){

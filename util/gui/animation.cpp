@@ -249,7 +249,7 @@ void ImageFrame::draw(const int xaxis, const int yaxis, const Graphics::Bitmap &
  * size as the cell.
  */
 void ImageFrame::draw(const Graphics::Bitmap & work){
-    const Graphics::Bitmap & temp = Graphics::Bitmap::temporaryBitmap(bmp->getWidth(), bmp->getHeight());
+    Graphics::Bitmap temp(bmp->getWidth(), bmp->getHeight());
     temp.clearToMask();
     renderSprite(*bmp, 0, 0, alpha, horizontalFlip, verticalFlip, temp);
     temp.drawStretched(work);
