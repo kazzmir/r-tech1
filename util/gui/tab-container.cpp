@@ -3,6 +3,9 @@
 #include "util/font.h"
 #include "util/debug.h"
 
+#include <stdexcept>
+#include <sstream>
+
 namespace Gui{
 
 TabItem::TabItem():
@@ -142,38 +145,63 @@ void TabContainer::previous(){
     tabs[current]->toggleActive();
 }
 
-void TabContainer::gotoTabByName(const std::string & name){
-    for (unsigned int i =0; i < tabs.size(); i++){
-        Util::ReferenceCount<TabItem> tab = tabs[i];
-        if (name == tab->getName()){
-            tabs[current]->toggleActive();
-            current = i;
-            tabs[current]->toggleActive();
-            return;
-        }
+void TabContainer::gotoTab(unsigned int index){
+    try {
+        // Check
+        Util::ReferenceCount<TabItem> tab = tabs.at(index);
+        tabs[current]->toggleActive();
+        current = index;
+        tabs[current]->toggleActive();
+    } catch (const std::out_of_range & ex){
+        throw new TabContainer::NoSuchTab(index); 
     }
-    throw TabContainer::NoSuchName(name);
 }
 
-TabContainer::NoSuchName::NoSuchName(const std::string & name) throw():
+void TabContainer::gotoTabByName(const std::string & name){
+    try {
+        gotoTab(findTab(name));
+    } catch (const TabContainer::NoSuchTab & ex){
+        throw ex;
+    }
+}
+
+TabContainer::NoSuchTab::NoSuchTab(const std::string & name) throw():
 name(name){
 }
 
-TabContainer::NoSuchName::~NoSuchName() throw() {
+TabContainer::NoSuchTab::NoSuchTab(unsigned int index) throw(){
+    std::ostringstream os;
+    os << index;
+    name = os.str();
 }
 
-const char* TabContainer::NoSuchName::what() const throw() {
+TabContainer::NoSuchTab::~NoSuchTab() throw() {
+}
+
+const char* TabContainer::NoSuchTab::what() const throw() {
     return name.c_str();
 }
 
-Util::ReferenceCount<TabItem> TabContainer::getByName(const std::string & name){
-    for (std::vector< Util::ReferenceCount<TabItem> >::iterator i = tabs.begin(); i != tabs.end(); ++i){
-        Util::ReferenceCount<TabItem> tab = *i;
+Util::ReferenceCount<TabItem> TabContainer::getTab(unsigned int index){
+    try {
+        return tabs.at(index);
+    } catch (const std::out_of_range & ex){
+        throw new TabContainer::NoSuchTab(index); 
+    }
+}
+
+unsigned int TabContainer::findTab(const std::string & name){
+    for (unsigned int i = 0; i < tabs.size(); i++){
+        Util::ReferenceCount<TabItem> tab = tabs[i];
         if (name == tab->getName()){
-            return tab;
+            return i;
         }
     }
-    throw TabContainer::NoSuchName(name);
+    throw TabContainer::NoSuchTab(name);
+}
+
+Util::ReferenceCount<TabItem> TabContainer::getByName(const std::string & name){
+    return tabs[findTab(name)];
 }
 
 void TabContainer::drawTabs(const Font & font, const Graphics::Bitmap & work){

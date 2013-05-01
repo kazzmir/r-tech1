@@ -769,7 +769,7 @@ static Util::ReferenceCount<ChannelTab> convertTab(ChatInterface * chat, std::st
     if (!name.empty()){
         try{
             return chat->getTabByName(name).convert<ChannelTab>();
-        } catch (const Gui::TabContainer::NoSuchName & ex){
+        } catch (const Gui::TabContainer::NoSuchTab & ex){
         }
     }
     return chat->getCurrentTab().convert<ChannelTab>();
