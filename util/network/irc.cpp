@@ -608,8 +608,18 @@ Message::EventInterface::EventInterface(){
 Message::EventInterface::~EventInterface(){
 }
 
-void Message::EventInterface::EventInterface::handleCommand(const std::vector<std::string> & command){
+void Message::EventInterface::EventInterface::localNotify(const std::string &){
 }
+
+void Message::EventInterface::EventInterface::localCommand(const std::vector<std::string> &){
+}
+
+void Message::EventInterface::EventInterface::remoteNotify(const std::string &){
+}
+
+void Message::EventInterface::EventInterface::remoteCommand(const Command &){
+}
+
 
 Message::HandlerInterface::HandlerInterface(){
 }
@@ -765,18 +775,18 @@ static Util::ReferenceCount<ChannelTab> convertTab(ChatInterface * chat, std::st
     return chat->getCurrentTab().convert<ChannelTab>();
 }
 
-static void submit(void * interface){
+void ChatInterface::submit(void * interface){
     ChatInterface * chat = (ChatInterface *)interface;
     if (!chat->getInputBox().getText().empty()){
         const std::string & text = chat->getInputBox().getText();
         // check if it's a command
         if (Util::matchRegex(text, Util::Regex("^/.*"))){
             const std::vector<std::string> & command = Util::splitString(text.substr(1), ' ');
-            chat->handleCommand(command);
+            chat->localCommand(command);
         } else {
             convertTab(chat)->addMessage(chat->getClient()->getName(), text);
             chat->getClient()->sendMessage(text);
-            chat->notify(text);
+            chat->localNotify(text);
         }
         chat->getInputBox().clear();
     }
@@ -825,7 +835,7 @@ void ChatInterface::act(){
 
     const Font & font = Font::getDefaultFont(size, size);
     
-    processMessages();
+    processRemoteCommands();
     chatBox.act(font);
     inputBox.act(font);
 }
@@ -871,10 +881,28 @@ Util::ReferenceCount<Gui::TabItem> ChatInterface::getTabByName(const std::string
     return chatBox.getByName(name);
 }
 
-void ChatInterface::processMessages(){
+void ChatInterface::addMessageToTab(const std::string & message){
+    convertTab(this)->addMessage(message);
+}
+
+void ChatInterface::addMessageToTab(const std::string & name, const std::string & message){
+    convertTab(this)->addMessage(name, message);
+}
+
+void ChatInterface::remoteNotify(const std::string & message){
+    for (std::vector<NotifyCallback>::iterator i = callbacks.begin(); i != callbacks.end(); ++i){
+        (*i)(message);
+    }
+    
+    for (std::vector<Message::EventInterface *>::iterator i = subscribers.begin(); i != subscribers.end(); ++i){
+        (*i)->localNotify(message);
+    }
+}
+
+void ChatInterface::processRemoteCommands(){
     while (client->hasCommands()){
         ::Network::IRC::Command command = client->nextCommand();
-        std::vector<std::string> params = command.getParameters();
+        const std::vector<std::string> & params = command.getParameters();
         //Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
         try {
             if (command.getType() == ::Network::IRC::Command::Ping){
@@ -883,13 +911,20 @@ void ChatInterface::processMessages(){
             } else if (command.getType() == ::Network::IRC::Command::PrivateMessage){
                 // Check channel
                 const std::string & channel = params.at(0);
-                if (client->isCurrentChannel(channel)){
+                if (channel == client->getName()){
+                    // Private message to user (not channel)
+                    convertTab(this, channel)->addMessage("\""+command.getOwner() + "\" whispered: " + params.at(1));
+                } else if (client->isCurrentChannel(channel)){
                     // Username and message 
                     convertTab(this, channel)->addMessage(command.getOwner(), params.at(1));
                 }
+                // notify
+                remoteNotify(params.at(1));
             } else if (command.getType() == ::Network::IRC::Command::Notice){
                 // Username and message 
                 serverTab.convert<ChannelTab>()->addMessage(command.getOwner(), params.at(1));
+                // notify
+                remoteNotify(params.at(1));
             } else if (command.getType() == ::Network::IRC::Command::ReplyMOTD ||
                        command.getType() == ::Network::IRC::Command::ReplyMOTDStart ||
                        command.getType() == ::Network::IRC::Command::ReplyMOTDEndOf){
@@ -929,7 +964,7 @@ void ChatInterface::processMessages(){
         }
         // Check if we got any CTCP delimited messages
         if (command.hasCtcp()){
-            std::vector<std::string> ctcp = command.getCtcp();
+            const std::vector<std::string> & ctcp = command.getCtcp();
             try {
                 if (ctcp.at(0) == "PING"){
                     // Lets check if there is an existing query otherwise send off request
@@ -950,20 +985,24 @@ void ChatInterface::processMessages(){
             } catch (const std::out_of_range & ex){
             }
         }
+        // Pass out the command to listeners
+        for (std::vector<Message::EventInterface *>::iterator i = subscribers.begin(); i != subscribers.end(); ++i){
+            (*i)->remoteCommand(command);
+        }    
     }
 }
 
-void ChatInterface::notify(const std::string & message){
+void ChatInterface::localNotify(const std::string & message){
     for (std::vector<NotifyCallback>::iterator i = callbacks.begin(); i != callbacks.end(); ++i){
         (*i)(message);
     }
     
     for (std::vector<Message::EventInterface *>::iterator i = subscribers.begin(); i != subscribers.end(); ++i){
-        (*i)->notify(message);
+        (*i)->localNotify(message);
     }
 }
 
-void ChatInterface::handleCommand(const std::vector<std::string> & command){
+void ChatInterface::localCommand(const std::vector<std::string> & command){
     if (command.at(0) == "help"){
         convertTab(this)->addMessage("* commands: help, nick, whisper, ping, join, names, topic, previous, next, channels, quit");
     } else if (command.at(0) == "nick"){
@@ -1046,7 +1085,11 @@ void ChatInterface::handleCommand(const std::vector<std::string> & command){
             Global::debug(0) << "Quit. Waiting for server to close connection..." << std::endl;
         }
     } else {
-        convertTab(this)->addMessage("* Uknown command.");
+        //convertTab(this)->addMessage("* Uknown command.");
+    }
+    // pass local commands out to listeners
+    for (std::vector<Message::EventInterface *>::iterator i = subscribers.begin(); i != subscribers.end(); ++i){
+        (*i)->localCommand(command);
     }    
 }
 
