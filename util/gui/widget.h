@@ -17,16 +17,6 @@ namespace Gui{
     
 struct ColorInfo{
     ColorInfo();
-#if 0
-    ColorInfo():
-        body(0),
-        /* alpha 0 is invisible, 255 is opaque. set something in the middle as default */
-        bodyAlpha(128),
-        border(0),
-        borderAlpha(128){
-        }
-#endif
-
     Graphics::Color body;
     int bodyAlpha;
     Graphics::Color border;
@@ -85,6 +75,9 @@ public:
     virtual void render(const Graphics::Bitmap &) = 0;
     /* default behavior is just to call render() */
     virtual void render(const Graphics::Bitmap &, const Font &);
+    
+    // draw box
+    static void drawBox(int radius, int x1, int y1, int x2, int y2, const Gui::ColorInfo &, const Graphics::Bitmap &);
 
 protected:
     Util::ReferenceCount<Graphics::Bitmap> checkWorkArea(const Graphics::Bitmap & parent);

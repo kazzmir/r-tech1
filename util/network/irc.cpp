@@ -796,43 +796,27 @@ ChatInterface::ChatInterface(const std::string & host, int port):
 host(host),
 widthRatio(.8),
 heightRatio(.95),
+width(0),
+height(0),
+checkWidth(Configuration::getScreenWidth()),
+checkHeight(Configuration::getScreenHeight()),
 serverTab(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(host))){
     client = Util::ReferenceCount< Client >(new Client(host, port));
     client->connect();
     
     // Setup window size and chat list
-    const int width = Configuration::getScreenWidth();
-    const int height = Configuration::getScreenHeight();
+    updateDimensions();
     
-    chatBox.transforms.setRadius(15);
-    Gui::ColorInfo tabbed;
-    tabbed.body = Graphics::makeColor(255,255,255);
-    tabbed.bodyAlpha = 128;
-    tabbed.border = Graphics::makeColor(0,0,255);
-    tabbed.borderAlpha = 255;
-    chatBox.colors = tabbed;
-    
-    // chat panel widthRatio% heightRatio%
-    chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
-    chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
-    chatBox.add(serverTab);
-    // edit box widthRatio% remaining (heightRatio + .01)%
-    const double inputStart = heightRatio + .01;
-    inputBox.transforms.setRadius(15);
-    inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
-    inputBox.location.setDimensions(width * widthRatio, height * (1 - inputStart));
-    inputBox.addHook(Keyboard::Key_ENTER, submit, this);
-    // Set the location of user list width * widthRatio and height
 }
 
 ChatInterface::~ChatInterface(){
 }
 
 void ChatInterface::act(){
+    updateDimensions();
     // Default size of fonts
-    const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
+    const int size = height * (1 - (heightRatio + .01));
     // Size is important
-
     const Font & font = Font::getDefaultFont(size, size);
     
     processRemoteCommands();
@@ -841,7 +825,10 @@ void ChatInterface::act(){
 }
 
 void ChatInterface::draw(const Graphics::Bitmap & work){
-    const int size = Configuration::getScreenHeight() * (1 - (heightRatio + .01));
+    checkWidth = work.getWidth();
+    checkHeight = work.getHeight();
+    Global::debug(0) << work.getWidth() << "x" << work.getHeight() << std::endl;
+    const int size = height * (1 - (heightRatio + .01));
     const Font & font = Font::getDefaultFont(size, size);
     chatBox.draw(font, work);
     inputBox.draw(font, work);
@@ -898,6 +885,34 @@ void ChatInterface::addMessageToTab(const std::string & message){
 
 void ChatInterface::addMessageToTab(const std::string & name, const std::string & message){
     convertTab(this)->addMessage(name, message);
+}
+
+void ChatInterface::updateDimensions(){
+    if (width == checkWidth && height == checkHeight){
+        return;
+    }
+    width = checkWidth;
+    height = checkHeight;
+    
+    chatBox.transforms.setRadius(15);
+    Gui::ColorInfo tabbed;
+    tabbed.body = Graphics::makeColor(255,255,255);
+    tabbed.bodyAlpha = 128;
+    tabbed.border = Graphics::makeColor(0,0,255);
+    tabbed.borderAlpha = 255;
+    chatBox.colors = tabbed;
+    
+    // chat panel widthRatio% heightRatio%
+    chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
+    chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
+    chatBox.add(serverTab);
+    // edit box widthRatio% remaining (heightRatio + .01)%
+    const double inputStart = heightRatio + .01;
+    inputBox.transforms.setRadius(15);
+    inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
+    inputBox.location.setDimensions(width * widthRatio, height * (1 - inputStart));
+    inputBox.addHook(Keyboard::Key_ENTER, submit, this);
+    // Set the location of user list width * widthRatio and height
 }
 
 void ChatInterface::remoteNotify(const std::string & message){

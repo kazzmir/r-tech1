@@ -69,35 +69,6 @@ void TabContainer::act(const Font & font){
 void TabContainer::render(const Graphics::Bitmap &){
 }
 
-static void drawBox(int radius, int x1, int y1, int x2, int y2, Gui::ColorInfo colors, const Graphics::Bitmap & work){
-    // rounded body?
-    if (radius > 0){
-        if (colors.bodyAlpha < 255){
-            Graphics::Bitmap::transBlender(0,0,0,colors.bodyAlpha);
-            work.translucent().roundRectFill(radius, x1, y1, x2, y2, colors.body);
-            Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
-            work.translucent().roundRect(radius, x1, y1, x2-1, y2-1, colors.border);
-        } else {
-            work.roundRectFill(radius, x1, y1, x2, y2, colors.body);
-            work.roundRect(radius, x1, y1, x2-1, y2-1, colors.border);
-        }
-    } else {
-        if (colors.bodyAlpha < 255){
-            Graphics::Bitmap::transBlender(0,0,0,colors.bodyAlpha);
-            work.translucent().rectangleFill(x1, y1, x2, y2, colors.body );
-            Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
-            work.translucent().vLine(y1,x1,y2-1,colors.border);
-            work.translucent().hLine(x1,y2-1,x2,colors.border);
-            work.translucent().vLine(y1,x2-1,y2-1,colors.border);
-        } else {
-            work.rectangleFill(x1, y1, x2, y2, colors.body );
-            work.vLine(y1,x1,y2-1,colors.border);
-            work.hLine(x1,y2-1,x2,colors.border);
-            work.vLine(y1,x2-1,y2-1,colors.border);
-        }
-    }
-}
-
 void TabContainer::draw(const Font & font, const Graphics::Bitmap & work){
     const int tabHeight = font.getHeight();
     const int height = location.getHeight() - tabHeight+1;
