@@ -22,7 +22,7 @@ int getAlpha(Color input){
         
 void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
     const double newheight = getHeight() * scale;
-    Bitmap shade = temporaryBitmap(getWidth(), (int) fabs(newheight));
+    Bitmap shade(getWidth(), (int) fabs(newheight));
     Stretch(shade);
 
     /* Could be slow, but meh, lets do it for now to make it look like a real shadow */

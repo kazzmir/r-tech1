@@ -508,8 +508,10 @@ public:
          * and if you make a temporary bitmap, do *not* call functions that
          * might also make temporary bitmaps.
          */
+        /*
         static Bitmap temporaryBitmap(int w, int h);
         static Bitmap temporaryBitmap2(int w, int h);
+        */
 
         /* call this method to delete all temporary bitmaps.
          * don't call this unless you know what you are doing

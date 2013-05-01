@@ -1256,7 +1256,7 @@ void Bitmap::BlitToScreen(const int upper_left_x, const int upper_left_y) const 
         this->Blit( upper_left_x, upper_left_y, *Screen );
     } else {
         if (upper_left_x != 0 || upper_left_y != 0){
-            Bitmap buffer = temporaryBitmap(getWidth(), getHeight());
+            Bitmap buffer(getWidth(), getHeight());
             buffer.clear();
             this->Blit(upper_left_x, upper_left_y, buffer);
             buffer.Stretch(*Scaler);
