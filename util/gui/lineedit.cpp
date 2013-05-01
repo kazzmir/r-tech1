@@ -11,37 +11,6 @@ static Global::stream_type & debug(int level){
     return Global::debug(level);
 }
 
-void drawBox(int radius, int x, int y, int width, int height, const Gui::ColorInfo & colors, const Graphics::Bitmap & where){
-    if (radius > 0){
-        if (colors.bodyAlpha < 255){
-            Graphics::Bitmap::transBlender(0,0,0,colors.bodyAlpha);
-            where.translucent().roundRectFill(radius, x, y, x+width, y+height, colors.body);
-        } else {
-            where.roundRectFill(radius, x, y, x+width, y+height, colors.body);
-        }
-        
-        if (colors.borderAlpha < 255){
-            Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
-            where.translucent().roundRect(radius, x, y, x+width, y+height, colors.border);
-        } else {
-            where.roundRect(radius, x, y, x+width, y+height, colors.border);
-        }
-    } else {
-        if (colors.bodyAlpha < 255){
-            Graphics::Bitmap::transBlender(0,0,0,colors.bodyAlpha);
-            where.translucent().rectangleFill(x, y, x+width, y+height, colors.body);
-        } else {
-            where.rectangleFill(x, y, x+width, y+height, colors.body);
-        }
-        if (colors.borderAlpha < 255){
-            Graphics::Bitmap::transBlender(0,0,0,colors.borderAlpha);
-            where.translucent().rectangle(x, y, x+width, y+height, colors.border);
-        } else {
-            where.rectangle(x, y, x+width, y+height, colors.border);
-        }
-    }
-}
-
 LineEdit::LineEdit():
 blinkRate(30),
 cursorTime(0),
@@ -79,6 +48,9 @@ void LineEdit::act(const Font &){
 }
 
 void LineEdit::draw(const Font & font, const Graphics::Bitmap & work){
+    
+    //Global::debug(0) << "Work bitmap height: " << work.getHeight() << "  Width: " << work.getWidth() << std::endl;
+    //Global::debug(0) << "Line edit height: " << location.getHeight() << "  Width: " << location.getWidth() << std::endl;
     
     Graphics::Bitmap temp = Graphics::Bitmap(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
     

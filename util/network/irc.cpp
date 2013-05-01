@@ -807,6 +807,8 @@ serverTab(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(host))){
     // Setup window size and chat list
     updateDimensions();
     
+    // Add server tab
+    chatBox.add(serverTab);
 }
 
 ChatInterface::~ChatInterface(){
@@ -827,9 +829,9 @@ void ChatInterface::act(){
 void ChatInterface::draw(const Graphics::Bitmap & work){
     checkWidth = work.getWidth();
     checkHeight = work.getHeight();
-    Global::debug(0) << work.getWidth() << "x" << work.getHeight() << std::endl;
     const int size = height * (1 - (heightRatio + .01));
     const Font & font = Font::getDefaultFont(size, size);
+    
     chatBox.draw(font, work);
     inputBox.draw(font, work);
 }
@@ -905,7 +907,7 @@ void ChatInterface::updateDimensions(){
     // chat panel widthRatio% heightRatio%
     chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
     chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
-    chatBox.add(serverTab);
+    
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
     inputBox.transforms.setRadius(15);
