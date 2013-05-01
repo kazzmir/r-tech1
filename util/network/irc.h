@@ -8,6 +8,7 @@
 
 #include "util/gui/tab-container.h"
 #include "util/gui/lineedit.h"
+#include "util/gui/list.h"
 
 #include <string>
 #include <vector>
@@ -209,6 +210,9 @@ namespace IRC{
         virtual void joinChannel(const std::string &);
         
         virtual inline ChannelPointer getChannel() const {
+            if (this->activeChannels.empty()){
+                return ChannelPointer(NULL);
+            }
             return this->activeChannels[this->currentChannel];
         }
         
@@ -361,10 +365,14 @@ namespace Message{
         void localNotify(const std::string &);
         void localCommand(const std::vector<std::string> &);
         
+        // Update user list
+        void updateUserList();
+        
         Util::ReferenceCount<Client> client;
         const std::string & host;
         Gui::TabContainer chatBox;
         Gui::LineEdit inputBox;
+        Gui::SimpleList listBox;
         double widthRatio;
         double heightRatio;
         int width;
