@@ -75,6 +75,9 @@ public:
     // Previous
     virtual void previous();
     
+    // Go to specific tab
+    virtual void gotoTab(unsigned int index);
+    
     // Go to specific tab by name
     virtual void gotoTabByName(const std::string &);
     
@@ -93,14 +96,18 @@ public:
         return this->tabs[current];
     }
     
-    class NoSuchName: public std::exception{
+    class NoSuchTab: public std::exception{
     public:
-        NoSuchName(const std::string &) throw();
-        virtual ~NoSuchName() throw();
+        NoSuchTab(const std::string &) throw();
+        NoSuchTab(unsigned int index) throw();
+        virtual ~NoSuchTab() throw();
         virtual const char* what() const throw();
     private:
         std::string name;
     };
+    
+    virtual unsigned int findTab(const std::string &);
+    virtual Util::ReferenceCount<TabItem> getTab(unsigned int index);
     virtual Util::ReferenceCount<TabItem> getByName(const std::string &);
 	
 protected: 
