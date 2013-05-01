@@ -693,6 +693,39 @@ void Message::QueueInterface::processMessages(Message::QueueInterface::FontWrapp
     }
 }
 
+class UserItem : public Gui::ListItem{
+public:
+    UserItem(const std::string & name, const Util::ReferenceCount<Client> client):
+    name(name),
+    client(client){
+    }
+    
+    virtual ~UserItem(){
+    }
+    
+    virtual bool operator==(const ListItem & comparable){
+        return (name == ((UserItem *)&comparable)->name);
+    }
+    
+    virtual bool compareTo(const std::string & comparable){
+        return (name == comparable);
+    }
+    
+    void act(){
+    }
+    
+    void draw(const Font & font, const Graphics::Bitmap & work){
+        if (client->getName() == name){
+            font.printf(0, 0, Graphics::makeColor(0,255,255), work, name, 0);
+        } else {
+            font.printf(0, 0, Graphics::makeColor(255,255,255), work, name, 0); 
+        }
+    }
+private:
+    const std::string name;
+    const Util::ReferenceCount<Client> client;
+};
+
 class ChannelTab: public Gui::TabItem, Message::QueueInterface{
 public:
     ChannelTab(const std::string & name):
@@ -822,8 +855,12 @@ void ChatInterface::act(){
     const Font & font = Font::getDefaultFont(size, size);
     
     processRemoteCommands();
+    // Check user list
+    updateUserList();
+    
     chatBox.act(font);
     inputBox.act(font);
+    listBox.act(font);
 }
 
 void ChatInterface::draw(const Graphics::Bitmap & work){
@@ -835,6 +872,7 @@ void ChatInterface::draw(const Graphics::Bitmap & work){
         
         chatBox.draw(font, work);
         inputBox.draw(font, work);
+        listBox.draw(font, work);
     }
 }
 
@@ -843,9 +881,11 @@ void ChatInterface::nextChannel(){
     const std::string & name = chatBox.getCurrent()->getName();
     if (name == host){
         client->setMessagesDisabled(true);
+        listBox.clear();
     } else {
         client->setMessagesDisabled(false);
         client->setChannel(client->getChannelIndex(name));
+        updateUserList();
     }
 }
 
@@ -854,9 +894,11 @@ void ChatInterface::previousChannel(){
     const std::string & name = chatBox.getCurrent()->getName();
     if (chatBox.getCurrent()->getName() == host){
         client->setMessagesDisabled(true);
+        listBox.clear();
     } else {
         client->setMessagesDisabled(false);
         client->setChannel(client->getChannelIndex(name));
+        updateUserList();
     }
 }
 
@@ -865,9 +907,11 @@ void ChatInterface::gotoChannel(const std::string & channel){
     const std::string & name = chatBox.getCurrent()->getName();
     if (chatBox.getCurrent()->getName() == host){
         client->setMessagesDisabled(true);
+        listBox.clear();
     } else {
         client->setMessagesDisabled(false);
         client->setChannel(client->getChannelIndex(name));
+        updateUserList();
     }
 }
 
@@ -899,16 +943,16 @@ void ChatInterface::updateDimensions(){
     height = checkHeight;
     
     chatBox.transforms.setRadius(15);
-    Gui::ColorInfo tabbed;
-    tabbed.body = Graphics::makeColor(255,255,255);
-    tabbed.bodyAlpha = 128;
-    tabbed.border = Graphics::makeColor(0,0,255);
-    tabbed.borderAlpha = 255;
-    chatBox.colors = tabbed;
+    Gui::ColorInfo colors;
+    colors.body = Graphics::makeColor(255,255,255);
+    colors.bodyAlpha = 128;
+    colors.border = Graphics::makeColor(0,0,255);
+    colors.borderAlpha = 255;
     
     // chat panel widthRatio% heightRatio%
     chatBox.location.setPosition(Gui::AbsolutePoint(0, 0));
     chatBox.location.setDimensions(width * widthRatio, height * heightRatio);
+    chatBox.colors = colors;
     
     // edit box widthRatio% remaining (heightRatio + .01)%
     const double inputStart = heightRatio + .01;
@@ -916,7 +960,14 @@ void ChatInterface::updateDimensions(){
     inputBox.location.setPosition(Gui::AbsolutePoint(0, height * inputStart));
     inputBox.location.setDimensions(width * widthRatio, height * (1 - inputStart));
     inputBox.addHook(Keyboard::Key_ENTER, submit, this);
+    inputBox.colors = colors;
+    
     // Set the location of user list width * widthRatio and height
+    const int listStart = width * widthRatio + .01;
+    listBox.transforms.setRadius(15);
+    listBox.location.setPosition(Gui::AbsolutePoint(listStart, 1));
+    listBox.location.setDimensions(width - listStart, height-2);
+    listBox.colors = colors;
 }
 
 void ChatInterface::remoteNotify(const std::string & message){
@@ -1122,6 +1173,42 @@ void ChatInterface::localCommand(const std::vector<std::string> & command){
     for (std::vector<Message::EventInterface *>::iterator i = subscribers.begin(); i != subscribers.end(); ++i){
         (*i)->localCommand(command);
     }    
+}
+
+static bool inList(const std::vector< Util::ReferenceCount<Gui::ListItem> > & list, const std::string & name){
+    for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = list.begin(); i != list.end(); i++){
+        Util::ReferenceCount<UserItem> item = (*i).convert<UserItem>();
+        if (item->compareTo(name)){
+            return true;
+        }
+    }
+    return false;
+}
+
+void ChatInterface::updateUserList(){
+    const ChannelPointer channel = client->getChannel();
+    if (channel == NULL){
+        return;
+    }
+    const std::vector<std::string> & users = channel->getUsers();
+    if (listBox.getList().empty() && chatBox.getCurrent()->getName() != host){
+        // populate
+        for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
+            listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(*i, client)));
+        }
+    } else if (chatBox.getCurrent()->getName() != host){
+        // Update
+        bool update = false;
+        for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
+            update = !inList(listBox.getList(), *i);
+        }
+        if (update){
+            listBox.clear();
+            for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
+                listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(*i, client)));
+            }
+        }
+    }
 }
 
 }

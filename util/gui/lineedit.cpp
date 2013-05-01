@@ -51,13 +51,15 @@ void LineEdit::draw(const Font & font, const Graphics::Bitmap & work){
     
     Graphics::Bitmap temp = Graphics::Bitmap(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
     
-    drawBox(10, 0, 0, location.getWidth(), location.getHeight(), colors, temp);
+    drawBox(transforms.getRadius(), 0, 0, location.getWidth(), location.getHeight(), colors, temp);
     
-    Graphics::Bitmap textTemp = Graphics::Bitmap(temp, 10, 0, temp.getWidth()-10, temp.getHeight());
-    int fontLength = font.textLength(input.getText().c_str());
+    const int modifier = (temp.getWidth() * (transforms.getRadius()*.001)) == 0 ? 2 : (temp.getWidth() * (transforms.getRadius()*.001));
+    
+    Graphics::Bitmap textTemp = Graphics::Bitmap(temp, modifier, 0, temp.getWidth()-(modifier * 2), temp.getHeight());
+    const int fontLength = font.textLength(input.getText().c_str());
     if (fontLength >= textTemp.getWidth()){
-        font.printf(textTemp.getWidth()-10 - fontLength, 0, textColor, textTemp, input.getText(), 0);
-        renderCursor(textTemp.getWidth()-11, 0, font, textTemp);
+        font.printf(textTemp.getWidth() - modifier - fontLength, 0, textColor, textTemp, input.getText(), 0);
+        renderCursor(textTemp.getWidth() - modifier - 1, 0, font, textTemp);
     } else {
         font.printf(0, 0, textColor, textTemp, input.getText(), 0);
         renderCursor(fontLength+1, 0, font, textTemp);
