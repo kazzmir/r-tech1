@@ -328,6 +328,7 @@ namespace Message{
         
         void nextChannel();
         void previousChannel();
+        void gotoChannel(const std::string &);
         
         Util::ReferenceCount<Client> getClient();
         

@@ -75,6 +75,9 @@ public:
     // Previous
     virtual void previous();
     
+    // Go to specific tab by name
+    virtual void gotoTabByName(const std::string &);
+    
     // Get the Content Body Area
     virtual inline const Graphics::Bitmap & getBody() const {
         return this->body;

@@ -869,6 +869,17 @@ void ChatInterface::previousChannel(){
     }
 }
 
+void ChatInterface::gotoChannel(const std::string & channel){
+    chatBox.gotoTabByName(channel);
+    const std::string & name = chatBox.getCurrent()->getName();
+    if (chatBox.getCurrent()->getName() == host){
+        client->setMessagesDisabled(true);
+    } else {
+        client->setMessagesDisabled(false);
+        client->setChannel(client->getChannelIndex(name));
+    }
+}
+
 Util::ReferenceCount<Client> ChatInterface::getClient(){
     return client;
 }
@@ -932,6 +943,7 @@ void ChatInterface::processRemoteCommands(){
             } else if (command.getType() == ::Network::IRC::Command::Join){
                 serverTab.convert<ChannelTab>()->addMessage("*** You have joined the channel " + params.at(0) + ".");
                 chatBox.add(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(params.at(0))));
+                gotoChannel(params.at(0));
             } else if (command.getType() == ::Network::IRC::Command::ReplyNoTopic){
                 serverTab.convert<ChannelTab>()->addMessage("*** The channel " + params.at(1) + " has no topic set.");
             } else if (command.getType() == ::Network::IRC::Command::ReplyTopic){
