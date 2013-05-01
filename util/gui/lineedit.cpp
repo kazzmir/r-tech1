@@ -49,9 +49,6 @@ void LineEdit::act(const Font &){
 
 void LineEdit::draw(const Font & font, const Graphics::Bitmap & work){
     
-    //Global::debug(0) << "Work bitmap height: " << work.getHeight() << "  Width: " << work.getWidth() << std::endl;
-    //Global::debug(0) << "Line edit height: " << location.getHeight() << "  Width: " << location.getWidth() << std::endl;
-    
     Graphics::Bitmap temp = Graphics::Bitmap(work, location.getX(), location.getY(), location.getWidth(), location.getHeight());
     
     drawBox(10, 0, 0, location.getWidth(), location.getHeight(), colors, temp);

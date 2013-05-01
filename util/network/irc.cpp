@@ -829,11 +829,13 @@ void ChatInterface::act(){
 void ChatInterface::draw(const Graphics::Bitmap & work){
     checkWidth = work.getWidth();
     checkHeight = work.getHeight();
-    const int size = height * (1 - (heightRatio + .01));
-    const Font & font = Font::getDefaultFont(size, size);
-    
-    chatBox.draw(font, work);
-    inputBox.draw(font, work);
+    if (width == checkWidth && height == checkHeight){
+        const int size = height * (1 - (heightRatio + .01));
+        const Font & font = Font::getDefaultFont(size, size);
+        
+        chatBox.draw(font, work);
+        inputBox.draw(font, work);
+    }
 }
 
 void ChatInterface::nextChannel(){
