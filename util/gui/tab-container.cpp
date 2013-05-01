@@ -142,6 +142,19 @@ void TabContainer::previous(){
     tabs[current]->toggleActive();
 }
 
+void TabContainer::gotoTabByName(const std::string & name){
+    for (unsigned int i =0; i < tabs.size(); i++){
+        Util::ReferenceCount<TabItem> tab = tabs[i];
+        if (name == tab->getName()){
+            tabs[current]->toggleActive();
+            current = i;
+            tabs[current]->toggleActive();
+            return;
+        }
+    }
+    throw TabContainer::NoSuchName(name);
+}
+
 TabContainer::NoSuchName::NoSuchName(const std::string & name) throw():
 name(name){
 }
