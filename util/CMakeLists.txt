@@ -80,6 +80,7 @@ gui/coordinate.cpp
 gui/cutscene.cpp
 gui/fadetool.cpp
 gui/lineedit.cpp
+gui/list.cpp
 gui/rectarea.cpp
 gui/popup-box.cpp
 gui/scroll-list.cpp
