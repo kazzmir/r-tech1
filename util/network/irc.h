@@ -123,7 +123,7 @@ namespace IRC{
             return this->parameters;
         }
         
-        virtual inline bool hasCtcp() {
+        virtual inline bool hasCtcp() const {
             return !this->ctcp.empty();
         }
         
@@ -266,10 +266,14 @@ namespace Message{
     public:
         EventInterface();
         virtual ~EventInterface();
-        // Notify by message
-        virtual void notify(const std::string &) = 0;
-        // Handle commands 
-        virtual void handleCommand(const std::vector<std::string> &);
+        // Notify by message from local user
+        virtual void localNotify(const std::string &);
+        // Notify by command from local user
+        virtual void localCommand(const std::vector<std::string> &);
+        // Notify by message from remote
+        virtual void remoteNotify(const std::string &);
+        // Notify by command from remote
+        virtual void remoteCommand(const Command &);
     };
     
     class HandlerInterface{
@@ -331,6 +335,10 @@ namespace Message{
         
         Util::ReferenceCount<Gui::TabItem> getTabByName(const std::string &);
         
+        void addMessageToTab(const std::string &);
+        
+        void addMessageToTab(const std::string &, const std::string &);
+        
         inline void setWidthRatio(double ratio){
             this->widthRatio = ratio;
         }
@@ -342,12 +350,15 @@ namespace Message{
             return this->inputBox;
         }
         
-        // EventInterface
-        virtual void notify(const std::string &);
-        virtual void handleCommand(const std::vector<std::string> &);
-        
     protected:
-        void processMessages();
+        void remoteNotify(const std::string &);
+        void processRemoteCommands();
+        
+        static void submit(void *);
+        // Notifications and commands for submit
+        void localNotify(const std::string &);
+        void localCommand(const std::vector<std::string> &);
+        
         Util::ReferenceCount<Client> client;
         const std::string & host;
         Gui::TabContainer chatBox;
