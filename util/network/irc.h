@@ -352,6 +352,7 @@ namespace Message{
         }
         
     protected:
+        void updateDimensions();
         void remoteNotify(const std::string &);
         void processRemoteCommands();
         
@@ -366,6 +367,10 @@ namespace Message{
         Gui::LineEdit inputBox;
         double widthRatio;
         double heightRatio;
+        int width;
+        int height;
+        int checkWidth;
+        int checkHeight;
         Util::ReferenceCount<Gui::TabItem> serverTab;
         // check ctcp reply
         std::map<std::string, uint64_t> pingReply;
