@@ -507,11 +507,11 @@ void GridSelect::render(const Graphics::Bitmap & where, const Font & font) const
                         }
                         item_iterator++;
                     }
-                    x_spacing_mod+=cellSpacingX + cellWidth + cellMarginX;
-                    y_spacing_mod+=cellSpacingY;
+                    x_spacing_mod += cellSpacingX + cellWidth + cellMarginX;
+                    y_spacing_mod += cellSpacingY;
                 }
-                x+= cellSpacingX;
-                y+= cellHeight + cellMarginY;
+                x += cellSpacingX;
+                y += cellHeight + cellMarginY;
             }
             break;
         }
