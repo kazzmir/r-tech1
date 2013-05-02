@@ -390,58 +390,6 @@ static inline int Max(int x, int y){ return (((x) > (y)) ? (x) : (y)); }
 //! mid (borrowed from allegro)
 static inline int Mid(int x,int y,int z){ return (Max((x), Min((y), (z)))); }
 
-void Bitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
-    const int width = x2 - x1;
-    const int height = y2 - y1;
-    radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
-    line(x1+radius, y1, x1+width-radius, y1, color);
-    line(x1+radius, y1+height, x1+width-radius,y1+height, color);
-    line(x1, y1+radius,x1, y1+height-radius, color);
-    line(x1+width, y1+radius,x1+width, y1+height-radius, color);
-
-    double quarterTurn = Util::pi / 2;
-    double quadrant1 = 0;
-    /* signs are flipped because the coordinate system is reflected over the y-axis */
-    double quadrant2 = -Util::pi / 2;
-    double quadrant3 = Util::pi;
-    double quadrant4 = -3 * Util::pi / 2; 
-
-    /* upper right. draw from 90 to 0 */
-    arc(x1+radius + (width - radius *2), y1 + radius, quadrant1, quadrant1 + quarterTurn, radius, color);
-    /* upper left. draw from 180 to 270 */
-    arc(x1 + radius, y1 + radius, quadrant2, quadrant2 + quarterTurn, radius, color);
-    /* lower left. draw from 180 to 270 */
-    arc(x1 + radius, y1 + height - radius, quadrant3, quadrant3 + quarterTurn, radius, color);
-    /* lower right. draw from 0 to 270 */
-    arc(x1+width-radius, y1+height-radius, quadrant4, quadrant4 + quarterTurn, radius, color);
-}
-
-void Bitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const {
-    const int width = x2 - x1;
-    const int height = y2 - y1;
-    radius = Mid(0, radius, Min((x1+width - x1)/2, (y1+height - y1)/2));
-
-    double quarterTurn = Util::pi / 2;
-    double quadrant1 = 0;
-    /* signs are flipped because the coordinate system is reflected over the y-axis */
-    double quadrant2 = -Util::pi / 2;
-    double quadrant3 = Util::pi;
-    double quadrant4 = -3 * Util::pi / 2; 
-
-    /* upper right. draw from 90 to 0 */
-    arcFilled(x1+radius + (width - radius *2), y1 + radius, quadrant1, quadrant1 + quarterTurn, radius, color);
-    /* upper left. draw from 180 to 270 */
-    arcFilled(x1 + radius, y1 + radius, quadrant2, quadrant2 + quarterTurn, radius, color);
-    /* lower left. draw from 180 to 270 */
-    arcFilled(x1 + radius, y1 + height - radius, quadrant3, quadrant3 + quarterTurn, radius, color);
-    /* lower right. draw from 0 to 270 */
-    arcFilled(x1+width-radius, y1+height-radius, quadrant4, quadrant4 + quarterTurn, radius, color);
-
-    rectangleFill(x1+radius + 1, y1, x2-radius - 1, y1+radius - 1, color);
-    rectangleFill(x1, y1+radius, x2, y2-radius, color);
-    rectangleFill(x1+radius + 1, y2-radius + 1, x2-radius - 1, y2, color);
-}
-
 int Bitmap::getScreenWidth(){
     if (Screen != 0){
         return Screen->getWidth();

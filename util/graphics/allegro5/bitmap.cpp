@@ -1020,6 +1020,26 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
 }
 #endif
 
+void Bitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
+    changeTarget(this, this);
+    al_draw_rounded_rectangle(x1, y1, x2, y2, radius, radius, color.color, 1);
+}
+
+void TranslucentBitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
+    TransBlender blender;
+    Bitmap::roundRect(radius, x1, y1, x2, y2, transBlendColor(color));
+}
+
+void Bitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const {
+    changeTarget(this, this);
+    al_draw_filled_rounded_rectangle(x1, y1, x2, y2, radius, radius, color.color);
+}
+    
+void TranslucentBitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const {
+    TransBlender blender;
+    Bitmap::roundRectFill(radius, x1, y1, x2, y2, transBlendColor(color));
+}
+
 void Bitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
     changeTarget(this, this);
     al_draw_filled_pieslice(x, y, radius, ang1 - Util::pi/2, ang2 - ang1, color.color);
@@ -1069,7 +1089,7 @@ void Bitmap::rectangle(int x1, int y1, int x2, int y2, Color color ) const {
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const {
     changeTarget(this, this);
     // al_draw_filled_rectangle(x1 - 0.5, y1 - 0.5, x2 + 0.5, y2 + 0.5, color.color);
-    al_draw_filled_rectangle(x1, y1, x2, y2, color.color);
+    al_draw_filled_rectangle(x1, y1, x2 + 1, y2 + 1, color.color);
 }
 
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const {

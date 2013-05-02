@@ -428,8 +428,8 @@ public:
 	virtual void BlitToScreen(const int upper_left_x, const int upper_left_y) const;
         virtual void BlitFromScreen(const int x, const int y) const;
 
-        void roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const;
-        void roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const;
+        virtual void roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const;
+        virtual void roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const;
 
         virtual void drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const;
 
@@ -689,6 +689,8 @@ public:
     virtual void hLine( const int x1, const int y, const int x2, const Color color ) const;
     virtual void arc(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color) const;
     virtual void arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const;
+    virtual void roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const;
+    virtual void roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const;
     virtual void circleFill( int x, int y, int radius, Color color ) const;
     virtual void ellipse( int x, int y, int rx, int ry, Color color ) const;
     virtual void ellipseFill( int x, int y, int rx, int ry, Color color ) const;
