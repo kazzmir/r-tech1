@@ -1026,6 +1026,7 @@ void Bitmap::arcFilled(const int x, const int y, const double ang1, const double
 }
 
 void TranslucentBitmap::arcFilled(const int x, const int y, const double ang1, const double ang2, const int radius, const Color color ) const {
+    changeTarget(this, this);
     TransBlender blender;
     Bitmap::arcFilled(x, y, ang1, ang2, radius, transBlendColor(color));
 }
@@ -1035,7 +1036,8 @@ void Bitmap::floodfill( const int x, const int y, const Color color ) const {
 }
 
 void Bitmap::line(const int x1, const int y1, const int x2, const int y2, const Color color) const {
-    al_draw_line(x1, y1, x2, y2, color.color, 1.5);
+    changeTarget(this, this);
+    al_draw_line(x1, y1, x2, y2, color.color, 1);
 }
 
 void TranslucentBitmap::line(const int x1, const int y1, const int x2, const int y2, const Color color) const {
@@ -1050,7 +1052,7 @@ void Bitmap::circleFill(int x, int y, int radius, Color color) const {
 
 void Bitmap::circle(int x, int y, int radius, Color color) const {
     changeTarget(this, this);
-    al_draw_circle(x, y, radius, color.color, 0);
+    al_draw_circle(x, y, radius, color.color, 1);
 }
 
 void Bitmap::circle(int x, int y, int radius, int thickness, Color color) const {
@@ -1058,14 +1060,16 @@ void Bitmap::circle(int x, int y, int radius, int thickness, Color color) const 
     al_draw_circle(x, y, radius, color.color, thickness);
 }
 
-void Bitmap::rectangle( int x1, int y1, int x2, int y2, Color color ) const {
+void Bitmap::rectangle(int x1, int y1, int x2, int y2, Color color ) const {
     changeTarget(this, this);
-    al_draw_rectangle(x1, y1, x2, y2, color.color, 0);
+    // al_draw_rectangle(x1, y1, x2, y2, color.color, 0);
+    al_draw_rectangle(x1 + 0.5, y1 + 0.5, x2 - 0.5, y2 - 0.5, color.color, 1);
 }
 
 void Bitmap::rectangleFill( int x1, int y1, int x2, int y2, Color color ) const {
     changeTarget(this, this);
-    al_draw_filled_rectangle(x1 - 0.5, y1 - 0.5, x2 + 0.5, y2 + 0.5, color.color);
+    // al_draw_filled_rectangle(x1 - 0.5, y1 - 0.5, x2 + 0.5, y2 + 0.5, color.color);
+    al_draw_filled_rectangle(x1, y1, x2, y2, color.color);
 }
 
 void Bitmap::triangle( int x1, int y1, int x2, int y2, int x3, int y3, Color color ) const {
