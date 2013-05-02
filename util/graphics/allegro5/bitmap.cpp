@@ -1020,9 +1020,16 @@ void al_draw_filled_pieslice(float cx, float cy, float r, float start_theta,
 }
 #endif
 
+static float min(float a, float b){
+    return a < b ? a : b;
+}
+
 void Bitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
     changeTarget(this, this);
-    al_draw_rounded_rectangle(x1, y1, x2, y2, radius, radius, color.color, 1);
+    double mx = x2 - x1;
+    double my = y2 - y1;
+    double radius_use = min(min(radius, mx / 2), my / 2);
+    al_draw_rounded_rectangle(x1, y1, x2, y2, radius_use, radius_use, color.color, 1);
 }
 
 void TranslucentBitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
@@ -1032,7 +1039,10 @@ void TranslucentBitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Co
 
 void Bitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const {
     changeTarget(this, this);
-    al_draw_filled_rounded_rectangle(x1, y1, x2, y2, radius, radius, color.color);
+    double mx = x2 - x1;
+    double my = y2 - y1;
+    double radius_use = min(min(radius, mx / 2), my / 2);
+    al_draw_filled_rounded_rectangle(x1, y1, x2, y2, radius_use, radius_use, color.color);
 }
     
 void TranslucentBitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const {
