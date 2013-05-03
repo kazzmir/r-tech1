@@ -24,6 +24,8 @@ static Command::Type convertCommand(const std::string & cmd){
         command = Command::Nick;
     } else if (cmd == "USER"){
         command = Command::User;
+    } else if (cmd == "USERHOST"){
+        command = Command::Userhost;
     } else if (cmd == "SERVER"){
         command = Command::Server;
     } else if (cmd == "OPER"){
@@ -98,6 +100,8 @@ static Command::Type convertCommand(const std::string & cmd){
         command = Command::ErrorBadChannelKey;
     } else if (cmd == "471"){
         command = Command::ErrorChannelIsFull;
+    } else if (cmd == "302"){
+        command = Command::ReplyUserhost;
     } else if (cmd == "331"){
         command = Command::ReplyNoTopic;
     } else if (cmd == "332"){
@@ -124,6 +128,7 @@ static std::string convertCommand(const Command::Type & cmd){
         case Command::Pass: return "PASS";
         case Command::Nick: return "NICK";
         case Command::User: return "USER";
+        case Command::Userhost: return "USERHOST";
         case Command::Server: return "SERVER";
         case Command::Oper: return "OPER";
         case Command::Quit: return "QUIT";
@@ -348,14 +353,14 @@ disableMessages(true){
 Client::~Client(){
 }
 
-void Client::connect(){
+void Client::connect(const std::string & name){
     if (username.empty()){
         throw NetworkException("Set username first.");
     }
     Global::debug(0) << "Connecting to " << hostname << " on port " << port << std::endl;
     socket = Network::connectReliable(hostname, port);
     start();
-    setName("paintown-test");
+    setName(name);
     Command user("AUTH", Command::User);
     user.setParameters(username, "*", "0", ":auth");
     sendCommand(user);
@@ -825,7 +830,7 @@ void ChatInterface::submit(void * interface){
     }
 }
 
-ChatInterface::ChatInterface(const std::string & host, int port):
+ChatInterface::ChatInterface(const std::string & host, int port, const std::string & username):
 host(host),
 widthRatio(.8),
 heightRatio(.95),
@@ -835,7 +840,7 @@ checkWidth(Configuration::getScreenWidth()),
 checkHeight(Configuration::getScreenHeight()),
 serverTab(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(host))){
     client = Util::ReferenceCount< Client >(new Client(host, port));
-    client->connect();
+    client->connect(username);
     
     // Setup window size and chat list
     updateDimensions();

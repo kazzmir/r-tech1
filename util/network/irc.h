@@ -25,6 +25,7 @@ namespace IRC{
             Pass,
             Nick,
             User,
+            Userhost,
             Server,
             Oper,
             Quit,
@@ -70,6 +71,7 @@ namespace IRC{
             ReplyMOTD,
             ReplyMOTDStart,
             ReplyMOTDEndOf,
+            ReplyUserhost,
         };
         // Initializes it from an incoming message off of socket
         Command(const std::string &);
@@ -185,7 +187,7 @@ namespace IRC{
         Client(const std::string &, int port);
         virtual ~Client();
         
-        virtual void connect();
+        virtual void connect(const std::string & name = "paintown-test");
         
         virtual void run();
         
@@ -325,7 +327,7 @@ namespace Message{
     // Create a tabbed chatter to implement in games
     class ChatInterface: public Message::HandlerInterface{
     public:
-        ChatInterface(const std::string &, int port);
+        ChatInterface(const std::string &, int port, const std::string &);
         virtual ~ChatInterface();
         void act();
         void draw(const Graphics::Bitmap &);
