@@ -19,7 +19,7 @@ def useNetwork(options):
     return tryKey(options, 'networking', False)
     
 def utilLibrary(env):
-    modules = helpers.read_cmake_list(os.path.join(helpers.findDirectory('src/util'), 'CMakeLists.txt'))
+    modules = helpers.read_cmake_list(helpers.findFile('src/util/CMakeLists.txt'))
 
     source = []
     for module in modules:
