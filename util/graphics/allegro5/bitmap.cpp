@@ -567,7 +567,16 @@ ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & p
 }
 
 int changeGraphicsMode(int mode, int width, int height){
-    /* FIXME: handle mode */
+    switch (mode){
+        case FULLSCREEN: {
+            al_set_display_flag(the_display, ALLEGRO_FULLSCREEN_WINDOW, true);
+            break;
+        }
+        case WINDOWED: {
+            al_set_display_flag(the_display, ALLEGRO_FULLSCREEN_WINDOW, false);
+            break;
+        }
+    }
     return !al_resize_display(the_display, width, height);
 }
 
@@ -612,7 +621,13 @@ int setGraphicsMode(int mode, int width, int height){
             al_set_new_display_option(ALLEGRO_SUPPORTED_ORIENTATIONS, ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE, ALLEGRO_SUGGEST);
             al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_PROGRAMMABLE_PIPELINE);
 #else
+
+#ifdef ANDROID
             al_set_new_display_flags(ALLEGRO_FULLSCREEN | ALLEGRO_PROGRAMMABLE_PIPELINE);
+#else
+            al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE |
+                                     ALLEGRO_OPENGL | ALLEGRO_PROGRAMMABLE_PIPELINE);
+#endif
 #endif
             break;
         }
