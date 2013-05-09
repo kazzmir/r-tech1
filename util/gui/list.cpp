@@ -48,17 +48,27 @@ void SimpleList::draw(const Font & font, const Graphics::Bitmap & work){
 }
 
 void SimpleList::add(const Util::ReferenceCount<ListItem> item){
-    list.push_back(item);
+    //list.push_back(item);
+    // Keep list sorted
+    std::vector< Util::ReferenceCount<ListItem> >::iterator position = list.begin();
+    while (position != list.end() && (*position)->compareTo(item) < 0){
+        position++;
+    }
+    list.insert(position, item);
 }
 
 void SimpleList::add(const std::vector< Util::ReferenceCount<ListItem> > & more){
-    list.insert(list.end(),more.begin(),more.end());
+    /*list.insert(list.end(),more.begin(),more.end());*/
+    for (std::vector< Util::ReferenceCount<ListItem> >::const_iterator i = more.begin(); i != more.end(); i++){
+        Util::ReferenceCount<ListItem> item = *i;
+        add(item);
+    }
 }
 
 void SimpleList::remove(const Util::ReferenceCount<ListItem> removable){
     for (std::vector< Util::ReferenceCount<ListItem> >::iterator i = list.begin(); i != list.end(); i++){
         Util::ReferenceCount<ListItem> item = *i;
-        if (removable == item){
+        if (removable->equals(item)){
             list.erase(i);
             return;
         }
