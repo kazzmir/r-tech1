@@ -9,7 +9,7 @@ Import('use')
 
 import helpers
 import os.path
-modules = helpers.read_cmake_list(os.path.join(helpers.findDirectory('src/util/7z'), 'CMakeLists.txt'))
+modules = helpers.read_cmake_list(helpers.findFile('src/util/7z/CMakeLists.txt'))
 
 source = []
 for module in modules:
