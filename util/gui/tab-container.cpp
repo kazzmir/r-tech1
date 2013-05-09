@@ -92,6 +92,24 @@ void TabContainer::add(Util::ReferenceCount<TabItem> tab){
     }
 }
 
+Util::ReferenceCount<TabItem> TabContainer::remove(unsigned int index){
+    try {
+        // Check
+        Util::ReferenceCount<TabItem> tab = tabs.at(index);
+        tabs.erase(tabs.begin() + index);
+        return tab;
+    } catch (const std::out_of_range & ex){
+        throw new TabContainer::NoSuchTab(index); 
+    }
+}
+
+void TabContainer::removeCurrent(){
+    tabs.erase(tabs.begin() + current);
+    if (current > 0){
+        current--;
+    }
+}
+
 void TabContainer::setBodySize(int width, int height){
     if (body.getWidth() == width && body.getHeight() == height){
         return;

@@ -12,6 +12,8 @@ public:
     virtual ~ListItem();
     
     virtual bool operator==(const ListItem &) = 0;
+    virtual bool equals(Util::ReferenceCount<ListItem>) = 0;
+    virtual int compareTo(Util::ReferenceCount<ListItem>) = 0;
     virtual void act() = 0;
     virtual void draw(const Font &, const Graphics::Bitmap &) = 0;
 };

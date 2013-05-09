@@ -66,6 +66,10 @@ public:
     // Add
     virtual void add(Util::ReferenceCount<TabItem> tab);
     
+    // Remove
+    virtual Util::ReferenceCount<TabItem> remove(unsigned int tab);
+    void removeCurrent();
+    
     // Set size of Content Body Area
     virtual void setBodySize(int width, int height);
     

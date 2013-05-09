@@ -83,6 +83,7 @@ namespace IRC{
         virtual const Command & operator=(const Command &);
         
         virtual std::string getSendable() const;
+        virtual std::string getCTCPSendable() const;
         
         virtual inline const std::string & getOwner() const {
             return this->owner;
@@ -210,6 +211,7 @@ namespace IRC{
         }
         
         virtual void joinChannel(const std::string &);
+        virtual void partChannel(const std::string &);
         
         virtual inline ChannelPointer getChannel() const {
             if (this->activeChannels.empty()){
@@ -369,6 +371,8 @@ namespace Message{
         
         // Update user list
         void updateUserList();
+        void removeUser(const std::string &);
+        void changeUserName(const std::string &, const std::string &);
         
         Util::ReferenceCount<Client> client;
         const std::string & host;

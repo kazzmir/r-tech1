@@ -273,11 +273,25 @@ std::string Command::getSendable() const {
     // Command
     sendable += convertCommand(type) + " ";
     // Params
-    /*for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i){
-        sendable+= *i + " ";
-    }*/
     for (unsigned int i = 0; i < parameters.size(); ++i){
         sendable += parameters[i] + (i < parameters.size()-1 ? " " : "");
+    }
+    // End
+    sendable += "\r\n";
+    return sendable;
+}
+
+std::string Command::getCTCPSendable() const {
+    std::string sendable;
+    // Name
+    if (!owner.empty()){
+        sendable += ":" + owner + " ";
+    }
+    // Command
+    sendable += convertCommand(type) + " ";
+    // Params
+    for (unsigned int i = 0; i < ctcp.size(); ++i){
+        sendable += ctcp[i] + (i < ctcp.size()-1 ? " " : "");
     }
     // End
     sendable += "\r\n";
@@ -446,6 +460,19 @@ void Client::joinChannel(const std::string & chan){
     activeChannels.push_back(newChannel);
     currentChannel = activeChannels.size()-1;
     sendCommand(Command::Join, getChannel()->getName());
+}
+
+void Client::partChannel(const std::string & channel){
+    for (std::vector< ChannelPointer >::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
+        ChannelPointer activeChannel = *i;
+        if (activeChannel->getName() == channel){
+            // Remove channel
+            activeChannels.erase(i);
+            break;
+        }
+    }
+    currentChannel = previousActiveChannel;
+    sendCommand(Command::Part, channel);
 }
 
 std::string Client::channelListAsString(){
@@ -712,8 +739,16 @@ public:
         return (name == ((UserItem *)&comparable)->name);
     }
     
-    virtual bool compareTo(const std::string & comparable){
+    virtual bool equals(Util::ReferenceCount<Gui::ListItem> comparable){
+        return (name == comparable.convert<UserItem>()->name);
+    }
+    
+    bool equals(const std::string & comparable){
         return (name == comparable);
+    }
+    
+    virtual int compareTo(Util::ReferenceCount<Gui::ListItem> comparable){
+        return name.compare(comparable.convert<UserItem>()->name);
     }
     
     void act(){
@@ -989,7 +1024,9 @@ void ChatInterface::processRemoteCommands(){
     while (client->hasCommands()){
         ::Network::IRC::Command command = client->nextCommand();
         const std::vector<std::string> & params = command.getParameters();
-        //Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
+        if (params.size() > 0){
+            Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
+        }
         try {
             if (command.getType() == ::Network::IRC::Command::Ping){
                 client->sendPong(command);
@@ -1015,10 +1052,33 @@ void ChatInterface::processRemoteCommands(){
                        command.getType() == ::Network::IRC::Command::ReplyMOTDStart ||
                        command.getType() == ::Network::IRC::Command::ReplyMOTDEndOf){
                 serverTab.convert<ChannelTab>()->addMessage("*** MOTD " + params.at(1));
+            } else if (command.getType() == ::Network::IRC::Command::Nick){
+                // Check if user is the owner
+                if (command.getOwner() == client->getName()){
+                    convertTab(this)->addMessage("*** Nick changed to " + params.at(0) + ".");
+                    
+                } else {
+                    convertTab(this)->addMessage("*** " + command.getOwner() + " is now known as " + params.at(0) + ".");
+                }
+                changeUserName(command.getOwner(), params.at(0));
             } else if (command.getType() == ::Network::IRC::Command::Join){
-                serverTab.convert<ChannelTab>()->addMessage("*** You have joined the channel " + params.at(0) + ".");
-                chatBox.add(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(params.at(0))));
-                gotoChannel(params.at(0));
+                // Check if user is the owner otherwise display to that channel
+                if (command.getOwner() == client->getName()){
+                    serverTab.convert<ChannelTab>()->addMessage("*** You have joined the channel " + params.at(0) + ".");
+                    chatBox.add(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(params.at(0))));
+                    gotoChannel(params.at(0));
+                } else {
+                    convertTab(this, params.at(0))->addMessage("*** " + command.getOwner() + " has joined the channel.");
+                    listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(command.getOwner(), client)));
+                }
+            } else if (command.getType() == ::Network::IRC::Command::Part){
+                // Check if user is the owner otherwise display to that channel
+                if (command.getOwner() == client->getName()){
+                    serverTab.convert<ChannelTab>()->addMessage("*** You have parted the channel " + params.at(0) + ".");
+                } else {
+                    convertTab(this, params.at(0))->addMessage("*** " + command.getOwner() + " has parted the channel.");
+                    removeUser(command.getOwner());
+                }
             } else if (command.getType() == ::Network::IRC::Command::ReplyNoTopic){
                 serverTab.convert<ChannelTab>()->addMessage("*** The channel " + params.at(1) + " has no topic set.");
             } else if (command.getType() == ::Network::IRC::Command::ReplyTopic){
@@ -1052,6 +1112,9 @@ void ChatInterface::processRemoteCommands(){
         // Check if we got any CTCP delimited messages
         if (command.hasCtcp()){
             const std::vector<std::string> & ctcp = command.getCtcp();
+            if (ctcp.size() > 0){
+                //Global::debug(0) << "Got CTCP: " << command.getCTCPSendable() << std::endl;
+            }
             try {
                 if (ctcp.at(0) == "PING"){
                     // Lets check if there is an existing query otherwise send off request
@@ -1091,7 +1154,7 @@ void ChatInterface::localNotify(const std::string & message){
 
 void ChatInterface::localCommand(const std::vector<std::string> & command){
     if (command.at(0) == "help"){
-        convertTab(this)->addMessage("* commands: help, nick, whisper, ping, join, names, topic, previous, next, channels, quit");
+        convertTab(this)->addMessage("* commands: help, nick, whisper, ping, join, part, names, topic, previous, next, channels, quit");
     } else if (command.at(0) == "nick"){
         try {
             const std::string & nick = command.at(1);
@@ -1136,6 +1199,12 @@ void ChatInterface::localCommand(const std::vector<std::string> & command){
             }
         } catch (const std::out_of_range & ex){
             convertTab(this)->addMessage("* /join [channel]");
+        }
+    } else if (command.at(0) == "part"){
+        if (client->getChannel() != NULL){
+            chatBox.removeCurrent();
+            gotoChannel(host);
+            client->partChannel(client->getChannel()->getName());
         }
     } else if (command.at(0) == "names"){
         try {
@@ -1183,7 +1252,7 @@ void ChatInterface::localCommand(const std::vector<std::string> & command){
 static bool inList(const std::vector< Util::ReferenceCount<Gui::ListItem> > & list, const std::string & name){
     for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = list.begin(); i != list.end(); i++){
         Util::ReferenceCount<UserItem> item = (*i).convert<UserItem>();
-        if (item->compareTo(name)){
+        if (item->equals(name)){
             return true;
         }
     }
@@ -1202,16 +1271,36 @@ void ChatInterface::updateUserList(){
             listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(*i, client)));
         }
     } else if (chatBox.getCurrent()->getName() != host){
-        // Update
-        /*bool update = false;
-        for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
-            update = !inList(listBox.getList(), *i);
-        }*/
         if (listBox.getList().size() != users.size()){
             listBox.clear();
             for (std::vector<std::string>::const_iterator i = users.begin(); i != users.end(); i++){
                 listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(*i, client)));
             }
+        }
+    }
+}
+
+void ChatInterface::removeUser(const std::string & name){
+    const std::vector< Util::ReferenceCount<Gui::ListItem> > & userlist = listBox.getList();
+    for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = userlist.begin(); i != userlist.end(); i++){
+        Util::ReferenceCount<UserItem> user = (*i).convert<UserItem>();
+        if (user->equals(name)){
+            // remove him from list
+            listBox.remove(*i);
+            break;
+        }
+    }
+}
+
+void ChatInterface::changeUserName(const std::string & name, const std::string & newName){
+    const std::vector< Util::ReferenceCount<Gui::ListItem> > & userlist = listBox.getList();
+    for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = userlist.begin(); i != userlist.end(); i++){
+        Util::ReferenceCount<UserItem> user = (*i).convert<UserItem>();
+        if (user->equals(name)){
+            // remove him from list
+            listBox.remove(*i);
+            listBox.add(Util::ReferenceCount<Gui::ListItem>(new UserItem(newName, client)));
+            break;
         }
     }
 }
