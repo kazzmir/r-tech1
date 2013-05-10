@@ -153,6 +153,7 @@ namespace IRC{
         
         void addUser(const std::string &);
         void removeUser(const std::string &);
+        void replaceUser(const std::string &, const std::string &);
         void addUsers(const std::vector<std::string> &);
         
         inline const std::vector<std::string> & getUsers() const{

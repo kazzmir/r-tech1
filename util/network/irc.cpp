@@ -346,6 +346,16 @@ void Channel::removeUser(const std::string & user){
     }
 }
 
+void Channel::replaceUser(const std::string & user, const std::string & newName){
+    for (std::vector<std::string>::iterator i = users.begin(); i != users.end(); ++i){
+        const std::string & name = *i;
+        if (name == user){
+            users.insert(users.erase(i), newName);
+            break;
+        }
+    }
+}
+
 void Channel::addUsers(const std::vector<std::string> & list){
     for (std::vector<std::string>::const_iterator i = list.begin(); i != list.end(); ++i){
         const std::string & name = *i;
@@ -613,6 +623,32 @@ void Client::checkResponseAndHandle(const Command & command){
                 update->addUsers(names);
             }
         //}
+    } else if (command.getType() == Command::Nick){
+        const std::vector<std::string> & params = command.getParameters();
+        ::Util::Thread::ScopedLock scope(lock);
+        if (command.getOwner() != username){
+            // Replace in all valid channels
+            for (std::vector<ChannelPointer>::iterator i = activeChannels.begin(); i != activeChannels.end(); i++){
+                ChannelPointer update = *i;
+                if (update != NULL){
+                    update->replaceUser(command.getOwner(), params.at(0));
+                }
+            }
+        }
+    } else if (command.getType() == Command::Join){
+        const std::vector<std::string> & params = command.getParameters();
+        ::Util::Thread::ScopedLock scope(lock);
+        ChannelPointer update = findChannel(params.at(0));
+        if (update != NULL){
+            update->addUser(command.getOwner());
+        }
+    } else if (command.getType() == Command::Part){
+        const std::vector<std::string> & params = command.getParameters();
+        ::Util::Thread::ScopedLock scope(lock);
+        ChannelPointer update = findChannel(params.at(0));
+        if (update != NULL){
+            update->removeUser(command.getOwner());
+        }
     }
 }
 
@@ -623,6 +659,7 @@ void Client::run(){
             // Check if the message is empty it might be because of (\n)
             if (!message.empty()){
                 Command command(message);
+                //Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
                 ::Util::Thread::ScopedLock scope(lock);
                 checkResponseAndHandle(command);
                 commands.push(command);
@@ -1025,7 +1062,7 @@ void ChatInterface::processRemoteCommands(){
         ::Network::IRC::Command command = client->nextCommand();
         const std::vector<std::string> & params = command.getParameters();
         if (params.size() > 0){
-            Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
+            //Global::debug(0) << "Got message: " << command.getSendable() << std::endl;
         }
         try {
             if (command.getType() == ::Network::IRC::Command::Ping){
