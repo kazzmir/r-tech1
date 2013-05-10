@@ -274,9 +274,9 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
         // for last tab
         int modifier = 0;
         // Check last tab so we can ensure proper sizing
-        if ( i == (tabs.begin() + tabs.size() -1)){
-            if ( ( (tabWidthMax * (tabs.size() - 1) ) + textWidth ) != (unsigned int)location.getWidth() ){
-            modifier = location.getWidth() - x - (tab->active ? textWidth : tabWidthMax);
+        if (i == (tabs.begin() + tabs.size() -1)){
+            if (((tabWidthMax * (tabs.size() - 1)) + textWidth) != (unsigned int) location.getWidth()){
+                modifier = location.getWidth() - x - (tab->active ? textWidth : tabWidthMax);
             }
         }
         
@@ -293,7 +293,7 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
                     area.translucent().roundRect((int)transforms.getRadius(), 0, 0, textWidth+modifier-1, tabHeight*2, colors.border);
                     vFont.printf((((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), area, tab->name, 0 );
                 }
-                x+=textWidth + modifier;
+                x += textWidth + modifier;
             } else {
                 const int heightMod = tabHeight * .15;
                 Graphics::Bitmap area(bmp, x, 1 + heightMod, x+tabWidthMax+modifier-1, tabHeight-heightMod);
@@ -315,7 +315,7 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
                     area.translucent().rectangle(0, 0, textWidth+modifier-1, tabHeight*2, colors.border);
                     vFont.printf((((textWidth + modifier)/2)-(((textWidth + modifier) - 5)/2)), 0, activeTabFontColor->current(), area, tab->name, 0 );
                 }
-                x+=textWidth + modifier;
+                x += textWidth + modifier;
             } else {
                 const int heightMod = tabHeight * .15;
                 Graphics::Bitmap area(bmp, x, 1 + heightMod, x+tabWidthMax+modifier-1, tabHeight-heightMod);
