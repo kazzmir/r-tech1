@@ -904,45 +904,6 @@ void OptionQualityFilter::run(const Menu::Context & context){
 OptionQualityFilter::~OptionQualityFilter(){
 }
 
-OptionInvincible::OptionInvincible(const Gui::ContextBox & parent, const Token *token):
-MenuOption(parent, token),
-lblue(255),
-lgreen(255),
-rblue(255),
-rgreen(255){
-	setRunnable(false);
-	
-	if ( *token != "invincible" )
-		throw LoadException(__FILE__, __LINE__, "Not invincible option");
-
-        readName(token);
-}
-
-OptionInvincible::~OptionInvincible()
-{
-	// Nothing
-}
-                
-std::string OptionInvincible::getText() const {
-    ostringstream out;
-    out << MenuOption::getText() << ": " << (Configuration::getInvincible() ? "Yes" : "No");
-    return out.str();
-}
-
-void OptionInvincible::logic(){
-}
-
-void OptionInvincible::run(const Menu::Context & context){
-}
-
-bool OptionInvincible::leftKey(){
-	Configuration::setInvincible(!Configuration::getInvincible());
-	return true;
-}
-bool OptionInvincible::rightKey(){
-	Configuration::setInvincible(!Configuration::getInvincible());
-	return true;
-}
 
 #if 0
 static OptionJoystick::JoystickType convertToKey(const std::string &k){
@@ -1457,52 +1418,6 @@ void OptionLevel::run(const Menu::Context & context){
     throw Menu::MenuException(__FILE__, __LINE__);
 }
 
-OptionLives::OptionLives(const Gui::ContextBox & parent, const Token * token):
-MenuOption(parent, token),
-lblue(255),
-lgreen(255),
-rblue(255),
-rgreen(255){
-	setRunnable(false);
-	
-	if ( *token != "lives" ){
-		throw LoadException(__FILE__, __LINE__,  "Not lives option" );
-	}
-
-        readName(token);
-}
-
-OptionLives::~OptionLives(){
-}
-    
-std::string OptionLives::getText() const {
-    ostringstream out;
-    out << MenuOption::getText() << ": " << Configuration::getLives();
-    return out.str();
-}
-
-void OptionLives::logic(){
-
-}
-
-void OptionLives::run(const Menu::Context & context){
-}
-
-bool OptionLives::leftKey(){
-	Configuration::setLives(Configuration::getLives() - 1);
-	if ( Configuration::getLives() < 1 ){
-		Configuration::setLives(1);
-	}
-	
-	return false;
-}
-
-bool OptionLives::rightKey(){
-	Configuration::setLives( Configuration::getLives() + 1 );
-	
-	return false;
-}
-
 OptionMenu::OptionMenu(const Gui::ContextBox & parent, const Token *token, const Menu::OptionFactory & factory):
 MenuOption(parent, token),
 menu(0){
@@ -1543,113 +1458,6 @@ void OptionMenu::run(const Menu::Context & context){
     } catch (const Exception::Return ignore){
         throw Menu::Reload(__FILE__, __LINE__);
     }
-}
-
-OptionNpcBuddies::OptionNpcBuddies(const Gui::ContextBox & parent, const Token * token):
-MenuOption(parent, token),
-lblue(255),
-lgreen(255),
-rblue(255),
-rgreen(255){
-    setRunnable(false);
-
-    if ( *token != "npc" ){
-        throw LoadException(__FILE__, __LINE__,  "Not npc option" );
-    }
-
-    readName(token);
-}
-
-OptionNpcBuddies::~OptionNpcBuddies(){
-	// Nothing
-}
-        
-std::string OptionNpcBuddies::getText() const {
-    ostringstream out;
-    out << MenuOption::getText() << ": " << Configuration::getNpcBuddies();
-    return out.str();
-}
-
-void OptionNpcBuddies::logic(){
-
-}
-
-void OptionNpcBuddies::run(const Menu::Context & context){
-}
-
-bool OptionNpcBuddies::leftKey(){
-	Configuration::setNpcBuddies(Configuration::getNpcBuddies() - 1);
-	if ( Configuration::getNpcBuddies() < 1 ){
-		Configuration::setNpcBuddies(1);
-	}
-	
-	return false;
-}
-
-bool OptionNpcBuddies::rightKey(){
-	Configuration::setNpcBuddies( Configuration::getNpcBuddies() + 1 );
-	rblue = rgreen = 0;
-	return false;
-}
-
-OptionPlayMode::OptionPlayMode(const Gui::ContextBox & parent, const Token *token):
-MenuOption(parent, token),
-lblue(255),
-lgreen(255),
-rblue(255),
-rgreen(255){
-    setRunnable(false);
-
-    if ( *token != "play-mode" ){
-        throw LoadException(__FILE__, __LINE__, "Not a play-mode");
-    }
-
-    readName(token);
-}
-
-OptionPlayMode::~OptionPlayMode(){
-    // Nothing
-}
-    
-std::string OptionPlayMode::getText() const {
-    ostringstream out;
-    out << MenuOption::getText() << ": ";
-
-    /* TODO: language translations of these */
-    if (Configuration::getPlayMode() == Configuration::FreeForAll){
-        out << "Free for all";
-    } else if (Configuration::getPlayMode() == Configuration::Cooperative){
-        out << "Cooperative";
-    }
-
-    return out.str();
-}
-
-void OptionPlayMode::logic(){
-    
-}
-
-void OptionPlayMode::run(const Menu::Context & context){
-}
-    
-void OptionPlayMode::changeMode(){
-    if (Configuration::getPlayMode() == Configuration::FreeForAll){
-        Configuration::setPlayMode(Configuration::Cooperative);
-    } else if (Configuration::getPlayMode() == Configuration::Cooperative){
-        Configuration::setPlayMode(Configuration::FreeForAll);
-    }
-}
-
-bool OptionPlayMode::leftKey(){
-    changeMode();
-    lblue = lgreen = 0;
-    return true;
-}
-
-bool OptionPlayMode::rightKey(){
-    changeMode();
-    rblue = rgreen = 0;
-    return true;
 }
 
 OptionReturn::OptionReturn(const Gui::ContextBox & parent, const Token * token):
@@ -2499,56 +2307,6 @@ void OptionLanguage::run(const Menu::Context & context){
 void OptionLanguage::logic(){
 }
 
-OptionGibs::OptionGibs(const Gui::ContextBox & parent, const Token *token):
-MenuOption(parent, token){
-    setRunnable(false);
-
-    if (*token != "gibs" ){
-        throw LoadException(__FILE__, __LINE__, "Not a gibs option");
-    }
-
-    readName(token);
-    originalName = getName();
-}
-
-void OptionGibs::logic(){
-    ostringstream temp;
-    /* FIXME: we want to use Gib::GibProperty here but that would necessitate a
-     * dependancy on the Paintown engine.
-     */
-    temp << originalName << ": " << Configuration::getProperty("paintown/gibs", 5);
-    setText(temp.str());
-}
-
-void OptionGibs::run(const Menu::Context & context){
-}
-
-void OptionGibs::changeGibs(int much){
-    int gibs = Configuration::getProperty("paintown/gibs", 5);
-    gibs += much;
-    if (gibs < 0){
-        gibs = 0;
-    }
-
-    if (gibs > 10){
-        gibs = 10;
-    }
-
-    Configuration::setProperty("paintown/gibs", gibs);
-}
-
-bool OptionGibs::leftKey(){
-    changeGibs(-1);
-    return true;
-}
-
-bool OptionGibs::rightKey(){
-    changeGibs(+1);
-    return true;
-}
-
-OptionGibs::~OptionGibs(){
-}
 
 OptionJoystick::OptionJoystick(const Gui::ContextBox & parent, const Token *token):
 MenuOption(parent, token){
