@@ -52,12 +52,6 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
         return new OptionScreenSize(parent, tok);
     } else if (*tok == "quality-filter"){
         return new OptionQualityFilter(parent, tok);
-    } else if ( *tok == "npc" ){
-        return new OptionNpcBuddies(parent, tok);
-    } else if (*tok == "play-mode"){
-        return new OptionPlayMode(parent, tok);
-    } else if (*tok == "gibs"){
-        return new OptionGibs(parent, tok);
     } else if (*tok == "fps"){
         return new OptionFps(parent, tok);
     } else if ( *tok == "credits" ){
@@ -66,17 +60,11 @@ MenuOption * OptionFactory::getOption(const Gui::ContextBox & parent, const Toke
     } else if ( *tok == "speed" ){
         // Speed
         return new OptionSpeed(parent, tok);
-    } else if ( *tok == "invincible" ){
-        // Invincible
-        return new OptionInvincible(parent, tok);
     } else if ( *tok == "fullscreen" ){
         // Full screen Selector
         return new OptionFullscreen(parent, tok);
     } else if ( *tok == "quit" ){
         return new OptionQuit(parent, tok);
-    } else if ( *tok == "lives" ){
-        // Live selector
-        return new OptionLives(parent, tok);
     } else if ( *tok == "font-select" ){
         // Font Selector
         return new OptionSelectFont(parent, tok);

@@ -172,31 +172,6 @@ private:
     int rblue, rgreen;
 };
 
-/*! Handles key reconfiguration */
-class OptionInvincible : public MenuOption
-{
-	public:
-		// Do logic before run part
-		virtual void logic();
-		
-		// Finally it has been selected, this is what shall run 
-		// endGame will be set true if it is a terminating option
-		virtual void run(const Menu::Context &);
-		
-		// This is to pass paramaters to an option ie a bar or something
-		virtual bool leftKey();
-		virtual bool rightKey();
-    
-        virtual std::string getText() const;
-		
-		OptionInvincible(const Gui::ContextBox & parent, const Token *token);
-	
-		virtual ~OptionInvincible();
-	private:
-		int lblue, lgreen;
-		int rblue, rgreen;
-};
-
 /*! Handles joystick reconfiguration */
 /*
 class OptionJoystick: public MenuOption {
@@ -298,31 +273,6 @@ protected:
     int value;
 };
 
-
-/*! Handles key reconfiguration */
-class OptionLives: public MenuOption{
-public:
-    // Do logic before run part
-    virtual void logic();
-
-    // Finally it has been selected, this is what shall run 
-    // endGame will be set true if it is a terminating option
-    virtual void run(const Menu::Context &);
-
-    // This is to pass paramaters to an option ie a bar or something
-    virtual bool leftKey();
-    virtual bool rightKey();
-    
-    virtual std::string getText() const;
-
-    OptionLives(const Gui::ContextBox & parent, const Token *token);
-
-    virtual ~OptionLives();
-private:
-    int lblue, lgreen;
-    int rblue, rgreen;
-};
-
 namespace Menu {
     class Menu;
     class Context;
@@ -345,59 +295,6 @@ class OptionMenu: public MenuOption {
     private:
         //Menu *menu;
         Menu::Menu *menu;
-};
-
-/* FIXME: should be moved to the paintown directory */
-class OptionNpcBuddies: public MenuOption {
-public:
-	OptionNpcBuddies(const Gui::ContextBox & parent, const Token *token );
-
-	// Do logic before run part
-	virtual void logic();
-	
-	// Finally it has been selected, this is what shall run 
-	// endGame will be set true if it is a terminating option
-	virtual void run(const Menu::Context &);
-    
-        virtual std::string getText() const;
-	
-	// This is to pass paramaters to an option ie a bar or something
-	virtual bool leftKey();
-	virtual bool rightKey();
-	
-	virtual ~OptionNpcBuddies();
-private:
-	int lblue, lgreen;
-	int rblue, rgreen;
-};
-
-/* FIXME: move to the paintown directory */
-class OptionPlayMode: public MenuOption {
-public:
-    OptionPlayMode(const Gui::ContextBox & parent, const Token *token);
-
-    // Do logic before run part
-    virtual void logic();
-
-    // Finally it has been selected, this is what shall run 
-    // endGame will be set true if it is a terminating option
-    virtual void run(const Menu::Context &);
-    
-    virtual std::string getText() const;
-
-    // This is to pass paramaters to an option ie a bar or something
-    virtual bool leftKey();
-    virtual bool rightKey();
-
-    virtual ~OptionPlayMode();
-
-protected:
-    virtual void changeMode();
-
-private:
-
-    int lblue, lgreen;
-    int rblue, rgreen;
 };
 
 class OptionQuit : public MenuOption {
@@ -641,29 +538,6 @@ public:
     OptionLanguage(const Gui::ContextBox & parent, const Token * token);
     virtual void logic();
     virtual void run(const Menu::Context &);
-};
-
-/* FIXME: move this option to the paintown engine somehow */
-class OptionGibs: public MenuOption {
-public:
-    OptionGibs(const Gui::ContextBox & parent, const Token *token);
-
-    // Do logic before run part
-    virtual void logic();
-
-    // Finally it has been selected, this is what shall run 
-    // endGame will be set true if it is a terminating option
-    virtual void run(const Menu::Context &);
-
-    // This is to pass parameters to an option ie a bar or something
-    virtual bool leftKey();
-    virtual bool rightKey();
-
-    virtual ~OptionGibs();
-protected:
-    void changeGibs(int much);
-private:
-    std::string originalName;
 };
 
 class OptionJoystick: public MenuOption {
