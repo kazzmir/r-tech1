@@ -78,7 +78,14 @@ void Gradient::forward(){
 }
 
 void Gradient::backward(){
-    index = (index - 1 + size) % size;
+    /* This goofy logic is used because index is an unsigned int and its a bad idea
+     * to subtract 1 from an unsigned int whose value is 0.
+     */
+    if (index == 0){
+        index = size - 1;
+    } else {
+        index -= 1;
+    }
 }
 
 void Gradient::update(){
