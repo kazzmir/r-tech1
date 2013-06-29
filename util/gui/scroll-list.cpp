@@ -147,7 +147,7 @@ void ScrollList::render(const Graphics::Bitmap & where, const Font & font) const
     doDraw(0, y, min_y, max_y, font, currentIndex, currentIndex, where, 1);
 
     /* then draw up, skipping the current selection */
-    doDraw(0, y - font.getHeight() / FONT_SPACER, min_y, max_y, font, currentIndex - 1, currentIndex, where, -1);
+    doDraw(0, y - font.getHeight() / FONT_SPACER, min_y, max_y, font, (int) currentIndex - 1, currentIndex, where, -1);
 }
 
 void ScrollList::addItem(const Util::ReferenceCount<ScrollItem> item){
