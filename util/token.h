@@ -211,9 +211,10 @@ public:
     */
 
     Token & operator<<(const std::string rhs);
-    Token & operator<<(const int rhs);
+    Token & operator<<(const int32_t rhs);
+    Token & operator<<(const int64_t rhs);
+    Token & operator<<(const uint32_t rhs);
     Token & operator<<(const uint64_t rhs);
-    Token & operator<<(const unsigned int rhs);
     Token & operator<<(Token * token);
     Token & operator<<(const double rhs);
     
