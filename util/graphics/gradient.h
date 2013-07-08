@@ -2,6 +2,7 @@
 #define _paintown_gradient_h
 
 #include "bitmap.h"
+#include <stdint.h>
 
 class Token;
 
@@ -33,8 +34,8 @@ public:
 
 protected:
     Graphics::Color * colors;
-    unsigned int size;
-    unsigned int index;
+    uint32_t size;
+    uint32_t index;
 };
 
 }

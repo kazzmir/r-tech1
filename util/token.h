@@ -24,7 +24,7 @@ public:
     TokenView & operator>>(std::string & item);
     TokenView & operator>>(int & item);
     TokenView & operator>>(unsigned char & item);
-    TokenView & operator>>(unsigned int & item);
+    TokenView & operator>>(uint32_t & item);
     TokenView & operator>>(uint64_t & item);
     TokenView & operator>>(double & item);
     TokenView & operator>>(bool & item);
@@ -210,8 +210,12 @@ public:
     Token & operator>>( bool & rhs ) throw( TokenException );
     */
 
-    Token & operator<<(const std::string rhs);
+    Token & operator<<(const std::string & rhs);
+#ifdef XENON
+    Token & operator<<(const int rhs);
+#else
     Token & operator<<(const int32_t rhs);
+#endif
     Token & operator<<(const int64_t rhs);
     Token & operator<<(const uint32_t rhs);
     Token & operator<<(const uint64_t rhs);

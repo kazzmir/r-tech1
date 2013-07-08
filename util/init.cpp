@@ -553,6 +553,9 @@ static void maybeSetWorkingDirectory(){
 #include <diskio/ata.h>
 #include <libfat/fat.h>
 #include <xenon_sound/sound.h>
+#include <console/console.h>
+#include <xenon_soc/xenon_power.h>
+#include <usb/usbmain.h>
 
 static void xenon_init(){
     xenos_init(VIDEO_MODE_AUTO);

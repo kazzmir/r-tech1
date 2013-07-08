@@ -464,7 +464,7 @@ Token & Token::operator<<(Token * token){
     return *this;
 }
 
-Token & Token::operator<<( const string rhs ){
+Token & Token::operator<<(const string & rhs){
     if (!own){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw strings to a token you don't own");
     }
@@ -475,6 +475,17 @@ Token & Token::operator<<( const string rhs ){
     return *this;
 }
 
+#ifdef XENON
+Token & Token::operator<<(const int rhs){
+    if (!own){
+        throw TokenException(__FILE__, __LINE__, "Cannot add raw integers to a token you don't own");
+    }
+
+    ostringstream o;
+    o << rhs;
+    return *this << o.str();
+}
+#else
 Token & Token::operator<<(const int32_t rhs){
     if (!own){
         throw TokenException(__FILE__, __LINE__, "Cannot add raw integers to a token you don't own");
@@ -484,6 +495,7 @@ Token & Token::operator<<(const int32_t rhs){
     o << rhs;
     return *this << o.str();
 }
+#endif
 
 Token & Token::operator<<(const int64_t rhs){
     if (!own){
@@ -665,7 +677,7 @@ TokenView & TokenView::operator>>(uint64_t & item){
     return *this;
 }
 
-TokenView & TokenView::operator>>(unsigned int & item){
+TokenView & TokenView::operator>>(uint32_t & item){
     if (current == tokens.end()){
         throw TokenException(__FILE__, __LINE__, "No more elements");
     }
