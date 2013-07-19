@@ -296,11 +296,17 @@ void TabbedBox::renderTabs(const Graphics::Bitmap & bmp, const Font & vFont){
                 x += textWidth + modifier;
             } else {
                 const int heightMod = tabHeight * .15;
-                Graphics::Bitmap area(bmp, x, 1 + heightMod, x+tabWidthMax+modifier-1, tabHeight-heightMod);
-                area.translucent().roundRectFill((int)transforms.getRadius(),0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(105, 105, 105));
-                area.translucent().roundRect((int)transforms.getRadius(),0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(58, 58, 58));
-                area.translucent().hLine(0,tabHeight,tabWidthMax+modifier-1,colors.border);
-                vFont.printf((((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, area, tab->name, 0 );
+
+                int width = x+tabWidthMax+modifier-1;
+                int height = tabHeight-heightMod;
+
+                if (width > 1 && height > 1){
+                    Graphics::Bitmap area(bmp, x, 1 + heightMod, width, height);
+                    area.translucent().roundRectFill((int)transforms.getRadius(),0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(105, 105, 105));
+                    area.translucent().roundRect((int)transforms.getRadius(),0,0,tabWidthMax+modifier-1,tabHeight*2,Graphics::makeColor(58, 58, 58));
+                    area.translucent().hLine(0,tabHeight,tabWidthMax+modifier-1,colors.border);
+                    vFont.printf((((tabWidthMax + modifier)/2)-((textWidth + modifier)/2)), 0, tabFontColor, area, tab->name, 0 );
+                }
                 x += tabWidthMax + modifier;
             }
         } else {
