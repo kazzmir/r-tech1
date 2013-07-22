@@ -59,6 +59,7 @@ public:
     template <class Convert>
     ReferenceCount<Convert> convert() const {
         ReferenceCount<Convert> what;
+        what.release();
         what.count = count;
         *what.count += 1;
         what.data = (Convert*) data;
@@ -106,8 +107,10 @@ public:
         release();
     }
 
-protected:
-
+    /* this has to be public to make the convert() function work but pretend
+     * its private!
+     */
+public:
     void release(){
         *count -= 1;
         if (*count == 0){
@@ -117,11 +120,6 @@ protected:
             count = NULL;
         }
     }
-
-    /* this has to be public to make the convert() function work but pretend
-     * its private!
-     */
-public:
     int * count;
     Data * data;
 };
