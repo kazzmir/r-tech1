@@ -554,7 +554,7 @@ clearColor(Graphics::makeColor(0,0,0)){
     }
 
     if (miguelBirthday()){
-        defaultSequence += "(block (title \"Happy birthday, Jon!\"))";
+        defaultSequence += "(block (title \"Happy birthday, Miguel!\"))";
     }
 
     if (Storage::instance().exists(Filesystem::RelativePath("sprites/paintown.png"))){
