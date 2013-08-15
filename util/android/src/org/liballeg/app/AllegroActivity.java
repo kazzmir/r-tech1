@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Environment;
+import android.os.PowerManager;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.OrientationEventListener;
 import android.view.WindowManager;
+import android.view.Display;
 
 import android.hardware.*;
 import android.content.res.Configuration;
@@ -38,6 +40,7 @@ import java.lang.Runnable;
 import java.util.List;
 import java.util.BitSet;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import java.io.File;
 import java.io.InputStream;
@@ -81,7 +84,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    static final int ALLEGRO_DISPLAY_ORIENTATION_ALL = 15;
    static final int ALLEGRO_DISPLAY_ORIENTATION_FACE_UP = 16;
    static final int ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN = 32;
-   
+
    private static SensorManager sensorManager;
    private List<Sensor> sensors;
    
@@ -100,21 +103,50 @@ public class AllegroActivity extends Activity implements SensorEventListener
    public native void nativeCreateDisplay();
    
    public native void nativeOnOrientationChange(int orientation, boolean init);
-   
-   /* load allegro */
-   static {
-		/* FIXME: see if we can't load the allegro library name, or type from the manifest here */
-      /*
-      System.loadLibrary("allegro-debug");
-      System.loadLibrary("allegro_primitives-debug");
-      System.loadLibrary("allegro_image-debug");
-      */
-   }
-	
-        
+
    public static AllegroActivity Self;
 
+   private boolean exitedMain = false;
+
    /* methods native code calls */
+
+   private boolean inhibit_screen_lock = false;
+   private PowerManager.WakeLock wake_lock;
+
+   public boolean inhibitScreenLock(boolean inhibit)
+   {
+      boolean last_state = inhibit_screen_lock;
+      inhibit_screen_lock = inhibit;
+
+      try {
+         if (inhibit) {
+            if (last_state) {
+               // Already there
+            }
+            else {
+               // Disable lock
+               PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+               wake_lock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "Allegro Wake Lock");
+               wake_lock.acquire();
+            }
+         }
+         else {
+            if (last_state) {
+               // Turn lock back on
+               wake_lock.release();
+               wake_lock = null;
+            }
+            else {
+               // Already there
+            }
+         }
+      }
+      catch (Exception e) {
+         Log.d("AllegroActivity", "Got exception in inhibitScreenLock: " + e.getMessage());
+      }
+
+      return true;
+   }
    
    public String getLibraryDir()
    {
@@ -141,7 +173,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    public String getPubDataDir()
    {
-      return getExternalFilesDir(null).getAbsolutePath();
+      return getFilesDir().getAbsolutePath();
    }
    
    public String getApkPath()
@@ -149,6 +181,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
 		return getApplicationInfo().sourceDir;
 	}
    
+   public String getModel()
+   {
+      return android.os.Build.MODEL;
+   }
+
    public void postRunnable(Runnable runme)
    {
       try {
@@ -163,9 +200,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    {
       try {
          Log.d("AllegroActivity", "createSurface");
-         if(surface == null) {
-            surface = new AllegroSurface(getApplicationContext());
-         }
+         surface = new AllegroSurface(getApplicationContext(), getWindowManager().getDefaultDisplay());
          
          SurfaceHolder holder = surface.getHolder();
          holder.addCallback(surface); 
@@ -195,17 +230,17 @@ public class AllegroActivity extends Activity implements SensorEventListener
       
       return;
    }
-   
+
    public void destroySurface()
    {
       Log.d("AllegroActivity", "destroySurface");
-      
+
       ViewGroup vg = (ViewGroup)(surface.getParent());
       vg.removeView(surface);
       surface = null;
    }
    
-   public void postDestroySurface(View s)
+   public void postDestroySurface()
    {
       try {
          Log.d("AllegroActivity", "postDestroySurface");
@@ -309,12 +344,15 @@ public class AllegroActivity extends Activity implements SensorEventListener
    
    public void postFinish()
    {
+      exitedMain = true;
+
       try {
          Log.d("AllegroActivity", "posting finish!");
          handler.post( new Runnable() {
             public void run() {
                try {
                   AllegroActivity.this.finish();
+		  System.exit(0);
                } catch(Exception x) {
                   Log.d("AllegroActivity", "inner exception: " + x.getMessage());
                }
@@ -324,9 +362,13 @@ public class AllegroActivity extends Activity implements SensorEventListener
          Log.d("AllegroActivity", "exception: " + x.getMessage());
       }
    }
+
+   public boolean getMainReturned()
+   {
+      return exitedMain;
+   }
    
    /* end of functions native code calls */
-   
    
    /** Called when the activity is first created. */
    @Override
@@ -384,10 +426,10 @@ public class AllegroActivity extends Activity implements SensorEventListener
       }
 
       nativeOnOrientationChange(0, true);
-
+  
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-      
+
       Log.d("AllegroActivity", "onCreate end");
    }
    
@@ -420,11 +462,11 @@ public class AllegroActivity extends Activity implements SensorEventListener
       Log.d("AllegroActivity", "onPause");
       
       disableSensors();
-      
+
       nativeOnPause();
       Log.d("AllegroActivity", "onPause end");
    }
-   
+
    /** Called when the activity is resumed/unpaused */
    @Override
    public void onResume()
@@ -435,7 +477,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
       enableSensors();
       
       nativeOnResume();
-      
+     
       Log.d("AllegroActivity", "onResume end");
    }
    
@@ -445,7 +487,7 @@ public class AllegroActivity extends Activity implements SensorEventListener
    {
       super.onDestroy();
       Log.d("AllegroActivity", "onDestroy");
-      
+         
       nativeOnDestroy();
       Log.d("AllegroActivity", "onDestroy end");
    }
@@ -490,12 +532,6 @@ public class AllegroActivity extends Activity implements SensorEventListener
       if((changes & ActivityInfo.CONFIG_SCREEN_LAYOUT) != 0)
          Log.d("AllegroActivity", "screen layout changed");
 
-      if((changes & ActivityInfo.CONFIG_SCREEN_SIZE) != 0)
-         Log.d("AllegroActivity", "screen size changed");
-       
-      if((changes & ActivityInfo.CONFIG_SMALLEST_SCREEN_SIZE) != 0)
-         Log.d("AllegroActivity", "smallest screen size changed");
-       
       if((changes & ActivityInfo.CONFIG_UI_MODE) != 0)
          Log.d("AllegroActivity", "ui mode changed");
       
@@ -829,7 +865,29 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    static final int ALLEGRO_KEY_VOLUME_UP   = 108;
    static final int ALLEGRO_KEY_VOLUME_DOWN = 109;
    
-   static final int ALLEGRO_KEY_UNKNOWN    = 110;
+   /* Some more standard Android keys.
+    * These happen to be the ones used by the Xperia Play.
+    */
+   static final int ALLEGRO_KEY_SEARCH       = 110;
+   static final int ALLEGRO_KEY_DPAD_CENTER  = 111;
+   static final int ALLEGRO_KEY_BUTTON_X     = 112;
+   static final int ALLEGRO_KEY_BUTTON_Y     = 113;
+   static final int ALLEGRO_KEY_DPAD_UP      = 114;
+   static final int ALLEGRO_KEY_DPAD_DOWN    = 115;
+   static final int ALLEGRO_KEY_DPAD_LEFT    = 116;
+   static final int ALLEGRO_KEY_DPAD_RIGHT   = 117;
+   static final int ALLEGRO_KEY_SELECT       = 118;
+   static final int ALLEGRO_KEY_START        = 119;
+   static final int ALLEGRO_KEY_BUTTON_L1    = 120;
+   static final int ALLEGRO_KEY_BUTTON_R1    = 121;
+   static final int ALLEGRO_KEY_BUTTON_L2    = 122;
+   static final int ALLEGRO_KEY_BUTTON_R2    = 123;
+   static final int ALLEGRO_KEY_BUTTON_A     = 124;
+   static final int ALLEGRO_KEY_BUTTON_B     = 125;
+   static final int ALLEGRO_KEY_THUMBL       = 126;
+   static final int ALLEGRO_KEY_THUMBR       = 127;
+
+   static final int ALLEGRO_KEY_UNKNOWN      = 128;
 
       /* All codes up to before ALLEGRO_KEY_MODIFIERS can be freely
       * assignedas additional unknown keys, like various multimedia
@@ -921,7 +979,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_EXPLORER
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ENVELOPE
       ALLEGRO_KEY_ENTER,       // KeyEvent.KEYCODE_ENTER
-      ALLEGRO_KEY_DELETE,      // KeyEvent.KEYCODE_DEL
+      ALLEGRO_KEY_BACKSPACE,   // KeyEvent.KEYCODE_DEL
       ALLEGRO_KEY_TILDE,       // KeyEvent.KEYCODE_GRAVE
       ALLEGRO_KEY_MINUS,       // KeyEvent.KEYCODE_MINUS
       ALLEGRO_KEY_EQUALS,      // KeyEvent.KEYCODE_EQUALS
@@ -938,7 +996,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_PAD_PLUS,    // KeyEvent.KEYCODE_PLUS
       ALLEGRO_KEY_MENU,        // KeyEvent.KEYCODE_MENU
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_NOTIFICATION
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SEARCH
+      ALLEGRO_KEY_SEARCH,      // KeyEvent.KEYCODE_SEARCH
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_STOP
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MEDIA_NEXT
@@ -950,21 +1008,166 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       ALLEGRO_KEY_PGDN,        // KeyEvent.KEYCODE_PAGE_DOWN
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_PICTSYMBOLS
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SWITCH_CHARSET
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_A
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_B
+      ALLEGRO_KEY_BUTTON_A,    // KeyEvent.KEYCODE_BUTTON_A
+      ALLEGRO_KEY_BUTTON_B,    // KeyEvent.KEYCODE_BUTTON_B
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_C
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_X
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Y
+      ALLEGRO_KEY_BUTTON_X,    // KeyEvent.KEYCODE_BUTTON_X
+      ALLEGRO_KEY_BUTTON_Y,    // KeyEvent.KEYCODE_BUTTON_Y
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_Z
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L1
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R1
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_L2
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_BUTTON_R2
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBL
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_THUMBR
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_START
-      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_SELECT
+      ALLEGRO_KEY_BUTTON_L1,   // KeyEvent.KEYCODE_BUTTON_L1
+      ALLEGRO_KEY_BUTTON_R1,   // KeyEvent.KEYCODE_BUTTON_R1
+      ALLEGRO_KEY_BUTTON_L2,   // KeyEvent.KEYCODE_BUTTON_L2
+      ALLEGRO_KEY_BUTTON_R2,   // KeyEvent.KEYCODE_BUTTON_R2
+      ALLEGRO_KEY_THUMBL,      // KeyEvent.KEYCODE_THUMBL
+      ALLEGRO_KEY_THUMBR,      // KeyEvent.KEYCODE_THUMBR
+      ALLEGRO_KEY_START,       // KeyEvent.KEYCODE_START
+      ALLEGRO_KEY_SELECT,      // KeyEvent.KEYCODE_SELECT
       ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_MODE
+      ALLEGRO_KEY_ESCAPE,      // KeyEvent.KEYCODE_ESCAPE (111)
+      ALLEGRO_KEY_DELETE,      // KeyEvent.KEYCODE_FORWARD_DELETE (112)
+      ALLEGRO_KEY_LCTRL,       // KeyEvent.KEYCODE_CTRL_LEFT (113)
+      ALLEGRO_KEY_RCTRL,       // KeyEvent.KEYCODE_CONTROL_RIGHT (114)
+      ALLEGRO_KEY_CAPSLOCK,    // KeyEvent.KEYCODE_CAPS_LOCK (115)
+      ALLEGRO_KEY_SCROLLLOCK,  // KeyEvent.KEYCODE_SCROLL_LOCK (116)
+      ALLEGRO_KEY_LWIN,        // KeyEvent.KEYCODE_META_LEFT (117)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (118)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (119)
+      ALLEGRO_KEY_PRINTSCREEN, // KeyEvent.KEYCODE_SYSRQ (120)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (121)
+      ALLEGRO_KEY_HOME,        // KeyEvent.KEYCODE_MOVE_HOME (122)
+      ALLEGRO_KEY_END,         // KeyEvent.KEYCODE_MOVE_END (123)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (124)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (125)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (126)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (127)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (128)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (129)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (130)
+      ALLEGRO_KEY_F1,          // KeyEvent.KEYCODE_ (131)
+      ALLEGRO_KEY_F2,          // KeyEvent.KEYCODE_ (132)
+      ALLEGRO_KEY_F3,          // KeyEvent.KEYCODE_ (133)
+      ALLEGRO_KEY_F4,          // KeyEvent.KEYCODE_ (134)
+      ALLEGRO_KEY_F5,          // KeyEvent.KEYCODE_ (135)
+      ALLEGRO_KEY_F6,          // KeyEvent.KEYCODE_ (136)
+      ALLEGRO_KEY_F7,          // KeyEvent.KEYCODE_ (137)
+      ALLEGRO_KEY_F8,          // KeyEvent.KEYCODE_ (138)
+      ALLEGRO_KEY_F9,          // KeyEvent.KEYCODE_ (139)
+      ALLEGRO_KEY_F10,         // KeyEvent.KEYCODE_ (140)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (141)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (142)
+      ALLEGRO_KEY_NUMLOCK,     // KeyEvent.KEYCODE_NUM_LOCK (143)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (144)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (145)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (146)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (147)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (148)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (149)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (150)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (151)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (152)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (153)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (154)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (155)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (156)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (157)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (158)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (159)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (160)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (161)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (162)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (163)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (164)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (165)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (166)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (167)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (168)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (169)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (170)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (171)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (172)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (173)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (174)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (175)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (176)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (177)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (178)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (179)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (180)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (181)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (182)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (183)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (184)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (185)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (186)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (187)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (188)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (189)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (190)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (191)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (192)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (193)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (194)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (195)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (196)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (197)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (198)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (199)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (200)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (201)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (202)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (203)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (204)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (205)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (206)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (207)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (208)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (209)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (210)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (211)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (212)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (213)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (214)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (215)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (216)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (217)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (218)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (219)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (220)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (221)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (222)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (223)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (224)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (225)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (226)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (227)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (228)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (229)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (230)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (231)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (232)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (233)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (234)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (235)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (236)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (237)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (238)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (239)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (240)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (241)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (242)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (243)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (244)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (245)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (246)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (247)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (248)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (249)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (250)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (251)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (252)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (253)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (254)
+      ALLEGRO_KEY_UNKNOWN,     // KeyEvent.KEYCODE_ (255)
    };
    
    final int ALLEGRO_EVENT_TOUCH_BEGIN  = 50;
@@ -974,10 +1177,11 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    
    /** native functions we call */
    public native void nativeOnCreate();
-   public native void nativeOnDestroy();
+   public native boolean nativeOnDestroy();
    public native void nativeOnChange(int format, int width, int height);
    public native void nativeOnKeyDown(int key);
    public native void nativeOnKeyUp(int key);
+   public native void nativeOnKeyChar(int key);
    public native void nativeOnTouch(int id, int action, float x, float y, boolean primary);
    
    /** functions that native code calls */
@@ -990,7 +1194,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    private int[]       egl_attribs;
    ArrayList<Integer>  egl_attribWork = new ArrayList<Integer>();
    EGLConfig[]         egl_Config = new EGLConfig[] { null };
-   int[]               es2_attrib;
+   int[]               es2_attrib = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL10.EGL_NONE};
 
    private Context context;
    private boolean captureVolume = false;
@@ -1008,7 +1212,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       }
       
       egl_Display = dpy;
-
+      
       Log.d("AllegroSurface", "egl_Init end");
       return true;
    }
@@ -1059,9 +1263,23 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
          /* Allow others to pass right into the array */
       }
 
+      /* Check if it's already in the list, if so change the value */
+      for (int i = 0; i < egl_attribWork.size(); i++) {
+         if (i % 2 == 0) {
+            if (egl_attribWork.get(i) == egl_attr) {
+               egl_attribWork.set(i+1, value);
+               return;
+            }
+         }
+      }
+
+      /* Not in the list, add it */
       egl_attribWork.add(egl_attr);
       egl_attribWork.add(value);
    }
+      
+   private final int EGL_OPENGL_ES_BIT = 1;
+   private final int EGL_OPENGL_ES2_BIT = 4;
 
    private boolean checkGL20Support( Context context )
    {
@@ -1071,7 +1289,6 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       //int[] version = new int[2];
       //egl.eglInitialize(display, version);
    
-      int EGL_OPENGL_ES2_BIT = 4;
       int[] configAttribs =
       {
          EGL10.EGL_RED_SIZE, 4,
@@ -1090,10 +1307,28 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       return num_config[0] > 0;
    }
 
+   static HashMap<Integer, String> eglErrors;
    private static void checkEglError(String prompt, EGL10 egl) {
+      if (eglErrors == null) {
+          eglErrors = new HashMap<Integer, String>();
+          eglErrors.put(EGL10.EGL_BAD_DISPLAY, "EGL_BAD_DISPLAY");
+          eglErrors.put(EGL10.EGL_NOT_INITIALIZED, "EGL_NOT_INITIALIZED");
+          eglErrors.put(EGL10.EGL_BAD_SURFACE, "EGL_BAD_SURFACE");
+          eglErrors.put(EGL10.EGL_BAD_CONTEXT, "EGL_BAD_CONTEXT");
+          eglErrors.put(EGL10.EGL_BAD_MATCH, "EGL_BAD_MATCH");
+          eglErrors.put(EGL10.EGL_BAD_ACCESS, "EGL_BAD_ACCESS");
+          eglErrors.put(EGL10.EGL_BAD_NATIVE_PIXMAP, "EGL_BAD_NATIVE_PIXMAP");
+          eglErrors.put(EGL10.EGL_BAD_NATIVE_WINDOW, "EGL_BAD_NATIVE_WINDOW");
+          eglErrors.put(EGL10.EGL_BAD_CURRENT_SURFACE, "EGL_BAD_CURRENT_SURFACE");
+          eglErrors.put(EGL10.EGL_BAD_ALLOC, "EGL_BAD_ALLOC");
+          eglErrors.put(EGL10.EGL_BAD_CONFIG, "EGL_BAD_CONFIG");
+          eglErrors.put(EGL10.EGL_BAD_ATTRIBUTE, "EGL_BAD_ATTRIBUTE");
+          eglErrors.put(EGL11.EGL_CONTEXT_LOST, "EGL_CONTEXT_LOST");
+      }
       int error;
       while ((error = egl.eglGetError()) != EGL10.EGL_SUCCESS) {
-         Log.e("Allegro", String.format("%s: EGL error: 0x%x", prompt, error));
+         Log.e("Allegro", String.format("%s: EGL error: %s", prompt,
+            eglErrors.get(error)));
       }
    }
 
@@ -1104,56 +1339,41 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
     */
    public int egl_createContext(int version)
    {
-      Log.d("AllegroSurface", "egl_createContext, version: " + version);
+      Log.d("AllegroSurface", "egl_createContext");
       EGL10 egl = (EGL10)EGLContext.getEGL();
       int ret = 1;
 
-      if (egl_Config[0] == null) {
-         if (version == 2) {
-            if (checkGL20Support(context)) {
-               es2_attrib = new int[3];
-               es2_attrib[0] = EGL_CONTEXT_CLIENT_VERSION;
-               es2_attrib[1] = 2;
-               es2_attrib[2] = EGL10.EGL_NONE;
-            }
-            else {
-               Log.d("AllegroSurface", "checkGL20Support failed");
-               es2_attrib = null;
-               ret = 2;
-            }
-         }
-         else {
-            es2_attrib = null;
-         }
+      es2_attrib[1] = version;
+      
+      egl_setConfigAttrib(EGL10.EGL_RENDERABLE_TYPE, version == 2 ? EGL_OPENGL_ES2_BIT : EGL_OPENGL_ES_BIT);
 
-         boolean color_size_specified = false;
-         for (int i = 0; i < egl_attribWork.size(); i++) {
-            Log.d("AllegroSurface", "egl_attribs[" + i + "] = " + egl_attribWork.get(i));
-            if (i % 2 == 0) {
-               if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE || egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
-                     egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE) {
-                  color_size_specified = true;
-               }
+      boolean color_size_specified = false;
+      for (int i = 0; i < egl_attribWork.size(); i++) {
+         Log.d("AllegroSurface", "egl_attribs[" + i + "] = " + egl_attribWork.get(i));
+         if (i % 2 == 0) {
+            if (egl_attribWork.get(i) == EGL10.EGL_RED_SIZE || egl_attribWork.get(i) == EGL10.EGL_GREEN_SIZE ||
+                  egl_attribWork.get(i) == EGL10.EGL_BLUE_SIZE) {
+               color_size_specified = true;
             }
          }
+      }
 
-         egl_attribs = new int[egl_attribWork.size()+1];
-         for (int i = 0; i < egl_attribWork.size(); i++) {
-            egl_attribs[i] = egl_attribWork.get(i);
-         }
-         egl_attribs[egl_attribWork.size()] = EGL10.EGL_NONE;
-         
-         int[] num = new int[1];
-         egl.eglChooseConfig(egl_Display, egl_attribs, egl_Config, 1, num);
-         if (num[0] < 1) {
-            Log.e("AllegroSurface", "No matching config");
-            return 0;
-         }
+      egl_attribs = new int[egl_attribWork.size()+1];
+      for (int i = 0; i < egl_attribWork.size(); i++) {
+         egl_attribs[i] = egl_attribWork.get(i);
+      }
+      egl_attribs[egl_attribWork.size()] = EGL10.EGL_NONE;
+      
+      int[] num = new int[1];
+      boolean retval = egl.eglChooseConfig(egl_Display, egl_attribs, egl_Config, 1, num);
+      if (retval == false || num[0] < 1) {
+         Log.e("AllegroSurface", "No matching config");
+         return 0;
       }
 
       EGLContext ctx = egl.eglCreateContext(egl_Display, egl_Config[0], EGL10.EGL_NO_CONTEXT, es2_attrib);
       if (ctx == EGL10.EGL_NO_CONTEXT) {
-         checkEglError("AllegroSurface", egl);
+         checkEglError("eglCreateContext", egl);
          Log.d("AllegroSurface", "egl_createContext no context");
          return 0;
       }
@@ -1180,7 +1400,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       EGL10 egl = (EGL10)EGLContext.getEGL();
       EGLSurface surface = egl.eglCreateWindowSurface(egl_Display, egl_Config[0], this, null);
       if(surface == EGL10.EGL_NO_SURFACE) {
-         Log.d("AllegroSurface", "egl_createSurface can't create surface");
+         Log.d("AllegroSurface", "egl_createSurface can't create surface (" +  egl.eglGetError() + ")");
          return false;
       }
       
@@ -1227,43 +1447,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
       //   egl.eglTerminate(egl_Display);
       //   egl_Display = null;
          Log.d("AllegroSurface", "can't make thread current: ");
-         
-         switch(egl.eglGetError()) {
-            case EGL10.EGL_BAD_DISPLAY:
-               Log.d("AllegroSurface", "Bad Display");
-               break;
-            case EGL10.EGL_NOT_INITIALIZED:
-               Log.d("AllegroSurface", "Not Initialized");
-               break;
-            case EGL10.EGL_BAD_SURFACE:
-               Log.d("AllegroSurface", "Bad Surface");
-               break;
-            case EGL10.EGL_BAD_CONTEXT:
-               Log.d("AllegroSurface", "Bad Context");
-               break;
-            case EGL10.EGL_BAD_MATCH:
-               Log.d("AllegroSurface", "Bad Match");
-               break;
-            case EGL10.EGL_BAD_ACCESS:
-               Log.d("AllegroSurface", "Bad Access");
-               break;
-            case EGL10.EGL_BAD_NATIVE_PIXMAP:
-               Log.d("AllegroSurface", "Bad Native Pixmap");
-               break;
-            case EGL10.EGL_BAD_NATIVE_WINDOW:
-               Log.d("AllegroSurface", "Bad Native Window");
-               break;
-            case EGL10.EGL_BAD_CURRENT_SURFACE:
-               Log.d("AllegroSurface", "Bad Current Surface");
-               break;
-            case EGL10.EGL_BAD_ALLOC:
-               Log.d("AllegroSurface", "Bad Alloc");
-               break;
-            
-            default:
-               Log.d("AllegroSurface", "unknown error");
-         }
-         
+         checkEglError("eglMakeCurrent", egl);
          return;
       }  
    }
@@ -1282,34 +1466,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                   //egl.eglWaitGL();
                   
                   egl.eglSwapBuffers(egl_Display, egl_Surface);
-                  switch(egl.eglGetError()) {
-                     case EGL10.EGL_SUCCESS:
-                        break; // things are ok
-                     
-                     case EGL10.EGL_BAD_DISPLAY:
-                        Log.e("AllegroSurface", "SwapBuffers: Bad Display");
-                        break;
-                        
-                     case EGL10.EGL_NOT_INITIALIZED:
-                        Log.e("AllegroSurface", "SwapBuffers: display not initialized");
-                        break;
-                        
-                     case EGL10.EGL_BAD_SURFACE:
-                        Log.e("AllegroSurface", "SwapBuffers: Bad Surface: " + egl_Surface + " " + (egl_Surface == EGL10.EGL_NO_SURFACE));
-                        break;
-                        
-                     case EGL11.EGL_CONTEXT_LOST:
-                        Log.e("AllegroSurface", "SwapBuffers: Context Lost");
-                        break;
-                        
-                     case EGL10.EGL_BAD_NATIVE_WINDOW:
-                        Log.d("AllegroSurface", "SwapBuffers: Bad native window");
-                        break;
-                        
-                     default:
-                        Log.d("AllegroSurface", "Unhandled SwapBuffers Error");
-                        break;
-                  }
+                  checkEglError("eglSwapBuffers", egl);
                   
                } catch(Exception x) {
                   Log.d("AllegroSurface", "inner exception: " + x.getMessage());
@@ -1322,14 +1479,16 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    }
    
    /** main handlers */
-   
-   public AllegroSurface(Context context)
+
+   public AllegroSurface(Context context, Display display)
    {
       super(context);
 
       this.context = context;
 
-        
+      Log.d("AllegroSurface", "PixelFormat=" + display.getPixelFormat());
+      getHolder().setFormat(display.getPixelFormat());
+
       Log.d("AllegroSurface", "ctor");
 
       getHolder().addCallback(this); 
@@ -1360,7 +1519,10 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
    {
       Log.d("AllegroSurface", "surfaceDestroyed");
 
-      nativeOnDestroy();
+      if (!nativeOnDestroy()) {
+         Log.d("AllegroSurface", "No surface created, returning early");
+         return;
+      }
 
       egl_makeCurrent();
       
@@ -1376,7 +1538,7 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
 
    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
    {
-      Log.d("AllegroSurface", "surfaceChanged");
+      Log.d("AllegroSurface", "surfaceChanged (width=" + width + " height=" + height + ")");
       nativeOnChange(0xdeadbeef, width, height);
       Log.d("AllegroSurface", "surfaceChanged end");
    }
@@ -1489,7 +1651,13 @@ class AllegroSurface extends SurfaceView implements SurfaceHolder.Callback,
                return true;
             }
          }
-         nativeOnKeyDown(keyMap[keyCode]);
+         if (event.getRepeatCount() == 0) {
+            nativeOnKeyDown(keyMap[keyCode]);
+            nativeOnKeyChar(keyMap[keyCode]);
+         }
+         else {
+            nativeOnKeyChar(keyMap[keyCode]);
+         }
          return true;
       }
       else if (event.getAction() == KeyEvent.ACTION_UP) {
