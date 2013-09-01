@@ -296,11 +296,11 @@ Token * Token::getToken( unsigned int n ) const {
  * Otherwise, the name is this token's name
  */
 const string & Token::getName() const {
-	if ( numTokens() != -1 ){
-		return tokens[0]->_getName();
-	}
-	// cout<<"No tokens!!"<<endl;
-	return name;
+    if (numTokens() != -1){
+        return tokens[0]->_getName();
+    }
+    // cout<<"No tokens!!"<<endl;
+    return name;
 }
 
 const Token * Token::getParent() const {
