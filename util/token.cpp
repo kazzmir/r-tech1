@@ -603,6 +603,7 @@ tokens(tokens){
 
 TokenView::TokenView(const TokenView & view):
 tokens(view.tokens){
+    /* FIXME: should this start at the same place the view.current is at? */
     current = this->tokens.begin();
     if (current != this->tokens.end()){
         current++;
