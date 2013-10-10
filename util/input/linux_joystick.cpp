@@ -51,8 +51,8 @@ static int read_joystick(){
     for (int num = 0; num < 100; num++){
         ostringstream name;
         name << "/dev/input/js" << num;
-        const char * cname = name.str().c_str();
-        int fd = open(cname, O_RDONLY);
+        string raw = name.str();
+        int fd = open(raw.c_str(), O_RDONLY);
         if (fd >= 0){
             return fd;
         }

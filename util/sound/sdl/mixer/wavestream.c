@@ -331,6 +331,7 @@ static SDL_RWops *LoadWAVStream (SDL_RWops *src, SDL_AudioSpec *spec,
 	format = (WaveFMT *)chunk.data;
 	if ( chunk.magic != FMT ) {
 		free(chunk.data);
+                format = NULL;
 		Mix_SetError("Complex WAVE files not supported");
 		was_error = 1;
 		goto done;

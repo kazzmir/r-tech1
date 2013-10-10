@@ -629,10 +629,13 @@ Mix_Chunk *Mix_LoadWAV_RW(SDL_RWops *src, int freesrc)
 	chunk->abuf = wavecvt.buf;
 	chunk->alen = wavecvt.len_cvt;
 #endif
-        convertAudio(&wavespec, &mixer, chunk);
-	chunk->allocated = 1;
-	chunk->volume = MIX_MAX_VOLUME;
-	return(chunk);
+        if (!convertAudio(&wavespec, &mixer, chunk)){
+            chunk->allocated = 1;
+            chunk->volume = MIX_MAX_VOLUME;
+            return(chunk);
+        } else {
+            return NULL;
+        }
 }
 
 /* Load a wave file of the mixer format from a memory buffer */
