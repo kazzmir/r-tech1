@@ -48,11 +48,11 @@ int convertFormat(SDL_AudioSpec * wav, int format, Mix_Chunk * chunk){
     return 0;
 }
 
-extern "C" void convertAudio(SDL_AudioSpec * wav, SDL_AudioSpec * mixer, Mix_Chunk *chunk){
+extern "C" int convertAudio(SDL_AudioSpec * wav, SDL_AudioSpec * mixer, Mix_Chunk *chunk){
     // printf("Convert format %d, channels %d, frequency %d to format %d, channels %d, frequency %d\n", wav->format, wav->channels, wav->freq, mixer->format, mixer->channels, mixer->freq);
     if (convertFormat(wav, mixer->format, chunk)){
         printf("Could not convert format!\n");
-        return;
+        return 1;
     }
 
     // printf("Mixer format %d to encoding %d\n", mixer->format, encoding(mixer->format));
@@ -67,4 +67,6 @@ extern "C" void convertAudio(SDL_AudioSpec * wav, SDL_AudioSpec * mixer, Mix_Chu
     
     chunk->abuf = data;
     chunk->alen = size;
+
+    return 0;
 }
