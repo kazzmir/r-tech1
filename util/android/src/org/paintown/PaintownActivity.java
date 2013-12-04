@@ -1,5 +1,6 @@
 package org.paintown;
 
+/*
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,14 +44,15 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileOutputStream;
 
+/*
 import java.nio.ByteBuffer;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.*;
-
-import org.liballeg.app.AllegroActivity;
 import android.media.AudioManager;
+*/
+
+import org.liballeg.android.AllegroActivity;
 
 public class PaintownActivity extends AllegroActivity {
     static void loadAllegroLibraries(String suffix){
@@ -84,9 +86,10 @@ public class PaintownActivity extends AllegroActivity {
     static {
       System.loadLibrary("OpenSLES");
       loadAllegro();
-      System.loadLibrary("paintown");
+      // System.loadLibrary("paintown");
    }
 
    public PaintownActivity(){
+       super("libpaintown.so");
    }
 }
