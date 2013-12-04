@@ -4,13 +4,14 @@ adb=/opt/android-sdk/platform-tools/adb
 run='am start -a android.intent.action.MAIN -n org.paintown/org.paintown.PaintownActivity'
 
 build_paintown(){
-  (cd ../../..; android=1 make)
+  #(cd ../../..; android=1 make)
   #echo skip
   echo 0
 }
 
 build_apk(){
-  ant debug
+  # ant debug
+  echo 0
 }
 
 install_apk(){
