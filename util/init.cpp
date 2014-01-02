@@ -57,6 +57,8 @@
 #include <fat.h>
 #endif
 
+#include "xenon/xenon.h"
+
 using namespace std;
 
 volatile int Global::speed_counter4 = 0;
@@ -78,9 +80,9 @@ double Global::ticksPerSecond(int ticks){
 }
     
 static volatile bool run_timer;
-Util::Thread::Lock run_timer_lock;
-Util::ThreadBoolean run_timer_guard(run_timer, run_timer_lock);
-vector<Util::Thread::Id> running_timers;
+static Util::Thread::Lock run_timer_lock;
+static Util::ThreadBoolean run_timer_guard(run_timer, run_timer_lock);
+static vector<Util::Thread::Id> running_timers;
 
 #ifdef USE_ALLEGRO
 const int Global::WINDOWED = GFX_AUTODETECT_WINDOWED;
@@ -539,42 +541,6 @@ static void maybeSetWorkingDirectory(){
     }
 #endif
 }
-
-/* All xenon stuff goes here */
-#ifdef XENON
-
-#ifdef DEBUG
-#include <network/network.h>
-#include <threads/gdb.h>
-#endif
-
-#include <threads/threads.h>
-#include <xenos/xenos.h>
-#include <diskio/ata.h>
-#include <libfat/fat.h>
-#include <xenon_sound/sound.h>
-#include <console/console.h>
-#include <xenon_soc/xenon_power.h>
-#include <usb/usbmain.h>
-
-static void xenon_init(){
-    xenos_init(VIDEO_MODE_AUTO);
-    console_init();
-    xenon_make_it_faster(XENON_SPEED_FULL);
-    usb_init();
-    usb_do_poll();
-    xenon_ata_init();
-    xenon_atapi_init();
-    fatInitDefault();
-    xenon_sound_init();
-    threading_init();
-
-#ifdef DEBUG
-    network_init();
-    gdb_init();
-#endif
-}
-#endif
 
 bool Global::init(int gfx){
     /* Can xenon_init be moved lower? Probably.. */
