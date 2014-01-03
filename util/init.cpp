@@ -32,6 +32,7 @@
 #include "network/network.h"
 #include "thread.h"
 #include <time.h>
+#include "system/timer.h"
 
 #include <ostream>
 #include "sound/dumb/include/dumb.h"
@@ -79,11 +80,6 @@ double Global::ticksPerSecond(int ticks){
     return (double) ticks / (double) TICS_PER_SECOND;
 }
     
-static volatile bool run_timer;
-static Util::Thread::Lock run_timer_lock;
-static Util::ThreadBoolean run_timer_guard(run_timer, run_timer_lock);
-static vector<Util::Thread::Id> running_timers;
-
 #ifdef USE_ALLEGRO
 const int Global::WINDOWED = GFX_AUTODETECT_WINDOWED;
 const int Global::FULLSCREEN = GFX_AUTODETECT_FULLSCREEN;
@@ -91,25 +87,6 @@ const int Global::FULLSCREEN = GFX_AUTODETECT_FULLSCREEN;
 /* FIXME: use enums here or something */
 const int Global::WINDOWED = 0;
 const int Global::FULLSCREEN = 1;
-#endif
-
-/* game counter, controls FPS */
-static void inc_speed_counter(){
-    /* probably put input polling here, InputManager::poll(). no, don't do that.
-     * polling is done in the standardLoop now.
-     */
-    Global::speed_counter4 += 1;
-}
-#ifdef USE_ALLEGRO
-END_OF_FUNCTION(inc_speed_counter)
-#endif
-
-/* if you need to count seconds for some reason.. */
-static void inc_second_counter() {
-    Global::second_counter += 1;
-}
-#ifdef USE_ALLEGRO
-END_OF_FUNCTION(inc_second_counter)
 #endif
 
 #if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS) && !defined(NACL) && !defined(XENON) && !defined(UCLIBC)
@@ -204,53 +181,6 @@ END_OF_FUNCTION(close_window)
 #endif
 
 #ifdef USE_ALLEGRO5
-struct TimerInfo{
-    TimerInfo(void (*x)(), ALLEGRO_TIMER * y):
-        tick(x), timer(y){}
-
-    void (*tick)();
-    ALLEGRO_TIMER * timer;
-};
-
-static void * do_timer(void * info){
-    TimerInfo * timerInfo = (TimerInfo*) info;
-
-    ALLEGRO_EVENT_SOURCE * source = al_get_timer_event_source(timerInfo->timer);
-    ALLEGRO_EVENT_QUEUE * queue = al_create_event_queue();
-    al_register_event_source(queue, source);
-    while (run_timer_guard.get()){
-        ALLEGRO_EVENT event;
-        /* Wait a maximum of 50ms in case we need to restart the timers */
-        if (al_wait_for_event_timed(queue, &event, 0.05)){
-            timerInfo->tick();
-        }
-    }
-
-    al_destroy_event_queue(queue);
-    al_destroy_timer(timerInfo->timer);
-
-    delete timerInfo;
-    return NULL;
-}
-
-static Util::Thread::Id start_timer(void (*func)(), int frequency){
-    ALLEGRO_TIMER * timer = al_create_timer(ALLEGRO_BPS_TO_SECS(frequency));
-    if (timer == NULL){
-        Global::debug(0) << "Could not create timer" << endl;
-    }
-    al_start_timer(timer);
-    TimerInfo * info = new TimerInfo(func, timer);
-    Util::Thread::Id thread;
-    Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) do_timer, (void*) info);
-    return thread;
-}
-
-static void startTimers(){
-    run_timer_guard.set(true);
-    running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
-    running_timers.push_back(start_timer(inc_second_counter, 1));
-}
-
 static void initSystem(Global::stream_type & out){
     out << "Allegro5 initialize " << (al_init() ? "Ok" : "Failed") << endl;
     uint32_t version = al_get_allegro_version();
@@ -268,11 +198,6 @@ static void initSystem(Global::stream_type & out){
 #endif
 
 #ifdef USE_ALLEGRO
-static void startTimers(){
-    install_int_ex(inc_speed_counter, BPS_TO_TIMER(Global::TICS_PER_SECOND));
-    install_int_ex(inc_second_counter, BPS_TO_TIMER(1));
-}
-
 static void initSystem(Global::stream_type & out){
     out << "Allegro version: " << ALLEGRO_VERSION_STR << endl;
     out << "Allegro init: " <<allegro_init()<<endl;
@@ -303,89 +228,8 @@ static void initSystem(Global::stream_type & out){
 }
 
 #endif
+
 #ifdef USE_SDL
-    
-// static pthread_t events;
-
-struct TimerInfo{
-    TimerInfo(void (*x)(), int y):
-        tick(x), frequency(y){}
-
-    void (*tick)();
-    int frequency;
-};
-
-static void * do_timer(void * arg){
-    TimerInfo info = *(TimerInfo *) arg;
-    uint32_t delay = (uint32_t)(1000.0 / (double) info.frequency);
-
-    /* assuming SDL_GetTicks() starts at 0, this should last for about 50 days
-     * before overflowing. overflow should work out fine. Assuming activate occurs
-     * when the difference between now and ticks is at least 6, the following will happen.
-     * ticks      now        now-ticks
-     * 4294967294 4294967294 0
-     * 4294967294 4294967295 1
-     * 4294967294 0          2
-     * 4294967294 1          3
-     * 4294967294 2          4
-     * 4294967294 3          5
-     * 4294967294 4          6
-     * Activate
-     * 3          5          2
-     * 3          6          3
-     * 3          7          4
-     * 3          8          5
-     * 3          9          6
-     * Activate
-     *
-     * Can 'now' ever be much larger than 'ticks' due to overflow?
-     * It doesn't seem like it.
-     */
-    uint32_t ticks = SDL_GetTicks();
-
-    while (run_timer_guard.get()){
-        uint32_t now = SDL_GetTicks();
-        while (now - ticks >= delay){
-            // Global::debug(0) << "Tick!" << endl;
-            info.tick();
-            ticks += delay;
-        }
-        SDL_Delay(1);
-    }
-
-    delete (TimerInfo *) arg;
-
-    return NULL;
-}
-
-static Util::Thread::Id start_timer(void (*func)(), int frequency){
-    TimerInfo * speed = new TimerInfo(func, frequency);
-	/*
-    speed.tick = func;
-    speed.frequency = frequency;
-*/
-    Util::Thread::Id thread;
-    Util::Thread::createThread(&thread, NULL, (Util::Thread::ThreadFunction) do_timer, (void*) speed);
-    return thread;
-}
-
-/*
-static void doSDLQuit(){
-    SDL_Event quit;
-    quit.type = SDL_QUIT;
-    SDL_PushEvent(&quit);
-    Global::debug(0) << "Waiting for SDL event handler to finish" << endl;
-    pthread_join(events, NULL);
-    SDL_Quit();
-}
-*/
-
-static void startTimers(){
-    run_timer_guard.set(true);
-    running_timers.push_back(start_timer(inc_speed_counter, Global::TICS_PER_SECOND));
-    running_timers.push_back(start_timer(inc_second_counter, 1));
-}
-    
 static void initSystem(Global::stream_type & out){
 #ifdef ANDROID
     /* opengles2 is the default renderer but it doesn't work */
@@ -496,19 +340,6 @@ bool Global::initNoGraphics(){
     out << "-- END init --" << endl;
 
     return true;
-}
-
-static void closeTimers(){
-    run_timer_guard.set(false);
-    for (vector<Util::Thread::Id>::iterator it = running_timers.begin(); it != running_timers.end(); it++){
-        Util::Thread::Id timer = *it;
-        Util::Thread::joinThread(timer);
-    }
-    running_timers.clear();
-}
-
-void Global::close(){
-    closeTimers();
 }
 
 #ifdef PS3
@@ -622,10 +453,10 @@ bool Global::init(int gfx){
     Util::Thread::initializeLock(&MessageQueue::messageLock);
     Resource::initialize();
 
-    Util::Thread::initializeLock(&run_timer_lock);
-    run_timer = true;
+    Util::Thread::initializeLock(&System::run_timer_lock);
+    System::run_timer = true;
     Global::TICS_PER_SECOND = Configuration::getFps();
-    startTimers();
+    System::startTimers();
 
     out << "-- END init --" << endl;
 
@@ -670,8 +501,11 @@ void Global::setTicksPerSecond(int ticks){
     }
     if (ticks != TICS_PER_SECOND){
         TICS_PER_SECOND = ticks;
-        closeTimers();
-        startTimers();
+        System::closeTimers();
+        System::startTimers();
     }
 }
 
+void Global::close(){
+    System::closeTimers();
+}
