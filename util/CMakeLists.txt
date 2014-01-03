@@ -94,7 +94,11 @@ sound/sound.cpp
 sound/audio.cpp
 sound/music-player.cpp
 sound/music-renderer.cpp
-sound/music.cpp)
+sound/music.cpp
+../system/timer.cpp
+../system/sdl/timer.cpp
+../system/allegro/timer.cpp
+../system/allegro5/timer.cpp)
 
 # -------------------------------------------------------
 # Include directory
