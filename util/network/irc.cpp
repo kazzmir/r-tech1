@@ -443,8 +443,6 @@ void Client::sendCommand(const Command::Type & type, const std::string & param1,
 void Client::setName(const std::string & name){
     previousUsername = username;
     // Update channel list
-    //channel.removeUser(username);
-    //channel.addUser(name);
     for (std::vector< ChannelPointer >::iterator i = activeChannels.begin(); i != activeChannels.end(); ++i){
         ChannelPointer activeChannel = *i;
         activeChannel->removeUser(username);
@@ -464,9 +462,6 @@ void Client::joinChannel(const std::string & chan){
     }
     previousActiveChannel = currentChannel;
     ChannelPointer newChannel = ChannelPointer(new Channel(chan));
-    /*if (!currentChannel.getName().empty()){
-        sendCommand(Command::Part, currentChannel.getName());
-    }*/
     activeChannels.push_back(newChannel);
     currentChannel = activeChannels.size()-1;
     sendCommand(Command::Join, getChannel()->getName());
@@ -581,7 +576,6 @@ std::string Client::readMessage(){
             throw ex;
         }
     }
-    //Global::debug(0) << "Read next string: " << received << std::endl;
     return received;
 }
 
@@ -614,15 +608,13 @@ void Client::checkResponseAndHandle(const Command & command){
     } else if (command.getType() == Command::ReplyNames){
         // Add names
         const std::vector<std::string> & params = command.getParameters();
-        //if (params.at(1) == currentChannel->getName()){
-            const std::vector<std::string> & names = split(params.at(2), ' ');
-            ::Util::Thread::ScopedLock scope(lock);
-            //currentChannel->addUsers(names);
-            ChannelPointer update = findChannel(params.at(1));
-            if (update != NULL){
-                update->addUsers(names);
-            }
-        //}
+        const std::vector<std::string> & names = split(params.at(2), ' ');
+        ::Util::Thread::ScopedLock scope(lock);
+        
+        ChannelPointer update = findChannel(params.at(1));
+        if (update != NULL){
+            update->addUsers(names);
+        }
     } else if (command.getType() == Command::Nick){
         const std::vector<std::string> & params = command.getParameters();
         ::Util::Thread::ScopedLock scope(lock);
