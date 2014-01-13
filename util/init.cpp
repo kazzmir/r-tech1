@@ -5,11 +5,13 @@
 #endif
 #endif
 
+/*
 #ifdef USE_ALLEGRO5
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #endif
+*/
 
 #ifdef USE_SDL
 #include <SDL.h>
@@ -28,6 +30,7 @@
 /* don't be a boring tuna */
 // #warning you are ugly
 
+#include "system/init.h"
 #include "init.h"
 #include "network/network.h"
 #include "thread.h"
@@ -36,11 +39,15 @@
 
 #include <ostream>
 #include "sound/dumb/include/dumb.h"
+
+/*
 #ifdef USE_ALLEGRO
 #include "sound/dumb/include/aldumb.h"
 #include "graphics/allegro/loadpng/loadpng.h"
 #include "graphics/allegro/gif/algif.h"
 #endif
+*/
+
 #include "graphics/bitmap.h"
 #include "funcs.h"
 #include "file-system.h"
@@ -155,125 +162,6 @@ static void registerSignals(){
 #endif
 }
 
-/* should probably call the janitor here or something */
-static void close_paintown(){
-    Music::pause();
-    Graphics::setGfxModeText();
-#ifdef USE_ALLEGRO
-    allegro_exit();
-#endif
-    exit(0);
-}
-
-static void close_window(){
-    /* when do_shutdown is 1 the game will attempt to throw ShutdownException
-     * wherever it is. If the game is stuck or the code doesn't throw
-     * ShutdownException then when the user tries to close the window
-     * twice we just forcifully shutdown.
-     */
-    Util::do_shutdown += 1;
-    if (Util::do_shutdown == 2){
-        close_paintown();
-    }
-}
-#ifdef USE_ALLEGRO
-END_OF_FUNCTION(close_window)
-#endif
-
-#ifdef USE_ALLEGRO5
-static void initSystem(Global::stream_type & out){
-    out << "Allegro5 initialize " << (al_init() ? "Ok" : "Failed") << endl;
-    uint32_t version = al_get_allegro_version();
-    int major = version >> 24;
-    int minor = (version >> 16) & 255;
-    int revision = (version >> 8) & 255;
-    int release = version & 255;
-    out << "Allegro5 version " << major << "." << minor << "." << revision << "." << release << endl;
-    out << "Init image: " << (al_init_image_addon() ? "Ok" : "Failed") << endl;
-    out << "Init primitives " << (al_init_primitives_addon() ? "Ok" : "Failed") << endl;
-    out << "Init keyboard " << (al_install_keyboard() ? "Ok" : "Failed") << endl;
-    out << "Init joystick " << (al_install_joystick() ? "Ok" : "Failed") << endl;
-    al_set_app_name("Paintown");
-}
-#endif
-
-#ifdef USE_ALLEGRO
-static void initSystem(Global::stream_type & out){
-    out << "Allegro version: " << ALLEGRO_VERSION_STR << endl;
-    out << "Allegro init: " <<allegro_init()<<endl;
-    out << "Install timer: " <<install_timer()<<endl;
-
-    /* png */
-    loadpng_init();
-    algif_init();
-
-    out<<"Install keyboard: "<<install_keyboard()<<endl;
-    /* do we need the mouse?? */
-    // out<<"Install mouse: "<<install_mouse()<<endl;
-    out<<"Install joystick: "<<install_joystick(JOY_TYPE_AUTODETECT)<<endl;
-    /* 16 bit color depth */
-    set_color_depth(16);
-
-    LOCK_VARIABLE( speed_counter4 );
-    LOCK_VARIABLE( second_counter );
-    LOCK_FUNCTION( (void *)inc_speed_counter );
-    LOCK_FUNCTION( (void *)inc_second_counter );
-    
-    /* keep running in the background */
-    set_display_switch_mode(SWITCH_BACKGROUND);
-
-    /* close window when the X is pressed */
-    LOCK_FUNCTION(close_window);
-    set_close_button_callback(close_window);
-}
-
-#endif
-
-#ifdef USE_SDL
-static void initSystem(Global::stream_type & out){
-#ifdef ANDROID
-    /* opengles2 is the default renderer but it doesn't work */
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles");
-#endif
-
-    out << "SDL Init: ";
-    int ok = SDL_Init(SDL_INIT_VIDEO |
-                      SDL_INIT_AUDIO |
-                      SDL_INIT_TIMER |
-                      SDL_INIT_JOYSTICK |
-                      SDL_INIT_NOPARACHUTE);
-    if (ok == 0){
-        out << "Ok" << endl;
-    } else {
-	out << "Failed (" << ok << ") - " << SDL_GetError() << endl;
-	exit(ok);
-    }
-
-    /* Just do SDL thread init
-#ifdef MINPSPW
-    pthread_init();
-#endif
-*/
-
-    try{
-        SDL_Surface * icon = SDL_LoadBMP(Storage::instance().find(Filesystem::RelativePath("menu/icon.bmp")).path().c_str());
-        if (icon != NULL){
-            SDL_WM_SetIcon(icon, NULL);
-        }
-    } catch (const Filesystem::NotFound & failed){
-        Global::debug(0) << "Could not find window icon: " << failed.getTrace() << endl;
-    }
-
-    SDL_WM_SetCaption("Paintown", NULL);
-
-    SDL_EnableUNICODE(1);
-    SDL_JoystickEventState(1);
-
-    atexit(SDL_Quit);
-    // atexit(doSDLQuit);
-}
-#endif
-
 /* mostly used for testing purposes */
 bool Global::initNoGraphics(){
     /* copy/pasting the init code isn't ideal, maybe fix it later */
@@ -301,7 +189,7 @@ bool Global::initNoGraphics(){
     }
 
     /* do implementation specific setup */
-    initSystem(out);
+    System::initSystem(out);
 
     dumb_register_stdfiles();
     
@@ -402,7 +290,7 @@ bool Global::init(int gfx){
 
 #ifndef NACL
     /* do implementation specific setup */
-    initSystem(out);
+    System::initSystem(out);
 #endif
 
     dumb_register_stdfiles();
