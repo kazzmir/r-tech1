@@ -10,7 +10,7 @@ namespace xbr{
    
    Copyright (C) 2011, 2012 Hyllian/Jararaca - sergiogdb@gmail.com
 
-   Changed from GPL to GPL at Hyllians request on 4/6/2013.
+   Changed from GPL to LGPL at Hyllians request on 4/6/2013.
    On 04/06/2013 05:02 AM, paintown-message@paintown.sf.net wrote:
    > Hi, Kazzmir. It's Hyllian here, xBR author. I'd like to change xBR sources license to LGPL. If you wanna a confirmation, I can post it in byuu's forum.
 
