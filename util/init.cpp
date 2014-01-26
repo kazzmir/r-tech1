@@ -163,6 +163,7 @@ static void registerSignals(){
 }
 
 /* mostly used for testing purposes */
+#if 0
 bool Global::initNoGraphics(){
     /* copy/pasting the init code isn't ideal, maybe fix it later */
     Global::stream_type & out = Global::debug(0);
@@ -229,6 +230,7 @@ bool Global::initNoGraphics(){
 
     return true;
 }
+#endif
 
 #ifdef PS3
 extern "C" int SDL_JoystickInit();
@@ -261,7 +263,14 @@ static void maybeSetWorkingDirectory(){
 #endif
 }
 
-bool Global::init(int gfx){
+Global::InitConditions::InitConditions():
+graphics(Default),
+sound(true),
+fullscreen(false),
+networking(true){
+}
+
+bool Global::init(const InitConditions & conditions){
     /* Can xenon_init be moved lower? Probably.. */
 #ifdef XENON
     xenon_init();
@@ -290,12 +299,14 @@ bool Global::init(int gfx){
 
 #ifndef NACL
     /* do implementation specific setup */
-    System::initSystem(out);
+    System::initSystem(conditions, out);
 #endif
 
     dumb_register_stdfiles();
     
-    Sound::initialize();
+    if (conditions.sound){
+        Sound::initialize();
+    }
 
     // Filesystem::initialize();
 
@@ -305,21 +316,33 @@ bool Global::init(int gfx){
     */
 
     Configuration::loadConfigurations();
-    const int sx = Configuration::getScreenWidth();
-    const int sy = Configuration::getScreenHeight();
-    if (gfx == -1){
-        gfx = Configuration::getFullscreen() ? Global::FULLSCREEN : Global::WINDOWED;
-    } else {
-        Configuration::setFullscreen(gfx == Global::FULLSCREEN);
-    }
-    
-    /* set up the screen */
-    int gfxCode = Graphics::setGraphicsMode(gfx, sx, sy);
-    if (gfxCode == 0){
-        out << "Set graphics mode: Ok" << endl;
-    } else {
-        out << "Set graphics mode: Failed! (" << gfxCode << ")" << endl;
-        return false;
+
+    if (conditions.graphics != InitConditions::Disabled){
+        const int sx = Configuration::getScreenWidth();
+        const int sy = Configuration::getScreenHeight();
+        InitConditions::WindowMode gfx = conditions.graphics; 
+        if (conditions.graphics == InitConditions::Default){
+            gfx = Configuration::getFullscreen() ? InitConditions::Fullscreen : InitConditions::Window;
+        } else {
+            Configuration::setFullscreen(conditions.graphics == InitConditions::Fullscreen);
+        }
+
+        /* set up the screen */
+        int mode = WINDOWED;
+        switch (gfx){
+            case InitConditions::Disabled: break; /* won't happen */
+            case InitConditions::Default: break; /* already handled */
+            case InitConditions::Window: mode = WINDOWED; break;
+            case InitConditions::Fullscreen: mode = FULLSCREEN; break;
+        }
+
+        int gfxCode = Graphics::setGraphicsMode(mode, sx, sy);
+        if (gfxCode == 0){
+            out << "Set graphics mode: Ok" << endl;
+        } else {
+            out << "Set graphics mode: Failed! (" << gfxCode << ")" << endl;
+            return false;
+        }
     }
     
     /* music */
@@ -332,9 +355,11 @@ bool Global::init(int gfx){
     registerSignals();
 
 #ifdef HAVE_NETWORKING
-    out << "Initialize network" << endl;
-    Network::init();
-    atexit(Network::closeAll);
+    if (conditions.networking){
+        out << "Initialize network" << endl;
+        Network::init();
+        atexit(Network::closeAll);
+    }
 #endif
 
     /* this mutex is used to show the loading screen while the game loads */
@@ -355,6 +380,20 @@ bool Global::init(int gfx){
     font.printf(0, 0, Bitmap::makeColor(255, 255, 255), temp, "Loading", 0);
     temp.BlitToScreen(sx / 2, sy / 2);
     */
+
+#ifdef PS3
+    // ps3JoystickHack();
+#endif
+
+    return true;
+}
+
+/* Checks for the data path and blinks the screen a specific color based on its findings:
+ *   grey: still looking
+ *   red: failed
+ *   white: found it
+ */
+bool Global::dataCheck(){
     Graphics::Bitmap white(*Graphics::getScreenBuffer());
     /* for nacl which takes a while to run exists(), we just want
      * to show some progress
@@ -365,16 +404,15 @@ bool Global::init(int gfx){
         white.fill(Graphics::makeColor(255, 0, 0));
         white.BlitToScreen();
         Global::debug(0) << "Cannot find data path '" << Util::getDataPath2().path() << "'! Either use the -d switch to specify the data directory or find the data directory and move it to that path" << endl;
+        /* The program is probably going to exit immediately, so allow the user some time
+         * to see that the red screen occured.
+         */
         Util::restSeconds(1);
         return false;
     } else {
         white.fill(Graphics::makeColor(255, 255, 255));
         white.BlitToScreen();
     }
-
-#ifdef PS3
-    // ps3JoystickHack();
-#endif
 
     return true;
 }

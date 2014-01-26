@@ -20,10 +20,29 @@ namespace Global{
 
     extern bool rateLimit;
 
-    /* pass WINDOWED or FULLSCREEN in. FIXME: replace with an enum */
-    bool init(int gfx);
+    class InitConditions{
+    public:
+        InitConditions();
+
+        enum WindowMode{
+            Disabled,
+            Default,
+            Window,
+            Fullscreen
+        };
+
+        WindowMode graphics;
+        bool sound;
+        bool fullscreen;
+        bool networking;
+    };
+
+    bool init(const InitConditions & conditions);
     void close();
-    bool initNoGraphics();
+    // bool initNoGraphics();
+
+    /* Check for the data path */
+    bool dataCheck();
 
     /* Returns a consistent number of ticks per second regardless of what
      * TICS_PER_SECOND is.
