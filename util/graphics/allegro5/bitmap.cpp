@@ -1411,7 +1411,9 @@ void Bitmap::drawingMode(int type){
 
 void Bitmap::shutdown(){
     /* Make sure the display is set */
-    al_set_target_bitmap(Screen->getData()->getBitmap());
+    if (Screen != NULL){
+        al_set_target_bitmap(Screen->getData()->getBitmap());
+    }
     al_use_shader(NULL);
     for (std::vector<ALLEGRO_SHADER*>::iterator it = shaders.begin(); it != shaders.end(); it++){
         ALLEGRO_SHADER * shader = *it;
