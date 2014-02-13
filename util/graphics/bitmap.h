@@ -154,6 +154,7 @@ enum QualityFilter{
 
 QualityFilter qualityFilterName(const std::string & type);
 
+/* FIXME: try to move the shader stuff to shader.h */
 class Shader{
 public:
     Shader();
