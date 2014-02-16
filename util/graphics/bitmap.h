@@ -252,6 +252,10 @@ public:
 
 	virtual int getWidth() const;
 	virtual int getHeight() const;
+        /* true if this bitmap doesn't contain an image of any sort. if so, don't
+         * try to use this object!!
+         */
+        virtual bool isEmpty() const;
 
 	/*
 	inline const int getWidth() const{

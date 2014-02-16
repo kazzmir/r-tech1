@@ -169,6 +169,10 @@ double Bitmap::getScale(){
     return 1;
     */
 }
+        
+bool Bitmap::isEmpty() const {
+    return getWidth() == 0 || getHeight() == 0;
+}
 
 /* taken from the color addon from allegro 4.9 */
 static void al_color_cmyk_to_rgb(float cyan, float magenta, float yellow, float key, float *red, float *green, float *blue){
