@@ -258,7 +258,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
                          *   active = ! active
                          * to toggle it.
                          */
-                        active = true;
+                        active = ! active;
                     }
                 }
 
@@ -271,13 +271,17 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
         }
 
         void run(){
-            gradient.backward();
+            for (int i = 0; i < 3; i++){
+                gradient.backward();
+            }
             doInput();
-            state.drawInfo = active && (info.transferMessages(infobox) || state.drawInfo);
+            info.transferMessages(infobox);
+            // state.drawInfo = active && (info.transferMessages(infobox) || state.drawInfo);
+            state.drawInfo = active;
         }
 
         double ticks(double system){
-            return system * Global::ticksPerSecond(30);
+            return system * Global::ticksPerSecond(8);
         }
 
         bool done(){
@@ -292,14 +296,18 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
             gradient(gradient),
             state(state),
             infobox(infobox),
-            infoWork(*Graphics::screenParameter.current(), load_x, load_y + load_height * 2, infobox_width, infobox_height),
-            infoBackground(infobox_width, infobox_height),
             infobox_x(load_x),
             infobox_y(load_y + load_height * 2),
+            infobox_width(infobox_width),
+            infobox_height(infobox_height),
             load_x(load_x),
             load_y(load_y),
             load_width(load_width),
             load_height(load_height){
+
+            if (levelInfo.loadingBackground() != Filesystem::AbsolutePath("")){
+                background = Graphics::Bitmap(levelInfo.loadingBackground().path());
+            }
 
             const Font & myFont = Font::getDefaultFont(24, 24);
             pairs = generateFontPixels(myFont, levelInfo.loadingMessage(), load_width, load_height);
@@ -309,16 +317,20 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
         Effects::Gradient & gradient;
         State & state;
         Messages & infobox;
-        Graphics::Bitmap infoWork;
-        Graphics::Bitmap infoBackground;
+        Graphics::Bitmap background;
+        // Graphics::Bitmap infoWork;
+        // Graphics::Bitmap infoBackground;
         vector<ppair> pairs;
         const int infobox_x;
         const int infobox_y;
+        const int infobox_width;
+        const int infobox_height;
         const int load_x;
         const int load_y;
         const int load_width;
         const int load_height;
 
+        /*
         void drawFirst(const Graphics::Bitmap & screen){
             if (levelInfo.getBackground() != NULL){
                 setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
@@ -332,8 +344,22 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
                 setupBackground(background, load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
             }
         }
+        */
+
+        void drawAuthorInfo(const Graphics::Bitmap & screen){
+            int startX = screen.getWidth() - Font::getDefaultFont().textLength("Paintown version 9.9.9.9");
+            int startY = screen.getHeight() - Font::getDefaultFont().getHeight() * 4;
+            int height = Font::getDefaultFont().getHeight();
+
+            Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), screen, "Paintown version %s", 0, Version::getVersionString().c_str());
+            Font::getDefaultFont().printf(startX, startY + height * 1, Graphics::makeColor(192, 192, 192), screen, "Made by Jon Rafkind", 0);
+            Font::getDefaultFont().printf(startX, startY + height * 2, Graphics::makeColor(192, 192, 192), screen, "http://paintown.org", 0);
+        }
 
         void draw(const Graphics::Bitmap & screen){
+            if (!background.isEmpty()){
+                background.draw(0, 0, screen);
+            }
             Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
             // work.lock();
             for (vector< ppair >::iterator it = pairs.begin(); it != pairs.end(); it++){
@@ -343,19 +369,22 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
             // work.unlock();
 
             if (state.drawInfo){
-                infoBackground.Blit(infoWork);
+                // infoBackground.Blit(infoWork);
 
                 const Font & infoFont = Font::getDefaultFont(24, 24);
                 /* cheesy hack to change the font size. the font
                  * should store the size and change it on its own
                  */
+                Graphics::Bitmap infoWork(screen, infobox_x, infobox_y, infobox_width, infobox_height);
                 Font::getDefaultFont(13, 13);
                 infobox.draw(0, 0, infoWork, infoFont);
                 Font::getDefaultFont(24, 24);
                 infoWork.BlitAreaToScreen(infobox_x, infobox_y);
                 // infoWork.BlitToScreen();
-                state.drawInfo = false;
+                // state.drawInfo = false;
             }
+
+            drawAuthorInfo(screen);
             /* work already contains the correct background */
             // work.Blit( load_x, load_y, *Bitmap::Screen );
             // work.BlitToScreen();
