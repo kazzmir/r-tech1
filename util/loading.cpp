@@ -358,7 +358,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
 
         void draw(const Graphics::Bitmap & screen){
             if (!background.isEmpty()){
-                background.draw(0, 0, screen);
+                background.drawStretched(screen);
             }
             Graphics::Bitmap work(screen, load_x, load_y, load_width, load_height);
             // work.lock();
