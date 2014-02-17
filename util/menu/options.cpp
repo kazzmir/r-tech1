@@ -707,7 +707,7 @@ public:
     
     void draw(const Graphics::Bitmap & buffer){
         /* FIXME: hard coded resolution */
-        Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+        Graphics::StretchedBitmap work(640, 480, buffer, Graphics::StretchedBitmap::NoClear, Graphics::qualityFilterName(Configuration::getQualityFilter()));
         work.fill(clearColor);
         work.start();
         //background.Blit(work);
@@ -2388,7 +2388,7 @@ public:
     
     void draw(const Graphics::Bitmap & buffer){
         const Font & font = Menu::menuFontParameter.current()->get();
-        Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+        Graphics::StretchedBitmap work(640, 480, buffer, Graphics::StretchedBitmap::NoClear, Graphics::qualityFilterName(Configuration::getQualityFilter()));
         work.start();
         context.renderBackground(work);
         
@@ -2751,7 +2751,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 }
     
                 void draw(const Graphics::Bitmap & buffer){
-                    Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+                    Graphics::StretchedBitmap work(640, 480, buffer, Graphics::StretchedBitmap::NoClear, Graphics::qualityFilterName(Configuration::getQualityFilter()));
                     work.start();
                     menu.render(context, work);
                     const Font & font = Menu::menuFontParameter.current()->get();
