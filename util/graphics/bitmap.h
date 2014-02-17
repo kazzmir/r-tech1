@@ -438,6 +438,9 @@ public:
 
         virtual void drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const;
 
+        /* Return a bitmap that has an aspect ratio the same as the given numbers */
+        virtual Bitmap aspectRatio(int aspectWidth, int aspectHeight) const;
+
         /* returned a scaled version of this bitmap of the given dimensions */
         virtual Bitmap scaleTo(const int width, const int height) const;
 
@@ -645,7 +648,19 @@ protected:
 
 class StretchedBitmap: public Bitmap {
 public:
-    StretchedBitmap(int width, int height, const Bitmap & where, QualityFilter filter = NoFilter);
+    /* How to initialize the bitmap */
+    enum Clear{
+        /* Don't do anything */
+        NoClear,
+        /* Clear (to black) */
+        FullClear,
+        /* Fill with the masking color for software rendering and
+         * do nothing for opengl
+         */
+        Mask
+    };
+
+    StretchedBitmap(int width, int height, const Bitmap & where, Clear = NoClear, QualityFilter filter = NoFilter);
     void finish();
     void start();
     virtual int getWidth() const;
@@ -661,6 +676,7 @@ protected:
     double scale_x, scale_y;
     const Bitmap & where;
     const QualityFilter filter;
+    const Clear clearKind;
     Bitmap scaleToFilter;
 };
 

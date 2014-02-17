@@ -441,6 +441,23 @@ void Bitmap::StretchXbr(const Bitmap & where) const {
     }
 }
 
+Bitmap Bitmap::aspectRatio(int aspectWidth, int aspectHeight) const {
+    double width = getWidth();
+    double height = getHeight();
+
+    double ratio = (double) aspectWidth / (double) aspectHeight;
+
+    width = (double) height * ratio;
+    if (width > getWidth()){
+        width = getWidth();
+        height = width / ratio;
+    }
+
+    int x = (getWidth() - width) / 2;
+    int y = (getHeight() - height) / 2;
+    return Bitmap(*this, x, y, (int) width, (int) height);
+}
+
 Color darken(Color color, double factor ){
     int r = (int)((double)getRed(color) / factor);
     int g = (int)((double)getGreen(color) / factor);

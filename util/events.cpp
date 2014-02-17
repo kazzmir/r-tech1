@@ -528,30 +528,13 @@ static void checkFullscreen(){
     }
 }
 
-static Graphics::Bitmap blackBars(const Graphics::Bitmap & screen){
-    double width = screen.getWidth();
-    double height = screen.getHeight();
-
-    double ratio = (double) 640 / (double) 480;
-
-    width = (double) height * ratio;
-    if (width > screen.getWidth()){
-        width = screen.getWidth();
-        height = width / ratio;
-    }
-
-    int x = (screen.getWidth() - width) / 2;
-    int y = (screen.getHeight() - height) / 2;
-    return Graphics::Bitmap(screen, x, y, (int) width, (int) height);
-}
-
 static void doStandardLoop(Logic & logic, Draw & draw){
     if (Graphics::screenParameter.current() == NULL){
         throw Exception::Base(__FILE__, __LINE__);
     }
     const Graphics::Bitmap & screen = *Graphics::screenParameter.current();
     screen.clear();
-    draw.drawFirst(blackBars(screen));
+    draw.drawFirst(screen.aspectRatio(640, 480));
     screen.BlitToScreen();
     Global::speed_counter4 = 0;
     double runCounter = 0;
@@ -599,7 +582,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     draw.updateFrames();
                     uint64_t now = System::currentMilliseconds();
                     screen.clear();
-                    draw.draw(blackBars(screen));
+                    draw.draw(screen.aspectRatio(640, 480));
                     screen.BlitToScreen();
                     uint64_t later = System::currentMilliseconds();
                     frameTime += (later - now);
@@ -619,7 +602,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                 } else {
                     draw.updateFrames();
                     screen.clear();
-                    draw.draw(blackBars(screen));
+                    draw.draw(screen.aspectRatio(640, 480));
                     screen.BlitToScreen();
                 }
             }

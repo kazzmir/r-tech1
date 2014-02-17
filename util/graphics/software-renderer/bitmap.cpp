@@ -158,12 +158,13 @@ static void closestMultipleSize(int width, int height, int toWidth, int toHeight
     }
 }
 
-StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent, QualityFilter filter):
+StretchedBitmap::StretchedBitmap(int width, int height, const Bitmap & parent, Clear clear, QualityFilter filter):
 Bitmap(1, 1),
 width(1),
 height(1),
 where(parent),
 filter(filter),
+clearKind(clear),
 scaleToFilter(1, 1){
     if (width == parent.getWidth() && height == parent.getHeight()){
         setData(parent.getData());
@@ -180,6 +181,12 @@ scaleToFilter(1, 1){
 
     this->width = width;
     this->height = height;
+
+    switch (clear){
+        case NoClear: break;
+        case FullClear: this->clear(); break;
+        case Mask: this->clearToMask(); break;
+    }
 }
 
 void StretchedBitmap::start(){
@@ -187,27 +194,32 @@ void StretchedBitmap::start(){
 
 void StretchedBitmap::finish(){
     if (getData() != where.getData()){
-        switch (filter){
-            case NoFilter: Stretch(where); break;
-            case HqxFilter: {
-                if (scaleToFilter.getWidth() > 1 &&
-                    scaleToFilter.getHeight() > 1){
-                    StretchHqx(scaleToFilter);
-                    scaleToFilter.Stretch(where);
-                } else {
-                    StretchHqx(where);
+        /* FIXME: make scalers understand the masking color. I kinf of doubt this is possible.. */
+        if (clearKind == Mask){
+            drawStretched(where);
+        } else {
+            switch (filter){
+                case NoFilter: Stretch(where); break;
+                case HqxFilter: {
+                    if (scaleToFilter.getWidth() > 1 &&
+                        scaleToFilter.getHeight() > 1){
+                        StretchHqx(scaleToFilter);
+                        scaleToFilter.Stretch(where);
+                    } else {
+                        StretchHqx(where);
+                    }
+                    break;
                 }
-                break;
-            }
-            case XbrFilter: {
-                if (scaleToFilter.getWidth() > 1 &&
-                    scaleToFilter.getHeight() > 1){
-                    StretchXbr(scaleToFilter);
-                    scaleToFilter.Stretch(where);
-                } else {
-                    StretchXbr(where);
+                case XbrFilter: {
+                    if (scaleToFilter.getWidth() > 1 &&
+                        scaleToFilter.getHeight() > 1){
+                        StretchXbr(scaleToFilter);
+                        scaleToFilter.Stretch(where);
+                    } else {
+                        StretchXbr(where);
+                    }
+                    break;
                 }
-                break;
             }
         }
     }

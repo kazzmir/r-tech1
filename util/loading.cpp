@@ -415,7 +415,7 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Info & levelIn
         int & angle;
 
         double ticks(double system){
-            return system / 2;
+            return system * Global::ticksPerSecond(10);
         }
 
         bool done(){
@@ -424,64 +424,67 @@ static void loadingScreenSimpleX1(LoadingContext & context, const Info & levelIn
 
         void run(){
             angle += speed * 2;
+            angle = angle % 360;
         }
     };
 
     class Draw: public Util::Draw {
     public:
         Draw(int & angle, const int speed):
-        original(40, 40),
         angle(angle),
         speed(speed){
-            original.BlitFromScreen(0, 0);
+            /*
+            if (levelInfo.loadingBackground() != Filesystem::AbsolutePath("")){
+                background = Graphics::Bitmap(levelInfo.loadingBackground().path());
+            }
+            */
 
-            color1 = Graphics::makeColor(0, 0, 0);
-            color2 = Graphics::makeColor(0x00, 0x99, 0xff);
-            color3 = Graphics::makeColor(0xff, 0x22, 0x33);
-            color4 = Graphics::makeColor(0x44, 0x77, 0x33);
-            colors[0] = color1;
-            colors[1] = color2;
-            colors[2] = color3;
-            colors[3] = color4;
+            colors[0] = Graphics::makeColor(0x18, 0x52, 0xa0);
+            colors[1] = Graphics::makeColor(0x00, 0x99, 0xff);
+            colors[2] = Graphics::makeColor(0xff, 0x22, 0x33);
+            colors[3] = Graphics::makeColor(0x44, 0x77, 0x33);
             Graphics::Bitmap::transBlender(0, 0, 0, 64);
         }
 
-        Graphics::Bitmap original;
+        Graphics::Bitmap background;
         int & angle;
         const int speed;
 
-        Graphics::Color color1;
-        Graphics::Color color2;
-        Graphics::Color color3;
-        Graphics::Color color4;
         /* the length of this array is the number of circles to show */
         Graphics::Color colors[4];
 
-        ~Draw(){
+        virtual ~Draw(){
         }
 
         void draw(const Graphics::Bitmap & screen){
+            if (!background.isEmpty()){
+                background.drawStretched(screen);
+            }
+
             Graphics::Bitmap work(screen, 0, 0, 40, 40);
-            int max = sizeof(colors) / sizeof(int);
+            int max = Util::array_size(colors);
             double middleX = work.getWidth() / 2;
             double middleY = work.getHeight() / 2;
-            original.Blit(work);
+            int size = 15;
+            int radius = 3;
             for (int i = 0; i < max; i++){
-                double x = cos(Util::radians(angle + 360 / max * i)) * 15;
-                double y = sin(Util::radians(angle + 360 / max * i)) * 15;
+                double new_angle = angle + 360.0 / (double) max * i;
+                int lag = 17;
+                double x = cos(Util::radians(new_angle - lag)) * size;
+                double y = sin(Util::radians(new_angle - lag)) * size;
                 /* ghost circle */
-                work.translucent().circleFill(middleX + x, middleY + y, 2, colors[i]);
-                x = cos(Util::radians(angle + speed + 360 / max * i)) * 15;
-                y = sin(Util::radians(angle + speed + 360 / max * i)) * 15;
+                work.translucent(0, 0, 0, 128).circleFill(middleX + x, middleY + y, radius, colors[i]);
+                x = cos(Util::radians(new_angle)) * size;
+                y = sin(Util::radians(new_angle)) * size;
                 /* real circle */
-                work.circleFill(middleX + x, middleY + y, 2, colors[i]);
+                work.circleFill(middleX + x, middleY + y, radius, colors[i]);
             }
             // work.BlitAreaToScreen(0, 0);
         }
     };
 
     int angle = 0;
-    int speed = 7;
+    int speed = 10;
     Logic logic(context, angle, speed);
     Draw draw(angle, speed);
     Util::standardLoop(logic, draw);

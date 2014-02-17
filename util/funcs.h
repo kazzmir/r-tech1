@@ -111,6 +111,8 @@ void showError(const Exception::Base & exception, const std::string & info);
 
 std::string join(const std::vector<std::string> & list, const std::string & middle);
 
+template <class T, size_t N> size_t array_size(T (&)[N]){ return N; }
+
 }
 
 #endif

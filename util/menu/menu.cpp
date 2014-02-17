@@ -1514,7 +1514,7 @@ void Menu::Menu::run(const Context & parentContext){
             Context & localContext;
 
             void draw(const Graphics::Bitmap & buffer){
-                Graphics::StretchedBitmap work(640, 480, buffer, Graphics::qualityFilterName(Configuration::getQualityFilter()));
+                Graphics::StretchedBitmap work(640, 480, buffer, Graphics::StretchedBitmap::NoClear, Graphics::qualityFilterName(Configuration::getQualityFilter()));
                 Util::Parameter<Util::ReferenceCount<FontInfo> > currentFont(menuFontParameter);
                 if (Configuration::hasMenuFont()){
                     currentFont.push(Configuration::getMenuFont());
