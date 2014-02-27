@@ -270,8 +270,8 @@
 #   include <dos.h>
 #   include <io.h>
 #   include <fcntl.h>
-#   include <sys\types.h>
-#   include <sys\stat.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
 #endif
 
 /*  These include files are for non-PC systems                               */

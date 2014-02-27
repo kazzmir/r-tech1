@@ -36,7 +36,7 @@ bool readable(const std::string & path){
 }
 
 void makeDirectory(const std::string & path){
-    _mkdir(path.c_str());
+    mkdir(path.c_str());
 }
 
 uint64_t currentMilliseconds(){
@@ -56,14 +56,12 @@ uint64_t getModificationTime(const std::string & path){
 }
 
 unsigned long memoryUsage(){
-    HANDLE id = GetCurrentProcess();
-    PROCESS_MEMORY_COUNTERS info;
-    BOOL okay = GetProcessMemoryInfo(id, &info, sizeof(info));
-    if (okay){
-        return info.WorkingSetSize;
-    }
-    return 0;
-}
+    /*
+    HANDLE id = GetCurrentProcess(); PROCESS_MEMORY_COUNTERS info; BOOL okay =
+    GetProcessMemoryInfo(id, &info, sizeof(info)); if (okay){ return
+    info.WorkingSetSize; }
+    */
+    return 0; }
 
 /* call startMemoryUsage once at the very beginning of the program */
 void startMemoryUsage(){
