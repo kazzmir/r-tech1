@@ -676,8 +676,8 @@ int SDLJoystick::getButton(Key key){
 }
     
 void SDLJoystick::pressButton(int button){
-    std::set<JoystickListener*> listeners = getListeners();
-    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+    const std::set<JoystickListener*> & listeners = getListeners();
+    for (std::set<JoystickListener*>::const_iterator it = listeners.begin(); it != listeners.end(); it++){
         (*it)->pressButton(this, button);
     }
 
@@ -691,8 +691,8 @@ void SDLJoystick::pressButton(int button){
 }
 
 void SDLJoystick::releaseButton(int button){
-    std::set<JoystickListener*> listeners = getListeners();
-    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+    const std::set<JoystickListener*> & listeners = getListeners();
+    for (std::set<JoystickListener*>::const_iterator it = listeners.begin(); it != listeners.end(); it++){
         (*it)->releaseButton(this, button);
     }
 
@@ -717,8 +717,8 @@ void SDLJoystick::hatMotion(int motion){
 }
 
 void SDLJoystick::axisMotion(int axis, int motion){
-    std::set<JoystickListener*> listeners = getListeners();
-    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+    const std::set<JoystickListener*> & listeners = getListeners();
+    for (std::set<JoystickListener*>::const_iterator it = listeners.begin(); it != listeners.end(); it++){
         /* Stick is always 0.
          * Motions should always fit inside a short, [-32767, 32767]
          */
