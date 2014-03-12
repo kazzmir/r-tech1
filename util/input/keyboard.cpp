@@ -399,6 +399,14 @@ std::vector<Keyboard::unicode_t> Keyboard::readText(){
     return out;
 }
     
+bool Keyboard::getRepeatState(){
+    if (repeatState.size() > 0){
+        return repeatState.back();
+    }
+
+    return true;
+}
+
 void Keyboard::pushRepeatState(bool enabled){
     if (enabled){
         enableKeyRepeat();
