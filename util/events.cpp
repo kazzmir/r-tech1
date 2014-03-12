@@ -287,7 +287,13 @@ void EventManager::runAllegro5(Keyboard & keyboard, const map<int, ReferenceCoun
             }
             case ALLEGRO_EVENT_KEY_CHAR : {
                 // Global::debug(0) << "Key char " << event.keyboard.keycode << " unicode " << event.keyboard.unichar << std::endl;
-                handleKeyDown(keyboard, event);
+                bool ok = true;
+                if (event.keyboard.repeat){
+                    ok = Keyboard::getRepeatState();
+                }
+                if (ok){
+                    handleKeyDown(keyboard, event);
+                }
                 break;
             }
             case ALLEGRO_EVENT_JOYSTICK_CONFIGURATION: {

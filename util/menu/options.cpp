@@ -1353,10 +1353,118 @@ void OptionKey::run(const Menu::Context & context){
     // Do dialog
     //Box::messageDialog(Menu::Menu::Width, Menu::Menu::Height, "Press a Key!",2);
 
+
+    class WaitForKey: public Util::Logic, public Util::Draw {
+    public:
+        WaitForKey(const Menu::Context & context):
+        font(Menu::menuFontParameter.current()->get()),
+        tempContext(context),
+        speed(30),
+        listener(*this),
+        quit(false),
+        out(Keyboard::Key_ESC){
+            tempContext.initialize();
+
+            // keyDialog.setFont(tempContext.getFont());
+            //keyDialog.location.set(-1,-1,1,1);
+            const int width = 320;
+            const int height = 240;
+            const int radius = 15;
+            keyDialog.setText("Press a Key!");
+            keyDialog.initialize(font);
+            keyDialog.location.setDimensions(font.textLength("Press a Key!") + radius, font.getHeight() + radius);
+            keyDialog.location.setCenterPosition(Gui::RelativePoint(0, 0));
+            // keyDialog.location.setPosition(Gui::AbsolutePoint((width/2)-(keyDialog.location.getWidth()/2), (height/2)-(keyDialog.location.getHeight()/2)));
+            // keyDialog.location.setPosition2(Gui::AbsolutePoint((
+            keyDialog.transforms.setRadius(radius);
+            keyDialog.colors.body = Graphics::makeColor(0,0,0);
+            keyDialog.colors.bodyAlpha = 180;
+            keyDialog.colors.border = Graphics::makeColor(255,255,255);
+            keyDialog.colors.borderAlpha = 255;
+            keyDialog.open();
+
+            Keyboard::pushRepeatState(false);
+            Keyboard::addListener(&listener);
+        }
+
+        virtual ~WaitForKey(){
+            Keyboard::removeListener(&listener);
+            Keyboard::popRepeatState();
+        }
+
+        class Listener: public KeyboardListener {
+        public:
+            Listener(WaitForKey & parent):
+            parent(parent){
+            }
+
+            WaitForKey & parent;
+
+            virtual void press(Keyboard * keyboard, Keyboard::KeyType key, Keyboard::unicode_t code){
+                parent.press(key);
+            }
+
+            virtual void release(Keyboard * keyboard, Keyboard::KeyType key){
+                parent.release(key);
+            }
+        };
+
+        const Font & font;
+        Menu::Context tempContext;
+        Menu::InfoBox keyDialog;
+        const int speed;
+        Listener listener;
+        bool quit;
+        Keyboard::KeyType out;
+
+        virtual void press(Keyboard::KeyType key){
+            quit = true;
+
+            if (key != Keyboard::Key_ESC){
+                this->out = key;
+            }
+        }
+
+        virtual void release(Keyboard::KeyType key){
+        }
+    
+        virtual void run(){
+            for (int i = 0; i < 90 / speed; i++){
+                tempContext.act();
+                keyDialog.act(font);
+            }
+        }
+    
+        virtual bool done(){
+            return quit;
+        }
+    
+        virtual double ticks(double system){
+            return system * Global::ticksPerSecond(speed);
+        }
+    
+        virtual void draw(const Graphics::Bitmap & screen){
+            Graphics::StretchedBitmap work(640, 480, screen);
+            work.start();
+            tempContext.render(Util::ReferenceCount<Menu::Renderer>(NULL), work);
+            keyDialog.render(work, font);
+            work.finish();
+        }
+    };
+
+    WaitForKey run(context);
+    Util::standardLoop(run, run);
+
+    Keyboard::KeyType key = run.out;
+    if (key != Keyboard::Key_ESC){
+        setKey(player, type, key);
+    }
+
     /*
     Keyboard key;
     key.wait();
     */
+    /*
     Graphics::Bitmap temp(Menu::Menu::Width, Menu::Menu::Height);
     // Menu::Context tempContext = context;
     Menu::Context tempContext(context);
@@ -1384,11 +1492,11 @@ void OptionKey::run(const Menu::Context & context){
     while (!InputManager::anyInput() && keyDialog.isActive()){
         InputManager::poll();
 	keyDialog.act(font);
-        /*
+        / *
 	if (keyDialog.isActive()){
             InputManager::poll();
 	}
-        */
+        * /
 	tempContext.act();
 	tempContext.render(Util::ReferenceCount<Menu::Renderer>(NULL), temp);
 	keyDialog.render(temp, font);
@@ -1398,6 +1506,7 @@ void OptionKey::run(const Menu::Context & context){
     keyCode = InputManager::readKey();
     setKey(player,type, keyCode);
     InputManager::waitForClear();
+    */
 }
 
 OptionLevel::OptionLevel(const Gui::ContextBox & parent, const Token *token, int * set, int value):

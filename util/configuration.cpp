@@ -384,7 +384,7 @@ void Configuration::setCustomAxis(Joystick::Key key, int config, const string & 
 void Configuration::setKey(int config, const string & name, int value){
     if (value != InvalidKey){
         ostringstream path;
-        path << config_configuration << "/" << config_input << "/" << config << "/keys/" << name;
+        path << config_configuration << "/" << config_input << "/" << INPUT_TYPE << "/" << config << "/keys/" << name;
         updateToken(getRawData(), path.str(), value);
         saveConfiguration();
     }
