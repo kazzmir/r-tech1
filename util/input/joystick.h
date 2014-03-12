@@ -144,7 +144,7 @@ protected:
     void readCustomAxes();
     void eraseCustomButton(Key key);
 
-    static std::set<JoystickListener*> getListeners();
+    static const std::set<JoystickListener*> & getListeners();
 
     static std::set<JoystickListener*> listeners;
     std::vector<Event> events;

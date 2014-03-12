@@ -9,6 +9,7 @@
 #endif
 
 std::vector<bool> Keyboard::repeatState;
+std::set<KeyboardListener*> Keyboard::listeners;
 bool Keyboard::isNumber( int key ){
 	return key == Key_0 ||
 	       key == Key_1 ||
@@ -329,6 +330,12 @@ void Keyboard::setAllDelay( const int delay ){
 }
     
 void Keyboard::press(KeyType key, unicode_t unicode){
+    std::set<KeyboardListener*> listeners = getListeners();
+    for (std::set<KeyboardListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->press(this, key, unicode);
+    }
+
+
     keyState[key].key = key;
     keyState[key].unicode = unicode;
     keyState[key].enabled = true;
@@ -345,6 +352,11 @@ void Keyboard::press(KeyType key, unicode_t unicode){
 }
 
 void Keyboard::release(KeyType key){
+    std::set<KeyboardListener*> listeners = getListeners();
+    for (std::set<KeyboardListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+        (*it)->release(this, key);
+    }
+
     keyState[key].enabled = false;
     buffer.push_back(keyState[key]);
     /*
@@ -420,6 +432,24 @@ bool Keyboard::haveKeyboard(){
     return false;
 #endif
     return true;
+}
+    
+KeyboardListener::KeyboardListener(){
+}
+
+KeyboardListener::~KeyboardListener(){
+}
+    
+void Keyboard::addListener(KeyboardListener * listener){
+    listeners.insert(listener);
+}
+
+void Keyboard::removeListener(KeyboardListener * listener){
+    listeners.erase(listener);
+}
+
+const std::set<KeyboardListener*> & Keyboard::getListeners(){
+    return listeners;
 }
 
 /*

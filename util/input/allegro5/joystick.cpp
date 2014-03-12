@@ -241,8 +241,8 @@ void Allegro5Joystick::axis(int stick, int axis, float position){
     }
     */
 
-    std::set<JoystickListener*> listeners = getListeners();
-    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+    const std::set<JoystickListener*> & listeners = getListeners();
+    for (std::set<JoystickListener*>::const_iterator it = listeners.begin(); it != listeners.end(); it++){
         (*it)->axisMotion(this, stick, axis, position);
     }
 
@@ -301,8 +301,8 @@ int Allegro5Joystick::getButton(Key key){
 void Allegro5Joystick::buttonDown(int button){
     // Global::debug(0) << "Button down " << button << std::endl;
 
-    std::set<JoystickListener*> listeners = getListeners();
-    for (std::set<JoystickListener*>::iterator it = listeners.begin(); it != listeners.end(); it++){
+    const std::set<JoystickListener*> & listeners = getListeners();
+    for (std::set<JoystickListener*>::const_iterator it = listeners.begin(); it != listeners.end(); it++){
         (*it)->pressButton(this, button);
     }
 

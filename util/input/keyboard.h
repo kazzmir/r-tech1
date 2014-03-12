@@ -3,7 +3,12 @@
 
 #include <map>
 #include <vector>
+#include <set>
 #include <stdint.h>
+
+/* FIXME: use a namespace here. Input maybe? */
+
+class KeyboardListener;
 
 /* handles allegro key[] array better than keypressed()
  * and readkey()
@@ -256,10 +261,17 @@ public:
     virtual void addObserver(ObserverCallback observer, void * extra);
     virtual void removeObserver(ObserverCallback observer, void * extra);
     */
+    
+    static void addListener(KeyboardListener * listener);
+    static void removeListener(KeyboardListener * listener);
+
+    const std::set<KeyboardListener*> & getListeners();
 
 protected:
     static void disableKeyRepeat();
     static void enableKeyRepeat();
+
+    static std::set<KeyboardListener*> listeners;
 
     // std::map<int,int> my_keys;
     std::map<int,int> key_delay;
@@ -270,5 +282,15 @@ protected:
     bool enableBuffer;
     static std::vector<bool> repeatState;
 };
+
+class KeyboardListener{
+public:
+    KeyboardListener();
+    virtual ~KeyboardListener();
+    virtual void press(Keyboard * from, Keyboard::KeyType key, Keyboard::unicode_t unicode) = 0;
+    virtual void release(Keyboard * from, Keyboard::KeyType key) = 0;
+};
+
+
 
 #endif

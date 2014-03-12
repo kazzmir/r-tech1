@@ -217,6 +217,6 @@ void Joystick::removeListener(JoystickListener * listener){
 }
     
 std::set<JoystickListener*> Joystick::listeners;
-std::set<JoystickListener*> Joystick::getListeners(){
+const std::set<JoystickListener*> & Joystick::getListeners(){
     return listeners;
 }
