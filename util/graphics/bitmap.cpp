@@ -526,8 +526,13 @@ double StretchedBitmap::getScaleWidth() const {
 double StretchedBitmap::getScaleHeight() const {
     return (double) where.getHeight() / (double) getHeight();
 }
+    
+BlendPoint::BlendPoint(const Color & color, int length):
+color(color),
+length(length){
+}
 
-void blend_palette(Color * pal, int mp, Color startColor, Color endColor){
+void blend_palette(Color * pal, int mp, const Color & startColor, const Color & endColor){
     /*
     ASSERT(pal);
     ASSERT(mp != 0);
@@ -548,6 +553,30 @@ void blend_palette(Color * pal, int mp, Color startColor, Color endColor){
         int f_b = (int)( 0.5 + (float)( sc_b ) + (float)( ec_b-sc_b ) * j );
         pal[q] = Graphics::makeColor( f_r, f_g, f_b );
     }
+}
+
+std::vector<Color> blend_palette(const std::vector<BlendPoint> & in){
+    std::vector<Color> out;
+
+    int here = 0;
+
+    for (int i = 1; i < in.size(); i++){
+        const BlendPoint & start = in[here];
+        const BlendPoint & end = in[i];
+
+        Color * save = new Color[start.length];
+        blend_palette(save, start.length, start.color, end.color);
+
+        for (int use = 0; use < start.length; use++){
+            out.push_back(save[use]);
+        }
+
+        delete[] save;
+
+        here = i;
+    }
+
+    return out;
 }
 
 }
