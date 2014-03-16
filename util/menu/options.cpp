@@ -1362,7 +1362,9 @@ void OptionKey::run(const Menu::Context & context){
         speed(30),
         listener(*this),
         quit(false),
-        out(Keyboard::Key_ESC){
+        out(Keyboard::Key_ESC),
+        startingTime(System::currentMilliseconds()),
+        maxTime(5000){
             tempContext.initialize();
 
             // keyDialog.setFont(tempContext.getFont());
@@ -1385,6 +1387,12 @@ void OptionKey::run(const Menu::Context & context){
 
             Keyboard::pushRepeatState(false);
             Keyboard::addListener(&listener);
+
+            vector<Graphics::BlendPoint> points;
+            points.push_back(Graphics::BlendPoint(Graphics::makeColor(255, 0, 0), 30));
+            points.push_back(Graphics::BlendPoint(Graphics::makeColor(0, 255, 0), 25));
+            points.push_back(Graphics::BlendPoint(Graphics::makeColor(255, 255, 255), 0));
+            colors = Graphics::blend_palette(points);
         }
 
         virtual ~WaitForKey(){
@@ -1416,6 +1424,12 @@ void OptionKey::run(const Menu::Context & context){
         Listener listener;
         bool quit;
         Keyboard::KeyType out;
+        /* keep track of how much time we are in this loop */
+        uint64_t startingTime;
+        /* maximum number of milliseconds to wait */
+        const uint64_t maxTime;
+
+        vector<Graphics::Color> colors;
 
         virtual void press(Keyboard::KeyType key){
             quit = true;
@@ -1433,6 +1447,9 @@ void OptionKey::run(const Menu::Context & context){
                 tempContext.act();
                 keyDialog.act(font);
             }
+
+            /* exit after 5 seconds */
+            quit = quit || (System::currentMilliseconds() - startingTime > maxTime);
         }
     
         virtual bool done(){
@@ -1442,12 +1459,34 @@ void OptionKey::run(const Menu::Context & context){
         virtual double ticks(double system){
             return system * Global::ticksPerSecond(speed);
         }
+
+        virtual void showTimeLeft(const Graphics::Bitmap & screen){
+            int x1 = 1;
+            int y1 = 1;
+            int x2 = screen.getWidth() * (1 - (double) (System::currentMilliseconds() - startingTime) / (double) maxTime);
+            if (x2 < x1){
+                x2 = x1;
+            }
+
+            int y2 = 10;
+
+            int color = (1.0 - (double) (System::currentMilliseconds() - startingTime) / maxTime) * colors.size();
+            if (color < 0){
+                color = 0;
+            }
+            if (color >= colors.size()){
+                color = colors.size() - 1;
+            }
+
+            screen.rectangleFill(x1, y1, x2, y2, colors[color]);
+        }
     
         virtual void draw(const Graphics::Bitmap & screen){
             Graphics::StretchedBitmap work(640, 480, screen);
             work.start();
             tempContext.render(Util::ReferenceCount<Menu::Renderer>(NULL), work);
             keyDialog.render(work, font);
+            showTimeLeft(work);
             work.finish();
         }
     };

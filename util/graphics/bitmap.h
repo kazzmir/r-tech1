@@ -617,7 +617,15 @@ Bitmap memoryPCX(unsigned char * const data, const int length, const bool mask =
  */
 Bitmap * getScreenBuffer();
 
-void blend_palette(Color * pal, int mp, Color sc, Color ec);
+struct BlendPoint{
+    BlendPoint(const Color & color, int length);
+    Color color;
+    int length;
+};
+
+void blend_palette(Color * pal, int mp, const Color & sc, const Color & ec);
+std::vector<Color> blend_palette(const std::vector<BlendPoint> & in);
+
 // bool sameColors(Color color1, Color color2);
 
 class LitBitmap: public Bitmap {
