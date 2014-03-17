@@ -2620,6 +2620,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
         class ButtonListener: public JoystickListener {
         public:
             ButtonListener(const Util::ReferenceCount<Joystick> & joystick):
+            touched(false),
             done(false),
             chosen(-1),
             chosenAxis(NULL){
@@ -2646,12 +2647,21 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
             map<int, uint64_t> presses;
             map<int, bool> pressed;
 
+            /* true if a button/axis is moved. flips to false when queried */
+            bool touched;
+
             vector<Axis> axis;
 
             bool done;
             int chosen;
 
             Axis * chosenAxis;
+
+            bool wasTouched(){
+                bool out = touched;
+                touched = false;
+                return out;
+            }
 
             Axis & getAxis(int stick, int axis){
                 for (vector<Axis>::iterator it = this->axis.begin(); it != this->axis.end(); it++){
@@ -2719,6 +2729,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
             }
 
             virtual void pressButton(Joystick * from, int button){
+                touched = true;
                 pressed[button] = true;
                 presses[button] = System::currentMilliseconds();
             }
@@ -2769,6 +2780,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
             }
 
             virtual void axisMotion(Joystick * from, int stick, int axis, double motion){
+                touched = true;
                 Axis & use = getAxis(stick, axis);
                 if (!use.set){
                     use.first = motion;
@@ -2825,9 +2837,17 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 menu(menu),
                 name(name),
                 listener(joystick),
-                joystick(joystick){
+                joystick(joystick),
+                startingTime(System::currentMilliseconds()),
+                maxTime(5000){
                     input.set(Keyboard::Key_ESC, 0);
                     joystick->addListener(&listener);
+
+                    vector<Graphics::BlendPoint> points;
+                    points.push_back(Graphics::BlendPoint(Graphics::makeColor(255, 0, 0), 30));
+                    points.push_back(Graphics::BlendPoint(Graphics::makeColor(0, 255, 0), 25));
+                    points.push_back(Graphics::BlendPoint(Graphics::makeColor(255, 255, 255), 0));
+                    colors = Graphics::blend_palette(points);
                 }
             
                 const Menu::Context & context;
@@ -2836,9 +2856,33 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                 ButtonListener listener;
                 InputMap<int> input;
                 Util::ReferenceCount<Joystick> joystick;
+                vector<Graphics::Color> colors;
+                uint64_t startingTime;
+                const uint64_t maxTime;
 
-                ~SetButton(){
+                virtual ~SetButton(){
                     joystick->removeListener(&listener);
+                }
+
+                virtual void showTimeLeft(const Graphics::Bitmap & screen){
+                    int x1 = 1;
+                    int y1 = 1;
+                    int x2 = screen.getWidth() * (1 - (double) (System::currentMilliseconds() - startingTime) / (double) maxTime);
+                    if (x2 < x1){
+                        x2 = x1;
+                    }
+
+                    int y2 = 10;
+
+                    int color = (1.0 - (double) (System::currentMilliseconds() - startingTime) / maxTime) * colors.size();
+                    if (color < 0){
+                        color = 0;
+                    }
+                    if (color >= colors.size()){
+                        color = colors.size() - 1;
+                    }
+
+                    screen.rectangleFill(x1, y1, x2, y2, colors[color]);
                 }
 
                 void setButton(Joystick::Key key){
@@ -2896,6 +2940,14 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                     }
 
                     listener.choose();
+
+                    if (listener.wasTouched()){
+                        startingTime = System::currentMilliseconds();
+                    }
+
+                    if (System::currentMilliseconds() - startingTime >= maxTime){
+                        throw Exception::Return(__FILE__, __LINE__);
+                    }
                 }
     
                 void draw(const Graphics::Bitmap & buffer){
@@ -2971,6 +3023,8 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                         }
 
                     }
+
+                    showTimeLeft(work);
 
                     work.finish();
                 }
