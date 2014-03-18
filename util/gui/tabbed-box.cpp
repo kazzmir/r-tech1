@@ -135,12 +135,9 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
     if (transforms.getRadius() > 0){
         const int offset = transforms.getRadius() * 4;
 
-        Graphics::SubTranslucentBitmap temp(area, 0, location.getHeight() - offset/2, location.getWidth(), offset/2, Graphics::SubTranslucentBitmap::Mask);
-
-        temp.start();
+        Graphics::TranslucentBitmap temp(Graphics::Bitmap(area, 0, location.getHeight() - offset/2, location.getWidth(), offset/2));
         temp.roundRectFill((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.body);
         temp.roundRect((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.border);
-        temp.finish();
 
         /*
         Graphics::Bitmap temp(location.getWidth(), offset/2);
