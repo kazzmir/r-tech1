@@ -1492,6 +1492,31 @@ void StretchedBitmap::finish(){
     al_use_transform(&transform);
 #endif
 }
+    
+SubTranslucentBitmap::SubTranslucentBitmap(const Bitmap & where, int x, int y, int width, int height, Clear clear):
+Bitmap(where, x, y, width, height),
+translucent(*this),
+clearKind(clear){
+    switch (clear){
+        case NoClear: break;
+        case FullClear: translucent.clear();
+        case Mask: break;
+    }
+}
+    
+void SubTranslucentBitmap::finish(){
+}
+
+void SubTranslucentBitmap::start(){
+}
+    
+void SubTranslucentBitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
+    translucent.roundRect(radius, x1, y1, x2, y2, color);
+}
+
+void SubTranslucentBitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Graphics::Color color) const {
+    translucent.roundRectFill(radius, x1, y1, x2, y2, color);
+}
 
 TranslatedBitmap::TranslatedBitmap(int x, int y, const Bitmap & where):
 Bitmap(where),
