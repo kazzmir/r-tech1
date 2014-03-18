@@ -256,4 +256,30 @@ Shader::Shader(){
 Shader::~Shader(){
 }
 
+SubTranslucentBitmap::SubTranslucentBitmap(const Bitmap & where, int x, int y, int width, int height, Clear clear):
+Bitmap(where, x, y, width, height),
+translucent(Bitmap(width, height)),
+clearKind(clear){
+    switch (clear){
+        case NoClear: break;
+        case FullClear: translucent.clear(); break;
+        case Mask: translucent.clearToMask(); break;
+    }
+}
+ 
+void SubTranslucentBitmap::roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const {
+    translucent.roundRect(radius, x1, y1, x2, y2, color);
+}
+
+void SubTranslucentBitmap::roundRectFill(int radius, int x1, int y1, int x2, int y2, Color color) const {
+    translucent.roundRectFill(radius, x1, y1, x2, y2, color);
+}
+
+void SubTranslucentBitmap::finish(){
+    translucent.translucent().draw(0, 0, *this);
+}
+
+void SubTranslucentBitmap::start(){
+}
+
 }

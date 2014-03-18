@@ -134,11 +134,21 @@ void TabbedBox::render(const Graphics::Bitmap & work, const Font & font){
     // Check if we are using a rounded box
     if (transforms.getRadius() > 0){
         const int offset = transforms.getRadius() * 4;
+
+        Graphics::SubTranslucentBitmap temp(area, 0, location.getHeight() - offset/2, location.getWidth(), offset/2, Graphics::SubTranslucentBitmap::Mask);
+
+        temp.start();
+        temp.roundRectFill((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.body);
+        temp.roundRect((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.border);
+        temp.finish();
+
+        /*
         Graphics::Bitmap temp(location.getWidth(), offset/2);
         temp.clearToMask();
         temp.roundRectFill((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.body);
         temp.roundRect((int)transforms.getRadius(), 0, offset/2 * -1, location.getWidth()-1, (offset/2)-1, colors.border);
         temp.translucent().draw(0,location.getHeight() - offset/2, area);
+        */
         
         area.translucent().rectangleFill(0, tabHeight+1, location.getWidth()-1, location.getHeight()-1 - offset/2, colors.body );
         area.translucent().vLine(tabHeight,0,location.getHeight()-1 - offset/2,colors.border);

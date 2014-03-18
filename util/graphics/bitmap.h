@@ -747,6 +747,39 @@ protected:
 #endif
 };
 
+/* Normal drawing operations but ultimately is drawn translucently onto the parent */
+class SubTranslucentBitmap: public Bitmap {
+public:
+    /* How to initialize the bitmap */
+    enum Clear{
+        /* Don't do anything */
+        NoClear,
+        /* Clear (to black) */
+        FullClear,
+        /* Fill with the masking color for software rendering and
+         * do nothing for opengl
+         */
+        Mask
+    };
+
+    SubTranslucentBitmap(const Bitmap & where, int x, int y, int width, int height, Clear = NoClear);
+    using Bitmap::operator=;
+    
+    virtual void roundRect(int radius, int x1, int y1, int x2, int y2, Color color) const;
+    virtual void roundRectFill(int radius, int x1, int y1, int x2, int y2, Color color) const;
+
+    virtual void finish();
+    virtual void start();
+
+protected:
+#ifdef USE_ALLEGRO5
+    TranslucentBitmap translucent;
+#else
+    Bitmap translucent;
+#endif
+    const Clear clearKind;
+};
+
 }
 
 #endif
