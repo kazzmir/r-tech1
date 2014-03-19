@@ -313,12 +313,12 @@ void ContextBox::setList(const std::vector<Util::ReferenceCount<ContextItem> > &
     this->list->clearItems();
     for (vector<Util::ReferenceCount<ContextItem> >::const_iterator it = list.begin(); it != list.end(); it++){
         const Util::ReferenceCount<ContextItem> & item = *it;
-        this->list->addItem(item.convert<ScrollItem>());
+        this->list->addItem(item);
     }
 }
         
 void ContextBox::addItem(const Util::ReferenceCount<ContextItem> & item){
-    this->list->addItem(item.convert<ScrollItem>());
+    this->list->addItem(item);
 }
 
 void ContextBox::setListType(const ListType & type){

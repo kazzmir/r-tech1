@@ -393,7 +393,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
     };
 
     State state;
-    // state.drawInfo = true;
+    state.drawInfo = false;
     Logic logic(context, state, gradient, infobox);
     Draw draw(levelInfo, state, infobox, gradient, load_width, load_height, infobox_width, infobox_height, load_x, load_y);
 

@@ -2431,7 +2431,7 @@ void OptionLanguage::run(const Menu::Context & context){
     };
 
     Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
-    Menu::Menu temp(renderer.convert<Menu::Renderer>());
+    Menu::Menu temp(renderer);
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Font::getDefaultFontPath(), 24, 24));
     temp.setFont(info);
 
@@ -2586,7 +2586,7 @@ namespace{
 
 static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick> & joystick, const ::Menu::Context & context){
     Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
-    Menu::Menu menu(renderer.convert<Menu::Renderer>());
+    Menu::Menu menu(renderer);
 
     Gui::ContextBox & box = renderer->getBox();
     box.setListType(ContextBox::Normal);
@@ -3099,7 +3099,7 @@ void OptionJoystick::run(const Menu::Context & context){
     };
 
     Util::NewReferenceCount<Menu::DefaultRenderer> renderer;
-    Menu::Menu menu(renderer.convert<Menu::Renderer>());
+    Menu::Menu menu(renderer);
     /*
     Util::ReferenceCount<Menu::FontInfo> info(new Menu::RelativeFontInfo(Global::DEFAULT_FONT, 24, 24));
     temp.setFont(info);

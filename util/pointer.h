@@ -56,6 +56,7 @@ public:
      * base = child; is illegal but
      * base = child.convert<Base>(); is ok
      */
+    /*
     template <class Convert>
     ReferenceCount<Convert> convert() const {
         ReferenceCount<Convert> what;
@@ -64,6 +65,17 @@ public:
         *what.count += 1;
         what.data = (Convert*) data;
         return what;
+    }
+    */
+
+    template <class Convert>
+    operator ReferenceCount<Convert>() const {
+        ReferenceCount<Convert> out;
+        out.release();
+        out.data = (Convert*) this->data;
+        out.count = this->count;
+        *out.count += 1;
+        return out;
     }
 
     bool operator!() const {

@@ -203,7 +203,7 @@ static std::vector<Util::ReferenceCount<ContextItem> > toContextList(const Conte
     std::vector<Util::ReferenceCount<ContextItem> > contextItems;
     for (std::vector<Util::ReferenceCount<MenuOption> >::const_iterator i = list.begin(); i != list.end(); ++i){
         const Util::ReferenceCount<MenuOption> & option = *i;
-        contextItems.push_back(option.convert<ContextItem>());
+        contextItems.push_back(option);
     }
     return contextItems;
 }
@@ -745,7 +745,7 @@ bool Menu::TabRenderer::readToken(const Token * token, const OptionFactory & fac
                             }
                             Util::ReferenceCount<MenuOption> ref(temp);
                             tabInfo->options.push_back(ref);
-                            tab->addOption(ref.convert<Gui::ContextItem>());
+                            tab->addOption(ref);
                             // tab->addOption(ref->getAsScrollItem<ContextItem>(tab->getContext()));
                         }
                     } catch (const LoadException & le){
@@ -1360,7 +1360,7 @@ public:
     }
 
     LanguageMenu(const MenuClass & original){
-        Util::ReferenceCount< ::Menu::DefaultRenderer > renderer = getRenderer().convert< ::Menu::DefaultRenderer>();
+        Util::ReferenceCount< ::Menu::DefaultRenderer > renderer = getRenderer();
         vector<string> languages = putEnglishFirst(findLanguages(original));
         for (vector<string>::iterator it = languages.begin(); it != languages.end(); it++){
             addOption(new LanguageOption(renderer->getBox(), *it));

@@ -769,7 +769,7 @@ public:
     }
     
     virtual bool equals(Util::ReferenceCount<Gui::ListItem> comparable){
-        return (name == comparable.convert<UserItem>()->name);
+        return (name == ((Util::ReferenceCount<UserItem>) comparable)->name);
     }
     
     bool equals(const std::string & comparable){
@@ -777,7 +777,7 @@ public:
     }
     
     virtual int compareTo(Util::ReferenceCount<Gui::ListItem> comparable){
-        return name.compare(comparable.convert<UserItem>()->name);
+        return name.compare(((Util::ReferenceCount<UserItem>) comparable)->name);
     }
     
     void act(){
@@ -870,11 +870,11 @@ private:
 static Util::ReferenceCount<ChannelTab> convertTab(ChatInterface * chat, std::string name = ""){
     if (!name.empty()){
         try{
-            return chat->getTabByName(name).convert<ChannelTab>();
+            return chat->getTabByName(name);
         } catch (const Gui::TabContainer::NoSuchTab & ex){
         }
     }
-    return chat->getCurrentTab().convert<ChannelTab>();
+    return chat->getCurrentTab();
 }
 
 void ChatInterface::submit(void * interface){
@@ -1059,7 +1059,7 @@ void ChatInterface::processRemoteCommands(){
         try {
             if (command.getType() == ::Network::IRC::Command::Ping){
                 client->sendPong(command);
-                serverTab.convert<ChannelTab>()->addMessage(command.getOwner(), "*** Ping!");
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage(command.getOwner(), "*** Ping!");
             } else if (command.getType() == ::Network::IRC::Command::PrivateMessage){
                 // Check channel
                 const std::string & channel = params.at(0);
@@ -1074,13 +1074,13 @@ void ChatInterface::processRemoteCommands(){
                 remoteNotify(params.at(1));
             } else if (command.getType() == ::Network::IRC::Command::Notice){
                 // Username and message 
-                serverTab.convert<ChannelTab>()->addMessage(command.getOwner(), params.at(1));
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage(command.getOwner(), params.at(1));
                 // notify
                 remoteNotify(params.at(1));
             } else if (command.getType() == ::Network::IRC::Command::ReplyMOTD ||
                        command.getType() == ::Network::IRC::Command::ReplyMOTDStart ||
                        command.getType() == ::Network::IRC::Command::ReplyMOTDEndOf){
-                serverTab.convert<ChannelTab>()->addMessage("*** MOTD " + params.at(1));
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("*** MOTD " + params.at(1));
             } else if (command.getType() == ::Network::IRC::Command::Nick){
                 // Check if user is the owner
                 if (command.getOwner() == client->getName()){
@@ -1093,7 +1093,7 @@ void ChatInterface::processRemoteCommands(){
             } else if (command.getType() == ::Network::IRC::Command::Join){
                 // Check if user is the owner otherwise display to that channel
                 if (command.getOwner() == client->getName()){
-                    serverTab.convert<ChannelTab>()->addMessage("*** You have joined the channel " + params.at(0) + ".");
+                    ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("*** You have joined the channel " + params.at(0) + ".");
                     chatBox.add(Util::ReferenceCount<Gui::TabItem>(new ChannelTab(params.at(0))));
                     gotoChannel(params.at(0));
                 } else {
@@ -1103,15 +1103,15 @@ void ChatInterface::processRemoteCommands(){
             } else if (command.getType() == ::Network::IRC::Command::Part){
                 // Check if user is the owner otherwise display to that channel
                 if (command.getOwner() == client->getName()){
-                    serverTab.convert<ChannelTab>()->addMessage("*** You have parted the channel " + params.at(0) + ".");
+                    ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("*** You have parted the channel " + params.at(0) + ".");
                 } else {
                     convertTab(this, params.at(0))->addMessage("*** " + command.getOwner() + " has parted the channel.");
                     removeUser(command.getOwner());
                 }
             } else if (command.getType() == ::Network::IRC::Command::ReplyNoTopic){
-                serverTab.convert<ChannelTab>()->addMessage("*** The channel " + params.at(1) + " has no topic set.");
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("*** The channel " + params.at(1) + " has no topic set.");
             } else if (command.getType() == ::Network::IRC::Command::ReplyTopic){
-                serverTab.convert<ChannelTab>()->addMessage("*** The channel topic for " + params.at(1) + " is: \"" + params.at(2) + "\".");
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("*** The channel topic for " + params.at(1) + " is: \"" + params.at(2) + "\".");
             } else if (command.getType() == ::Network::IRC::Command::ReplyNames){
                 std::vector<std::string> names = split(params.at(2), ' ');
                 std::map<std::string, std::vector<std::string> >::iterator check = namesRequest.find(params.at(1));
@@ -1123,15 +1123,15 @@ void ChatInterface::processRemoteCommands(){
             } else if (command.getType() == ::Network::IRC::Command::ReplyNamesEndOf){
                 std::map<std::string, std::vector<std::string> >::iterator check = namesRequest.find(params.at(1));
                 if (check != namesRequest.end()){
-                    serverTab.convert<ChannelTab>()->addMessage("*** Current users on " + params.at(1) + " \"" + Util::joinStrings(check->second) + "\".");
+                    ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("*** Current users on " + params.at(1) + " \"" + Util::joinStrings(check->second) + "\".");
                     namesRequest.erase(check);
                 }
             } else if (command.getType() == ::Network::IRC::Command::ErrorNickInUse){
-                serverTab.convert<ChannelTab>()->addMessage("[Error] " + params.at(1) + ": Nick already in use.");
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("[Error] " + params.at(1) + ": Nick already in use.");
             } else if (command.getType() == ::Network::IRC::Command::ErrorNoSuchNick){
-                serverTab.convert<ChannelTab>()->addMessage("[Error] " + params.at(1) + ": No such nick.");
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("[Error] " + params.at(1) + ": No such nick.");
             } else if (command.getType() == ::Network::IRC::Command::ErrorNoSuchChannel){
-                serverTab.convert<ChannelTab>()->addMessage("[Error] " + params.at(1) + ": No such channel.");
+                ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("[Error] " + params.at(1) + ": No such channel.");
             } else if (command.getType() == ::Network::IRC::Command::Error){
                 Global::debug(0) << "Received Error: " << command.getSendable() << "... Aborting." << std::endl;
                 throw Exception::Return(__FILE__, __LINE__);
@@ -1153,12 +1153,12 @@ void ChatInterface::processRemoteCommands(){
                             // there is an existing entry lets display our ping
                             std::ostringstream difference;
                             difference << (double)((System::currentMilliseconds() - check->second)/1000000);
-                            serverTab.convert<ChannelTab>()->addMessage("[CTCP] Received CTCP-PING reply from " + check->first + ": " + difference.str() + "second(s)" );
+                            ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("[CTCP] Received CTCP-PING reply from " + check->first + ": " + difference.str() + "second(s)" );
                             pingReply.erase(check);
                         }
                     } else if (command.getType() == ::Network::IRC::Command::PrivateMessage){
                         client->sendCommand(::Network::IRC::Command::Notice, command.getOwner(), ":\001PING " + ctcp.at(1) + "\001");
-                        serverTab.convert<ChannelTab>()->addMessage("[CTCP] Received CTCP-PING request from " + command.getOwner() + ", sending answer.");
+                        ((Util::ReferenceCount<ChannelTab>) serverTab)->addMessage("[CTCP] Received CTCP-PING request from " + command.getOwner() + ", sending answer.");
                     }
                 }
             } catch (const std::out_of_range & ex){
@@ -1280,7 +1280,7 @@ void ChatInterface::localCommand(const std::vector<std::string> & command){
 
 static bool inList(const std::vector< Util::ReferenceCount<Gui::ListItem> > & list, const std::string & name){
     for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = list.begin(); i != list.end(); i++){
-        Util::ReferenceCount<UserItem> item = (*i).convert<UserItem>();
+        Util::ReferenceCount<UserItem> item = *i;
         if (item->equals(name)){
             return true;
         }
@@ -1312,7 +1312,7 @@ void ChatInterface::updateUserList(){
 void ChatInterface::removeUser(const std::string & name){
     const std::vector< Util::ReferenceCount<Gui::ListItem> > & userlist = listBox.getList();
     for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = userlist.begin(); i != userlist.end(); i++){
-        Util::ReferenceCount<UserItem> user = (*i).convert<UserItem>();
+        Util::ReferenceCount<UserItem> user = *i;
         if (user->equals(name)){
             // remove him from list
             listBox.remove(*i);
@@ -1324,7 +1324,7 @@ void ChatInterface::removeUser(const std::string & name){
 void ChatInterface::changeUserName(const std::string & name, const std::string & newName){
     const std::vector< Util::ReferenceCount<Gui::ListItem> > & userlist = listBox.getList();
     for (std::vector< Util::ReferenceCount<Gui::ListItem> >::const_iterator i = userlist.begin(); i != userlist.end(); i++){
-        Util::ReferenceCount<UserItem> user = (*i).convert<UserItem>();
+        Util::ReferenceCount<UserItem> user = *i;
         if (user->equals(name)){
             // remove him from list
             listBox.remove(*i);
