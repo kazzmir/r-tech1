@@ -503,7 +503,7 @@ static Util::ReferenceCount<Sequence> parseSequence(const Token * token, ImageMa
         token->view() >> times;
         Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
         loop->parse(token, images, baseDir);
-        return loop.convert<Sequence>();
+        return loop;
     } else if (*token == "all"){
         return Util::ReferenceCount<Sequence>(new SequenceAll(token, images, baseDir));
     } else if (*token == "random"){
@@ -924,7 +924,7 @@ sequence(0){
                 token->view() >> times;
                 Util::ReferenceCount<SequenceLoop> loop(new SequenceLoop(times));
                 loop->parse(token, images, basedir);
-                sequence.addSequence(loop.convert<Sequence>());
+                sequence.addSequence(loop);
 
                 /*
 		if (l >= (int)frames.size()){

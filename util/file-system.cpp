@@ -1328,11 +1328,11 @@ bool System::exists(const AbsolutePath & path){
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<LzmaContainer> container){
-    virtualDirectory.addFile(where, Util::ReferenceCount<LzmaDescriptor>(new LzmaDescriptor(where, container)).convert<Descriptor>());
+    virtualDirectory.addFile(where, Util::ReferenceCount<LzmaDescriptor>(new LzmaDescriptor(where, container)));
 }
 
 void System::overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip){
-    virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)).convert<Descriptor>());
+    virtualDirectory.addFile(where, Util::ReferenceCount<ZipDescriptor>(new ZipDescriptor(where, zip)));
 }
 
 void System::unoverlayFile(const AbsolutePath & where){
