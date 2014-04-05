@@ -19,6 +19,10 @@ namespace Graphics{
     class Bitmap;
 }
 
+namespace Util{
+    class Draw;
+}
+
 class Token;
 
 namespace Gui{
@@ -262,7 +266,10 @@ protected:
     typedef std::vector<Util::ReferenceCount<Sequence> >::const_iterator SequenceConstIterator;
 };
 
+/* Handles a series of bitmaps */
 class Animation{
+protected:
+    Animation();
 public:
     Animation(const Token *token);
     /*! Load only a single bitmap (for backwards compatibility of backgrounds in menu) */
@@ -319,7 +326,7 @@ public:
         return this->depth;
     }
 
-private:
+protected:
     int id;
     Depth depth;
     unsigned int currentSequence;
@@ -331,6 +338,18 @@ private:
     // std::vector<Util::ReferenceCount<Frame> > frames;
     SequenceLoop sequence;
     ImageMap images;
+};
+
+/* Handles a Util::Draw, which really can't be controlled in any way. This just wraps the drawer.draw() method */
+class DrawableAnimation: public Animation {
+public:
+    DrawableAnimation(const Util::ReferenceCount<Util::Draw> & drawer, Depth depth);
+
+    virtual void draw(const Graphics::Bitmap &) const;
+    virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &) const;
+
+protected:
+    const Util::ReferenceCount<Util::Draw> drawer;
 };
 
 /*! Generalized to for re-use in other contexts (menu, cutscene, characterselect, etc) */
