@@ -11,6 +11,7 @@
 #include "../debug.h"
 #include "../funcs.h"
 #include "../file-system.h"
+#include "../events.h"
 #include "util/exceptions/load_exception.h"
 
 using namespace std;
@@ -950,6 +951,13 @@ sequence(0){
     }
 }
 
+Animation::Animation():
+id(getNextId()),
+depth(BackgroundBottom),
+allowReset(false),
+sequence(0){
+}
+
 Animation::Animation(const std::string & background):
 id(getNextId()),
 depth(BackgroundBottom),
@@ -1067,6 +1075,19 @@ void Animation::setToEnd(){
         frame->setToEnd(RelativePoint(ticks * velocity.getRelativeX(), ticks * velocity.getRelativeY()));
     }
     */
+}
+
+DrawableAnimation::DrawableAnimation(const Util::ReferenceCount<Util::Draw> & drawer, Depth depth):
+drawer(drawer){
+    this->depth = depth;
+}
+
+void DrawableAnimation::draw(const Graphics::Bitmap & work) const {
+    drawer->draw(work);
+}
+
+void DrawableAnimation::draw(int x, int y, int width, int height, const Graphics::Bitmap & work) const {
+    draw(Graphics::Bitmap(work, x, y, width, height));
 }
 
 const std::string Animation::getInfo(){
