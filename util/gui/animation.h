@@ -344,6 +344,7 @@ protected:
 class DrawableAnimation: public Animation {
 public:
     DrawableAnimation(const Util::ReferenceCount<Util::Draw> & drawer, Depth depth);
+    DrawableAnimation(const Util::ReferenceCount<Util::Draw> & drawer);
 
     virtual void draw(const Graphics::Bitmap &) const;
     virtual void draw(int x, int y, int width, int height, const Graphics::Bitmap &) const;
@@ -366,7 +367,7 @@ public:
     void act();
     void render(const Gui::Animation::Depth &, const Graphics::Bitmap &) const;
     
-    void add(Util::ReferenceCount<Gui::Animation > animation);
+    void add(const Util::ReferenceCount<Gui::Animation > & animation);
     
     void reset();
     void setToEnd();
