@@ -1081,6 +1081,10 @@ DrawableAnimation::DrawableAnimation(const Util::ReferenceCount<Util::Draw> & dr
 drawer(drawer){
     this->depth = depth;
 }
+    
+DrawableAnimation::DrawableAnimation(const Util::ReferenceCount<Util::Draw> & drawer):
+drawer(drawer){
+}
 
 void DrawableAnimation::draw(const Graphics::Bitmap & work) const {
     drawer->draw(work);
@@ -1165,7 +1169,7 @@ void AnimationManager::render(const Gui::Animation::Depth & depth, const Graphic
     }
 }
 
-void AnimationManager::add(Util::ReferenceCount<Gui::Animation > animation){
+void AnimationManager::add(const Util::ReferenceCount<Gui::Animation > & animation){
     animations[animation->getDepth()].push_back(animation);
 }
 

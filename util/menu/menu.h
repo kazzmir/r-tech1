@@ -357,6 +357,7 @@ class Context{
         virtual void addBackground(const Token *);
         virtual void addBackground(const std::string &);
         virtual void addBackground(const Graphics::Bitmap & image);
+        virtual void addBackground(const Util::ReferenceCount<Gui::Animation> & animation);
         
         /*! Initializes things like faders */
         virtual void initialize();

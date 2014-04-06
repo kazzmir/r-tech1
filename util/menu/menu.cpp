@@ -1068,6 +1068,10 @@ void Menu::Context::addBackground(const Token * token){
     }*/
     background.add(Util::ReferenceCount<Gui::Animation>(new Gui::Animation(token)));
 }
+        
+void Menu::Context::addBackground(const Util::ReferenceCount<Gui::Animation> & animation){
+    background.add(animation);
+}
 
 void Menu::Context::addBackground(const Graphics::Bitmap & image){
     /*if (background == NULL){
