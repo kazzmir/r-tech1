@@ -132,13 +132,11 @@ static void setupBackground(const Graphics::Bitmap & background, int load_x, int
 
 /* converts a bitmap with some text on it into a sequence of points */
 static vector<ppair> generateFontPixels(const Font & myFont, const string & message, int width, int height){
-    Graphics::Bitmap letters(width, height);
+    Graphics::Bitmap letters(Graphics::Bitmap::createMemoryBitmap(width, height));
     letters.fill(Graphics::MaskColor());
     myFont.printf(0, 0, Graphics::makeColor(255, 255, 255), letters, message.c_str(), 0); 
 
     vector<ppair> pairs;
-    /* store every pixel we need to draw */
-    letters.lock();
     for (int x = 0; x < letters.getWidth(); x++){
         for (int y = 0; y < letters.getHeight(); y++){
             Graphics::Color pixel = letters.getPixel(x, y);
@@ -150,7 +148,6 @@ static vector<ppair> generateFontPixels(const Font & myFont, const string & mess
             }
         }
     }
-    letters.unlock();
 
     // Graphics::resetDisplay();
 
