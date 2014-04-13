@@ -20,6 +20,10 @@ int getAlpha(Color input){
     return 255;
 }
         
+Bitmap Bitmap::createMemoryBitmap(int width, int height){
+    return Bitmap(width, height);
+}
+
 void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color, double scale, bool facingRight) const {
     const double newheight = getHeight() * scale;
     Bitmap shade(getWidth(), (int) fabs(newheight));

@@ -175,7 +175,7 @@ bit8MaskColor(makeColor(0, 0, 0)){
     this->height = al_get_bitmap_height(getData()->getBitmap());
 }
 
-Bitmap::Bitmap( const Bitmap & copy, bool deep_copy):
+Bitmap::Bitmap(const Bitmap & copy, bool deep_copy):
 mustResize(false),
 bit8MaskColor(copy.bit8MaskColor),
 width(copy.width),
@@ -186,6 +186,14 @@ height(copy.height){
     } else {
         setData(copy.getData());
     }
+}
+        
+Bitmap Bitmap::createMemoryBitmap(int width, int height){
+    int flags = al_get_new_bitmap_flags();
+    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+    Bitmap out = Bitmap(width, height);
+    al_set_new_bitmap_flags(flags);
+    return out;
 }
 
 void Bitmap::convertToVideo(){

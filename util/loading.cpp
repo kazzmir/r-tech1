@@ -213,7 +213,7 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
     /* blend from dark grey to light red */
     Effects::Gradient gradient(MAX_COLOR, Graphics::makeColor(16, 16, 16), Graphics::makeColor(192, 8, 8));
 
-    TimeCounter counter;
+    // TimeCounter counter;
 
     struct State{
         bool drawInfo;

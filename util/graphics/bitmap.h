@@ -239,6 +239,11 @@ public:
 	Bitmap( const Bitmap & copy, int x, int y, int width, int height );
 	virtual ~Bitmap();
 
+        /* For opengl backends, creates a memory bitmap. For software renderers
+         * just creates a regular bitmap.
+         */
+        static Bitmap createMemoryBitmap(int width, int height);
+
         virtual TranslucentBitmap translucent() const;
         /* will call transBlender() with the supplied values for you */
         virtual TranslucentBitmap translucent(int red, int green, int blue, int alpha) const;
