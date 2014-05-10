@@ -555,13 +555,15 @@ public:
         path(path){
             ios_base::openmode iosMode = fstream::in;
             switch (mode){
-                case Read: iosMode = fstream::in; break;
+                case Read: iosMode = fstream::in; check(path); break;
                 case Write: iosMode = fstream::out; break;
-                case ReadWrite: iosMode = fstream::in | fstream::out; break;
+                case ReadWrite: iosMode = fstream::in | fstream::out; check(path); break;
             }
 
             in.open(path.path().c_str(), iosMode | fstream::binary);
-            in >> noskipws;
+            if (in.good()){
+                in >> noskipws;
+            }
         }
 
     Token * location(){
@@ -569,6 +571,15 @@ public:
         *head << "file";
         *head << path.path();
         return head;
+    }
+
+    /* Throws NotFound if path doesnt exist */
+    void check(const Path::AbsolutePath & path){
+        if (!instance().systemExists(path)){
+            ostringstream out;
+            out << "Could not find '" << path.path() << "'";
+            throw NotFound(__FILE__, __LINE__, out.str());
+        }
     }
 
     long getModificationTime(){

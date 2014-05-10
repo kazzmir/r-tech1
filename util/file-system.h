@@ -513,7 +513,8 @@ namespace Storage{
     public:
         virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<ZipContainer> zip);
         virtual void overlayFile(const AbsolutePath & where, Util::ReferenceCount<LzmaContainer> container);
-    protected:
+
+    /* package: */
         virtual bool systemExists(const AbsolutePath & path) = 0;
         virtual bool systemIsDirectory(const AbsolutePath & path) = 0;
 
