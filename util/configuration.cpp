@@ -736,10 +736,12 @@ void Configuration::loadConfigurations(){
 
         /* Store the entire configuration tree */
         data = removeDuplicates(head->copy());
-    } catch ( const LoadException & le ){
-        Global::debug( 0 ) << "Notice: Could not load configuration file " << Storage::instance().configFile().path() << ": " << le.getTrace() << endl;
-    } catch ( const TokenException & t ){
-        Global::debug( 0 ) << "Notice: could not open configuration file '" << Storage::instance().configFile().path() << "': " << t.getTrace() << endl;
+    } catch (const LoadException & le){
+        Global::debug(0) << "Notice: Could not load configuration file " << Storage::instance().configFile().path() << ": " << le.getTrace() << endl;
+    } catch (const TokenException & t){
+        Global::debug(0) << "Notice: could not open configuration file '" << Storage::instance().configFile().path() << "': " << t.getTrace() << endl;
+    } catch (const Filesystem::NotFound & fail){
+        Global::debug(0) << "Notice: could not open configuration file '" << Storage::instance().configFile().path() << "': " << fail.getTrace() << endl;
     }
 }
 
