@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "system.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -402,4 +403,29 @@ std::string Global::defaultDebugContext = "default";
 
 void Global::setDefaultDebugContext(const std::string & context){
     defaultDebugContext = context;
+}
+
+static std::string now(){
+    time_t t = time(NULL);
+    tm * timeData;
+    timeData = localtime(&t);
+    uint64_t millis = System::currentMilliseconds() % 1000;
+    if (timeData != NULL){
+        char buffer[200];
+        strftime(buffer, sizeof(buffer), "%F %I:%M:%S", timeData);
+        std::ostringstream out;
+        out << buffer << "." << millis;
+        strftime(buffer, sizeof(buffer), " %p", timeData);
+        out << buffer;
+        return out.str();
+        // return std::string(buffer);
+    }
+
+    return std::string();
+}
+
+std::string Global::debug_context(const char * file, int line){
+    std::ostringstream out;
+    out << file << ":" << line << " " << now();
+    return out.str();
 }

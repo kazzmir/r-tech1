@@ -5,6 +5,8 @@
 #include <sstream>
 #include <stdint.h>
 
+#define PAINTOWN_DEBUG_CONTEXT Global::debug_context(__FILE__, __LINE__)
+
 /* Enable this if you can't get regular debug output but have networking
  */
 // #define NETWORK_DEBUG
@@ -104,6 +106,7 @@ int getDebug();
 extern std::string defaultDebugContext;
 void setDefaultDebugContext(const std::string & context);
 stream_type & debug(int i, const std::string & context = defaultDebugContext);
+std::string debug_context(const char * file, int line);
 
 }
 
