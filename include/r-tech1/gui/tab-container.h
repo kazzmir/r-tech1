@@ -6,9 +6,9 @@
 #include <exception>
 
 #include "widget.h"
-#include "util/file-system.h"
-#include "util/pointer.h"
-#include "util/graphics/gradient.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/graphics/gradient.h"
 
 namespace Gui{
 
@@ -89,7 +89,7 @@ public:
     virtual inline const Graphics::Bitmap & getBody() const {
         return this->body;
     }
-	    
+        
     // Empty
     virtual inline bool empty() const {
         return this->tabs.empty();
@@ -113,7 +113,7 @@ public:
     virtual unsigned int findTab(const std::string &);
     virtual Util::ReferenceCount<TabItem> getTab(unsigned int index);
     virtual Util::ReferenceCount<TabItem> getByName(const std::string &);
-	
+    
 protected: 
 
     virtual void drawTabs(const Font &, const Graphics::Bitmap &);

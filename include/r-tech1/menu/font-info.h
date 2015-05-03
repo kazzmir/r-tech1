@@ -2,8 +2,8 @@
 #define _paintown_font_info_h
 
 #include <string>
-#include "util/file-system.h"
-#include "util/font.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/font.h"
 
 class Font;
 
@@ -20,52 +20,52 @@ class RelativeFontInfo;
 
 class FontInfo {
     public:
-	FontInfo();
-	virtual ~FontInfo();
-	
+    FontInfo();
+    virtual ~FontInfo();
+    
         /*
-	inline void set(const Filesystem::RelativePath & font, int width, int height){
-	    this->font = font;
-	    this->width = width;
-	    this->height = height;
-	}
+    inline void set(const Filesystem::RelativePath & font, int width, int height){
+        this->font = font;
+        this->width = width;
+        this->height = height;
+    }
         */
-	
-	virtual const Font & get() const = 0;
-	virtual const Font & get(const Font & next) const = 0;
+    
+    virtual const Font & get() const = 0;
+    virtual const Font & get(const Font & next) const = 0;
         virtual const FontInfo & get(const FontInfo & next) const = 0;
 
         virtual bool operator==(const FontInfo & who) const = 0;
         virtual bool operator==(const AbsoluteFontInfo & who) const = 0;
         virtual bool operator==(const RelativeFontInfo & who) const = 0;
-	
+    
         /*
-	inline void setFont(const Filesystem::RelativePath & font){
-	    this->font = font;
-	}
+    inline void setFont(const Filesystem::RelativePath & font){
+        this->font = font;
+    }
         */
 
         virtual std::string getName() const = 0;
 
-	// virtual const Filesystem::RelativePath getFont(const FontInfo & next) const;
-	
+    // virtual const Filesystem::RelativePath getFont(const FontInfo & next) const;
+    
         /*
-	inline void setWidth(int width){
-	    this->width = width;
-	}
+    inline void setWidth(int width){
+        this->width = width;
+    }
         */
 
-	virtual const int getWidth(const FontInfo & next) const = 0;
-	
+    virtual const int getWidth(const FontInfo & next) const = 0;
+    
         /*
-	inline void setHeight(int height){
-	    this->height = height;
-	}
+    inline void setHeight(int height){
+        this->height = height;
+    }
         */
 
-	virtual const int getHeight(const FontInfo & next) const = 0;
-	
-	virtual const bool empty() const = 0;
+    virtual const int getHeight(const FontInfo & next) const = 0;
+    
+    virtual const bool empty() const = 0;
     };
 
 template <class Type>
@@ -92,7 +92,7 @@ public:
     virtual std::string getName() const {
         return path.getFilename().path();
     }
-	
+    
     virtual const int getWidth(const FontInfo & next) const {
         return width;
     }
@@ -100,7 +100,7 @@ public:
     virtual const int getHeight(const FontInfo & next) const {
         return height;
     }
-	
+    
     virtual const bool empty() const {
         return path.path().empty();
     }

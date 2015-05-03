@@ -1,6 +1,6 @@
-#include "../funcs.h"
-#include "bitmap.h"
-#include "../file-system.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/file-system.h"
 #include <string>
 #include <stdio.h>
 #include <math.h>
@@ -44,11 +44,11 @@ int SCALE_Y = 0;
 const int Bitmap::MODE_TRANS = 0;
 const int Bitmap::MODE_SOLID = 1;
 */
-	
+    
 const int SPRITE_NO_FLIP = 0;
 const int SPRITE_V_FLIP = 1;
 const int SPRITE_H_FLIP = 2;
-	
+    
 const int SPRITE_NORMAL = 1;
 const int SPRITE_LIT = 2;
 const int SPRITE_TRANS = 3;
@@ -60,7 +60,7 @@ static inline int max(int a, int b){
 INTERNAL_COLOR Color::defaultColor(){
     return makeColor(0, 0, 0).color;
 }
-	
+    
 void initializeExtraStuff();
         
 Bitmap::Bitmap(Storage::File & file):
@@ -283,7 +283,7 @@ void Bitmap::drawRotateCenter(const int x, const int y, const int angle, const B
 void Bitmap::drawCenter(const int x, const int y, const Bitmap & where) const {
     draw(x - getWidth() / 2, y - getHeight() / 2, where);
 }
-	
+    
 void Bitmap::drawStretched(const Bitmap & who) const {
     drawStretched(0, 0, who.getWidth(), who.getHeight(), who);
 }
@@ -321,7 +321,7 @@ Bitmap Bitmap::greyScale(){
 
     for (int x = 0; x < getWidth(); x++){
         for (int y = 0; y < getHeight(); y++){
-	    Color pixel = getPixel(x, y);
+        Color pixel = getPixel(x, y);
             int val = (int)((0.299*getRed(pixel) + 0.587*getGreen(pixel) + 0.114*getBlue(pixel) + 0.5) + 16);
             if (val > 255){
                 val = 255;
@@ -476,7 +476,7 @@ Bitmap(b){
 LitBitmap::LitBitmap():
 Bitmap(){
 }
-	
+    
 LitBitmap::~LitBitmap(){
 }
 

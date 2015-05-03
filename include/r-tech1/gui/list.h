@@ -2,8 +2,8 @@
 #define _gui_list_h
 
 #include "widget.h"
-#include "util/pointer.h"
-#include "util/font.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/font.h"
 
 namespace Gui{
 class ListItem{

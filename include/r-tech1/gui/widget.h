@@ -3,8 +3,8 @@
 
 #include "rectarea.h"
 #include "coordinate.h"
-#include "util/graphics/bitmap.h"
-#include "util/pointer.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/pointer.h"
 
 namespace Graphics{
 class Bitmap;
@@ -37,10 +37,10 @@ public:
     Transformations & operator=(const Transformations &);
     
     virtual inline void setRadius(double radius){
-	this->radius = radius;
+    this->radius = radius;
     }
     virtual inline double getRadius() const{
-	return this->radius;
+    return this->radius;
     }
 private:
     double radius;

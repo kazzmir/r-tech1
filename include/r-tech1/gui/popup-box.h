@@ -7,7 +7,7 @@
 #include "widget.h"
 #include "box.h"
 
-#include "util/graphics/gradient.h"
+#include "r-tech1/graphics/gradient.h"
 
 namespace Gui{
     
@@ -25,14 +25,14 @@ class PopupBox : public Widget {
         using Widget::render;
         virtual void render(const Graphics::Bitmap &);
         //! Open box
-	virtual void open();
-	//! Close box
-	virtual void close();
+    virtual void open();
+    //! Close box
+    virtual void close();
 
         //! Is active?
-	virtual inline bool isActive(){
-	    return (this->fadeState != Closed);
-	}
+    virtual inline bool isActive(){
+        return (this->fadeState != Closed);
+    }
 
         virtual inline bool isOpen(){
             return this->fadeState == Open ||
@@ -49,26 +49,26 @@ class PopupBox : public Widget {
         }
         //! Get current box transformations
         virtual inline const Gui::Transformations & getTransforms(){
-	    return this->board.transforms;
-	}
+        return this->board.transforms;
+    }
     private:
-	
-	void doFade();
-	
-	enum FadeState{
-	    Closed,
-	    FadeIn,
-	    Open,
-	    FadeOut,
-	};
+    
+    void doFade();
+    
+    enum FadeState{
+        Closed,
+        FadeIn,
+        Open,
+        FadeOut,
+    };
         //! Current fade state
-	FadeState fadeState;
+    FadeState fadeState;
 
         //! Fade speed
-	int fadeSpeed;
-	
-	//! Board
-	Box board;
+    int fadeSpeed;
+    
+    //! Board
+    Box board;
 };
 
 }

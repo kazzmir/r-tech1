@@ -6,8 +6,8 @@
 #include <string>
 
 #include "coordinate.h"
-#include "util/pointer.h"
-#include "util/graphics/gradient.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/graphics/gradient.h"
 
 class Filesystem;
 namespace Path{

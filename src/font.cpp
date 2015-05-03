@@ -2,13 +2,13 @@
 /* for textout_* and whatnot */
 #include <allegro.h>
 #endif
-#include "graphics/bitmap.h"
-#include "font.h"
-#include "funcs.h"
-#include "init.h"
-#include "ftalleg.h"
-#include "font_factory.h"
-#include "exceptions/exception.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/font.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/init.h"
+#include "r-tech1/ftalleg.h"
+#include "r-tech1/font_factory.h"
+#include "r-tech1/exceptions/exception.h"
 #include <string.h>
 
 using namespace std;
@@ -122,14 +122,14 @@ Font::~Font(){
 AllegroFont::AllegroFont( const FONT * const font ):
 font(font){
 }
-	
+    
 AllegroFont::AllegroFont( const AllegroFont & copy ):
 font( copy.getInternalFont() ){
 }
 
 AllegroFont::~AllegroFont(){
 }
-	
+    
 int AllegroFont::textLength( const char * text ) const{
     return text_length( getInternalFont(), text );
 }
@@ -163,7 +163,7 @@ void AllegroFont::printf( int x, int y, int xSize, int ySize, Graphics::Color co
 
     textout_ex(work.getData()->getBitmap(), getInternalFont(), buf, x, y, color.color, -1);
 }
-	
+    
 void AllegroFont::printf( int x, int y, Graphics::Color color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
@@ -194,7 +194,7 @@ const Font & Font::getDefaultFont(int width, int height){
     }
     return *font;
 }
-	
+    
 /* name should be the path of a .ttf file in the fonts/ directory.
  * something like 'arial.ttf'
  */
@@ -210,7 +210,7 @@ const Font & Font::getFont(const Filesystem::RelativePath & name, const int x, c
     }
     return font;
 }
-	
+    
 const Font & Font::getFont( const Filesystem::AbsolutePath & name, const int x, const int y){
     return *FontFactory::getFont(name, x, y);
 }
@@ -249,7 +249,7 @@ void FreeTypeFont::printf( int x, int y, int xSize, int ySize, Graphics::Color c
     this->font->render(x, y, color, work, ftalleg::freetype::ftLeft, string(buf), 0);
     this->font->setSize(old_x, old_y);
 }
-	
+    
 void FreeTypeFont::printf( int x, int y, Graphics::Color color, const Graphics::Bitmap & work, const string & str, int marker, ... ) const {
     char buf[512];
     va_list ap;
@@ -276,7 +276,7 @@ int FreeTypeFont::getSizeY() const {
 }
 
 FreeTypeFont::~FreeTypeFont(){
-	// cout << "Delete font " << this->font << endl;
+    // cout << "Delete font " << this->font << endl;
     if (own){
         delete this->font;
     }

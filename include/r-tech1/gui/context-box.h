@@ -8,11 +8,11 @@
 #include "popup-box.h"
 #include "scroll-list.h"
 
-#include "../language-string.h"
-#include "util/graphics/gradient.h"
-#include "../file-system.h"
+#include "r-tech1/language-string.h"
+#include "r-tech1/graphics/gradient.h"
+#include "r-tech1/file-system.h"
 
-#include "util/pointer.h"
+#include "r-tech1/pointer.h"
 
 class Token;
 

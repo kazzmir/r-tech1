@@ -1,10 +1,10 @@
-#include "util/graphics/bitmap.h"
-#include "util/funcs.h"
-#include "widget.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/gui/widget.h"
 #include <math.h>
-#include "util/token.h"
-#include "coordinate.h"
-#include "util/exceptions/load_exception.h"
+#include "r-tech1/token.h"
+#include "r-tech1/gui/coordinate.h"
+#include "r-tech1/exceptions/load_exception.h"
 #include <sstream>
 
 using namespace Gui;
@@ -39,9 +39,9 @@ Transformations & Transformations::operator=(const Transformations & transforms)
 }
 
 Widget::Widget(){
-	// Nothing yet
+    // Nothing yet
 }
-		
+        
 Widget::Widget( const Widget & w ){
     this->location = w.location;
     this->transforms = w.transforms;

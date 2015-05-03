@@ -1,18 +1,18 @@
-#include "animation.h"
+#include "r-tech1/gui/animation.h"
 
 #include <stdio.h>
 #include <vector>
 #include <math.h>
 #include <sstream>
-#include "util/token.h"
-#include "util/graphics/bitmap.h"
-#include "util/font.h"
-#include "util/graphics/gradient.h"
-#include "../debug.h"
-#include "../funcs.h"
-#include "../file-system.h"
-#include "../events.h"
-#include "util/exceptions/load_exception.h"
+#include "r-tech1/token.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/font.h"
+#include "r-tech1/graphics/gradient.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/events.h"
+#include "r-tech1/exceptions/load_exception.h"
 
 using namespace std;
 using namespace Gui;
@@ -792,26 +792,26 @@ sequence(0){
         throw LoadException(__FILE__, __LINE__, "Not an animation");
     }
     /* The usual setup of an animation is
-	The images must be listed prior to listing any frames, basedir can be used to set the directory where the images are located
-	loop will begin at the subsequent frame listed after loop
-	axis is the location in which the drawing must be placed
-	location *old* - used to render in background or foreground (0 == background [default]| 1 == foreground)
+    The images must be listed prior to listing any frames, basedir can be used to set the directory where the images are located
+    loop will begin at the subsequent frame listed after loop
+    axis is the location in which the drawing must be placed
+    location *old* - used to render in background or foreground (0 == background [default]| 1 == foreground)
     depth - used to render in background or foreground space (depth background bottom|middle|top) | (depth foreground bottom|midle|top)
-	reset - used to allow resetting of animation (0 == no | 1 == yes [default])
-	velocity - used to get a wrapping scroll effect while animating
+    reset - used to allow resetting of animation (0 == no | 1 == yes [default])
+    velocity - used to get a wrapping scroll effect while animating
     window - area in which the item will be contained
-	(anim (id NUM) 
-	      (location NUM)
+    (anim (id NUM) 
+          (location NUM)
               (scale NUM) ;; optional
               (depth background|foreground NUM)
-	      (basedir LOCATION)
-	      (image NUM FILE [SCALE]) 
-	      (velocity x y)
-	      (axis x y) 
-	      (frame "Read comments above in constructor") 
-	      (loop 2)
-	      (reset NUM)
-	      (window x1 y1 x2 y2))
+          (basedir LOCATION)
+          (image NUM FILE [SCALE]) 
+          (velocity x y)
+          (axis x y) 
+          (frame "Read comments above in constructor") 
+          (loop 2)
+          (reset NUM)
+          (window x1 y1 x2 y2))
     */
     double scale = 1.0;
     bool scaleSet = false;
@@ -928,11 +928,11 @@ sequence(0){
                 sequence.addSequence(loop);
 
                 /*
-		if (l >= (int)frames.size()){
-		    ostringstream out;
-		    out << "Loop location is larger than the number of frames. Loop: " << loop << " Frames: " << frames.size();
-		    throw LoadException(__FILE__, __LINE__, out.str());
-		}
+        if (l >= (int)frames.size()){
+            ostringstream out;
+            out << "Loop location is larger than the number of frames. Loop: " << loop << " Frames: " << frames.size();
+            throw LoadException(__FILE__, __LINE__, out.str());
+        }
                 */
             } else if (*token == "reset"){
                 // Allow reset of animation

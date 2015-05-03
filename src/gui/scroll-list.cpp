@@ -1,9 +1,9 @@
-#include "util/graphics/bitmap.h"
-#include "../funcs.h"
-#include "scroll-list.h"
-#include "../font.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/gui/scroll-list.h"
+#include "r-tech1/font.h"
 #include <math.h>
-#include "../debug.h"
+#include "r-tech1/debug.h"
 
 using namespace Gui;
 

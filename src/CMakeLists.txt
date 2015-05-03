@@ -46,12 +46,6 @@ input/input-manager.cpp
 input/input-source.cpp
 input/joystick.cpp
 input/allegro5/joystick.cpp
-input/allegro/allegro-joystick.cpp
-input/sdl/joystick.cpp
-input/psp/joystick.cpp
-input/wii/joystick.cpp
-graphics/sdl/hqx.cpp
-graphics/sdl/xbr.cpp
 xenon/xenon.cpp
 lz4/lz4.c
 system.cpp
@@ -96,10 +90,6 @@ sound/music-player.cpp
 sound/music-renderer.cpp
 sound/music.cpp
 ../system/timer.cpp
-../system/sdl/timer.cpp
-../system/sdl/init.cpp
-../system/allegro/timer.cpp
-../system/allegro/init.cpp
 ../system/allegro5/timer.cpp
 ../system/allegro5/init.cpp)
 

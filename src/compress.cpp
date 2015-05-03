@@ -2,9 +2,9 @@
 #include <allegro.h>
 #endif
 
-#include "compress.h"
-#include "memory.h"
-#include "debug.h"
+#include "r-tech1/compress.h"
+#include "r-tech1/memory.h"
+#include "r-tech1/debug.h"
 
 namespace Compress{
 

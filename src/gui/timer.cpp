@@ -36,9 +36,9 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "timer.h"
-#include "util/funcs.h"
-#include "util/system.h"
+#include "r-tech1/gui/timer.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/system.h"
 
 guiTimer::guiTimer(){
     // Setup initial
@@ -50,92 +50,92 @@ guiTimer::~guiTimer(){
 }
 
 /*
-	unsigned int guiTimer::usecs()
-	{
+    unsigned int guiTimer::usecs()
+    {
 #if defined (_WIN32)
-    		static bool onetime = 0;
-    		static unsigned long long freq = 0;
+            static bool onetime = 0;
+            static unsigned long long freq = 0;
     
-    		if(!onetime) {
-        		onetime = true;
-	    		QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
-    		}
+            if(!onetime) {
+                onetime = true;
+                QueryPerformanceFrequency((LARGE_INTEGER*)&freq);
+            }
     
-    		QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
+            QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
     
-    		currentTime *= 1000000;
-    		currentTime /= freq;
+            currentTime *= 1000000;
+            currentTime /= freq;
     
-    		return currentTime - startTime * 1000;
+            return currentTime - startTime * 1000;
 #else
-    		gettimeofday(&currentTime, 0);
+            gettimeofday(&currentTime, 0);
     
-    		return (unsigned long)((currentTime.tv_sec - startTime.tv_sec) / 1000)
-		    + (unsigned long)((currentTime.tv_usec - startTime.tv_usec));
+            return (unsigned long)((currentTime.tv_sec - startTime.tv_sec) / 1000)
+            + (unsigned long)((currentTime.tv_usec - startTime.tv_usec));
 #endif
-	}
+    }
         */
 
-	unsigned int guiTimer::msecs()
-	{
+    unsigned int guiTimer::msecs()
+    {
             return System::currentMilliseconds() - startTime;
             /*
 #if defined (_WIN32)
-    		currentTime = GetTickCount();
+            currentTime = GetTickCount();
     
-    		return currentTime - startTime;
+            return currentTime - startTime;
 #else
-    		gettimeofday(&currentTime, 0);
+            gettimeofday(&currentTime, 0);
     
-    		return (unsigned long)((currentTime.tv_sec - startTime.tv_sec) * 1000)
-		    + (unsigned long)((currentTime.tv_usec - startTime.tv_usec) / 1000);
+            return (unsigned long)((currentTime.tv_sec - startTime.tv_sec) * 1000)
+            + (unsigned long)((currentTime.tv_usec - startTime.tv_usec) / 1000);
 #endif
 */
-	}
-	
-	unsigned int guiTimer::secs()
-	{
+    }
+    
+    unsigned int guiTimer::secs()
+    {
             return msecs() / 1000;
             /*
 #if defined (_WIN32)
-		currentTime = GetTickCount();
-		
-		return (currentTime - startTime) / 1000;
+        currentTime = GetTickCount();
+        
+        return (currentTime - startTime) / 1000;
 #else
-    		gettimeofday(&currentTime, 0);
+            gettimeofday(&currentTime, 0);
     
-    		return (unsigned long)(currentTime.tv_sec - startTime.tv_sec);
+            return (unsigned long)(currentTime.tv_sec - startTime.tv_sec);
 #endif
 */
-	}
-	
-	// Reset timer
-	void guiTimer::reset()
-	{
+    }
+    
+    // Reset timer
+    void guiTimer::reset()
+    {
             startTime = System::currentMilliseconds();
             /*
 #if defined (_WIN32)
-    		startTime = GetTickCount();
+            startTime = GetTickCount();
 #else
-    		gettimeofday(&startTime, 0);
+            gettimeofday(&startTime, 0);
 #endif
 */
-	}
-	
-	// Provides a method to sleep
-	void guiTimer::sleep(int msecs)
-	{
+    }
+    
+    // Provides a method to sleep
+    void guiTimer::sleep(int msecs)
+    {
             Util::rest(msecs);
             /*
 #if defined (_WIN32)
-		Sleep(msecs);
+        Sleep(msecs);
 #else
-		struct timespec timeOut;
-		timeOut.tv_sec = 0;
-		timeOut.tv_nsec = (msecs * 1000000);
-		nanosleep(&timeOut, NULL);
+        struct timespec timeOut;
+        timeOut.tv_sec = 0;
+        timeOut.tv_nsec = (msecs * 1000000);
+        nanosleep(&timeOut, NULL);
 #endif
 */
 
-	}
+    }
 

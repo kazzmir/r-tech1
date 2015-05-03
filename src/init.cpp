@@ -30,15 +30,21 @@
 /* don't be a boring tuna */
 // #warning you are ugly
 
-#include "system/init.h"
-#include "init.h"
-#include "network/network.h"
-#include "thread.h"
+/**
+ * 
+ * FIXME No System, this outside util directory
+ * 
+ */
+
+//#include "system/init.h"
+#include "r-tech1/init.h"
+#include "r-tech1/network/network.h"
+#include "r-tech1/thread.h"
 #include <time.h>
-#include "system/timer.h"
+//#include "system/timer.h"
 
 #include <ostream>
-#include "sound/dumb/include/dumb.h"
+#include "libs/dumb/include/dumb.h"
 
 /*
 #ifdef USE_ALLEGRO
@@ -48,24 +54,24 @@
 #endif
 */
 
-#include "graphics/bitmap.h"
-#include "funcs.h"
-#include "file-system.h"
-#include "font.h"
-#include "events.h"
-#include "sound/sound.h"
-#include "configuration.h"
-#include "sound/music.h"
-#include "resource.h"
-#include "loading.h"
-#include "input/keyboard.h"
-#include "message-queue.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/font.h"
+#include "r-tech1/events.h"
+#include "r-tech1/sound/sound.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/sound/music.h"
+#include "r-tech1/resource.h"
+#include "r-tech1/loading.h"
+#include "r-tech1/input/keyboard.h"
+#include "r-tech1/message-queue.h"
 
 #ifdef WII
 #include <fat.h>
 #endif
 
-#include "xenon/xenon.h"
+#include "r-tech1/xenon/xenon.h"
 
 using namespace std;
 
@@ -139,26 +145,26 @@ static void handleSigPipe( int i, siginfo_t * sig, void * data ){
 
 /*
 static void handleSigUsr1( int i, siginfo_t * sig, void * data ){
-	pthread_exit( NULL );
+    pthread_exit( NULL );
 }
 */
 #endif
 
 static void registerSignals(){
 #if !defined(WINDOWS) && !defined(WII) && !defined(MINPSPW) && !defined(PS3) && !defined(NDS) && !defined(NACL) && !defined(XENON) && !defined(UCLIBC)
-	struct sigaction action;
-	memset( &action, 0, sizeof(struct sigaction) );
-	action.sa_sigaction = handleSigPipe;
-	sigaction( SIGPIPE, &action, NULL );
+    struct sigaction action;
+    memset( &action, 0, sizeof(struct sigaction) );
+    action.sa_sigaction = handleSigPipe;
+    sigaction( SIGPIPE, &action, NULL );
 
-	memset( &action, 0, sizeof(struct sigaction) );
-	action.sa_sigaction = handleSigSegV;
-	sigaction( SIGSEGV, &action, NULL );
+    memset( &action, 0, sizeof(struct sigaction) );
+    action.sa_sigaction = handleSigSegV;
+    sigaction( SIGSEGV, &action, NULL );
 
-	/*
-	action.sa_sigaction = handleSigUsr1;
-	sigaction( SIGUSR1, &action, NULL );
-	*/
+    /*
+    action.sa_sigaction = handleSigUsr1;
+    sigaction( SIGUSR1, &action, NULL );
+    */
 #endif
 }
 

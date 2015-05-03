@@ -2,8 +2,8 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_memfile.h>
 #include <allegro5/allegro_primitives.h>
-#include "util/debug.h"
-#include "util/thread.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/thread.h"
 #include <vector>
 
 namespace Graphics{

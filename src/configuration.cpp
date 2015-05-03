@@ -1,11 +1,11 @@
-#include "configuration.h"
-#include "input/keyboard.h"
-#include "exceptions/load_exception.h"
-#include "tokenreader.h"
-#include "token.h"
-#include "file-system.h"
-#include "input/input.h"
-#include "debug.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/input/keyboard.h"
+#include "r-tech1/exceptions/load_exception.h"
+#include "r-tech1/tokenreader.h"
+#include "r-tech1/token.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/input/input.h"
+#include "r-tech1/debug.h"
 #include <sstream>
 #include <fstream>
 #include <stdlib.h>
@@ -276,7 +276,7 @@ Configuration & Configuration::operator=(const Configuration & config){
     setMenuFont(config.getMenuFont());
     return *this;
 }
-	
+    
 Configuration::~Configuration(){
 }
 
@@ -843,7 +843,7 @@ void Configuration::setLives(int l){
     setProperty(config_lives, l);
     saveConfiguration();
 }
-	
+    
 int Configuration::getNpcBuddies(){
     return getProperty(config_npc_buddies, 1);
 }

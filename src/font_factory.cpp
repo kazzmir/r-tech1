@@ -3,15 +3,15 @@
 #include <allegro.h>
 #endif
 #include <map>
-#include "font.h"
-#include "funcs.h"
-#include "file-system.h"
-#include "thread.h"
-#include "font_factory.h"
-#include "debug.h"
-#include "exceptions/exception.h"
-#include "exceptions/load_exception.h"
-#include "ftalleg.h"
+#include "r-tech1/font.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/thread.h"
+#include "r-tech1/font_factory.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/exceptions/exception.h"
+#include "r-tech1/exceptions/load_exception.h"
+#include "r-tech1/ftalleg.h"
 
 // #include "fonts.h"
 
@@ -122,8 +122,8 @@ FontFactory::~FontFactory(){
     }
 
         /*
-	if ( my_data != NULL ){
-		unload_datafile( my_data );
-	}
+    if ( my_data != NULL ){
+        unload_datafile( my_data );
+    }
         */
 }

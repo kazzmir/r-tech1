@@ -1,8 +1,8 @@
-#include "input-manager.h"
-#include "util/configuration.h"
-#include "joystick.h"
-#include "util/events.h"
-#include "util/debug.h"
+#include "r-tech1/input/input-manager.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/input/joystick.h"
+#include "r-tech1/events.h"
+#include "r-tech1/debug.h"
 #include <stdlib.h>
 #include <vector>
 

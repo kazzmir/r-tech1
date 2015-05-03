@@ -6,21 +6,21 @@
 #endif
 #include <vector>
 #include <map>
-#include "graphics/bitmap.h"
-#include "events.h"
-#include "exceptions/shutdown_exception.h"
-#include "configuration.h"
-#include "debug.h"
-#include "funcs.h"
-#include "thread.h"
-#include "init.h"
-#include "parameter.h"
-#include "input/keyboard.h"
-#include "input/joystick.h"
-#include "input/input-manager.h"
-#include "input/input-source.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/events.h"
+#include "r-tech1/exceptions/shutdown_exception.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/thread.h"
+#include "r-tech1/init.h"
+#include "r-tech1/parameter.h"
+#include "r-tech1/input/keyboard.h"
+#include "r-tech1/input/joystick.h"
+#include "r-tech1/input/input-manager.h"
+#include "r-tech1/input/input-source.h"
 
-#include "system.h"
+#include "r-tech1/system.h"
 
 using std::map;
 

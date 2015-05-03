@@ -1,6 +1,6 @@
 #include <string>
-#include "language-string.h"
-#include "configuration.h"
+#include "r-tech1/language-string.h"
+#include "r-tech1/configuration.h"
 
 using namespace std;
     

@@ -1,15 +1,15 @@
-#include "cutscene.h"
+#include "r-tech1/gui/cutscene.h"
 
-#include "util/graphics/bitmap.h"
-#include "util/init.h"
-#include "util/input/input-map.h"
-#include "util/exceptions/load_exception.h"
-#include "util/input/input-manager.h"
-#include "util/input/input-source.h"
-#include "util/token.h"
-#include "util/tokenreader.h"
-#include "util/file-system.h"
-#include "util/configuration.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/init.h"
+#include "r-tech1/input/input-map.h"
+#include "r-tech1/exceptions/load_exception.h"
+#include "r-tech1/input/input-manager.h"
+#include "r-tech1/input/input-source.h"
+#include "r-tech1/token.h"
+#include "r-tech1/tokenreader.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/configuration.h"
 
 using namespace Gui;
 

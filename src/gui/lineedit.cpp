@@ -1,7 +1,7 @@
-#include "util/graphics/bitmap.h"
-#include "util/font.h"
-#include "lineedit.h"
-#include "util/debug.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/font.h"
+#include "r-tech1/gui/lineedit.h"
+#include "r-tech1/debug.h"
 #include <iostream>
 
 using namespace Gui;

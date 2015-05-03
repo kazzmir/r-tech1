@@ -1,9 +1,9 @@
-#include "util/graphics/bitmap.h"
-#include "tabbed-box.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/gui/tabbed-box.h"
 
-#include "util/font.h"
+#include "r-tech1/font.h"
 
-#include "context-box.h"
+#include "r-tech1/gui/context-box.h"
 
 using namespace Gui;
 

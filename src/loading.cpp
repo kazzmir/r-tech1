@@ -1,23 +1,23 @@
-#include "graphics/bitmap.h"
+#include "r-tech1/graphics/bitmap.h"
 #include <math.h>
 #include <iostream>
 
-#include "messages.h"
-#include "loading.h"
-#include "file-system.h"
-#include "font.h"
-#include "funcs.h"
-#include "version.h"
-#include "graphics/gradient.h"
-#include "parameter.h"
-#include "thread.h"
+#include "r-tech1/messages.h"
+#include "r-tech1/loading.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/font.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/version.h"
+#include "r-tech1/graphics/gradient.h"
+#include "r-tech1/parameter.h"
+#include "r-tech1/thread.h"
 #include <vector>
-#include "thread.h"
-#include "message-queue.h"
-#include "init.h"
-#include "events.h"
-#include "input/input-map.h"
-#include "input/input-manager.h"
+#include "r-tech1/thread.h"
+#include "r-tech1/message-queue.h"
+#include "r-tech1/init.h"
+#include "r-tech1/events.h"
+#include "r-tech1/input/input-map.h"
+#include "r-tech1/input/input-manager.h"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ namespace Loader{
 volatile bool done_loading = true;
 
 typedef struct pair{
-	int x, y;
+    int x, y;
 } ppair;
 
 class MessageInfo{

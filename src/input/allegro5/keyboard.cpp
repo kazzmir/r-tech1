@@ -1,4 +1,4 @@
-#include "../keyboard.h"
+#include "r-tech1/input/keyboard.h"
 #include <allegro5/keycodes.h>
 
 const Keyboard::KeyType Keyboard::Key_A = ALLEGRO_KEY_A;

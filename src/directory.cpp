@@ -1,13 +1,13 @@
-#include "file-system.h"
-#include "debug.h"
-#include "thread.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/thread.h"
 #include <string>
 #include <vector>
 #include <map>
 
 #ifndef USE_ALLEGRO
-#include "sfl/sfl.h"
-#include "sfl/sfldir.h"
+#include "libs/sfl/sfl.h"
+#include "libs/sfl/sfldir.h"
 #endif
 
 using std::string;

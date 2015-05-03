@@ -1,8 +1,8 @@
 #ifndef _paintown_allegro5_joystick_h
 #define _paintown_allegro5_joystick_h
 
-#include "../joystick.h"
-#include "util/pointer.h"
+#include "r-tech1/input/joystick.h"
+#include "r-tech1/pointer.h"
 #include <string>
 
 struct ALLEGRO_EVENT_QUEUE;

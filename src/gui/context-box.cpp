@@ -1,10 +1,10 @@
-#include "util/graphics/bitmap.h"
+#include "r-tech1/graphics/bitmap.h"
 
-#include "context-box.h"
-#include "util/font.h"
+#include "r-tech1/gui/context-box.h"
+#include "r-tech1/font.h"
 #include <math.h>
 
-#include "util/token.h"
+#include "r-tech1/token.h"
 
 static const double FONT_SPACER = 1.3;
 static const int GradientMax = 50;
@@ -214,7 +214,7 @@ void ContextBox::render(const Graphics::Bitmap & work){
 
 void ContextBox::render(const Graphics::Bitmap & work, const Font & font){
     if (!renderOnlyText){
-	board.render(work);
+    board.render(work);
     }
     drawText(work, font);
 }

@@ -1,8 +1,8 @@
-#include "input-map.h"
-#include "text-input.h"
-#include "input-manager.h"
-#include "input-source.h"
-#include "keyboard.h"
+#include "r-tech1/input/input-map.h"
+#include "r-tech1/input/text-input.h"
+#include "r-tech1/input/input-manager.h"
+#include "r-tech1/input/input-source.h"
+#include "r-tech1/input/keyboard.h"
 #include <string.h>
 #include <sstream>
 #include <string>

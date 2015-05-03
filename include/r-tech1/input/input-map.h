@@ -5,7 +5,7 @@
 #include <vector>
 #include "joystick.h"
 #include "keyboard.h"
-#include "util/pointer.h"
+#include "r-tech1/pointer.h"
 #include <iostream>
 
 template <typename X>

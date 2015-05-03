@@ -1,7 +1,7 @@
-#include "tab-container.h"
+#include "r-tech1/gui/tab-container.h"
 
-#include "util/font.h"
-#include "util/debug.h"
+#include "r-tech1/font.h"
+#include "r-tech1/debug.h"
 
 #include <stdexcept>
 #include <sstream>

@@ -1,5 +1,5 @@
-#include "util/graphics/bitmap.h"
-#include "popup-box.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/gui/popup-box.h"
 
 using namespace std;
 using namespace Gui;

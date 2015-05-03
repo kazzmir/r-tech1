@@ -6,12 +6,12 @@
 #include "input.h"
 #include "input-map.h"
 #include "input-source.h"
-#include "util/funcs.h"
-#include "util/pointer.h"
-#include "util/events.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/events.h"
 #include "keyboard.h"
 #include "joystick.h"
-#include "util/exceptions/exception.h"
+#include "r-tech1/exceptions/exception.h"
 
 class Configuration;
 class InputSource;

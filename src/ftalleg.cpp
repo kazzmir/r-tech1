@@ -28,7 +28,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #ifndef FT_FONT_CPP
 #define FT_FONT_CPP
 
-#include "graphics/bitmap.h"
+#include "r-tech1/graphics/bitmap.h"
 
 /*
 #include <allegro.h>
@@ -37,8 +37,8 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 #endif
 */
 
-#include "ftalleg.h"
-#include "utf.h"
+#include "r-tech1/ftalleg.h"
+#include "r-tech1/utf.h"
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -62,7 +62,7 @@ namespace ftalleg{
     Exception::~Exception() throw(){
     }
 
-	// typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
+    // typedef void (*pixeler)( BITMAP * bitmap, int x, int y, int color );
 
     static Graphics::Color fixColor(const unsigned char c, short grays){
         // Safety checks
@@ -78,12 +78,12 @@ namespace ftalleg{
         //alpha = *c * 255 / (grays - 1);
         return Graphics::makeColor(red,green,blue);
     }
-	// Static count of instances of fonts to track library
-	static int instances = 0;
-	static FT_Library ftLibrary = 0;
+    // Static count of instances of fonts to track library
+    static int instances = 0;
+    static FT_Library ftLibrary = 0;
 
-	character::character() {
-	}
+    character::character() {
+    }
 
         character::~character() {
             if (line){
@@ -91,9 +91,9 @@ namespace ftalleg{
             }
         }
 
-	fontSize::fontSize() {
+    fontSize::fontSize() {
             width = height = italics = angle = 0;
-	}
+    }
             
         fontSize::fontSize(int width, int height):
             width(width),
@@ -102,17 +102,17 @@ namespace ftalleg{
             angle(0){
             }
 
-	fontSize::~fontSize() {
-	}
+    fontSize::~fontSize() {
+    }
 
-	bool fontSize::operator<(const fontSize &fs) const {
+    bool fontSize::operator<(const fontSize &fs) const {
             return (width<fs.width || height<fs.height || italics<fs.italics);
-	}
+    }
 
         /* im not sure this is a very unique key.. */
-	int fontSize::createKey() const {
+    int fontSize::createKey() const {
             return ((width+10) * (height+20) * (italics+250));
-	}
+    }
 
 #ifdef USE_ALLEGRO5
     freetype::freetype(const Filesystem::AbsolutePath & path, const int x, const int y):
@@ -163,7 +163,7 @@ namespace ftalleg{
         }
         return find->second.video;
     }
-	
+    
     int freetype::getHeight(const std::string & str) const {
         Util::Thread::ScopedLock locked(lock);
         /* sort of a hack but we need to set the display to the screen. with
@@ -243,7 +243,7 @@ namespace ftalleg{
         bmp.endDrawing();
     }
 #else
-	//! Constructor
+    //! Constructor
         freetype::freetype(const Filesystem::AbsolutePath & str, const int x, const int y ):
             face(NULL){
                 //Load library
@@ -264,7 +264,7 @@ namespace ftalleg{
                 this->load(str, 0, x, y );
             }
 
-	//! Destructor
+    //! Destructor
         freetype::~freetype(){
 
             //if(face!=NULL)FT_Done_Face(face);
@@ -298,7 +298,7 @@ namespace ftalleg{
             }
         }
 
-	// Extract glyph
+    // Extract glyph
         character * freetype::extractGlyph(signed long unicode){
             int w, h, ew;
             character * tempChar = new character();
@@ -342,7 +342,7 @@ namespace ftalleg{
             return tempChar;
         }
 
-	// Create single index
+    // Create single index
         void freetype::createIndex(){
             std::map<int, std::map<signed long, character*> >::iterator p;
             p = fontTable.find(size.createKey());
@@ -368,16 +368,16 @@ namespace ftalleg{
         }
 
         /*
-	pixeler getPutPixel(){
-		switch( get_color_depth() ){
-			case 8 : return _putpixel;
-			case 15 : return _putpixel15;
-			case 16 : return _putpixel16;
-			case 24 : return _putpixel24;
-			case 32 : return _putpixel32;
-			default : return putpixel;
-		}
-	}
+    pixeler getPutPixel(){
+        switch( get_color_depth() ){
+            case 8 : return _putpixel;
+            case 15 : return _putpixel15;
+            case 16 : return _putpixel16;
+            case 24 : return _putpixel24;
+            case 32 : return _putpixel32;
+            default : return putpixel;
+        }
+    }
         */
 
         void drawOneCharacter(const character * tempChar, int & x1, int & y1, FT_UInt sizeHeight, const Graphics::Bitmap & bitmap, const Graphics::Color & color){
@@ -439,7 +439,7 @@ namespace ftalleg{
             x1 += tempChar->right;
         }
 
-	// Render a character from the lookup table
+    // Render a character from the lookup table
         void freetype::drawCharacter(signed long unicode, int &x1, int &y1, const Graphics::Bitmap & bitmap, const Graphics::Color &color){
 
             // pixeler putter = getPutPixel();
@@ -456,7 +456,7 @@ namespace ftalleg{
             }
         }
 
-	//! Load font from memory
+    //! Load font from memory
         bool freetype::load(const unsigned char *memoryFont, unsigned int length, int index, unsigned int width, unsigned int height) {
             if(!FT_New_Memory_Face(ftLibrary,memoryFont, length,index,&face)) {
                 currentFilename = "memoryFont";
@@ -483,7 +483,7 @@ namespace ftalleg{
             return faceLoaded;
         }
 
-	//! Load font from file
+    //! Load font from file
         bool freetype::load(const Filesystem::AbsolutePath & filename, int index, unsigned int width, unsigned int height){
             FT_Error error = FT_New_Face(ftLibrary, filename.path().c_str(), index, &face);
             if (error == 0){
@@ -514,7 +514,7 @@ namespace ftalleg{
             return faceLoaded;
         }
 
-	//! Get text length
+    //! Get text length
         int freetype::getLength(const std::string & text) {
             Util::Thread::ScopedLock locked(lock);
             int length=0;
@@ -535,7 +535,7 @@ namespace ftalleg{
             return length;
         }
 
-	//! Render font to a bitmap
+    //! Render font to a bitmap
         void freetype::render(int x, int y, const Graphics::Color & color, const Graphics::Bitmap & bmp, ftAlign alignment, const std::string & text, int marker ...) {
             if (faceLoaded){
                 int rend_x = 0;
@@ -600,7 +600,7 @@ namespace ftalleg{
                 }
             }
         }
-			
+            
         int freetype::calculateMaximumHeight(){
             Util::Thread::ScopedLock locked(lock);
             /* uhh, comment out the printf's ?? */
@@ -643,7 +643,7 @@ namespace ftalleg{
             return 0;
         }
 
-	int freetype::calculateHeight(const std::string & str) const {
+    int freetype::calculateHeight(const std::string & str) const {
             int max = 0;
             for ( unsigned int i = 0; i < str.length(); i++ ){
                 int q = height(str[i]);
@@ -654,10 +654,10 @@ namespace ftalleg{
             }
 
             return max;
-	}
+    }
 
-	//! Set size
-	void freetype::setSize( unsigned int w, unsigned int h){
+    //! Set size
+    void freetype::setSize( unsigned int w, unsigned int h){
             Util::Thread::ScopedLock locked(lock);
             if ( w != size.width || h != size.height ){
                 if (internalFix)return;
@@ -667,38 +667,38 @@ namespace ftalleg{
                 createIndex();
                 // maximumHeight = calculateMaximumHeight();
             }
-	}
+    }
 
-	//! Set italics
-	void freetype::setItalics(int i){
+    //! Set italics
+    void freetype::setItalics(int i){
             Util::Thread::ScopedLock locked(lock);
-		if(internalFix)return;
-		if(i<-45)i=(-45);
-		else if(i>45)i=45;
-		size.italics = i;
-		createIndex();
-	}
+        if(internalFix)return;
+        if(i<-45)i=(-45);
+        else if(i>45)i=45;
+        size.italics = i;
+        createIndex();
+    }
 
         void freetype::getSize(int * w, int * h) const {
             *w = size.width;
             *h = size.height;
         }
 
-	//! Get Width
-	int freetype::getWidth() const {
+    //! Get Width
+    int freetype::getWidth() const {
             return size.width;
-	}
+    }
 
-	//! Get Height
-	int freetype::getHeight( const std::string & str ) const {
+    //! Get Height
+    int freetype::getHeight( const std::string & str ) const {
             // return size.height;
             return calculateHeight(str);
         }
 
-	//! Get Italics
-	int freetype::getItalics(){
+    //! Get Italics
+    int freetype::getItalics(){
             return size.italics;
-	}
+    }
 #endif
 }
 

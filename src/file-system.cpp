@@ -10,11 +10,11 @@
 
 #endif
 #include <algorithm>
-#include "funcs.h"
-#include "file-system.h"
-#include "thread.h"
-#include "system.h"
-#include "utf.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/thread.h"
+#include "r-tech1/system.h"
+#include "r-tech1/utf.h"
 // #include "globals.h"
 #include <dirent.h>
 #include <sstream>
@@ -22,20 +22,20 @@
 #include <string>
 #include <fstream>
 #include <ostream>
-#include "token.h"
+#include "r-tech1/token.h"
 
-#include "zip/unzip.h"
-#include "zip/ioapi.h"
+#include "libs/zip/unzip.h"
+#include "libs/zip/ioapi.h"
 
-#include "7z/7zFile.h"
-#include "7z/7z.h"
-#include "7z/7zAlloc.h"
-#include "7z/7zCrc.h"
+#include "libs/7z/7zFile.h"
+#include "libs/7z/7z.h"
+#include "libs/7z/7zAlloc.h"
+#include "libs/7z/7zCrc.h"
 
 #ifndef USE_ALLEGRO
 /* some sfl symbols conflict with allegro */
-#include "sfl/sfl.h"
-#include "sfl/sfldir.h"
+#include "libs/sfl/sfl.h"
+#include "libs/sfl/sfldir.h"
 #endif
 
 #ifdef _WIN32

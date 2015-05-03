@@ -1,7 +1,7 @@
-#include "util/graphics/bitmap.h"
-#include "coordinate.h"
-#include "util/funcs.h"
-#include "util/exceptions/load_exception.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/gui/coordinate.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/exceptions/load_exception.h"
 #include <sstream>
 #include <math.h>
 

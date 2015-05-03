@@ -1,5 +1,5 @@
-#include "debug.h"
-#include "system.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/system.h"
 #include <iostream>
 #include <fstream>
 #include <string>

@@ -2,9 +2,9 @@
 #define util_gui_cutscene_h
 
 #include "fadetool.h"
-#include "util/pointer.h"
+#include "r-tech1/pointer.h"
 #include "animation.h"
-#include "util/file-system.h"
+#include "r-tech1/file-system.h"
 
 #include <string>
 #include <vector>

@@ -1,6 +1,6 @@
-#include "gradient.h"
-#include "../funcs.h"
-#include "../token.h"
+#include "r-tech1/graphics/gradient.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/token.h"
 
 namespace Effects{
     

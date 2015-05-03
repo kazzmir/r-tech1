@@ -1,6 +1,6 @@
 Import('env', 'options')
 
-import helpers
+from scons import helpers
 import os.path
 
 def tryKey(hashx, key, default):
@@ -9,124 +9,51 @@ def tryKey(hashx, key, default):
     except KeyError:
         return default
 
-def useSDL(options):
-    return tryKey(options, 'sdl', False)
-
-def useAllegro(options):
-    return tryKey(options, 'allegro', False)
-
 def useNetwork(options):
     return tryKey(options, 'networking', False)
     
 def utilLibrary(env):
-    modules = helpers.read_cmake_list(helpers.findFile('src/util/CMakeLists.txt'))
+    modules = helpers.read_cmake_list(helpers.findFile('src/CMakeLists.txt'))
 
     source = []
     for module in modules:
         source.append(modules[module])
 
-    return env.StaticLibrary('paintown-util', source)
+    return env.StaticLibrary('util', source)
 
 def minizipLibrary(env):
-    return env.SConscript('zip/SConscript', exports = ['env'])
+    return env.SConscript('libs/zip/SConscript', exports = ['env'])
 
 def gmeLibrary(env):
     use = env
-    return SConscript('sound/gme/SConscript', exports = ['use'])
+    return SConscript('libs/gme/SConscript', exports = ['use'])
 
 def lzmaLibrary7z(env):
     use = env
-    return SConscript('7z/SConscript', exports = ['use'])
+    return SConscript('libs/7z/SConscript', exports = ['use'])
 
 def sflLibrary(env):
     use = env
-    return SConscript('sfl/SConscript', exports = ['use'])
+    return SConscript('libs/sfl/SConscript', exports = ['use'])
 
 def pcreLibrary(env):
     pcreEnv = env.Clone()
     env = pcreEnv
-    return env.SConscript('pcre/SConstruct', exports = ['env'])
+    return env.SConscript('libs/pcre/SConstruct', exports = ['env'])
 
 def dumbLibrary(env):
     dumbEnv = env.Clone()
     env = dumbEnv
-    return env.SConscript('sound/dumb/SConscript', exports = ['env'])
-
-def sdlImageLibrary(env):
-    image = env.Clone()
-    image.Append(CPPDEFINES = ['LOAD_PNG', 'LOAD_PCX', 'LOAD_GIF'])
-    source = Split("""
-graphics/sdl/image/IMG.c
-graphics/sdl/image/IMG_jpg.c
-graphics/sdl/image/IMG_pnm.c
-graphics/sdl/image/IMG_xpm.c
-graphics/sdl/image/IMG_ImageIO.c
-graphics/sdl/image/IMG_lbm.c
-graphics/sdl/image/IMG_tga.c
-graphics/sdl/image/IMG_xv.c
-graphics/sdl/image/IMG_bmp.c
-graphics/sdl/image/IMG_pcx.c
-graphics/sdl/image/IMG_tif.c
-graphics/sdl/image/IMG_xxx.c
-graphics/sdl/image/IMG_gif.c
-graphics/sdl/image/IMG_png.c
-graphics/sdl/image/IMG_savepng.c
-graphics/sdl/image/IMG_xcf.c
-""")
-
-    return image.StaticLibrary('image',source)
-
-def sdlMixerLibrary(env):
-    use = env
-    return SConscript('sound/sdl/mixer/SConscript', exports = ['use'])
-
-def sprigLibrary(env):
-    sprig = env.Clone()
-    source = Split("""
-graphics/sdl/sprig/SPG_extended.c
-graphics/sdl/sprig/SPG_misc.c
-graphics/sdl/sprig/SPG_polygon.c
-graphics/sdl/sprig/SPG_primitives.c
-graphics/sdl/sprig/SPG_rotation.c
-graphics/sdl/sprig/SPG_surface.c
-""")
-
-    return sprig.StaticLibrary('sprig', source)
-
-def stretchLibrary(env):
-    stretch = env.Clone()
-    # FIXME: asm has some bug in it, try to fix it later
-    stretch.Append(CPPDEFINES = ['SDL_STRETCH_DISABLE_ASM'])
-    source = Split("""
-graphics/sdl/stretch/sdlstretch.c
-graphics/sdl/stretch/sdlstretchcode.c
-""")
-
-    return stretch.StaticLibrary('stretch', source)
+    return env.SConscript('libs/dumb/SConscript', exports = ['env'])
 
 def hawknlLibrary(env):
     hawkEnv = env.Clone()
     env = hawkEnv
     # if isOSX():
     #    env.Append(CPPDEFINES = 'MACOSX')
-    return env.SConscript('network/hawknl/SConscript', exports = ['env'])
-
-def alGifLibrary(env):
-    gif = env.Clone()
-    source = Split("""
-graphics/allegro/gif/algif.c
-graphics/allegro/gif/gif.c
-graphics/allegro/gif/lzw.c
-""")
-    return gif.StaticLibrary('algif', source)
+    return env.SConscript('libs/hawknl/SConscript', exports = ['env'])
 
 all = [utilLibrary(env), minizipLibrary(env), gmeLibrary(env), lzmaLibrary7z(env), sflLibrary(env), pcreLibrary(env), dumbLibrary(env)]
-
-if useSDL(options):
-    all.extend([sdlImageLibrary(env), sprigLibrary(env), sdlMixerLibrary(env), stretchLibrary(env)])
-
-if useAllegro(options):
-    all.append(alGifLibrary(env))
 
 if useNetwork(options):
     all.append(hawknlLibrary(env))

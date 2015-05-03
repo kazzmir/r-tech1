@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "coordinate.h"
-#include "util/pointer.h"
+#include "r-tech1/pointer.h"
 
 class Font;
 

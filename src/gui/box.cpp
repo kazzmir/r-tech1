@@ -1,12 +1,12 @@
-#include "util/graphics/bitmap.h"
-#include "box.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/gui/box.h"
 
-#include "util/font.h"
+#include "r-tech1/font.h"
 
 using namespace Gui;
 
 Box::Box(){
-	// Nothing yet
+    // Nothing yet
 }
 
 Box::Box( const Box & b ){
@@ -15,7 +15,7 @@ Box::Box( const Box & b ){
 }
 
 Box::~Box(){
-	// Nothing yet
+    // Nothing yet
 }
 
 Box &Box::operator=( const Box &copy){
@@ -27,7 +27,7 @@ Box &Box::operator=( const Box &copy){
 
 // Logic
 void Box::act(const Font & font){
-	// Nothing yet
+    // Nothing yet
 }
 
 // Render

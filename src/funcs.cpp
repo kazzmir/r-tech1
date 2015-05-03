@@ -7,24 +7,24 @@
 #ifdef USE_ALLEGRO5
 #include <allegro5/allegro.h>
 #endif
-#include "funcs.h"
-#include "debug.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/debug.h"
 #include <vector>
 #include <string>
 #include <string.h>
 #include <algorithm>
-#include "file-system.h"
-#include "graphics/bitmap.h"
-#include "font.h"
-#include "init.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/font.h"
+#include "r-tech1/init.h"
 #include <sstream>
-#include "file-system.h"
+#include "r-tech1/file-system.h"
 #include <math.h>
 
 #ifndef USE_ALLEGRO
 /* FIXME: move this to the filesystem module */
-#include "sfl/sfl.h"
-#include "sfl/sflfile.h"
+#include "libs/sfl/sfl.h"
+#include "libs/sfl/sflfile.h"
 #endif
 
 #ifndef WINDOWS
@@ -61,8 +61,8 @@ double Util::degrees(double radians){
 
 /*
 inline int rnd( int q ){
-	if ( q <= 0 ) return 0;
-	return (int)( rand() % q );
+    if ( q <= 0 ) return 0;
+    return (int)( rand() % q );
 }
 */
 
@@ -105,11 +105,11 @@ double Util::clamp(double value, double min, double max){
 }
 
 int Util::rnd( int q, int min, int range ){
-	return q - min + rnd( range );
+    return q - min + rnd( range );
 }
 
 int Util::rnd( int min, int max ){
-	return rnd( max - min ) + min;
+    return rnd( max - min ) + min;
 }
 
 /* sleep for `x' milliseconds */
@@ -151,7 +151,7 @@ bool Util::checkVersion(int version){
 #endif
 
 void Util::setDataPath( const string & str ){
-    dataPath = str;	
+    dataPath = str; 
 }
 
 Filesystem::AbsolutePath Util::getDataPath2(){
@@ -271,21 +271,21 @@ static int levenshtein_distance(const char *s, const char *t){
     d = (int*) malloc((sizeof(int))*(m+1)*(n+1));
     m++;
     n++;
-    //Step 2	
+    //Step 2    
     for(k=0;k<n;k++)
-	d[k]=k;
+    d[k]=k;
     for(k=0;k<m;k++)
       d[k*n]=k;
-    //Step 3 and 4	
+    //Step 3 and 4  
     for(i=1;i<n;i++)
       for(j=1;j<m;j++)
-	{
+    {
         //Step 5
         if(s[i-1]==t[j-1])
           cost=0;
         else
           cost=1;
-        //Step 6			 
+        //Step 6             
         d[j*n+i]=minimum(d[(j-1)*n+i]+1,d[j*n+i-1]+1,d[(j-1)*n+i-1]+cost);
       }
     distance=d[n*m-1];

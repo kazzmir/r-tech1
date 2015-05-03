@@ -6,7 +6,7 @@
 
 #include "widget.h"
 #include "timer.h"
-#include "util/input/text-input.h"
+#include "r-tech1/input/text-input.h"
 
 class Font;
 

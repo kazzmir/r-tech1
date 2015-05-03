@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include "util/configuration.h"
-#include "joystick.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/input/joystick.h"
 
 /*
 #ifdef LINUX
@@ -8,21 +8,8 @@
 #endif
 */
 
-#ifdef USE_ALLEGRO
-#include "allegro/allegro-joystick.h"
-#endif
 #ifdef USE_ALLEGRO5
-#include "allegro5/joystick.h"
-#endif
-#ifdef USE_SDL
-#ifdef WII
-#include "wii/joystick.h"
-#include "sdl/joystick.h"
-#elif MINPSPW
-#include "psp/joystick.h"
-#else
-#include "sdl/joystick.h"
-#endif
+#include "r-tech1/input/allegro5/joystick.h"
 #endif
     
 JoystickListener::JoystickListener(){
@@ -132,9 +119,9 @@ const char * Joystick::keyToName(Key key){
         case Button2: return "Button2";
         case Button3: return "Button3";
         case Button4: return "Button4";
-	case Button5: return "Button5";
-	case Button6: return "Button6";
-	case Start: return "Start";
+    case Button5: return "Button5";
+    case Button6: return "Button6";
+    case Start: return "Start";
         case Quit: return "Quit";
     }
     return "Unknown";

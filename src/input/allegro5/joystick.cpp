@@ -1,8 +1,8 @@
 #ifdef USE_ALLEGRO5
 
-#include "../joystick.h"
-#include "joystick.h"
-#include "util/debug.h"
+#include "r-tech1/input/joystick.h"
+#include "r-tech1/input/allegro5/joystick.h"
+#include "r-tech1/debug.h"
 #include <allegro5/allegro.h>
 
 using std::vector;
