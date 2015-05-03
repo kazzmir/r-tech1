@@ -1,8 +1,8 @@
 #include <queue>
 #include <string>
 #include <vector>
-#include "message-queue.h"
-#include "thread.h"
+#include "r-tech1/message-queue.h"
+#include "r-tech1/thread.h"
 
 using std::vector;
 using std::string;

@@ -1,14 +1,14 @@
 #ifdef HAVE_NETWORKING
-#include "hawknl/nl.h"
+#include "libs/hawknl/nl.h"
 #endif
-#include "network.h"
-#include "util/debug.h"
+#include "r-tech1/network/network.h"
+#include "r-tech1/debug.h"
 #include <string>
 #include <sstream>
 #include <string.h>
-#include "util/system.h"
-#include "util/compress.h"
-#include "util/thread.h"
+#include "r-tech1/system.h"
+#include "r-tech1/compress.h"
+#include "r-tech1/thread.h"
 
 #ifdef HAVE_NETWORKING
 #ifdef WII
@@ -43,14 +43,14 @@ NetworkException::~NetworkException() throw (){
     
 MessageEnd::MessageEnd(){
 }
-	
+    
 InvalidPortException::InvalidPortException( int port, const string message ):
 NetworkException(""){
-	ostringstream num;
-	num << port;
-	num << ". ";
-	num << message;
-	this->setMessage( "Invalid port " + num.str() );
+    ostringstream num;
+    num << port;
+    num << ". ";
+    num << message;
+    this->setMessage( "Invalid port " + num.str() );
 }
 
 /*
@@ -87,10 +87,10 @@ uint8_t * messageDump<Message*>(Message* const & message, uint8_t * buffer){
 #ifdef HAVE_NETWORKING
 
 static string getHawkError(){
-	return string(" HawkNL error: '") +
-	       string(nlGetErrorStr(nlGetError())) +
-	       string("' HawkNL system error: '") +
-	       string(nlGetSystemErrorStr(nlGetSystemError()));
+    return string(" HawkNL error: '") +
+           string(nlGetErrorStr(nlGetError())) +
+           string("' HawkNL system error: '") +
+           string(nlGetSystemErrorStr(nlGetSystemError()));
 }
 
 template<typename X>
@@ -335,9 +335,9 @@ bool noDelay(Socket s, bool b){
 }
 
 void listen( Socket s ) throw( NetworkException ){
-	if ( nlListen( s ) == NL_FALSE ){
-		throw CannotListenException( string(nlGetSystemErrorStr( nlGetSystemError() )) );
-	}
+    if ( nlListen( s ) == NL_FALSE ){
+        throw CannotListenException( string(nlGetSystemErrorStr( nlGetSystemError() )) );
+    }
 }
 
 Socket accept( Socket s ) throw( NetworkException ){

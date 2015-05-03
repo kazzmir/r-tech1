@@ -1,7 +1,7 @@
-#include "actionfactory.h"
-#include "util/token.h"
-#include "util/debug.h"
-#include "action_speed.h"
+#include "r-tech1/menu/actionfactory.h"
+#include "r-tech1/token.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/menu/action_speed.h"
 
 using namespace std;
 

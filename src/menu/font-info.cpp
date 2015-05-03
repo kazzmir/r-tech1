@@ -1,8 +1,8 @@
-#include "font-info.h"
-#include "util/file-system.h"
-#include "util/font.h"
-#include "util/configuration.h"
-#include "util/exceptions/exception.h"
+#include "r-tech1/menu/font-info.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/font.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/exceptions/exception.h"
 
 namespace Menu{
 

@@ -1,11 +1,11 @@
-#include "util/graphics/bitmap.h"
-#include "util/token.h"
-#include "util/funcs.h"
-#include "util/language-string.h"
-#include "util/debug.h"
-#include "util/exceptions/load_exception.h"
-#include "util/gui/animation.h"
-#include "menu_option.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/token.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/language-string.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/exceptions/load_exception.h"
+#include "r-tech1/gui/animation.h"
+#include "r-tech1/menu/menu_option.h"
 
 using namespace std;
 
@@ -21,29 +21,29 @@ runnable(true){
 
       TokenView view = tok.view();
       while (view.hasMore()){
-	  try{
-	      const Token * token;
-	      view >> token;
-	      if ( *token == "info" ){
+      try{
+          const Token * token;
+          view >> token;
+          if ( *token == "info" ){
                   readInfo(token);
                   /*
-		  // get info text add to option
-		  std::string temp;
-		  *token >> temp;
-		  setInfoText(temp);
+          // get info text add to option
+          std::string temp;
+          *token >> temp;
+          setInfoText(temp);
                   */
-	      } else if( *token == "option-anim" ) {
-	      } else {
-		  Global::debug( 3 ) << "Unhandled menu attribute: "<<endl;
-		  if (Global::getDebug() >= 3){
-		      token->print(" ");
-		  }
-	      }
-	  } catch ( const TokenException & ex ) {
-	      throw LoadException(__FILE__, __LINE__, ex, "Menu option parse error");
-	  } catch ( const LoadException & ex ) {
-	      throw ex;
-	  }
+          } else if( *token == "option-anim" ) {
+          } else {
+          Global::debug( 3 ) << "Unhandled menu attribute: "<<endl;
+          if (Global::getDebug() >= 3){
+              token->print(" ");
+          }
+          }
+      } catch ( const TokenException & ex ) {
+          throw LoadException(__FILE__, __LINE__, ex, "Menu option parse error");
+      } catch ( const LoadException & ex ) {
+          throw ex;
+      }
       }
     }
 }

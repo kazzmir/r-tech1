@@ -1,6 +1,6 @@
-#include "action_speed.h"
-#include "util/configuration.h"
-#include "util/token.h"
+#include "r-tech1/menu/action_speed.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/token.h"
 
 ActionSpeed::ActionSpeed(const Token *token):
 speed(0.1){

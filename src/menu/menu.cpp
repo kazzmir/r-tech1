@@ -1,37 +1,37 @@
-#include "util/graphics/bitmap.h"
-#include "menu.h"
-#include "menu_option.h"
-#include "util/version.h"
-#include "util/funcs.h"
-#include "util/sound/sound.h"
-#include "util/font.h"
-#include "util/token.h"
-#include "util/events.h"
-#include "util/tokenreader.h"
-#include "util/file-system.h"
-#include "util/resource.h"
-#include "util/debug.h"
-#include "util/init.h"
-#include "util/configuration.h"
-#include "util/sound/music.h"
-#include "util/graphics/gradient.h"
-#include "util/exceptions/shutdown_exception.h"
-#include "util/exceptions/exception.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/menu/menu.h"
+#include "r-tech1/menu/menu_option.h"
+#include "r-tech1/version.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/sound/sound.h"
+#include "r-tech1/font.h"
+#include "r-tech1/token.h"
+#include "r-tech1/events.h"
+#include "r-tech1/tokenreader.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/resource.h"
+#include "r-tech1/debug.h"
+#include "r-tech1/init.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/sound/music.h"
+#include "r-tech1/graphics/gradient.h"
+#include "r-tech1/exceptions/shutdown_exception.h"
+#include "r-tech1/exceptions/exception.h"
 
-#include "optionfactory.h"
-#include "actionfactory.h"
+#include "r-tech1/menu/optionfactory.h"
+#include "r-tech1/menu/actionfactory.h"
 
-#include "util/input/input-manager.h"
-#include "util/input/input-map.h"
-#include "util/input/input-source.h"
-#include "util/parameter.h"
+#include "r-tech1/input/input-manager.h"
+#include "r-tech1/input/input-map.h"
+#include "r-tech1/input/input-source.h"
+#include "r-tech1/parameter.h"
 
 #include <queue>
 #include <map>
 #include <ostream>
 #include <sstream>
 
-#include "util/gui/context-box.h"
+#include "r-tech1/gui/context-box.h"
 
 using namespace std;
 using namespace Gui;

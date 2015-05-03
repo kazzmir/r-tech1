@@ -3,12 +3,12 @@
 
 #include "network.h"
 #include "chat.h"
-#include "util/pointer.h"
-#include "util/thread.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/thread.h"
 
-#include "util/gui/tab-container.h"
-#include "util/gui/lineedit.h"
-#include "util/gui/list.h"
+#include "r-tech1/gui/tab-container.h"
+#include "r-tech1/gui/lineedit.h"
+#include "r-tech1/gui/list.h"
 
 #include <string>
 #include <vector>

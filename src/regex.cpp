@@ -4,9 +4,9 @@
 /* gnu/posix's regex header */
 // #include <regex.h>
 // #include "trex/trex.h"
-#include "pcre/pcre.h"
+#include "libs/pcre/pcre.h"
 /* our regex header */
-#include "regex.h"
+#include "r-tech1/regex.h"
 
 using namespace std;
 

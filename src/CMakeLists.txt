@@ -47,7 +47,7 @@ input/input-source.cpp
 input/joystick.cpp
 input/allegro5/joystick.cpp
 xenon/xenon.cpp
-lz4/lz4.c
+libs/lz4/lz4.c
 system.cpp
 version.cpp
 compress.cpp

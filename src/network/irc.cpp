@@ -1,14 +1,14 @@
-#include "irc.h"
+#include "r-tech1/network/irc.h"
 
-#include "util/funcs.h"
-#include "util/font.h"
-#include "util/regex.h"
-#include "util/system.h"
-#include "util/graphics/bitmap.h"
-#include "util/configuration.h"
-#include "util/gui/context-box.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/font.h"
+#include "r-tech1/regex.h"
+#include "r-tech1/system.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/gui/context-box.h"
 
-#include "util/timedifference.h"
+#include "r-tech1/timedifference.h"
 
 #include <stdexcept>
 #include <queue>

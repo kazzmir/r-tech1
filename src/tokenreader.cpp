@@ -5,11 +5,11 @@
 #include <sstream>
 #include <vector>
 
-#include "file-system.h"
-#include "token.h"
-#include "token_exception.h"
-#include "tokenreader.h"
-#include "pointer.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/token.h"
+#include "r-tech1/token_exception.h"
+#include "r-tech1/tokenreader.h"
+#include "r-tech1/pointer.h"
 
 using namespace std;
 

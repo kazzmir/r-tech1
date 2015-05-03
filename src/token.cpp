@@ -1,5 +1,5 @@
-#include "token.h"
-#include "token_exception.h"
+#include "r-tech1/token.h"
+#include "r-tech1/token_exception.h"
 #include <string>
 #include <vector>
 #include <ostream>
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string.h>
-#include "debug.h"
+#include "r-tech1/debug.h"
 
 using namespace std;
 
@@ -143,7 +143,7 @@ string Token::lowerCase( const string & s ) const {
     }
     return ret;
 }
-	
+    
 /* Return next token and increment the internal position
  * of the current token
  */
@@ -153,7 +153,7 @@ Token * Token::readToken(){
     }
     return NULL;
 }
-	
+    
 bool Token::hasTokens() const {
     return num_token < tokens.size();
 }
@@ -282,15 +282,15 @@ Token * Token::findToken(const string & path){
     return NULL;
 }
 */
-	
+    
 Token * Token::getToken( unsigned int n ) const {
-	int q = numTokens();
-	if ( q == -1 ) return NULL;
-	if ( (signed int)n < q )
-		return tokens[n+1];
-	return NULL;
+    int q = numTokens();
+    if ( q == -1 ) return NULL;
+    if ( (signed int)n < q )
+        return tokens[n+1];
+    return NULL;
 }
-	
+    
 /* If the token has children then the name of this token
  * is the name of the first child token.
  * Otherwise, the name is this token's name
@@ -393,44 +393,44 @@ Token & Token::operator>>( string & rhs ) throw( TokenException ){
 
     return *this;
 }
-	
+    
 Token & Token::operator>>( int & rhs ) throw( TokenException ){
-	Token * l = readToken();
-	if ( l == NULL ){
-		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
-	}
+    Token * l = readToken();
+    if ( l == NULL ){
+        throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read an int from ") + this->getLineage() + string(" but there are no more elements") );
+    }
         if (!l->isData()){
             throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
-	istringstream is ( l->getName() );
-	is >> rhs;
-	return *this;
+    istringstream is ( l->getName() );
+    is >> rhs;
+    return *this;
 }
 
 Token & Token::operator>>( double & rhs ) throw( TokenException ){
-	Token * l = readToken();
-	if ( l == NULL ){
-		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
-	}
+    Token * l = readToken();
+    if ( l == NULL ){
+        throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a double from ") + this->getLineage() + string(" but there no more elements") );
+    }
         if (!l->isData()){
             throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
-	istringstream is ( l->getName() );
-	is >> rhs;
-	return *this;
+    istringstream is ( l->getName() );
+    is >> rhs;
+    return *this;
 }
 
 Token & Token::operator>>( bool & rhs ) throw( TokenException ){
-	Token * l = readToken();
-	if ( l == NULL ){
-		throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
-	}
+    Token * l = readToken();
+    if ( l == NULL ){
+        throw TokenException(__FILE__, __LINE__, getFileName() + ": " + string("Tried to read a bool from ") + this->getLineage() + string(" but there no more elements") );
+    }
         if (!l->isData()){
             throw TokenException(__FILE__, __LINE__, getFileName() + ":" + string(" Element is not a string"));
         }
-	istringstream is ( l->getName() );
-	is >> rhs;
-	return *this;
+    istringstream is ( l->getName() );
+    is >> rhs;
+    return *this;
 }
 */
 

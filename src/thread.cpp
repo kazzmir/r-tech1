@@ -1,4 +1,4 @@
-#include "thread.h"
+#include "r-tech1/thread.h"
 
 #ifdef WII
 /* So we can call ogc's create thread directly */

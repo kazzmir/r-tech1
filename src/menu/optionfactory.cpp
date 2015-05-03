@@ -1,9 +1,9 @@
-#include "util/token.h"
-#include "optionfactory.h"
-#include "util/gui/context-box.h"
-#include "menu_option.h"
-#include "options.h"
-#include "util/debug.h"
+#include "r-tech1/token.h"
+#include "r-tech1/menu/optionfactory.h"
+#include "r-tech1/gui/context-box.h"
+#include "r-tech1/menu/menu_option.h"
+#include "r-tech1/menu/options.h"
+#include "r-tech1/debug.h"
 
 using namespace std;
 

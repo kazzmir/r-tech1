@@ -2,8 +2,8 @@
 #define _util_network_chat_h
 
 #include "network.h"
-#include "util/pointer.h"
-#include "util/thread.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/thread.h"
 
 #include <string>
 #include <vector>

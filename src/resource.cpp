@@ -1,10 +1,10 @@
-#include "graphics/bitmap.h"
-#include "resource.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/resource.h"
 // #include "factory/collector.h"
-#include "funcs.h"
-#include "sound/sound.h"
-#include "file-system.h"
-#include "thread.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/sound/sound.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/thread.h"
 #include <string>
 #include <vector>
 

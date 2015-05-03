@@ -1,8 +1,8 @@
 #include <time.h>
-#include "timer.h"
-#include "init.h"
-#include "funcs.h"
-#include "thread.h"
+#include "r-tech1/timer.h"
+#include "r-tech1/init.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/thread.h"
 
 namespace Util{
 

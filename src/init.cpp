@@ -36,12 +36,12 @@
  * 
  */
 
-//#include "system/init.h"
+#include "r-tech1/system/init.h"
 #include "r-tech1/init.h"
 #include "r-tech1/network/network.h"
 #include "r-tech1/thread.h"
 #include <time.h>
-//#include "system/timer.h"
+#include "r-tech1/system/timer.h"
 
 #include <ostream>
 #include "libs/dumb/include/dumb.h"

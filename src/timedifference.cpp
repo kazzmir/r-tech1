@@ -1,10 +1,10 @@
-#include "timedifference.h"
+#include "r-tech1/timedifference.h"
 #include <sstream>
 #include <iostream>
 #include <string>
 #include <math.h>
-#include "system.h"
-#include "debug.h"
+#include "r-tech1/system.h"
+#include "r-tech1/debug.h"
 
 using namespace std;
 
@@ -61,14 +61,14 @@ const string TimeDifference::printTime(const string & description, int runs){
 
     /*
 
-	unsigned long long int micro = (end.tv_sec*1000000+end.tv_usec) - (start.tv_sec*1000000 + start.tv_usec );
-	unsigned long long int milli = micro / 1000;
-	unsigned long long int sec = milli / 1000;
+    unsigned long long int micro = (end.tv_sec*1000000+end.tv_usec) - (start.tv_sec*1000000 + start.tv_usec );
+    unsigned long long int milli = micro / 1000;
+    unsigned long long int sec = milli / 1000;
 
-	//cout<<s<<" took "<<micro<<" microseconds / "<< milli << " milliseconds / " <<sec<< " seconds "<< endl;
-	ostringstream o;
-	o << s <<" took "<<micro<<" microseconds / "<< milli << " milliseconds / " <<sec<< " seconds";
-	return o.str();
+    //cout<<s<<" took "<<micro<<" microseconds / "<< milli << " milliseconds / " <<sec<< " seconds "<< endl;
+    ostringstream o;
+    o << s <<" took "<<micro<<" microseconds / "<< milli << " milliseconds / " <<sec<< " seconds";
+    return o.str();
         */
 }
 

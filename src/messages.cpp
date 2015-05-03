@@ -1,9 +1,9 @@
-#include "graphics/bitmap.h"
-#include "messages.h"
-#include "util/font.h"
+#include "r-tech1/graphics/bitmap.h"
+#include "r-tech1/messages.h"
+#include "r-tech1/font.h"
 
 using namespace std;
-	
+    
 Messages::Messages( int width, int height, int opaque ):
 width(width),
 height(height),
@@ -38,28 +38,28 @@ static vector< string > wrapStrings( const string & left, const string & right, 
 
 /*
 static int wrapPrint( const Bitmap & area, int y, int top, const Font & font, const string & left, const string & right ){
-	if ( left == "" ){
-		return top;
-	}
+    if ( left == "" ){
+        return top;
+    }
 
-	int length = font.textLength( left.c_str() );
-	int max = area.getWidth();
+    int length = font.textLength( left.c_str() );
+    int max = area.getWidth();
 
-	if ( length >= max ){
-		return wrapPrint( area, y - font.getHeight(), top - font.getHeight(), font, left.substr( 0, left.length() / 2 ), left.substr( left.length() / 2 ) + right );
-	} else if ( length >= max - font.textLength( "E" ) || right == "" ){
-		font.printf( 0, y, Bitmap::makeColor( 255, 255, 255 ), area, left, 0 );
-		return wrapPrint( area, y + font.getHeight(), top, font, right, "" );
-	} else {
-		return wrapPrint( area, y, top, font, left + right.substr( 0, 1 ), right.substr( 1 ) );
-	}
+    if ( length >= max ){
+        return wrapPrint( area, y - font.getHeight(), top - font.getHeight(), font, left.substr( 0, left.length() / 2 ), left.substr( left.length() / 2 ) + right );
+    } else if ( length >= max - font.textLength( "E" ) || right == "" ){
+        font.printf( 0, y, Bitmap::makeColor( 255, 255, 255 ), area, left, 0 );
+        return wrapPrint( area, y + font.getHeight(), top, font, right, "" );
+    } else {
+        return wrapPrint( area, y, top, font, left + right.substr( 0, 1 ), right.substr( 1 ) );
+    }
 }
 */
 
 void Messages::addMessage( const std::string & s ){
-	messages.push_back( s );
+    messages.push_back( s );
 }
-	
+    
 void Messages::draw( int x, int y, const Graphics::Bitmap & work, const Font & font ){
     // work.drawingMode( Bitmap::MODE_TRANS );
     Graphics::Bitmap::transBlender(0, 0, 0, this->opaque);
@@ -102,6 +102,6 @@ void Messages::draw( int x, int y, const Graphics::Bitmap & work, const Font & f
         current_y -= font.getHeight();
     }
 }
-	
+    
 Messages::~Messages(){
 }
