@@ -539,3 +539,12 @@ def checkRunRuby(context):
     context.Result(utils.colorResult(ok))
     return ok
 
+def configChecks(env):
+    import os
+    # Check install prefix
+    try:
+        if os.environ['PREFIX']:
+            env.installPrefix = os.environ['PREFIX']
+    except KeyError:
+        env.installPrefix = '/usr'
+    print 'Install prefix is: ' + env.installPrefix

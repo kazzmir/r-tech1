@@ -1,0 +1,11 @@
+prefix=%prefix%
+exec_prefix=${prefix}
+libdir=%libdir%
+includedir=%includedir%
+version=%rtech1_version%
+
+Name: r-tech1
+Description: R-Tech1 Library Wrapper Utility
+Version: ${version}
+Libs: -L${libdir} -lr-tech1
+Cflags: -I${includedir}
