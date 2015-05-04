@@ -7,8 +7,10 @@ SetOption('num_jobs', scons.utils.detectCPUs())
 includedir = '{0}/include'.format(os.getcwd())
 
 env = Environment(ENV = os.environ, CPPPATH=includedir, tools=['textfile', 'default'])
-config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegro5(False)})
+config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegro5(False),
+                                       'ConfigChecks': scons.checks.configChecks})
 config.CheckAllegro5()
+config.ConfigChecks()
 env = config.Finish()
 
 if not env['HAVE_ALLEGRO5']:
@@ -22,7 +24,7 @@ options = {'networking': False,
            'allegro5': True
           }
           
-scons.checks.configChecks(env)
+#scons.checks.configChecks(env)
 
 env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options'])
@@ -33,10 +35,23 @@ env.Default(rtech1)
 env.Install('{0}/lib'.format(env.installPrefix), rtech1)
 env.Install('{0}/include'.format(env.installPrefix), 'include/r-tech1')
 
+# Construct dependency cflags and libraries for pc script
+def createList(content, modifier):
+    deps = ''
+    for item in content:
+        deps += '-{0}{1} '.format(modifier, item) if 'r-tech1' not in item else ''
+    return deps
+pcflags = createList(env['CPPPATH'], 'I')
+pclibs = createList(env['LIBS'], 'l')
+pclibpaths = createList(env['LIBPATH'], 'L')
+
 # PC script
 replacelist = {
 '%prefix%': env.installPrefix,
 '%rtech1_version%': '1',
+'%flags%': pcflags,
+'%libs%': pclibs,
+'%libpaths%': pclibpaths
 }
 
 pc_install = '{0}/lib/pkgconfig/r-tech1.pc'.format(env.installPrefix)

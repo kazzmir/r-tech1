@@ -64,18 +64,33 @@ def checkAllegro5(debug):
         def find(version):
             context.Message(str(version))
             try:
-                def make(name):
-                    return '%s%s-%s' % (name, use_debug[0], version)
-                libraries = [make('allegro'),
-                             make('allegro_ttf'),
-                             make('allegro_memfile'),
-                             make('allegro_image'),
-                             make('allegro_primitives'),
-                             make('allegro_audio'),
-                             make('allegro_acodec')]
-                utils.safeParseConfig(env, 'pkg-config %s --cflags --libs' % ' '.join(libraries))
-                env.Append(CPPDEFINES = ['USE_ALLEGRO5'])
-                context.Message('found version %s ' % version)
+                def doParse(libs, env):
+                    def make(name):
+                        return '%s%s-%s' % (name, use_debug[0], version)
+                    libraries = []
+                    for lib in libs:
+                        libraries.append(make(lib))
+                    try:
+                        utils.safeParseConfig(env, 'pkg-config %s --cflags --libs' % ' '.join(libraries))
+                        env.Append(CPPDEFINES = ['USE_ALLEGRO5'])
+                        context.Message('found version {0} [{1}]'.format(version, 'Monolithic' if len(libraries) == 1 else 'Non-monolithic'))
+                    except Exception, e:
+                        raise e
+                    return libraries
+                libraries = []
+                try:
+                    libs = ['allegro_monolith']
+                    libraries = doParse(libs, env)
+                except Exception, e:
+                    libs = ['allegro',
+                                'allegro_ttf',
+                                'allegro_memfile',
+                                'allegro_image',
+                                'allegro_primitives',
+                                'allegro_audio',
+                                'allegro_acodec']
+                    libraries = doParse(libs, env)
+                #env.allegro5 = libraries
                 return True
             except Exception, e:
                 print e
@@ -541,12 +556,23 @@ def checkRunRuby(context):
     context.Result(utils.colorResult(ok))
     return ok
 
-def configChecks(env):
-    import os
-    # Check install prefix
-    try:
-        if os.environ['PREFIX']:
-            env.installPrefix = os.environ['PREFIX']
-    except KeyError:
-        env.installPrefix = '/usr'
-    print 'Install prefix is: ' + env.installPrefix
+def configChecks(context):
+    def prefix(env):
+        # Check install prefix
+        context.Message('Checking if install prefix set ... ')
+        ok = False
+        try:
+            import os
+            if os.environ['PREFIX']:
+                env.installPrefix = os.environ['PREFIX']
+                context.Message('set to [{0}]'.format(env.installPrefix))
+                ok = True
+        except KeyError:
+            env.installPrefix = '/usr/local'
+            context.Message('defaulting to [{0}]'.format(env.installPrefix))
+        context.Result(utils.colorResult(ok))
+    
+    env = context.env
+    prefix(env)
+    
+    return True
