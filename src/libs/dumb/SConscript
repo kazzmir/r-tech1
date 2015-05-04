@@ -70,6 +70,7 @@ env.Append( CCFLAGS = ['-Wall','-W','-Wwrite-strings','-Wstrict-prototypes','-Wm
 
 env.Append( CPPDEFINES = 'DUMB_DECLARE_DEPRECATED' )
 
-# env.BuildDir( 'build', 'src' )
-x = env.StaticLibrary( 'paintown-dumb', map( lambda x: 'src/%s' % x, source ) )
+x = []
+for s in map( lambda x: 'src/%s' % x, source ):
+    x.append(env.Object(s))
 Return( 'x' )

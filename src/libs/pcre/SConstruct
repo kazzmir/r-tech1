@@ -30,5 +30,7 @@ pcredemo.c
 pcretest.c
 """)
 
-x = env.StaticLibrary('pcre', source)
+x = []
+for s in source:
+    x.append(env.Object(s))
 Return('x')

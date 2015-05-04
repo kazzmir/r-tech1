@@ -22,7 +22,8 @@ options = {'networking': False,
 scons.checks.configChecks(env)
 
 env.VariantDir(build_dir, 'src')
-rtech1 = env.StaticLibrary('lib/r-tech1', env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options']))
+libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options'])
+rtech1 = env.StaticLibrary('lib/r-tech1', libs)
 env.Default(rtech1)
 
 # Install target and configuration

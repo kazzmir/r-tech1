@@ -10,5 +10,7 @@ sfltron.c sflxml.c sfluid.c sfldate.c
 
 ignored = Split("""sflcvst.c sflxmll.c sflproc.c sflsock.c sflmysql.c""")
 
-x = use.StaticLibrary('sfl', source)
+x = []
+for s in source:
+    x.append(use.Object(s))
 Return('x')

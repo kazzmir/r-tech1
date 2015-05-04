@@ -13,7 +13,7 @@ modules = helpers.read_cmake_list(helpers.findFile('src/libs/7z/CMakeLists.txt')
 
 source = []
 for module in modules:
-    source.append(modules[module])
+    #source.append(modules[module])
+    source.append(use.Object(modules[module]))
 
-out = use.StaticLibrary('7z-local', source)
-Return('out')
+Return('source')

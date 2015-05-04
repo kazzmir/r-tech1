@@ -21,5 +21,7 @@ src/sock.cpp
 
 # env.Append(CPPPATH = 'hawknl')
 
-x = env.StaticLibrary('hawknl', source)
+x = []
+for s in source:
+    x.append(env.Object(s))
 Return('x')

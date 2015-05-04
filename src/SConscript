@@ -17,9 +17,9 @@ def utilLibrary(env):
 
     source = []
     for module in modules:
-        source.append(modules[module])
-
-    return env.StaticLibrary('util', source)
+        source.append(env.Object(modules[module]))
+    
+    return source
 
 def minizipLibrary(env):
     return env.SConscript('libs/zip/SConscript', exports = ['env'])
