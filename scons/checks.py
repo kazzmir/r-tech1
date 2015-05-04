@@ -84,11 +84,10 @@ def checkAllegro5(debug):
         failure = None
         try:
             ok = 0
-            # if find(5.1) or find(5.0):
             if find(5):
                 ok = 1
             else:
-                failure = "Install Allegro5. http://liballeg.org"
+                failure = "Install Allegro5 version 5.1 or greater. http://liballeg.org"
                 ok = 0
                 raise Exception()
 
@@ -110,7 +109,10 @@ int main(){
             context.sconf.env = tmp
         context.Result(utils.colorResult(ok))
         if failure != None:
+            context.sconf.env['HAVE_ALLEGRO5'] = False
             print failure
+        else:
+            context.sconf.env['HAVE_ALLEGRO5'] = True
         return ok
 
     return make

@@ -11,6 +11,9 @@ config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegr
 config.CheckAllegro5()
 env = config.Finish()
 
+if not env['HAVE_ALLEGRO5']:
+    Exit(1)
+
 #TODO Need to do separate checks later
 env.ParseConfig('freetype-config --libs --cflags')
 
