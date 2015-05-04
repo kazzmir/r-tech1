@@ -22,18 +22,17 @@ options = {'networking': False,
 scons.checks.configChecks(env)
 
 env.VariantDir(build_dir, 'src')
-rtech1 = env.Library('lib/r-tech1', env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options']))
+rtech1 = env.StaticLibrary('lib/r-tech1', env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options']))
 env.Default(rtech1)
 
 # Install target and configuration
 env.Install('{0}/lib'.format(env.installPrefix), rtech1)
+env.Install('{0}/include'.format(env.installPrefix), 'include/r-tech1')
 
-# PC script (note add the rest to checks in checks.py configChecks)
+# PC script
 replacelist = {
 '%prefix%': env.installPrefix,
-'%libdir%': '',
-'%includedir%': '',
-'%rtech1_version%': '',
+'%rtech1_version%': '1',
 }
 
 pc_install = '{0}/lib/pkgconfig/r-tech1.pc'.format(env.installPrefix)
