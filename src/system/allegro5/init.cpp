@@ -3,8 +3,8 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
-#include "../init.h"
-#include "util/debug.h"
+#include "r-tech1/system/init.h"
+#include "r-tech1/debug.h"
 
 namespace System{
 

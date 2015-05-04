@@ -1,12 +1,12 @@
 #ifndef _paintown_options_h
 #define _paintown_options_h
 
-#include "menu_option.h"
-#include "util/gui/animation.h"
-#include "util/input/input-map.h"
-#include "util/file-system.h"
-#include "util/pointer.h"
-#include "font-info.h"
+#include "r-tech1/menu/menu_option.h"
+#include "r-tech1/gui/animation.h"
+#include "r-tech1/input/input-map.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/menu/font-info.h"
 
 class Token;
 

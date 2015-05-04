@@ -1,14 +1,14 @@
-#include "music.h"
+#include "r-tech1/sound/music.h"
 #include <string>
 #include <iostream>
 #include <algorithm>
 // #include "defs.h"
 
-#include "util/configuration.h"
-#include "../thread.h"
-#include "../funcs.h"
-#include "../file-system.h"
-#include "music-player.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/thread.h"
+#include "r-tech1/funcs.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/sound/music-player.h"
 
 using namespace std;
 

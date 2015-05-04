@@ -1,18 +1,12 @@
 #include <stdlib.h>
-#include "sound.h"
+#include "r-tech1/sound/sound.h"
 
-#ifdef USE_ALLEGRO
-#include "allegro/sound.cpp"
-#endif
-#ifdef USE_SDL
-#include "sdl/sound.cpp"
-#endif
 #ifdef USE_ALLEGRO5
 #include "allegro5/sound.cpp"
 #endif
 
-#include "../configuration.h"
-#include "../file-system.h"
+#include "r-tech1/configuration.h"
+#include "r-tech1/file-system.h"
         
 Sound::SoundInfo Sound::Info;
 

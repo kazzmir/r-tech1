@@ -5,21 +5,21 @@
 #include <string>
 #include <map>
 
-#include "util/file-system.h"
-#include "util/pointer.h"
-#include "util/parameter.h"
-#include "util/input/input-map.h"
-#include "util/graphics/gradient.h"
-#include "font-info.h"
+#include "r-tech1/file-system.h"
+#include "r-tech1/pointer.h"
+#include "r-tech1/parameter.h"
+#include "r-tech1/input/input-map.h"
+#include "r-tech1/graphics/gradient.h"
+#include "r-tech1/menu/font-info.h"
 
-#include "util/gui/animation.h"
-#include "util/gui/box.h"
-#include "util/gui/context-box.h"
-#include "util/gui/fadetool.h"
-#include "util/gui/popup-box.h"
-#include "util/gui/tabbed-box.h"
-#include "util/gui/widget.h"
-#include "util/gui/coordinate.h"
+#include "r-tech1/gui/animation.h"
+#include "r-tech1/gui/box.h"
+#include "r-tech1/gui/context-box.h"
+#include "r-tech1/gui/fadetool.h"
+#include "r-tech1/gui/popup-box.h"
+#include "r-tech1/gui/tabbed-box.h"
+#include "r-tech1/gui/widget.h"
+#include "r-tech1/gui/coordinate.h"
 
 #ifdef _MSC_VER
 #ifndef uint32_t

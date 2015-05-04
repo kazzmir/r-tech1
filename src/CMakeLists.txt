@@ -89,9 +89,9 @@ sound/audio.cpp
 sound/music-player.cpp
 sound/music-renderer.cpp
 sound/music.cpp
-../system/timer.cpp
-../system/allegro5/timer.cpp
-../system/allegro5/init.cpp)
+system/timer.cpp
+system/allegro5/timer.cpp
+system/allegro5/init.cpp)
 
 # -------------------------------------------------------
 # Include directory

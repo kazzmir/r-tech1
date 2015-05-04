@@ -20,4 +20,4 @@ options = {'networking': False,
           }
 
 env.VariantDir(build_dir, 'src')
-env.Library('r-tech1', env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options']))
+env.Library('lib/r-tech1', env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options']))

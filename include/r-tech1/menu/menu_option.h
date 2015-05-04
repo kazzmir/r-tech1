@@ -3,10 +3,10 @@
 
 #include <string>
 #include <vector>
-#include "util/gui/box.h"
-#include "util/language-string.h"
-#include "util/gui/context-box.h"
-#include "util/gui/scroll-list.h"
+#include "r-tech1/gui/box.h"
+#include "r-tech1/language-string.h"
+#include "r-tech1/gui/context-box.h"
+#include "r-tech1/gui/scroll-list.h"
 
 class Bitmap;
 class Token;

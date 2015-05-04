@@ -6,8 +6,10 @@
 #include <allegro5/allegro_audio.h>
 #endif
 
+#if 0
+
 #ifdef USE_ALLEGRO
-#include "dumb/include/aldumb.h"
+#include "../libs/dumb/include/aldumb.h"
 
 #ifdef _WIN32
 /* what do we need winalleg for?
@@ -22,10 +24,12 @@
 #include "sdl/mixer/SDL_mixer.h"
 #endif
 
-#include "music-renderer.h"
-#include "music-player.h"
-#include "music-exception.h"
-#include "sound.h"
+#endif
+
+#include "r-tech1/sound/music-renderer.h"
+#include "r-tech1/sound/music-player.h"
+#include "r-tech1/sound/music-exception.h"
+#include "r-tech1/sound/sound.h"
 #include <sstream>
 
 namespace Util{
