@@ -1,5 +1,5 @@
-#ifndef _paintown_gui_box_h
-#define _paintown_gui_box_h
+#ifndef _rtech_gui_box_h
+#define _rtech_gui_box_h
 
 #include <string>
 

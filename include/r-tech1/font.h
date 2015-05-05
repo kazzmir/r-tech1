@@ -1,5 +1,5 @@
-#ifndef _paintown_font_h
-#define _paintown_font_h
+#ifndef _rtech_font_h
+#define _rtech_font_h
 
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef _paintown_messages_h
-#define _paintown_messages_h
+#ifndef _rtech_messages_h
+#define _rtech_messages_h
 
 #include <string>
 #include <vector>

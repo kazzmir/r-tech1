@@ -1,5 +1,5 @@
-#ifndef _paintown_reader_h
-#define _paintown_reader_h
+#ifndef _rtech_reader_h
+#define _rtech_reader_h
 
 namespace Util{
 

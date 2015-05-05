@@ -1,5 +1,5 @@
-#ifndef paintown_gui_lineedit_h
-#define paintown_gui_lineedit_h
+#ifndef _rtech_gui_lineedit_h
+#define _rtech_gui_lineedit_h
 
 #include <iostream>
 #include <vector>

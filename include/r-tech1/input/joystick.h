@@ -1,5 +1,5 @@
-#ifndef _paintown_joystick_h
-#define _paintown_joystick_h
+#ifndef _rtech_joystick_h
+#define _rtech_joystick_h
 
 #include <vector>
 #include <set>

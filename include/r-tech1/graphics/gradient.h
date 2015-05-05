@@ -1,5 +1,5 @@
-#ifndef _paintown_gradient_h
-#define _paintown_gradient_h
+#ifndef _rtech_gradient_h
+#define _rtech_gradient_h
 
 #include "bitmap.h"
 #include <stdint.h>

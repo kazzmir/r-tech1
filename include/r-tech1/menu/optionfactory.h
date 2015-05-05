@@ -1,5 +1,5 @@
-#ifndef _paintown_optionfactory_h
-#define _paintown_optionfactory_h
+#ifndef _rtech_optionfactory_h
+#define _rtech_optionfactory_h
 
 class MenuOption;
 class Token;

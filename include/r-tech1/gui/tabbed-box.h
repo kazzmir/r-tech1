@@ -1,5 +1,5 @@
-#ifndef _paintown_gui_tabbed_box_h
-#define _paintown_gui_tabbed_box_h
+#ifndef _rtech_gui_tabbed_box_h
+#define _rtech_gui_tabbed_box_h
 
 #include <string>
 #include <vector>

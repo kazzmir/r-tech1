@@ -1,5 +1,5 @@
-#ifndef _paintown_input_h
-#define _paintown_input_h
+#ifndef _rtech_input_h
+#define _rtech_input_h
 
 #include <vector>
 #include "joystick.h"

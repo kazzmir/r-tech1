@@ -1,5 +1,5 @@
-#ifndef _paintown_regex_h
-#define _paintown_regex_h
+#ifndef _rtech_regex_h
+#define _rtech_regex_h
 
 #include <string>
 

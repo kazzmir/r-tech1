@@ -1,5 +1,5 @@
-#ifndef _paintown_network_system_h
-#define _paintown_network_system_h
+#ifndef _rtech_network_system_h
+#define _rtech_network_system_h
 
 #ifdef NACL
 

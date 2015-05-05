@@ -1,5 +1,5 @@
-#ifndef _paintown_resource_manager_h
-#define _paintown_resource_manager_h
+#ifndef _rtech_resource_manager_h
+#define _rtech_resource_manager_h
 
 #include "file-system.h"
 #include "thread.h"

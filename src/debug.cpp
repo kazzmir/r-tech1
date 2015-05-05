@@ -7,7 +7,7 @@
 
 #ifdef ANDROID
 #include <android/log.h>
-#define ANDROID_LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "paintown", __VA_ARGS__)
+#define ANDROID_LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "r-tech1", __VA_ARGS__)
 #endif
 
 #ifdef NETWORK_DEBUG

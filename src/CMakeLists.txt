@@ -1,5 +1,5 @@
 # -------------------------------------------------------
-# util cmake build script for paintown.
+# util cmake build script for r-tech1.
 # Written by: juvinious
 # Modified by: kazzmir
 # -------------------------------------------------------
@@ -40,7 +40,6 @@ ebox.cpp
 regex.cpp
 language-string.cpp
 thread.cpp
-input/input.cpp
 input/text-input.cpp
 input/input-manager.cpp
 input/input-source.cpp
@@ -54,7 +53,6 @@ compress.cpp
 message-queue.cpp
 input/linux_joystick.cpp
 exceptions/load_exception.cpp
-windows/funcs.cpp
 windows/system.cpp
 nacl/module.cpp
 nacl/network-system.cpp

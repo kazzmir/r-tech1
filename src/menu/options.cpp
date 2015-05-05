@@ -560,7 +560,7 @@ clearColor(Graphics::makeColor(0,0,0)){
     if (Storage::instance().exists(Filesystem::RelativePath("sprites/paintown.png"))){
         defaultSequence += "(block (animation (top) (width 350) (height 65) (image 0 \"sprites/paintown.png\") (frame (image 0) (time -1))) (credit \"Version " + Version::getVersionString() + "\"))";
     } else {
-        defaultSequence += "(block (title \"PAINTOWN\") (credit \"Version " + Version::getVersionString() + "\"))";
+        defaultSequence += "(block (title \"R-Tech1\") (credit \"Version " + Version::getVersionString() + "\"))";
     }
     defaultSequence += "(block (title \"Programming\") (credit \"Jon Rafkind\") (credit \"Miguel Gavidia\"))";
     

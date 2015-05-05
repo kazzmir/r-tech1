@@ -1,5 +1,5 @@
-#ifndef _paintown_funcs_h
-#define _paintown_funcs_h
+#ifndef _rtech_funcs_h
+#define _rtech_funcs_h
 
 #include <stdlib.h>
 #include <vector>

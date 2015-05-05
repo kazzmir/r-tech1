@@ -1,5 +1,5 @@
-#ifndef _paintown_text_input_h
-#define _paintown_text_input_h
+#ifndef _rtech_text_input_h
+#define _rtech_text_input_h
 
 #include "input-map.h"
 #include "joystick.h"

@@ -1,5 +1,5 @@
-#ifndef _paintown_keyboard_h
-#define _paintown_keyboard_h
+#ifndef _rtech_keyboard_h
+#define _rtech_keyboard_h
 
 #include <map>
 #include <vector>

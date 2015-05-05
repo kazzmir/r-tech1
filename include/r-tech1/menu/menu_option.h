@@ -1,5 +1,5 @@
-#ifndef _paintown_menu_option_h
-#define _paintown_menu_option_h
+#ifndef _rtech_menu_option_h
+#define _rtech_menu_option_h
 
 #include <string>
 #include <vector>

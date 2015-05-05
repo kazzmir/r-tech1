@@ -1,5 +1,5 @@
-#ifndef _paintown_font_info_h
-#define _paintown_font_info_h
+#ifndef _rtech_font_info_h
+#define _rtech_font_info_h
 
 #include <string>
 #include "r-tech1/file-system.h"

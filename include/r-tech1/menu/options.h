@@ -1,5 +1,5 @@
-#ifndef _paintown_options_h
-#define _paintown_options_h
+#ifndef _rtech_options_h
+#define _rtech_options_h
 
 #include "r-tech1/menu/menu_option.h"
 #include "r-tech1/gui/animation.h"

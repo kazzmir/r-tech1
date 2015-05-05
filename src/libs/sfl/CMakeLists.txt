@@ -1,5 +1,5 @@
 # -------------------------------------------------------
-# SFL cmake build script for paintown.
+# SFL cmake build script for r-tech1.
 # Written by: juvinious
 # -------------------------------------------------------
 

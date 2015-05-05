@@ -1,5 +1,5 @@
-#ifndef _paintown_input_manager
-#define _paintown_input_manager
+#ifndef _rtech_input_manager
+#define _rtech_input_manager
 
 #include <vector>
 #include <algorithm>
@@ -35,7 +35,7 @@ public:
     /* main has one instance of this and thats it.
      * should the janitor have the reference instead?
      */
-    friend int paintown_main(int, char**);
+    friend int rtech_main(int, char**);
     friend int main(int, char **);
 
     /* returns true if any input device is activated (keys pressed, joystick button */

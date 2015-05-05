@@ -1,5 +1,5 @@
-#ifndef _paintown_actionfactory_h
-#define _paintown_actionfactory_h
+#ifndef _rtech_actionfactory_h
+#define _rtech_actionfactory_h
 
 class Token;
 

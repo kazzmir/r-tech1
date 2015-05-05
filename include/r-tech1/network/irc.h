@@ -189,7 +189,7 @@ namespace IRC{
         Client(const std::string &, int port);
         virtual ~Client();
         
-        virtual void connect(const std::string & name = "paintown-test");
+        virtual void connect(const std::string & name = "rtech-test");
         
         virtual void run();
         

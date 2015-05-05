@@ -1,5 +1,5 @@
-#ifndef _paintown_init_h
-#define _paintown_init_h
+#ifndef _rtech_init_h
+#define _rtech_init_h
 
 /* global vars */
 

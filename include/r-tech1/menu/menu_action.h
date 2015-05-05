@@ -1,5 +1,5 @@
-#ifndef _paintown_menu_action_h
-#define _paintown_menu_action_h
+#ifndef _rtech_menu_action_h
+#define _rtech_menu_action_h
 
 class MenuAction
 {

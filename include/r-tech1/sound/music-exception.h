@@ -1,5 +1,5 @@
-#ifndef _paintown_music_exception_h
-#define _paintown_music_exception_h
+#ifndef _rtech_music_exception_h
+#define _rtech_music_exception_h
 
 #include "../exceptions/exception.h"
 

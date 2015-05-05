@@ -1,5 +1,5 @@
-#ifndef _paintown_message_queue_h
-#define _paintown_message_queue_h
+#ifndef _rtech_message_queue_h
+#define _rtech_message_queue_h
 
 #include <queue>
 #include <string>

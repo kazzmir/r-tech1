@@ -1,5 +1,5 @@
-#ifndef _paintown_token_exception_h
-#define _paintown_token_exception_h
+#ifndef _rtech_token_exception_h
+#define _rtech_token_exception_h
 
 #include "exceptions/exception.h"
 #include <string>

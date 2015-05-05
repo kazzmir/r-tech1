@@ -1,5 +1,5 @@
-#ifndef _paintown_file_system_h
-#define _paintown_file_system_h
+#ifndef _rtech_file_system_h
+#define _rtech_file_system_h
 
 #include "exceptions/exception.h"
 #include "pointer.h"
@@ -42,7 +42,7 @@ namespace Path{
     };
 
     /* relative path should not have the leading data directory on it, just
-     * the path within the paintown system.
+     * the path within the r-tech system.
      */
     class RelativePath: public Path {
     public:

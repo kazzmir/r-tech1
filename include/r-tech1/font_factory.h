@@ -1,5 +1,5 @@
-#ifndef _paintown_font_factory_h
-#define _paintown_font_factory_h
+#ifndef _rtech_font_factory_h
+#define _rtech_font_factory_h
 
 #include <string>
 #include <map>

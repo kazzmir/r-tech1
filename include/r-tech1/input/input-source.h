@@ -1,5 +1,5 @@
-#ifndef paintown_input_source_h
-#define paintown_input_source_h
+#ifndef _rtech_input_source_h
+#define _rtech_input_source_h
 
 #include <vector>
 

@@ -1,6 +1,6 @@
-#ifndef _paintown_main_h
-#define _paintown_main_h
+#ifndef _rtech_main_h
+#define _rtech_main_h
 
-int paintown_main( int argc, char ** argv );
+int rtech_main( int argc, char ** argv );
 
 #endif

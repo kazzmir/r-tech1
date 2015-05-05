@@ -1,5 +1,5 @@
-#ifndef _paintown_network_h
-#define _paintown_network_h
+#ifndef _rtech_network_h
+#define _rtech_network_h
 
 #include <stdint.h>
 #ifdef HAVE_NETWORKING

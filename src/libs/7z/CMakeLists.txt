@@ -1,5 +1,5 @@
 # -------------------------------------------------------
-# util cmake build script for paintown.
+# util cmake build script for r-tech1.
 # Written by: juvinious
 # Modified by: kazzmir
 # -------------------------------------------------------

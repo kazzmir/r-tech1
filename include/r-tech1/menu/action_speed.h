@@ -1,5 +1,5 @@
-#ifndef _paintown_action_speed_h
-#define _paintown_action_speed_h
+#ifndef _rtech_action_speed_h
+#define _rtech_action_speed_h
 
 class Token;
 

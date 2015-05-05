@@ -1,5 +1,5 @@
-#ifndef _paintown_system_h
-#define _paintown_system_h
+#ifndef _rtech_system_h
+#define _rtech_system_h
 
 /* system utilities */
 

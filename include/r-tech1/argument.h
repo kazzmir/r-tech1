@@ -1,5 +1,5 @@
-#ifndef _paintown_util_argument_h
-#define _paintown_util_argument_h
+#ifndef _rtech_util_argument_h
+#define _rtech_util_argument_h
 
 #include <vector>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef _paintown_gui_widget_h
-#define _paintown_gui_widget_h
+#ifndef _rtech_gui_widget_h
+#define _rtech_gui_widget_h
 
 #include "rectarea.h"
 #include "coordinate.h"

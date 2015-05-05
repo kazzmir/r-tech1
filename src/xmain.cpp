@@ -4,7 +4,7 @@
 #include <allegro.h>
 
 int main(int argc, char ** argv){
-    return paintown_main(argc, argv);
+    return rtech_main(argc, argv);
 }
 END_OF_MAIN()
 #endif
@@ -12,7 +12,7 @@ END_OF_MAIN()
 #ifdef USE_ALLEGRO5
 #include <allegro5/allegro.h>
 int main(int argc, char ** argv){
-    return paintown_main(argc, argv);
+    return rtech_main(argc, argv);
 }
 #endif
 
@@ -30,11 +30,11 @@ PSP_HEAP_SIZE_MAX();
 #ifdef USE_SDL
 #ifdef USE_SDL_MAIN
 extern "C" int SDL_main(int argc, char ** argv){
-    return paintown_main(argc, argv);
+    return rtech_main(argc, argv);
 }
 #else
 int main( int argc, char ** argv ){
-    return paintown_main(argc, argv);
+    return rtech_main(argc, argv);
 }
 #endif
 #endif

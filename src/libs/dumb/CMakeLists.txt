@@ -1,5 +1,5 @@
 # -------------------------------------------------------
-# dumb cmake build script for paintown.
+# dumb cmake build script for r-tech1.
 # Written by: juvinious
 # -------------------------------------------------------
 

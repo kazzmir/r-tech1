@@ -1,5 +1,5 @@
-#ifndef _paintown_exception_12345_h
-#define _paintown_exception_12345_h
+#ifndef _rtech_exception_12345_h
+#define _rtech_exception_12345_h
 
 #include <string>
 #include <exception>

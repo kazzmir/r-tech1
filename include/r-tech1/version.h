@@ -1,5 +1,5 @@
-#ifndef _paintown_version_h
-#define _paintown_version_h
+#ifndef _rtech_version_h
+#define _rtech_version_h
 
 #include <string>
 

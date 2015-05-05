@@ -1,5 +1,5 @@
-#ifndef _paintown_util_pointer_h
-#define _paintown_util_pointer_h
+#ifndef _rtech_util_pointer_h
+#define _rtech_util_pointer_h
 
 #include <stdlib.h>
 

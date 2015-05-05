@@ -1,5 +1,5 @@
-#ifndef _paintown_loading_h
-#define _paintown_loading_h
+#ifndef _rtech_loading_h
+#define _rtech_loading_h
 
 #include <string>
 #include "thread.h"

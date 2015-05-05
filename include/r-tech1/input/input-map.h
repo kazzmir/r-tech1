@@ -1,5 +1,5 @@
-#ifndef _paintown_input_map_h
-#define _paintown_input_map_h
+#ifndef _rtech_input_map_h
+#define _rtech_input_map_h
 
 #include <map>
 #include <vector>

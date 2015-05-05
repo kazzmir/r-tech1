@@ -1,5 +1,5 @@
-#ifndef _paintown_configuration_h
-#define _paintown_configuration_h
+#ifndef _rtech_configuration_h
+#define _rtech_configuration_h
 
 #include <string>
 #include <map>

@@ -1,5 +1,5 @@
-#ifndef _paintown_parameter_h
-#define _paintown_parameter_h
+#ifndef _rtech_parameter_h
+#define _rtech_parameter_h
 
 /* parameters are to be used to control the dynamic extent of values. values
  * can be pushed onto the current extent and are automatically popped off

@@ -1,5 +1,5 @@
-#ifndef _paintown_tokenreader_h
-#define _paintown_tokenreader_h
+#ifndef _rtech_tokenreader_h
+#define _rtech_tokenreader_h
 
 #include <string>
 #include <vector>

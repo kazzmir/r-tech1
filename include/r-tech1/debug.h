@@ -1,5 +1,5 @@
-#ifndef _paintown_debug_h
-#define _paintown_debug_h
+#ifndef _rtech_debug_h
+#define _rtech_debug_h
 
 #include <ostream>
 #include <sstream>
