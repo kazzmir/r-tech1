@@ -8,23 +8,20 @@ includedir = '{0}/include'.format(os.getcwd())
 
 env = Environment(ENV = os.environ, CPPPATH=includedir, tools=['textfile', 'default'])
 config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegro5(False),
+                                       'CheckFreetype': scons.checks.checkFreetype,
                                        'ConfigChecks': scons.checks.configChecks})
 config.CheckAllegro5()
+config.CheckFreetype()
 config.ConfigChecks()
 env = config.Finish()
 
 if not env['HAVE_ALLEGRO5']:
     Exit(1)
 
-#TODO Need to do separate checks later
-env.ParseConfig('freetype-config --libs --cflags')
-
 build_dir = 'build'
 options = {'networking': False,
            'allegro5': True
           }
-          
-#scons.checks.configChecks(env)
 
 env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options'])

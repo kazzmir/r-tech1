@@ -556,6 +556,19 @@ def checkRunRuby(context):
     context.Result(utils.colorResult(ok))
     return ok
 
+def checkFreetype(context):
+    context.Message('Checking for freetype2 ... ')
+    ok = False
+    try:
+        env = context.env
+        utils.safeParseConfig(env, 'freetype-config --libs --cflags')
+        context.Message('found')
+        ok = True
+    except Exception, ex:
+        context.Message('Not found, install libfreetype2')
+    context.Result(utils.colorResult(ok))
+    return ok
+
 def configChecks(context):
     def prefix(env):
         # Check install prefix
@@ -563,7 +576,9 @@ def configChecks(context):
         ok = False
         try:
             import os
-            if os.environ['PREFIX']:
+            if os.environ['PREFIX'] == '':
+                raise KeyError
+            elif os.environ['PREFIX']:
                 env.installPrefix = os.environ['PREFIX']
                 context.Message('set to [{0}]'.format(env.installPrefix))
                 ok = True
