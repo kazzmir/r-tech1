@@ -1,5 +1,5 @@
-#ifndef _rtech_thread_h
-#define _rtech_thread_h
+#ifndef _rtech1_thread_h
+#define _rtech1_thread_h
 
 /* FIXME: NACL should be able to use SDL threads but they are broken
  * for some reason. SDL is implemented in terms of pthreads anyway

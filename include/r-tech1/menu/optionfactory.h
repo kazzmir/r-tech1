@@ -1,5 +1,5 @@
-#ifndef _rtech_optionfactory_h
-#define _rtech_optionfactory_h
+#ifndef _rtech1_optionfactory_h
+#define _rtech1_optionfactory_h
 
 class MenuOption;
 class Token;

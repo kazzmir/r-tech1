@@ -1,5 +1,5 @@
-#ifndef _rtech_reader_h
-#define _rtech_reader_h
+#ifndef _rtech1_reader_h
+#define _rtech1_reader_h
 
 namespace Util{
 

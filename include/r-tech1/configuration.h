@@ -1,5 +1,5 @@
-#ifndef _rtech_configuration_h
-#define _rtech_configuration_h
+#ifndef _rtech1_configuration_h
+#define _rtech1_configuration_h
 
 #include <string>
 #include <map>

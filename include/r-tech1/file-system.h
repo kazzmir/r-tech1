@@ -1,5 +1,5 @@
-#ifndef _rtech_file_system_h
-#define _rtech_file_system_h
+#ifndef _rtech1_file_system_h
+#define _rtech1_file_system_h
 
 #include "exceptions/exception.h"
 #include "pointer.h"

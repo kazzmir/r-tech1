@@ -1,5 +1,5 @@
-#ifndef _rtech_network_h
-#define _rtech_network_h
+#ifndef _rtech1_network_h
+#define _rtech1_network_h
 
 #include <stdint.h>
 #ifdef HAVE_NETWORKING

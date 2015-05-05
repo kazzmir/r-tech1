@@ -1,5 +1,5 @@
-#ifndef _rtech_audio_h
-#define _rtech_audio_h
+#ifndef _rtech1_audio_h
+#define _rtech1_audio_h
 
 /* Deals with audio conversion between any source format and any destination format.
  * A format consists of

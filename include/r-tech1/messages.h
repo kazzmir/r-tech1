@@ -1,5 +1,5 @@
-#ifndef _rtech_messages_h
-#define _rtech_messages_h
+#ifndef _rtech1_messages_h
+#define _rtech1_messages_h
 
 #include <string>
 #include <vector>

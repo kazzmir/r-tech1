@@ -1,5 +1,5 @@
-#ifndef _rtech_language_string_h
-#define _rtech_language_string_h
+#ifndef _rtech1_language_string_h
+#define _rtech1_language_string_h
 
 #include <string>
 #include <map>

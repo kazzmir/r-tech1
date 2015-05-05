@@ -1,5 +1,5 @@
-#ifndef _rtech_input_map_h
-#define _rtech_input_map_h
+#ifndef _rtech1_input_map_h
+#define _rtech1_input_map_h
 
 #include <map>
 #include <vector>

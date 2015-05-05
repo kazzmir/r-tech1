@@ -1,5 +1,5 @@
-#ifndef _rtech_gui_animation_h
-#define _rtech_gui_animation_h
+#ifndef _rtech1_gui_animation_h
+#define _rtech1_gui_animation_h
 
 #include <vector>
 #include <map>

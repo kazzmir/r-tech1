@@ -1,5 +1,5 @@
-#ifndef _rtech_message_queue_h
-#define _rtech_message_queue_h
+#ifndef _rtech1_message_queue_h
+#define _rtech1_message_queue_h
 
 #include <queue>
 #include <string>

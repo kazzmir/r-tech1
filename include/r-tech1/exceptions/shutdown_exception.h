@@ -1,5 +1,5 @@
-#ifndef _rtech_shutdown_exception_h
-#define _rtech_shutdown_exception_h
+#ifndef _rtech1_shutdown_exception_h
+#define _rtech1_shutdown_exception_h
 
 #include <exception>
 

@@ -1,5 +1,5 @@
-#ifndef _rtech_input_source_h
-#define _rtech_input_source_h
+#ifndef _rtech1_input_source_h
+#define _rtech1_input_source_h
 
 #include <vector>
 

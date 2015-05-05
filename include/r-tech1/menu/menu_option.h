@@ -1,5 +1,5 @@
-#ifndef _rtech_menu_option_h
-#define _rtech_menu_option_h
+#ifndef _rtech1_menu_option_h
+#define _rtech1_menu_option_h
 
 #include <string>
 #include <vector>

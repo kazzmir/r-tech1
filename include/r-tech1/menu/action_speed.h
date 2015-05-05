@@ -1,5 +1,5 @@
-#ifndef _rtech_action_speed_h
-#define _rtech_action_speed_h
+#ifndef _rtech1_action_speed_h
+#define _rtech1_action_speed_h
 
 class Token;
 

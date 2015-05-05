@@ -1,5 +1,5 @@
-#ifndef _rtech_allegro5_joystick_h
-#define _rtech_allegro5_joystick_h
+#ifndef _rtech1_allegro5_joystick_h
+#define _rtech1_allegro5_joystick_h
 
 #include "r-tech1/input/joystick.h"
 #include "r-tech1/pointer.h"

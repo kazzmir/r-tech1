@@ -1,5 +1,5 @@
-#ifndef _rtech_3ac0ba2587944345f2241085269c24f8
-#define _rtech_3ac0ba2587944345f2241085269c24f8
+#ifndef _rtech1_3ac0ba2587944345f2241085269c24f8
+#define _rtech1_3ac0ba2587944345f2241085269c24f8
 
 #ifdef USE_ALLEGRO
 

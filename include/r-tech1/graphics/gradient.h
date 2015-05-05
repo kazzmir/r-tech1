@@ -1,5 +1,5 @@
-#ifndef _rtech_gradient_h
-#define _rtech_gradient_h
+#ifndef _rtech1_gradient_h
+#define _rtech1_gradient_h
 
 #include "bitmap.h"
 #include <stdint.h>

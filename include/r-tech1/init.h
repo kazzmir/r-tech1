@@ -1,5 +1,5 @@
-#ifndef _rtech_init_h
-#define _rtech_init_h
+#ifndef _rtech1_init_h
+#define _rtech1_init_h
 
 /* global vars */
 

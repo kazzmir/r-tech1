@@ -1,5 +1,5 @@
-#ifndef _rtech_menu_action_h
-#define _rtech_menu_action_h
+#ifndef _rtech1_menu_action_h
+#define _rtech1_menu_action_h
 
 class MenuAction
 {

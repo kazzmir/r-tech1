@@ -1,5 +1,5 @@
-#ifndef _rtech_util_timer_h
-#define _rtech_util_timer_h
+#ifndef _rtech1_util_timer_h
+#define _rtech1_util_timer_h
 
 #include "thread.h"
 

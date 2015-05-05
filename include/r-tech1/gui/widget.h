@@ -1,5 +1,5 @@
-#ifndef _rtech_gui_widget_h
-#define _rtech_gui_widget_h
+#ifndef _rtech1_gui_widget_h
+#define _rtech1_gui_widget_h
 
 #include "rectarea.h"
 #include "coordinate.h"

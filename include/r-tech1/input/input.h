@@ -1,5 +1,5 @@
-#ifndef _rtech_input_h
-#define _rtech_input_h
+#ifndef _rtech1_input_h
+#define _rtech1_input_h
 
 #include <vector>
 #include "joystick.h"

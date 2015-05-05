@@ -1,5 +1,5 @@
-#ifndef _rtech_keyboard_h
-#define _rtech_keyboard_h
+#ifndef _rtech1_keyboard_h
+#define _rtech1_keyboard_h
 
 #include <map>
 #include <vector>

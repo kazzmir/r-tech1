@@ -1,5 +1,5 @@
-#ifndef _rtech_regex_h
-#define _rtech_regex_h
+#ifndef _rtech1_regex_h
+#define _rtech1_regex_h
 
 #include <string>
 

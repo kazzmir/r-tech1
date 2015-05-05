@@ -1,5 +1,5 @@
-#ifndef _rtech_util_pointer_h
-#define _rtech_util_pointer_h
+#ifndef _rtech1_util_pointer_h
+#define _rtech1_util_pointer_h
 
 #include <stdlib.h>
 

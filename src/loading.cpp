@@ -80,6 +80,10 @@ void Info::setLoadingMessage(const std::string & str){
     this->_loadingMessage = str;
 }
 
+void Info::addAuthorInfo(const std::vector<std::string> & info){
+    this->_authorInfo = info;
+}
+
 void Info::setPosition(int x, int y){
     this->x = x;
     this->y = y;
@@ -91,6 +95,10 @@ const Graphics::Bitmap * Info::getBackground() const {
 
 const string & Info::loadingMessage() const {
     return _loadingMessage;
+}
+
+const std::vector<std::string> & Info::authorInfo() const {
+    return _authorInfo;
 }
 
 const Filesystem::AbsolutePath & Info::loadingBackground() const {
@@ -106,29 +114,6 @@ int Info::getPositionY() const {
 }
 
 void * loadingScreenSimple1(void * arg);
-
-static void setupBackground(const Graphics::Bitmap & background, int load_x, int load_y, int load_width, int load_height, int infobox_x, int infobox_y, int infoWidth, int infoHeight, const Graphics::Bitmap & infoBackground, const Graphics::Bitmap & screen){
-    int startX = background.getWidth() - Font::getDefaultFont().textLength("Paintown version 9.9.9.9");
-    int startY = background.getHeight() - Font::getDefaultFont().getHeight() * 4;
-    int height = Font::getDefaultFont().getHeight();
-
-    Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), background, "Paintown version %s", 0, Version::getVersionString().c_str());
-    Font::getDefaultFont().printf(startX, startY + height * 1, Graphics::makeColor(192, 192, 192), background, "Made by Jon Rafkind", 0);
-    Font::getDefaultFont().printf(startX, startY + height * 2, Graphics::makeColor(192, 192, 192), background, "http://paintown.org", 0);
-
-    /* we have to blit to the screen object passed in because that is the bitmap
-     * that will be operated on in the draw() method of loadingScreen1.
-     * we also have to blit to the real screen because the screen object 
-     * is not drawn in its entirety to the real screen, only the part
-     * that shows the 'Loading ...' message and the info box.
-     * drawing twice in Allegro5 is redundant because the screen object is the real
-     * screen but for Allegro4 and SDL we need to do this because the screen object
-     * is a buffer.
-     */
-    background.Blit(screen);
-    background.BlitToScreen();
-    background.Blit(infobox_x, infobox_y, infoWidth, infoHeight, 0, 0, infoBackground);
-}
 
 /* converts a bitmap with some text on it into a sequence of points */
 static vector<ppair> generateFontPixels(const Font & myFont, const string & message, int width, int height){
@@ -327,30 +312,16 @@ static void loadingScreen1(LoadingContext & context, const Info & levelInfo){
         const int load_width;
         const int load_height;
 
-        /*
-        void drawFirst(const Graphics::Bitmap & screen){
-            if (levelInfo.getBackground() != NULL){
-                setupBackground(*levelInfo.getBackground(), load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
-            } else {
-                Graphics::Bitmap background;
-                if (levelInfo.loadingBackground() != Filesystem::AbsolutePath("")){
-                    background = Graphics::Bitmap(levelInfo.loadingBackground().path());
-                } else {
-                    background = Graphics::Bitmap(*Graphics::screenParameter.current(), true);
-                }
-                setupBackground(background, load_x, load_y, load_width, load_height, infobox_x, infobox_y, infoBackground.getWidth(), infoBackground.getHeight(), infoBackground, screen);
-            }
-        }
-        */
-
         void drawAuthorInfo(const Graphics::Bitmap & screen){
-            int startX = screen.getWidth() - Font::getDefaultFont().textLength("Paintown version 9.9.9.9");
-            int startY = screen.getHeight() - Font::getDefaultFont().getHeight() * 4;
+            int startX = screen.getWidth() - Font::getDefaultFont().textLength("R-tech1 version 9.9.9.9");
+            int startY = screen.getHeight() - Font::getDefaultFont().getHeight() * (levelInfo.authorInfo().size() + 1);
             int height = Font::getDefaultFont().getHeight();
 
-            Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), screen, "Paintown version %s", 0, Version::getVersionString().c_str());
-            Font::getDefaultFont().printf(startX, startY + height * 1, Graphics::makeColor(192, 192, 192), screen, "Made by Jon Rafkind", 0);
-            Font::getDefaultFont().printf(startX, startY + height * 2, Graphics::makeColor(192, 192, 192), screen, "http://paintown.org", 0);
+            Font::getDefaultFont().printf(startX, startY + height * 0, Graphics::makeColor(192, 192, 192), screen, "R-tech1 version %s", 0, Version::getVersionString().c_str());
+            int mod = 1;
+            for (std::vector<std::string>::const_iterator i = levelInfo.authorInfo().begin(); i != levelInfo.authorInfo().end(); ++i, mod++){
+                Font::getDefaultFont().printf(startX, startY + height * mod, Graphics::makeColor(192, 192, 192), screen, (*i), 0);
+            }
         }
 
         void draw(const Graphics::Bitmap & screen){

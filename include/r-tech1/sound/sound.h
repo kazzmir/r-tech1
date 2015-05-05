@@ -1,5 +1,5 @@
-#ifndef _rtech_sound_h
-#define _rtech_sound_h
+#ifndef _rtech1_sound_h
+#define _rtech1_sound_h
 
 #include <string>
 #include "r-tech1/exceptions/load_exception.h"

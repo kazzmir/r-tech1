@@ -1,5 +1,5 @@
-#ifndef _rtech_exception_12345_h
-#define _rtech_exception_12345_h
+#ifndef _rtech1_exception_12345_h
+#define _rtech1_exception_12345_h
 
 #include <string>
 #include <exception>

@@ -1,5 +1,5 @@
-#ifndef _rtech_gui_rectarea_h
-#define _rtech_gui_rectarea_h
+#ifndef _rtech1_gui_rectarea_h
+#define _rtech1_gui_rectarea_h
 
 namespace Graphics{
 class Bitmap;

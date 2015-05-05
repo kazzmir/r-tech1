@@ -1,5 +1,5 @@
-#ifndef _rtech_bitmap_h_
-#define _rtech_bitmap_h_
+#ifndef _rtech1_bitmap_h_
+#define _rtech1_bitmap_h_
 
 #include "../exceptions/exception.h"
 #include "../pointer.h"

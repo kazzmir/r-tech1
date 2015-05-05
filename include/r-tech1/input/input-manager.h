@@ -1,5 +1,5 @@
-#ifndef _rtech_input_manager
-#define _rtech_input_manager
+#ifndef _rtech1_input_manager
+#define _rtech1_input_manager
 
 #include <vector>
 #include <algorithm>

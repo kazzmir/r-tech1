@@ -1,5 +1,5 @@
-#ifndef _rtech_music_renderer_h
-#define _rtech_music_renderer_h
+#ifndef _rtech1_music_renderer_h
+#define _rtech1_music_renderer_h
 
 #ifdef USE_SDL
 /* for Uint8 */

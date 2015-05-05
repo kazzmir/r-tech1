@@ -1,5 +1,5 @@
-#ifndef _rtech_music_exception_h
-#define _rtech_music_exception_h
+#ifndef _rtech1_music_exception_h
+#define _rtech1_music_exception_h
 
 #include "../exceptions/exception.h"
 

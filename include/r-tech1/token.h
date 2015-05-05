@@ -1,5 +1,5 @@
-#ifndef _rtech_token_h
-#define _rtech_token_h
+#ifndef _rtech1_token_h
+#define _rtech1_token_h
 
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef _rtech_fire_93c6678306f3542737be4288dc09cfa9
-#define _rtech_fire_93c6678306f3542737be4288dc09cfa9
+#ifndef _rtech1_fire_93c6678306f3542737be4288dc09cfa9
+#define _rtech1_fire_93c6678306f3542737be4288dc09cfa9
 
 #include "color.h"
 

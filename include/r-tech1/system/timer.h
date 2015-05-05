@@ -1,5 +1,5 @@
-#ifndef _rtech_system_timer_h
-#define _rtech_system_timer_h
+#ifndef _rtech1_system_timer_h
+#define _rtech1_system_timer_h
 
 #include "r-tech1/thread.h"
 #include <vector>

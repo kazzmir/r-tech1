@@ -1,5 +1,5 @@
-#ifndef _rtech_text_input_h
-#define _rtech_text_input_h
+#ifndef _rtech1_text_input_h
+#define _rtech1_text_input_h
 
 #include "input-map.h"
 #include "joystick.h"

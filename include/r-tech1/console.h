@@ -1,5 +1,5 @@
-#ifndef _rtech_console_h
-#define _rtech_console_h
+#ifndef _rtech1_console_h
+#define _rtech1_console_h
 
 #include <string>
 #include <vector>

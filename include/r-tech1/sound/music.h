@@ -1,5 +1,5 @@
-#ifndef _rtech_music_class_h
-#define _rtech_music_class_h
+#ifndef _rtech1_music_class_h
+#define _rtech1_music_class_h
 
 #include <string>
 #include <vector>

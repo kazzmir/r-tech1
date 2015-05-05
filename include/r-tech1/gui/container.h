@@ -1,5 +1,5 @@
-#ifndef _rtech_gui_container_h
-#define _rtech_gui_container_h
+#ifndef _rtech1_gui_container_h
+#define _rtech1_gui_container_h
 
 #include <list>
 #include "rectarea.h"

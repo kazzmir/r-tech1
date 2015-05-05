@@ -1,5 +1,5 @@
-#ifndef _rtech_version_h
-#define _rtech_version_h
+#ifndef _rtech1_version_h
+#define _rtech1_version_h
 
 #include <string>
 

@@ -1,5 +1,5 @@
-#ifndef _rtech_actionfactory_h
-#define _rtech_actionfactory_h
+#ifndef _rtech1_actionfactory_h
+#define _rtech1_actionfactory_h
 
 class Token;
 

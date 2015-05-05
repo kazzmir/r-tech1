@@ -1,5 +1,5 @@
-#ifndef _rtech_debug_h
-#define _rtech_debug_h
+#ifndef _rtech1_debug_h
+#define _rtech1_debug_h
 
 #include <ostream>
 #include <sstream>
@@ -103,6 +103,8 @@ void logToFile();
 void closeLog();
 void setDebug(int i);
 int getDebug();
+void setLogFile(const std::string &);
+const std::string & getLogFile();
 extern std::string defaultDebugContext;
 void setDefaultDebugContext(const std::string & context);
 stream_type & debug(int i, const std::string & context = defaultDebugContext);

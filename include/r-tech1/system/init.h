@@ -1,5 +1,5 @@
-#ifndef _rtech_system_init_h
-#define _rtech_system_init_h
+#ifndef _rtech1_system_init_h
+#define _rtech1_system_init_h
 
 #include "r-tech1/debug.h"
 #include "r-tech1/init.h"

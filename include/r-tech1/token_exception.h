@@ -1,5 +1,5 @@
-#ifndef _rtech_token_exception_h
-#define _rtech_token_exception_h
+#ifndef _rtech1_token_exception_h
+#define _rtech1_token_exception_h
 
 #include "exceptions/exception.h"
 #include <string>

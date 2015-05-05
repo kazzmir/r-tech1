@@ -1,5 +1,5 @@
-#ifndef _rtech_funcs_h
-#define _rtech_funcs_h
+#ifndef _rtech1_funcs_h
+#define _rtech1_funcs_h
 
 #include <stdlib.h>
 #include <vector>

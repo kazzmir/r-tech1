@@ -1,5 +1,5 @@
-#ifndef _rtech_font_factory_h
-#define _rtech_font_factory_h
+#ifndef _rtech1_font_factory_h
+#define _rtech1_font_factory_h
 
 #include <string>
 #include <map>

@@ -1,5 +1,5 @@
-#ifndef _rtech_events_h
-#define _rtech_events_h
+#ifndef _rtech1_events_h
+#define _rtech1_events_h
 
 /* handles global events from the system such as
  *   window manager events (press X button)

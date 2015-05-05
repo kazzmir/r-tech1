@@ -1,5 +1,5 @@
-#ifndef _rtech_gui_coordinate_h
-#define _rtech_gui_coordinate_h
+#ifndef _rtech1_gui_coordinate_h
+#define _rtech1_gui_coordinate_h
 
 namespace Graphics{
 class Bitmap;

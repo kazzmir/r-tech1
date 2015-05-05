@@ -20,6 +20,7 @@
 using namespace std;
 
 static int global_debug_level = 0;
+static std::string global_log_file = "r-tech1.log";
 
 namespace Global{
 #ifdef ANDROID
@@ -352,7 +353,7 @@ static bool useFile = false;
 static stream_type & fileStream(){
     static bool init = false;
     if (!init){
-        log.open("paintown.log");
+        log.open(Global::getLogFile().c_str());
         init = true;
     }
 
@@ -397,6 +398,14 @@ void Global::setDebug(int i){
 
 int Global::getDebug(){
     return global_debug_level;
+}
+
+void Global::setLogFile(const std::string & file){
+    global_log_file = file;
+}
+
+const std::string & Global::getLogFile(){
+    return global_log_file;
 }
 
 std::string Global::defaultDebugContext = "default";
