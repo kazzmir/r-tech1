@@ -15,6 +15,8 @@ config.CheckFreetype()
 config.ConfigChecks()
 env = config.Finish()
 
+env = scons.utils.less_verbose(env)
+
 if not env['HAVE_ALLEGRO5']:
     Exit(1)
 
