@@ -1,3 +1,0 @@
-env = Environment()
-env.ParseConfig('pkg-config r-tech1 --libs --cflags')
-main = env.Program('init-test', 'main.cpp')

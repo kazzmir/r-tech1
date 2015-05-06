@@ -1,0 +1,3 @@
+Import('env', 'rtech1')
+
+init_test = SConscript('init/SConscript', exports = ['env', 'rtech1'], duplicate=0)
