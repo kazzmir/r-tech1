@@ -2,6 +2,8 @@ import os
 import scons.utils
 import scons.checks
 
+from SCons.Script import BUILD_TARGETS
+
 SetOption('num_jobs', scons.utils.detectCPUs())
 
 includedir = '{0}/include'.format(os.getcwd())
@@ -28,6 +30,7 @@ options = {'networking': False,
 env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options'])
 rtech1 = env.StaticLibrary('lib/r-tech1', libs)
+Alias('rtech1', rtech1)
 
 tests_build_dir = os.path.join(build_dir, 'tests')
 unit_tests = SConscript('tests/SConscript', variant_dir = tests_build_dir, exports = ['env', 'rtech1'], duplicate=0)
@@ -76,8 +79,13 @@ else:
     def needsudo(target, source, env):
         print 'No write privaleges to {0}, run target [{1}] as sudo'.format(env.installPrefix, target[0])
     env.Command('install', None, needsudo)
+    env.Depends('install', ['rtech1', 'tests'])
     env.Command('uninstall', None, needsudo)
+    env.Depends('uninstall', ['rtech1', 'tests'])
 
-# Defaults
-env.Default(rtech1)
-env.Default(unit_tests)
+# Defaults (note has problems with some systems?)
+#env.Default(rtech1)
+#env.Default(unit_tests)
+# Hackery to get rtech1 and unit tests into default build
+BUILD_TARGETS.append('rtech1')
+BUILD_TARGETS.append('tests')
