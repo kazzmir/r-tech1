@@ -2,8 +2,6 @@ import os
 import scons.utils
 import scons.checks
 
-from SCons.Script import BUILD_TARGETS
-
 SetOption('num_jobs', scons.utils.detectCPUs())
 
 includedir = '{0}/include'.format(os.getcwd())
@@ -83,9 +81,6 @@ else:
     env.Command('uninstall', None, needsudo)
     env.Depends('uninstall', ['rtech1', 'tests'])
 
-# Defaults (note has problems with some systems?)
-#env.Default(rtech1)
-#env.Default(unit_tests)
-# Hackery to get rtech1 and unit tests into default build
-BUILD_TARGETS.append('rtech1')
-BUILD_TARGETS.append('tests')
+env.Default(rtech1)
+if unit_tests != None:
+    env.Default(unit_tests)
