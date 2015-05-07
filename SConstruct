@@ -32,7 +32,7 @@ Alias('rtech1', rtech1)
 
 tests_build_dir = os.path.join(build_dir, 'tests')
 unit_tests = SConscript('tests/SConscript', variant_dir = tests_build_dir, exports = ['env', 'rtech1'], duplicate=0)
-Depends(unit_tests, rtech1)
+env.Depends(unit_tests, rtech1)
 
 if os.access(env.installPrefix, os.W_OK):
     # Install target and configuration
@@ -83,3 +83,11 @@ else:
 
 env.Default(rtech1)
 env.Default(unit_tests)
+
+for test in unit_tests:
+    orig = str(test).translate(None,'[]\'')
+    to = orig.replace('build/tests/', '')
+    print orig, to
+    copy = Command('bin/{0}'.format(to), orig, Copy('$TARGET', '$SOURCE'))
+    env.Depends(copy, test)
+    env.Default(copy)
