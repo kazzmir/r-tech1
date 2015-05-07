@@ -82,5 +82,4 @@ else:
     env.Depends('uninstall', ['rtech1', 'tests'])
 
 env.Default(rtech1)
-if unit_tests != None:
-    env.Default(unit_tests)
+env.Default(unit_tests)

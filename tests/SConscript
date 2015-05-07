@@ -1,3 +1,7 @@
 Import('env', 'rtech1')
 
-init_test = SConscript('init/SConscript', exports = ['env', 'rtech1'], duplicate=0)
+tests = []
+
+tests.append(SConscript('init/SConscript', exports = ['env', 'rtech1'], duplicate=0))
+
+Return('tests')
