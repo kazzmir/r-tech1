@@ -5,15 +5,17 @@
 #include <string>
 #include "pointer.h"
 
-class ArgumentAction{
+namespace Argument {
+
+class Action{
 public:
     virtual void act() = 0;
-    virtual ~ArgumentAction();
+    virtual ~Action();
 };
 
-typedef std::vector<Util::ReferenceCount<ArgumentAction> > ActionRefs;
+typedef std::vector<Util::ReferenceCount<Action> > ActionRefs;
 
-class Argument{
+class Parameter{
 public:
     /* Keywords on the command line that should invoke this argument */
     virtual std::vector<std::string> keywords() const = 0;
@@ -28,7 +30,31 @@ public:
 
     bool isArg(const std::string & what) const;
 
-    virtual ~Argument();
+    virtual ~Parameter();
 };
+
+typedef std::vector<Util::ReferenceCount<Parameter> > ParameterRefs;
+
+class Handler{
+public:
+
+    Handler();
+    
+    ~Handler();
+    
+    void add(Util::ReferenceCount<Parameter>);
+    
+    void add(const ParameterRefs &);
+    
+    void setDefaultAction(Util::ReferenceCount<Action>);
+    
+    void runActions(int argc, char ** argv);
+    
+private:
+    ParameterRefs parameters;
+    Util::ReferenceCount<Action> defaultAction;
+};
+
+}
 
 #endif
