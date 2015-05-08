@@ -4,11 +4,12 @@ libdir=${prefix}/lib
 includedir=${prefix}/include
 version=%rtech1_version%
 flags=%flags%
+lib=%lib%
 libs=%libs%
 paths=%libpaths%
 
-Name: r-tech1
+Name: ${lib}
 Description: R-Tech1 Library Wrapper Utility
 Version: ${version}
-Libs: -L${libdir} ${paths} -lr-tech1 ${libs}
+Libs: -L${libdir} ${paths} -l${lib} ${libs}
 Cflags: -I${includedir} -I${includedir}/r-tech1 ${flags}

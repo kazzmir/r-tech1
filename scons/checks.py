@@ -568,6 +568,13 @@ def checkFreetype(context):
         context.Message('Not found, install libfreetype2')
     context.Result(utils.colorResult(ok))
     return ok
+    
+def debug():
+    try:
+        import os
+        return int(os.environ[ 'DEBUG' ])
+    except KeyError:
+        return 0
 
 def configChecks(context):
     def prefix(env):
