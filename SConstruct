@@ -96,7 +96,7 @@ env.Default(unit_tests)
 for test in unit_tests:
     orig = str(test).translate(None,'[]\'')
     to = orig.replace('{0}/tests/'.format(build_dir), '')
-    print orig, to
+    #print orig, to
     copy = Command('bin/{0}'.format(to), orig, Copy('$TARGET', '$SOURCE'))
     env.Depends(copy, test)
     env.Default(copy)
