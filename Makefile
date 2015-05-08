@@ -3,3 +3,6 @@ all:
 
 clean:
 	@scons -c
+
+install:
+	@scons install
