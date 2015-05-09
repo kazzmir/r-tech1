@@ -42,7 +42,16 @@ env.Depends(unit_tests, rtech1)
 if os.access(env.installPrefix, os.W_OK):
     # Install target and configuration
     env.Install('{0}/lib'.format(env.installPrefix), rtech1)
-    env.Install('{0}/include'.format(env.installPrefix), 'include/r-tech1')
+
+    header_prefix = '{0}/include/r-tech1'.format(env.installPrefix)
+
+    include_dir = 'include/r-tech1'
+    for root, dirs, files in os.walk(include_dir):
+        for file in files:
+            # print "Install %s, %s" % (header_prefix + root[len('include/r-tech1'):], os.path.join(root, file))
+            # Install to <header location>/<local subdirectory>. The root contains the full
+            # include/r-tech1/subdirectory, so we chop off the leading include/r-tech1
+            env.Install(header_prefix + root[len(include_dir):], os.path.join(root, file))
 
     # Construct dependency cflags and libraries for pc script
     def createList(content, modifier):
