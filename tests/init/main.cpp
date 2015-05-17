@@ -1,5 +1,14 @@
 #include <r-tech1/init.h>
 #include <r-tech1/debug.h>
+#include <r-tech1/file-system.h>
+
+Filesystem::AbsolutePath Filesystem::configFile(){
+    return Filesystem::AbsolutePath("config");
+}
+
+Filesystem::AbsolutePath Filesystem::userDirectory(){
+    return Filesystem::AbsolutePath("/tmp");
+}
 
 int main(int argc, char ** argv){
     

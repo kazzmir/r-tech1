@@ -1558,9 +1558,10 @@ Filesystem::AbsolutePath Filesystem::configFile(){
     return Filesystem::AbsolutePath(str.str());
 }
 #else
+/*
 Filesystem::AbsolutePath Filesystem::configFile(){
     ostringstream str;
-    /* what if HOME isn't set? */
+    / * what if HOME isn't set? * /
     str << getenv("HOME") << "/.paintownrc";
     return Filesystem::AbsolutePath(str.str());
 }
@@ -1575,6 +1576,7 @@ Filesystem::AbsolutePath Filesystem::userDirectory(){
     }
     return Filesystem::AbsolutePath(str.str());
 }
+*/
 #endif
 
 Filesystem::AbsolutePath Filesystem::lookup(const RelativePath path){
