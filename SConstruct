@@ -53,6 +53,8 @@ if os.access(env.installPrefix, os.W_OK):
             # include/r-tech1/subdirectory, so we chop off the leading include/r-tech1
             env.Install(header_prefix + root[len(include_dir):], os.path.join(root, file))
 
+    env.Install(os.path.join(header_prefix, 'lz4'), 'src/libs/lz4/lz4.h')
+
     # Construct dependency cflags and libraries for pc script
     def createList(content, modifier):
         deps = ''
