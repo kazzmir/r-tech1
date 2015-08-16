@@ -1,12 +1,17 @@
 import os
 import scons.utils
 import scons.checks
+import scons.env
 
 SetOption('num_jobs', scons.utils.detectCPUs())
 
 includedir = '{0}/include'.format(os.getcwd())
 
 env = Environment(ENV = os.environ, CPPPATH=includedir, tools=['textfile', 'default'])
+
+if scons.utils.useAndroid():
+    env = scons.env.android(env)
+
 config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegro5(scons.checks.debug()),
                                        'CheckFreetype': scons.checks.checkFreetype,
                                        'ConfigChecks': scons.checks.configChecks})
@@ -96,7 +101,7 @@ if os.access(env.installPrefix, os.W_OK):
     env.Command("uninstall", None, Delete(FindInstalledFiles()))
 else:
     def needsudo(target, source, env):
-        print 'No write privaleges to {0}, run target [{1}] as sudo'.format(env.installPrefix, target[0])
+        print 'No write priveleges to {0}, run target [{1}] as sudo'.format(env.installPrefix, target[0])
     env.Command('install', None, needsudo)
     env.Depends('install', ['rtech1', 'tests'])
     env.Command('uninstall', None, needsudo)

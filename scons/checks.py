@@ -83,12 +83,13 @@ def checkAllegro5(debug):
                     libraries = doParse(libs, env)
                 except Exception, e:
                     libs = ['allegro',
-                                'allegro_ttf',
-                                'allegro_memfile',
-                                'allegro_image',
-                                'allegro_primitives',
-                                'allegro_audio',
-                                'allegro_acodec']
+                            'allegro_ttf',
+                            'allegro_memfile',
+                            'allegro_image',
+                            'allegro_primitives',
+                            'allegro_audio',
+                            'allegro_acodec'
+                            ]
                     libraries = doParse(libs, env)
                 #env.allegro5 = libraries
                 return True
@@ -112,7 +113,7 @@ def checkAllegro5(debug):
 #else
 #error fail
 #endif
-int main(){
+int main(int argc, char ** argv){
 }
 """, ".cpp")
             if ok == 0:
