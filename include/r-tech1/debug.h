@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 #define PAINTOWN_DEBUG_CONTEXT Global::debug_context(__FILE__, __LINE__)
+#define _xdebug Global::debug(0, PAINTOWN_DEBUG_CONTEXT)
 
 /* Enable this if you can't get regular debug output but have networking
  */

@@ -20,6 +20,7 @@ void initSystem(const Global::InitConditions & conditions, Global::stream_type &
     out << "Init primitives " << (al_init_primitives_addon() ? "Ok" : "Failed") << std::endl;
     out << "Init keyboard " << (al_install_keyboard() ? "Ok" : "Failed") << std::endl;
     out << "Init joystick " << (al_install_joystick() ? "Ok" : "Failed") << std::endl;
+    out << "Init touch " << (al_install_touch_input() ? "Ok" : "Failed") << std::endl;
     al_set_app_name("Paintown");
 }
 

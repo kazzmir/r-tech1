@@ -1,6 +1,6 @@
 #include "r-tech1/input/touch.h"
 
-namespace Input{
+namespace DeviceInput{
 
 Touch::Touch(){
 }

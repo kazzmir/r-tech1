@@ -6,6 +6,7 @@
 #include "input.h"
 #include "input-map.h"
 #include "input-source.h"
+#include "touch.h"
 #include "r-tech1/funcs.h"
 #include "r-tech1/pointer.h"
 #include "r-tech1/events.h"
@@ -308,6 +309,7 @@ private:
     void * capture;
     std::map<int, Util::ReferenceCount<Joystick> > joysticks;
     Keyboard keyboard;
+    Util::ReferenceCount<DeviceInput::Touch> touch;
     Util::EventManager eventManager;
     // std::vector<int> bufferedKeys;
     // bool bufferKeys;

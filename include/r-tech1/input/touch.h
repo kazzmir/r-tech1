@@ -5,11 +5,12 @@
 
 /* Manages devices that respond to touch input, such as android/ios */
 
-namespace Input{
+namespace DeviceInput{
 
 class Touch{
 public:
     Touch();
+    virtual void poll() = 0;
     virtual ~Touch();
 };
 

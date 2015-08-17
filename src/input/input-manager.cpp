@@ -16,6 +16,8 @@ capture(0){
     if (Configuration::isJoystickEnabled()){
         installJoysticks();
     }
+
+    touch = DeviceInput::getTouchDevice();
 }
 
 void InputManager::installJoysticks(){
@@ -148,5 +150,6 @@ void InputManager::_poll(){
 #ifdef PS3
     checkJoysticks();
 #endif
+    touch->poll();
     eventManager.run(keyboard, joysticks);
 }
