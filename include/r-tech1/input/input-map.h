@@ -156,6 +156,10 @@ public:
             key_states[key]->out = out;
         }
     }
+    
+    void set(typename DeviceInput::Touch::Key key, int delay, bool block, X out){
+        set(key, out);
+    }
 
     void set(typename DeviceInput::Touch::Key key, X out){
         touch_states[key] = Util::ReferenceCount<TouchState<X> >(new TouchState<X>(out, last_read));
