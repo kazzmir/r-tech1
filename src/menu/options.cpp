@@ -644,6 +644,7 @@ clearColor(Graphics::makeColor(0,0,0)){
 	
     input.set(Keyboard::Key_ESC, 0, true, Exit);
     input.set(Joystick::Button2, 0, true, Exit);
+    input.set(DeviceInput::Touch::Quit, Exit);
 }
 
 OptionCredits::~OptionCredits(){

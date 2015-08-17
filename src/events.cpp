@@ -534,6 +534,14 @@ static void checkFullscreen(){
     }
 }
 
+/* FIXME: allow the user to customize this setting */
+static bool useTouchOverlay(){
+#ifdef ANDROID
+    return true;
+#endif
+    return false;
+}
+
 static void doStandardLoop(Logic & logic, Draw & draw){
     if (Graphics::screenParameter.current() == NULL){
         throw Exception::Base(__FILE__, __LINE__);
@@ -589,7 +597,9 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     uint64_t now = System::currentMilliseconds();
                     screen.clear();
                     draw.draw(screen.aspectRatio(640, 480));
-                    InputManager::getTouch()->drawTouchOverlay(screen);
+                    if (useTouchOverlay()){
+                        InputManager::getTouch()->drawTouchOverlay(screen);
+                    }
                     screen.BlitToScreen();
                     uint64_t later = System::currentMilliseconds();
                     frameTime += (later - now);
@@ -610,7 +620,9 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     draw.updateFrames();
                     screen.clear();
                     draw.draw(screen.aspectRatio(640, 480));
-                    InputManager::getTouch()->drawTouchOverlay(screen);
+                    if (useTouchOverlay()){
+                        InputManager::getTouch()->drawTouchOverlay(screen);
+                    }
                     screen.BlitToScreen();
                 }
             }

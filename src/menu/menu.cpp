@@ -1476,12 +1476,12 @@ void Menu::Menu::run(const Context & parentContext){
         input.set(DeviceInput::Touch::Up, Up);
         input.set(DeviceInput::Touch::Down, Down);
 
-        input.set(DeviceInput::Touch::Button1, 0, true, Select);
-        input.set(DeviceInput::Touch::Button2, 0, true, Select);
-        input.set(DeviceInput::Touch::Button3, 0, true, Select);
-        input.set(DeviceInput::Touch::Button4, 0, true, Select);
-        input.set(DeviceInput::Touch::Start, 0, true, Select);
-        input.set(DeviceInput::Touch::Quit, 0, true, Cancel);
+        input.set(DeviceInput::Touch::Button1, Select);
+        input.set(DeviceInput::Touch::Button2, Select);
+        input.set(DeviceInput::Touch::Button3, Select);
+        input.set(DeviceInput::Touch::Button4, Select);
+        input.set(DeviceInput::Touch::Start, Select);
+        input.set(DeviceInput::Touch::Quit, Cancel);
        
         class Logic: public Util::Logic {
         public:
