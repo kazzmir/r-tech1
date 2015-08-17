@@ -146,6 +146,12 @@ int InputManager::_readKey(){
     return keys.front();
 }
 
+std::vector<DeviceInput::Touch::Event> InputManager::getTouchEvents(){
+    if (touch != NULL){
+        return touch->getEvents();
+    }
+}
+
 void InputManager::_poll(){
 #ifdef PS3
     checkJoysticks();

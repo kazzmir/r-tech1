@@ -5,6 +5,7 @@
 #include <vector>
 #include "joystick.h"
 #include "keyboard.h"
+#include "touch.h"
 #include "r-tech1/pointer.h"
 #include <iostream>
 
@@ -46,6 +47,19 @@ struct JoystickState{
     bool pressed;
     unsigned int last_read;
     unsigned int seen;
+};
+
+template <typename X>
+struct TouchState{
+    TouchState(X out, unsigned int last_read):
+    out(out),
+    pressed(false),
+    last_read(last_read){
+    }
+
+    X out;
+    bool pressed;
+    unsigned int last_read;
 };
 
 /* maps a raw input device (keyboard, joystick, etc.) to some user-defined type
@@ -107,6 +121,12 @@ public:
                 joy_states[(*it).first] = Util::ReferenceCount<JoystickState<X> >(new JoystickState<X>(*(*it).second));
             }
         }
+        touch_states.clear();
+        for (typename std::map<typename DeviceInput::Touch::Key, Util::ReferenceCount<TouchState<X> > >::const_iterator it = copy.joy_states.begin(); it != copy.joy_states.end(); it++){
+            if (it->second != NULL){
+                touch_states[(*it).first] = Util::ReferenceCount<TouchState<X> >(new TouchState<X>(*(*it).second));
+            }
+        }
         last_read = copy.last_read;
     }
 
@@ -135,6 +155,10 @@ public:
             key_states[key]->block = block;
             key_states[key]->out = out;
         }
+    }
+
+    void set(typename DeviceInput::Touch::Key key, X out){
+        touch_states[key] = Util::ReferenceCount<TouchState<X> >(new TouchState<X>(out, last_read));
     }
 
     /* mostly the same stuff but for joysticks.
@@ -185,6 +209,10 @@ public:
 
     virtual Util::ReferenceCount<KeyState<X> > getState(int key){
         return key_states[key];
+    }
+
+    virtual Util::ReferenceCount<TouchState<X> > getTouchState(DeviceInput::Touch::Key key){
+        return touch_states[key];
     }
 
     virtual Util::ReferenceCount<JoystickState<X> > getJoystickState(Joystick::Key key){
@@ -312,6 +340,7 @@ protected:
 private:
     std::map<Keyboard::KeyType, Util::ReferenceCount<KeyState<X> > > key_states;
     std::map<typename Joystick::Key, Util::ReferenceCount<JoystickState<X> > > joy_states;
+    std::map<typename DeviceInput::Touch::Key, Util::ReferenceCount<TouchState<X> > > touch_states;
     unsigned int last_read;
 };
 

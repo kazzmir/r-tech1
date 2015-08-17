@@ -1472,6 +1472,9 @@ void Menu::Menu::run(const Context & parentContext){
         input.set(Joystick::Button4, 0, true, Select);
         input.set(Joystick::Start, 0, true, Select);
         input.set(Joystick::Quit, 0, true, Cancel);
+
+        input.set(DeviceInput::Touch::Up, Up);
+        input.set(DeviceInput::Touch::Down, Down);
        
         class Logic: public Util::Logic {
         public:

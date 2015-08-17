@@ -12,6 +12,7 @@
 #include "r-tech1/events.h"
 #include "keyboard.h"
 #include "joystick.h"
+#include "touch.h"
 #include "r-tech1/exceptions/exception.h"
 
 class Configuration;
@@ -184,6 +185,8 @@ protected:
         return text;
     }
 
+    std::vector<DeviceInput::Touch::Event> getTouchEvents();
+
     void removeDuplicates(std::vector<int> & storage){
         std::vector<int> output;
         int last = -1;
@@ -212,6 +215,15 @@ protected:
                 if (state != NULL){
                     events.push_back(typename InputMap<X>::InputEvent(state->out, data.unicode, data.enabled));
                 }
+            }
+        }
+
+        std::vector<DeviceInput::Touch::Event> touchEvents = getTouchEvents();
+        for (std::vector<DeviceInput::Touch::Event>::iterator it = touchEvents.begin(); it != touchEvents.end(); it++){
+            DeviceInput::Touch::Event event = *it;
+            Util::ReferenceCount<TouchState<X> > state = input.getTouchState(event.key);
+            if (state != NULL){
+                events.push_back(typename InputMap<X>::InputEvent(state->out, -1, event.enabled));
             }
         }
 
