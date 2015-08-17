@@ -20,6 +20,12 @@ capture(0){
     touch = DeviceInput::getTouchDevice();
 }
 
+const Util::ReferenceCount<DeviceInput::Touch> & InputManager::getTouch(){
+    if (manager != NULL){
+        return manager->touch;
+    }
+}
+
 void InputManager::installJoysticks(){
     joysticks.clear();
     for (int i = 0; i < Joystick::numberOfJoysticks(); i++){

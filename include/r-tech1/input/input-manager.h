@@ -43,6 +43,8 @@ public:
     /* returns true if any input device is activated (keys pressed, joystick button */
     static bool anyInput();
 
+    static const Util::ReferenceCount<DeviceInput::Touch> & getTouch();
+
     // static std::vector<Input::PaintownInput> getInput(const Configuration & configuration, const int facing);
     static void poll();
     /*

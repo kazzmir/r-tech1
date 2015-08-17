@@ -589,6 +589,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     uint64_t now = System::currentMilliseconds();
                     screen.clear();
                     draw.draw(screen.aspectRatio(640, 480));
+                    InputManager::getTouch()->drawTouchOverlay(screen);
                     screen.BlitToScreen();
                     uint64_t later = System::currentMilliseconds();
                     frameTime += (later - now);
@@ -609,6 +610,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     draw.updateFrames();
                     screen.clear();
                     draw.draw(screen.aspectRatio(640, 480));
+                    InputManager::getTouch()->drawTouchOverlay(screen);
                     screen.BlitToScreen();
                 }
             }

@@ -4,6 +4,10 @@
 #include "../pointer.h"
 #include <vector>
 
+namespace Graphics{
+    class Bitmap;
+}
+
 /* Manages devices that respond to touch input, such as android/ios
  *
  * A specific area of the screen will correspond to specific buttons. Something like
@@ -43,6 +47,10 @@ public:
         Quit,
         Start
     };
+
+    virtual void setZone(Key key, int x1, int y1, int x2, int y2) = 0;
+
+    virtual void drawTouchOverlay(const Graphics::Bitmap & bitmap) = 0;
 
     class Event{
     public:

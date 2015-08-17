@@ -3,6 +3,7 @@
 #include "r-tech1/input/touch.h"
 #include "r-tech1/pointer.h"
 #include "r-tech1/debug.h"
+#include "r-tech1/graphics/bitmap.h"
 #include <allegro5/allegro.h>
 #include <map>
 
@@ -41,12 +42,37 @@ public:
     void handleTouch(const Util::ReferenceCount<TouchTrack> & touch, std::map<Key, bool> & buttons, bool press);
     void generateEvents(std::map<Key, bool> & new_buttons);
 
+    void setZone(Key key, int x1, int y1, int x2, int y2){
+        zones[key] = Zone(x1, y1, x2, y2);
+    }
+
     bool inZone(Key key, double x, double y);
+
+    virtual void drawTouchOverlay(const Graphics::Bitmap & bitmap);
+
+    struct Zone{
+        Zone():
+        x1(-1),
+        y1(-1),
+        x2(-1),
+        y2(-1){
+        }
+
+        Zone(int x1, int y1, int x2, int y2):
+        x1(x1),
+        y1(y1),
+        x2(x2),
+        y2(y2){
+        }
+
+        int x1, y1, x2, y2;
+    };
 
 protected:
     ALLEGRO_EVENT_QUEUE * queue;
     std::map<int, Util::ReferenceCount<TouchTrack> > touches;
     std::map<Key, bool> buttons;
+    std::map<Key, Zone> zones;
 };
 
 Allegro5Touch::Allegro5Touch():
@@ -60,31 +86,35 @@ queue(NULL){
 }
     
 bool Allegro5Touch::inZone(Key key, double x, double y){
-    _xdebug << "Check for zone " << key << " in " << x << ", " << y << std::endl;
-    switch (key){
-        case Up: {
-            return
-                x >= 0 && x <= 20 &&
-                y >= 0 && y <= 20;
-        }
-        case Down: {
-            return
-                x >= 0 && x <= 20 &&
-                y >= 20 && y <= 40;
-        }
-        default: {
-            return false;
-        }
-    }
-    return false;
+    // _xdebug << "Check for zone " << key << " in " << x << ", " << y << std::endl;
+    const Zone & zone = zones[key];
+    return x >= zone.x1 && x <= zone.x2 &&
+           y >= zone.y1 && y <= zone.y2;
+}
+
+static std::vector<Touch::Key> allKeys(){
+    std::vector<Touch::Key> keys;
+    keys.push_back(Touch::Up);
+    keys.push_back(Touch::Down);
+    keys.push_back(Touch::Left);
+    keys.push_back(Touch::Right);
+    keys.push_back(Touch::Button1);
+    keys.push_back(Touch::Button2);
+    keys.push_back(Touch::Button3);
+    keys.push_back(Touch::Button4);
+    keys.push_back(Touch::Button5);
+    keys.push_back(Touch::Button6);
+    keys.push_back(Touch::Quit);
+    keys.push_back(Touch::Start);
+    return keys;
 }
 
 void Allegro5Touch::handleTouch(const Util::ReferenceCount<TouchTrack> & touch, std::map<Key, bool> & new_buttons, bool press){
-    if (inZone(Up, touch->x, touch->y)){
-        new_buttons[Up] = press;
-    }
-    if (inZone(Down, touch->x, touch->y)){
-        new_buttons[Down] = press;
+    std::vector<Key> all = allKeys();
+    for (std::vector<Key>::iterator it = all.begin(); it != all.end(); it++){
+        if (inZone(*it, touch->x, touch->y)){
+            new_buttons[*it] = press;
+        }
     }
 }
 
@@ -93,8 +123,12 @@ void Allegro5Touch::handleTouch(const Util::ReferenceCount<TouchTrack> & touch, 
  *
  */
 void Allegro5Touch::generateEvents(std::map<Key, bool> & new_buttons){
-    if (buttons[Up] ^ new_buttons[Up]){
-        events.push_back(Event(Up, new_buttons[Up]));
+    std::vector<Key> all = allKeys();
+    for (std::vector<Key>::iterator it = all.begin(); it != all.end(); it++){
+        Key key = *it;
+        if (buttons[key] ^ new_buttons[key]){
+            events.push_back(Event(key, new_buttons[key]));
+        }
     }
 }
 
@@ -156,6 +190,16 @@ void Allegro5Touch::poll(){
     }
 
     generateEvents(new_buttons);
+}
+    
+void Allegro5Touch::drawTouchOverlay(const Graphics::Bitmap & bitmap){
+    Graphics::TranslucentBitmap translucent = bitmap.translucent(0, 0, 0, 96);
+    for (std::map<Key, Zone>::iterator it = zones.begin(); it != zones.end(); it++){
+        Key key = it->first;
+        Zone zone = it->second;
+
+        translucent.rectangleFill(zone.x1, zone.y1, zone.x2, zone.y2, Graphics::makeColor(128, 128, 200));
+    }
 }
 
 Allegro5Touch::~Allegro5Touch(){

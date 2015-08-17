@@ -4,6 +4,8 @@
 #include <allegro5/allegro_primitives.h>
 #include "r-tech1/debug.h"
 #include "r-tech1/thread.h"
+#include "r-tech1/input/touch.h"
+#include "r-tech1/input/input-manager.h"
 #include <vector>
 
 namespace Graphics{

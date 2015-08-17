@@ -122,7 +122,7 @@ public:
             }
         }
         touch_states.clear();
-        for (typename std::map<typename DeviceInput::Touch::Key, Util::ReferenceCount<TouchState<X> > >::const_iterator it = copy.joy_states.begin(); it != copy.joy_states.end(); it++){
+        for (typename std::map<typename DeviceInput::Touch::Key, Util::ReferenceCount<TouchState<X> > >::const_iterator it = copy.touch_states.begin(); it != copy.touch_states.end(); it++){
             if (it->second != NULL){
                 touch_states[(*it).first] = Util::ReferenceCount<TouchState<X> >(new TouchState<X>(*(*it).second));
             }
