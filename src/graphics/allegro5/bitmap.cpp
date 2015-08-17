@@ -9,10 +9,10 @@
 namespace Graphics{
 
 ALLEGRO_DISPLAY * the_display = NULL;
-static std::vector<ALLEGRO_SHADER*> shaders;
+static std::vector<Util::ReferenceCount<Shader> > shaders;
 // static ALLEGRO_SHADER * shader_default;
-static ALLEGRO_SHADER * shader_shadow;
-static ALLEGRO_SHADER * shader_lit_sprite;
+static Util::ReferenceCount<Shader> shader_shadow;
+static Util::ReferenceCount<Shader> shader_lit_sprite;
 
 enum BlendingType{
     Translucent,
@@ -554,24 +554,32 @@ void setShaderVec4(ALLEGRO_SHADER * shader, const std::string & name, float v1, 
     al_set_shader_float_vector(name.c_str(), 4, &vector[0], 1);
 }
 
-ALLEGRO_SHADER * create_shader(const std::string & vertex, const std::string & pixel){
+static std::string shader_version(const std::string & version, const std::string & data){
+    std::ostringstream out;
+    out << "#version " << version << "\n";
+    out << data;
+    return out.str();
+}
+
+Util::ReferenceCount<Shader> create_shader(const std::string & version, const std::string & vertex, const std::string & pixel){
     ALLEGRO_SHADER * shader = al_create_shader(ALLEGRO_SHADER_GLSL);
     if (shader == NULL){
-        return NULL;
+        return Util::ReferenceCount<Shader>(NULL);
     }
-    if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, vertex.c_str())){
+    if (!al_attach_shader_source(shader, ALLEGRO_VERTEX_SHADER, shader_version(version, vertex).c_str())){
         Global::debug(0) << "attach vertex shader source failed: " << al_get_shader_log(shader) << std::endl << vertex << std::endl;
-        return NULL;
+        return Util::ReferenceCount<Shader>(NULL);
     }
-    if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, pixel.c_str())){
+    if (!al_attach_shader_source(shader, ALLEGRO_PIXEL_SHADER, shader_version(version, pixel).c_str())){
         Global::debug(0) << "attach pixel shader source failed: " << al_get_shader_log(shader) << std::endl << pixel << std::endl;
-        return NULL;
+        Global::debug(0) << "Pixel source: \n" << shader_version(version, pixel) << std::endl;
+        return Util::ReferenceCount<Shader>(NULL);
     }
     if (!al_build_shader(shader)){
-        Global::debug(0) << "shader al_link_shader failed: " << al_get_shader_log(shader) << std::endl;
-        return NULL;
+        Global::debug(0) << "shader al_link_shader failed: " << al_get_shader_log(shader) << " pixel: " << pixel << " vertex: " << vertex << std::endl;
+        return Util::ReferenceCount<Shader>(NULL);
     }
-    return shader;
+    return Util::ReferenceCount<Shader>(new Shader(shader));
 }
 
 int changeGraphicsMode(int mode, int width, int height){
@@ -590,8 +598,9 @@ int changeGraphicsMode(int mode, int width, int height){
 
 static int createShaders(){
     try{
-        shader_shadow = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
+        shader_shadow = create_shader("100", defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/shadow.fragment.glsl"))));
         if (shader_shadow == NULL){
+            Global::debug(0) << "Could not create shader for shaders/shadow.fragment.glsl" << std::endl;
             return 1;
         }
         shaders.push_back(shader_shadow);
@@ -602,7 +611,7 @@ static int createShaders(){
     }
 
     try{
-        shader_lit_sprite = create_shader(defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
+        shader_lit_sprite = create_shader("100", defaultVertexShader(), Storage::readFile(Storage::instance().find(Filesystem::RelativePath("shaders/lit-sprite.fragment.glsl"))));
         if (shader_lit_sprite == NULL){
             return 1;
         }
@@ -984,7 +993,7 @@ void Bitmap::drawShadow(Bitmap & where, int x, int y, int intensity, Color color
     float shadowColor[4];
     al_unmap_rgb_f(color.color, &shadowColor[0], &shadowColor[1], &shadowColor[2]);
     shadowColor[3] = (float) intensity / 255.0;
-    al_use_shader(shader_shadow);
+    al_use_shader(shader_shadow->getShader());
     if (!al_set_shader_float_vector("shadow", 4, shadowColor, 1)){
         /* Well.. thats not good. Did the shader source get messed up? */
     }
@@ -1231,7 +1240,7 @@ void LitBitmap::draw(const int x, const int y, Filter * filter, const Bitmap & w
 
         MaskedBlender blender;
 
-        ALLEGRO_SHADER * shader = shader_lit_sprite;
+        ALLEGRO_SHADER * shader = shader_lit_sprite->getShader();
 
         float light[4];
         Color color = makeColor(globalBlend.red, globalBlend.green, globalBlend.blue);
@@ -1423,10 +1432,15 @@ void Bitmap::shutdown(){
         al_set_target_bitmap(Screen->getData()->getBitmap());
     }
     al_use_shader(NULL);
+    shaders.clear();
+    shader_shadow = NULL;
+    shader_lit_sprite = NULL;
+    /*
     for (std::vector<ALLEGRO_SHADER*>::iterator it = shaders.begin(); it != shaders.end(); it++){
         ALLEGRO_SHADER * shader = *it;
         al_destroy_shader(shader);
     }
+    */
 
     delete Screen;
     Screen = NULL;
