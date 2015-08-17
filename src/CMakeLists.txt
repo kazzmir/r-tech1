@@ -45,6 +45,8 @@ input/input-manager.cpp
 input/input-source.cpp
 input/joystick.cpp
 input/allegro5/joystick.cpp
+input/touch.cpp
+input/allegro5/touch.cpp
 xenon/xenon.cpp
 libs/lz4/lz4.c
 system.cpp
