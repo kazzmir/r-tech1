@@ -19,7 +19,7 @@ public:
 class ZipReader: public Reader {
 public:
     ZipReader();
-}
+};
 
 }
 
