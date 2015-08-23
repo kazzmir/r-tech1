@@ -8,12 +8,20 @@ Import('env')
 build_type = 'release'
 if scons.utils.useAndroid():
     build_type = 'armeabi-v7a'
-
+if scons.utils.useAndroidX64():
+    build_type = 'android-x64'
+    
 config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegro5(scons.checks.debug()),
                                        'CheckFreetype': scons.checks.checkFreetype,
                                        'ConfigChecks': scons.checks.configChecks})
-config.CheckAllegro5()
-config.CheckFreetype()
+
+if scons.utils.useAndroidX64():
+    env['HAVE_ALLEGRO5'] = True
+    env.Append(CPPDEFINES = ['USE_ALLEGRO5'])
+else:
+    config.CheckAllegro5()
+    config.CheckFreetype()
+
 config.ConfigChecks()
 env = config.Finish()
 

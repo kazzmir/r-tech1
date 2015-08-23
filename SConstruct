@@ -11,6 +11,8 @@ env = Environment(ENV = os.environ, CPPPATH=includedir, tools=['textfile', 'defa
 
 if scons.utils.useAndroid():
     env = scons.env.android(env)
+if scons.utils.useAndroidX64():
+    env = scons.env.androidx64(env)
 
 if not scons.utils.isVerbose():
     env = scons.utils.less_verbose(env)
