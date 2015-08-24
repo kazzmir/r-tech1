@@ -197,6 +197,12 @@ Bitmap Bitmap::createMemoryBitmap(int width, int height){
     al_set_new_bitmap_flags(flags);
     return out;
 }
+        
+Bitmap Bitmap::subBitmap(int x, int y, int width, int height){
+    ALLEGRO_BITMAP * original = getData()->getBitmap();
+    ALLEGRO_BITMAP * sub = al_create_sub_bitmap(original, x, y, width, height);
+    return Bitmap(sub, false);
+}
 
 void Bitmap::convertToVideo(){
     ALLEGRO_BITMAP * original = getData()->getBitmap();

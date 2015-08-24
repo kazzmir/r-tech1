@@ -32,9 +32,6 @@ Util::ReferenceCount<Shader> ShaderManager::getShader(const std::string & name, 
 
 /* implementation independant definitions can go here */
 
-Bitmap * Bitmap::temporary_bitmap = NULL;
-Bitmap * Bitmap::temporary_bitmap2 = NULL;
-
 /*
 int SCALE_X = 0;
 int SCALE_Y = 0;
@@ -134,15 +131,6 @@ Bitmap Bitmap::temporaryBitmap2(int w, int h){
 */
         
 void Bitmap::cleanupTemporaryBitmaps(){
-    if (temporary_bitmap != NULL){
-        delete temporary_bitmap;
-        temporary_bitmap = NULL;
-    }
-
-    if (temporary_bitmap2 != NULL){
-        delete temporary_bitmap2;
-        temporary_bitmap2 = NULL;
-    }
 }
 
 Bitmap & Bitmap::operator=(const Bitmap & copy){

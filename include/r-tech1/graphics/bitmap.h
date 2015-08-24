@@ -247,6 +247,9 @@ public:
         virtual TranslucentBitmap translucent() const;
         /* will call transBlender() with the supplied values for you */
         virtual TranslucentBitmap translucent(int red, int green, int blue, int alpha) const;
+
+        virtual Bitmap subBitmap(int x, int y, int width, int height);
+
         virtual LitBitmap lit() const;
 
 	virtual void save( const std::string & str ) const;

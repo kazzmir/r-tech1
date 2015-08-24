@@ -83,6 +83,11 @@ android_ostream & operator<<(android_ostream & stream, const unsigned long int i
     return stream;
 }
 
+android_ostream & operator<<(android_ostream & stream, const uint64_t input){
+    stream.buffer << input;
+    return stream;
+}
+
 android_ostream & operator<<(android_ostream & stream, const void * input){
     stream.buffer << input;
     return stream;

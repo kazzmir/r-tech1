@@ -605,7 +605,7 @@ static void doStandardLoop(Logic & logic, Draw & draw){
                     frameTime += (later - now);
 
                     if (frameCount >= maxCount){
-                        // Global::debug(0) << "Draw average " << (frameTime / frameCount) << "ms" << std::endl;
+                        Global::debug(0) << "Draw average " << (frameTime / frameCount) << "ms" << std::endl;
                         frameCount = 0;
                         frameTime = 0;
                     }
