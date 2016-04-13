@@ -119,7 +119,7 @@ else:
     env.Depends('uninstall', ['rtech1', 'tests'])
 
 env.Default(rtech1)
-env.Default(unit_tests)
+env.Alias('tests', unit_tests)
 
 for test in unit_tests:
     orig = str(test).translate(None,'[]\'')
@@ -127,6 +127,6 @@ for test in unit_tests:
     #print orig, to
     copy = Command('bin/{0}'.format(to), orig, Copy('$TARGET', '$SOURCE'))
     env.Depends(copy, test)
-    env.Default(copy)
+    env.Alias('tests', copy)
 
 Return('rtech1')
