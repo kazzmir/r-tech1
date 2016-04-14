@@ -2,7 +2,7 @@
 #include "r-tech1/sound/sound.h"
 
 #ifdef USE_ALLEGRO5
-#include "allegro5/sound.cpp"
+#include "sound/allegro5/sound.cpp"
 #endif
 
 #include "r-tech1/configuration.h"

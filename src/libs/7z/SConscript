@@ -1,4 +1,4 @@
-Import('use')
+Import('use', 'root')
 
 #source = Split("""
 #7zAlloc.c 7zBuf.c 7zBuf2.c 7zCrc.c 7zCrcOpt.c 7zDec.c 7zIn.c CpuArch.c LzmaDec.c Lzma2Dec.c Bra.c Bra86.c Bcj2.c 7zFile.c 7zStream.c
@@ -7,9 +7,12 @@ Import('use')
 # Ppmd7Dec.c 
 
 
-from scons import helpers
+import imp
+# from scons import helpers
+helpers_source = File("scons_rtech1/helpers.py", Dir(".").rel_path(Dir("#%s" % root)))
+helpers = imp.load_source("scons_rtech1.helpers", helpers_source.abspath)
 import os.path
-modules = helpers.read_cmake_list(helpers.findFile('src/libs/7z/CMakeLists.txt'))
+modules = helpers.read_cmake_list(helpers.findFile(root, 'src/libs/7z/CMakeLists.txt'))
 
 source = []
 for module in modules:

@@ -1,3 +1,5 @@
+import SCons
+
 def read_cmake_list(name):
     """
     Read a cmake files list and return a dictionary with each cmake variable
@@ -25,8 +27,10 @@ def read_cmake_list(name):
                     current.append(path)
     return lists
 
-def findFile(name):
-    return findDirectory(name)
+def findFile(root, name):
+    path = SCons.Script.File(name, SCons.Script.Dir(".").rel_path(SCons.Script.Dir("#%s" % root)))
+    return path.abspath
+    #return findDirectory(name)
 
 def findDirectory(name):
     import os.path

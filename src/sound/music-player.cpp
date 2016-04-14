@@ -6,8 +6,8 @@
 #include "r-tech1/sound/sound.h"
 #include "r-tech1/sound/music-exception.h"
 #include "r-tech1/timedifference.h"
-#include "../libs/dumb/include/dumb.h"
-#include "../libs/gme/Music_Emu.h"
+#include "libs/dumb/include/dumb.h"
+#include "libs/gme/Music_Emu.h"
 #include "r-tech1/exceptions/exception.h"
 #include "r-tech1/file-system.h"
 #include <sstream>

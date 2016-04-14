@@ -576,6 +576,6 @@ std::vector<Color> blend_palette(const std::vector<BlendPoint> & in){
 #include "sdl/bitmap.cpp"
 #endif
 #ifdef USE_ALLEGRO5
-#include "allegro5/bitmap.cpp"
+#include "graphics/allegro5/bitmap.cpp"
 #endif
 

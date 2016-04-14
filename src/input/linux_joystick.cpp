@@ -25,7 +25,7 @@
 #include <linux/input.h>
 #include <linux/joystick.h>
 
-#include "linux_joystick.h"
+#include "r-tech1/input/linux_joystick.h"
 #include "r-tech1/debug.h"
 
 using namespace std;

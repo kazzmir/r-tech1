@@ -1,21 +1,29 @@
 import os
-import scons.utils
-import scons.checks
-import scons.env
+import sys
+
+Import('root')
+
+#print "Rtech1 sys path", Dir('.').rel_path(Dir("#%s" % root))
+#print Dir('.').abspath
+#print Dir(Dir('.').rel_path(Dir("#r-tech1"))).abspath
+sys.path.append(Dir('.').rel_path(Dir("#%s" % root)))
+
+import scons_rtech1.utils
+import scons_rtech1.checks
 
 Import('env')
 
 build_type = 'release'
-if scons.utils.useAndroid():
+if scons_rtech1.utils.useAndroid():
     build_type = 'armeabi-v7a'
-if scons.utils.useAndroidX64():
+if scons_rtech1.utils.useAndroidX64():
     build_type = 'android-x64'
     
-config = env.Configure(custom_tests = {'CheckAllegro5': scons.checks.checkAllegro5(scons.checks.debug()),
-                                       'CheckFreetype': scons.checks.checkFreetype,
-                                       'ConfigChecks': scons.checks.configChecks})
+config = env.Configure(custom_tests = {'CheckAllegro5': scons_rtech1.checks.checkAllegro5(scons_rtech1.checks.debug()),
+                                       'CheckFreetype': scons_rtech1.checks.checkFreetype,
+                                       'ConfigChecks': scons_rtech1.checks.configChecks})
 
-if scons.utils.useAndroidX64():
+if scons_rtech1.utils.useAndroidX64():
     env['HAVE_ALLEGRO5'] = True
     env.Append(CPPDEFINES = ['USE_ALLEGRO5'])
 else:
@@ -28,32 +36,32 @@ env = config.Finish()
 if not env['HAVE_ALLEGRO5']:
     Exit(1)
 
-if scons.checks.debug():
+if scons_rtech1.checks.debug():
     env.Append(CXXFLAGS = ['-g3','-ggdb', '-Werror'])
 
-build_dir = 'build/%s' % build_type if not scons.checks.debug() else 'build/debug'
+build_dir = 'build/%s' % build_type if not scons_rtech1.checks.debug() else 'build/debug'
 options = {'networking': False,
            'allegro5': True
           }
 
 def getLibName():
-    if scons.utils.useAndroid():
+    if scons_rtech1.utils.useAndroid():
         return 'lib/r-tech1-arm'
-    if scons.checks.debug():
+    if scons_rtech1.checks.debug():
         return 'lib/r-tech1-debug'
     return 'lib/r-tech1'
 
 libname = getLibName()
 
 env.VariantDir(build_dir, 'src')
-libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options'])
+libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options', 'root'])
 rtech1 = env.StaticLibrary(libname, libs)
 Alias('rtech1', rtech1)
 
 tests_build_dir = os.path.join(build_dir, 'tests')
 unit_tests = []
-if not scons.utils.useAndroid():
-    unit_tests = SConscript('tests/SConscript', variant_dir = tests_build_dir, exports = ['env', 'rtech1'], duplicate=0)
+if not scons_rtech1.utils.useAndroid() and False:
+    unit_tests = SConscript('tests/SConscript', variant_dir = tests_build_dir, exports = ['env', 'rtech1', 'root'], duplicate=0)
 env.Depends(unit_tests, rtech1)
 
 if os.access(env.installPrefix, os.W_OK):
@@ -84,7 +92,7 @@ if os.access(env.installPrefix, os.W_OK):
 
     # PC script
     replacelist = {
-    '%lib%': 'r-tech1' if not scons.checks.debug() else 'r-tech1-debug',
+    '%lib%': 'r-tech1' if not scons_rtech1.checks.debug() else 'r-tech1-debug',
     '%prefix%': env.installPrefix,
     '%rtech1_version%': '1',
     '%flags%': pcflags,
@@ -102,7 +110,7 @@ if os.access(env.installPrefix, os.W_OK):
         env.InstallAs(pc_install, pc_mod)
         return pc_mod, pc_install
         
-    pc_mod, pc_install = script('r-tech1') if not scons.checks.debug() else script('r-tech1-debug')
+    pc_mod, pc_install = script('r-tech1') if not checks.debug() else script('r-tech1-debug')
 
     # Install
     env.Alias('install', [env.installPrefix, pc_install])
@@ -118,7 +126,7 @@ else:
     env.Command('uninstall', None, needsudo)
     env.Depends('uninstall', ['rtech1', 'tests'])
 
-env.Default(rtech1)
+# env.Default(rtech1)
 env.Alias('tests', unit_tests)
 
 for test in unit_tests:

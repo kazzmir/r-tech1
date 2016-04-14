@@ -195,6 +195,7 @@ def useAllegro5():
     return byEnv() or byArgument() or useAndroid() or useAndroidX86()
 
 def useSDL():
+    print "[rtech1] Allegro ", useAllegro(), " Allegro5", useAllegro5()
     return not useAllegro() and not useAllegro5()
 
 # Replace standard tool invocations with nice colored text
