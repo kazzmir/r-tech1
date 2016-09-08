@@ -110,7 +110,7 @@ if os.access(env.installPrefix, os.W_OK):
         env.InstallAs(pc_install, pc_mod)
         return pc_mod, pc_install
         
-    pc_mod, pc_install = script('r-tech1') if not checks.debug() else script('r-tech1-debug')
+    pc_mod, pc_install = script('r-tech1') if not scons_rtech1.checks.debug() else script('r-tech1-debug')
 
     # Install
     env.Alias('install', [env.installPrefix, pc_install])
