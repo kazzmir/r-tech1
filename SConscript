@@ -150,9 +150,10 @@ for myroot, dirs, files in os.walk(root_dir):
         # env.Install(destination, File(source, Dir('.').rel_path('#%s' % root)).abspath)
         # env.Install(destination, File(source))
 
-env.Install(os.path.join(build_dir, 'headers/r-tech1/lz4'), File('src/libs/lz4/lz4.h', Dir('.').rel_path(Dir('#%s' % root))).abspath)
+# env.Install(os.path.join(build_dir, 'headers/r-tech1/lz4'), File('src/libs/lz4/lz4.h', Dir('.').rel_path(Dir('#%s' % root))).abspath)
 
-env['RTECH1_HEADERS'] = [Dir('include', Dir('.').rel_path(Dir('#%s' % root))).abspath, Dir('headers', Dir(build_dir))]
+# env['RTECH1_HEADERS'] = [Dir('include', Dir('.').rel_path(Dir('#%s' % root))).abspath, Dir('headers', Dir(build_dir))]
+env['RTECH1_HEADERS'] = [Dir('include', Dir('.').rel_path(Dir('#%s' % root))).abspath]
 # env['RTECH1_HEADERS'] = [Dir('headers', Dir(build_dir))]
 
 # env.Default(rtech1)
