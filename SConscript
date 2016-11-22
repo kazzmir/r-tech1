@@ -53,6 +53,8 @@ def getLibName():
 
 libname = getLibName()
 
+env.Append(CPPPATH = [Dir('include', Dir('.').rel_path(Dir('#' + root)))])
+
 env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options', 'root'])
 rtech1 = env.StaticLibrary(libname, libs)
@@ -125,6 +127,8 @@ else:
     env.Depends('install', ['rtech1', 'tests'])
     env.Command('uninstall', None, needsudo)
     env.Depends('uninstall', ['rtech1', 'tests'])
+
+# env.Install('headers', Dir('include', Dir('.').rel_path(Dir("#%s" % root))).abspath)
 
 # env.Default(rtech1)
 env.Alias('tests', unit_tests)

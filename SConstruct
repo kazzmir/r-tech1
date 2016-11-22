@@ -19,4 +19,4 @@ if not scons_rtech1.utils.isVerbose():
     env = scons_rtech1.utils.less_verbose(env)
 
 root = '.'
-SConscript('SConscript', exports = ['env', 'root'])
+env.Default(SConscript('SConscript', exports = ['env', 'root']))
