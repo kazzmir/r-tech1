@@ -12,6 +12,7 @@ import scons_rtech1.utils
 import scons_rtech1.checks
 
 Import('env')
+Import('build_dir_root')
 
 build_type = 'release'
 if scons_rtech1.utils.useAndroid():
@@ -39,7 +40,7 @@ if not env['HAVE_ALLEGRO5']:
 if scons_rtech1.checks.debug():
     env.Append(CXXFLAGS = ['-g3','-ggdb', '-Werror'])
 
-build_dir = 'build/%s' % build_type if not scons_rtech1.checks.debug() else 'build/debug'
+build_dir = '%s/%s' % (build_dir_root, build_type if not scons_rtech1.checks.debug() else 'debug')
 options = {'networking': False,
            'allegro5': True
           }
@@ -67,10 +68,11 @@ if not scons_rtech1.utils.useAndroid() and False:
 env.Depends(unit_tests, rtech1)
 
 if os.access(env.installPrefix, os.W_OK):
+    installEnv = env.Clone(tools = ['textfile'])
     # Install target and configuration
-    env.Install('{0}/lib'.format(env.installPrefix), rtech1)
+    installEnv.Install('{0}/lib'.format(installEnv.installPrefix), rtech1)
 
-    header_prefix = '{0}/include/r-tech1'.format(env.installPrefix)
+    header_prefix = '{0}/include/r-tech1'.format(installEnv.installPrefix)
 
     include_dir = 'include/r-tech1'
     for root, dirs, files in os.walk(include_dir):
@@ -78,24 +80,24 @@ if os.access(env.installPrefix, os.W_OK):
             # print "Install %s, %s" % (header_prefix + root[len('include/r-tech1'):], os.path.join(root, file))
             # Install to <header location>/<local subdirectory>. The root contains the full
             # include/r-tech1/subdirectory, so we chop off the leading include/r-tech1
-            env.Install(header_prefix + root[len(include_dir):], os.path.join(root, file))
+            installEnv.Install(header_prefix + root[len(include_dir):], os.path.join(root, file))
 
-    env.Install(os.path.join(header_prefix, 'lz4'), 'src/libs/lz4/lz4.h')
+    installEnv.Install(os.path.join(header_prefix, 'lz4'), 'src/libs/lz4/lz4.h')
 
     # Construct dependency cflags and libraries for pc script
     def createList(content, modifier):
         deps = ''
         for item in content:
-            deps += '-{0}{1} '.format(modifier, item) if 'r-tech1' not in item else ''
+            deps += '-{0}{1} '.format(modifier, item) if 'r-tech1' not in str(item) else ''
         return deps
-    pcflags = createList(env['CPPPATH'], 'I')
-    pclibs = createList(env['LIBS'], 'l')
-    pclibpaths = createList(env['LIBPATH'], 'L')
+    pcflags = createList(installEnv['CPPPATH'], 'I')
+    pclibs = createList(installEnv['LIBS'], 'l')
+    pclibpaths = createList(installEnv['LIBPATH'], 'L')
 
     # PC script
     replacelist = {
     '%lib%': 'r-tech1' if not scons_rtech1.checks.debug() else 'r-tech1-debug',
-    '%prefix%': env.installPrefix,
+    '%prefix%': installEnv.installPrefix,
     '%rtech1_version%': '1',
     '%flags%': pcflags,
     '%libs%': pclibs,
@@ -103,23 +105,24 @@ if os.access(env.installPrefix, os.W_OK):
     }
     
     def script(name):
-        pc_install = '{0}/lib/pkgconfig/{1}.pc'.format(env.installPrefix, name)
+        pc_install = '{0}/lib/pkgconfig/{1}.pc'.format(installEnv.installPrefix, name)
         pc_copied = Command(build_dir + '/temp.pc.in', 'misc/r-tech1.pc.in'.format(name), Copy('$TARGET', '$SOURCE'))
-        pc_script = env.Substfile(build_dir + '/temp.pc.in', SUBST_DICT = replacelist)
-        env.Depends(pc_script, pc_copied)
+        print installEnv
+        pc_script = installEnv.Substfile(build_dir + '/temp.pc.in', SUBST_DICT = replacelist)
+        installEnv.Depends(pc_script, pc_copied)
         pc_mod = Command(build_dir + '/{0}.pc'.format(name), build_dir + '/temp.pc', Copy('$TARGET', '$SOURCE'))
-        env.Depends(pc_mod, pc_script)
-        env.InstallAs(pc_install, pc_mod)
+        installEnv.Depends(pc_mod, pc_script)
+        installEnv.InstallAs(pc_install, pc_mod)
         return pc_mod, pc_install
         
     pc_mod, pc_install = script('r-tech1') if not scons_rtech1.checks.debug() else script('r-tech1-debug')
 
     # Install
-    env.Alias('install', [env.installPrefix, pc_install])
-    env.Depends([env.installPrefix, pc_mod], rtech1)
+    installEnv.Alias('install', [installEnv.installPrefix, pc_install])
+    installEnv.Depends([installEnv.installPrefix, pc_mod], rtech1)
 
     # Uninstall target
-    env.Command("uninstall", None, Delete(FindInstalledFiles()))
+    installEnv.Command("uninstall", None, Delete(FindInstalledFiles()))
 else:
     def needsudo(target, source, env):
         print 'No write priveleges to {0}, run target [{1}] as sudo'.format(env.installPrefix, target[0])
