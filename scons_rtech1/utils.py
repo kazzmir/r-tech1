@@ -318,7 +318,7 @@ def pc_install(installEnv, build_dir, debug):
     '%lib%': 'r-tech1' if not debug else 'r-tech1-debug',
     '%prefix%': installEnv.installPrefix,
     '%rtech1_version%': '1',
-    '%libs%': ' '.join(libs(debug)) + ' freetype2',
+    '%libs%': ' '.join(libs(debug)) + ' freetype2 zlib',
     }
     
     def script(name):
