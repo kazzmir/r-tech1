@@ -1,4 +1,4 @@
-from SCons.Script import ARGUMENTS
+from SCons.Script import ARGUMENTS, Command, Copy
 import os
 
 def noColors():
@@ -299,3 +299,37 @@ def less_verbose(env):
     env['RANLIBCOMSTR'] = "%s %s" % (colorize('Indexing library', ranlib_color), colorize('$TARGET', 'light-blue'))
     env['PEG_MAKE'] = "%s %s" % (colorize('Creating peg parser', peg_color), colorize('$TARGET', 'light-blue'))
     return env
+
+def pc_install(installEnv, build_dir, debug):
+    # allegro 5 libs
+    def libs(debug):
+        libs = ['allegro',
+            'allegro_ttf',
+            'allegro_memfile',
+            'allegro_image',
+            'allegro_primitives',
+            'allegro_audio',
+            'allegro_acodec'
+        ]
+        return ['{0}{1}-5'.format(lib, '-debug' if debug else '', ) for lib in libs]
+
+    # PC script
+    replacelist = {
+    '%lib%': 'r-tech1' if not debug else 'r-tech1-debug',
+    '%prefix%': installEnv.installPrefix,
+    '%rtech1_version%': '1',
+    '%libs%': ' '.join(libs(debug)) + ' freetype2',
+    }
+    
+    def script(name):
+        pc_install = '{0}/lib/pkgconfig/{1}.pc'.format(installEnv.installPrefix, name)
+        pc_copied = Command(build_dir + '/temp.pc.in', 'misc/r-tech1.pc.in'.format(name), Copy('$TARGET', '$SOURCE'))
+        print installEnv
+        pc_script = installEnv.Substfile(build_dir + '/temp.pc.in', SUBST_DICT = replacelist)
+        installEnv.Depends(pc_script, pc_copied)
+        pc_mod = Command(build_dir + '/{0}.pc'.format(name), build_dir + '/temp.pc', Copy('$TARGET', '$SOURCE'))
+        installEnv.Depends(pc_mod, pc_script)
+        installEnv.InstallAs(pc_install, pc_mod)
+        return pc_mod, pc_install
+
+    return script('r-tech1') if not debug else script('r-tech1-debug')

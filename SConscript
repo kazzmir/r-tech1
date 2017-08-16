@@ -84,40 +84,10 @@ if os.access(env.installPrefix, os.W_OK):
 
     installEnv.Install(os.path.join(header_prefix, 'lz4'), 'src/libs/lz4/lz4.h')
 
-    # Construct dependency cflags and libraries for pc script
-    def createList(content, modifier):
-        deps = ''
-        for item in content:
-            deps += '-{0}{1} '.format(modifier, item) if 'r-tech1' not in str(item) else ''
-        return deps
-    pcflags = createList(installEnv['CPPPATH'], 'I')
-    pclibs = createList(installEnv['LIBS'], 'l')
-    pclibpaths = createList(installEnv['LIBPATH'], 'L')
+    # pkg-config file create
+    pc_mod, pc_install = scons_rtech1.utils.pc_install(installEnv, build_dir, scons_rtech1.checks.debug()) 
 
-    # PC script
-    replacelist = {
-    '%lib%': 'r-tech1' if not scons_rtech1.checks.debug() else 'r-tech1-debug',
-    '%prefix%': installEnv.installPrefix,
-    '%rtech1_version%': '1',
-    '%flags%': pcflags,
-    '%libs%': pclibs,
-    '%libpaths%': pclibpaths
-    }
-    
-    def script(name):
-        pc_install = '{0}/lib/pkgconfig/{1}.pc'.format(installEnv.installPrefix, name)
-        pc_copied = Command(build_dir + '/temp.pc.in', 'misc/r-tech1.pc.in'.format(name), Copy('$TARGET', '$SOURCE'))
-        print installEnv
-        pc_script = installEnv.Substfile(build_dir + '/temp.pc.in', SUBST_DICT = replacelist)
-        installEnv.Depends(pc_script, pc_copied)
-        pc_mod = Command(build_dir + '/{0}.pc'.format(name), build_dir + '/temp.pc', Copy('$TARGET', '$SOURCE'))
-        installEnv.Depends(pc_mod, pc_script)
-        installEnv.InstallAs(pc_install, pc_mod)
-        return pc_mod, pc_install
-        
-    pc_mod, pc_install = script('r-tech1') if not scons_rtech1.checks.debug() else script('r-tech1-debug')
-
-    # Install
+    # Install pkg-config file
     installEnv.Alias('install', [installEnv.installPrefix, pc_install])
     installEnv.Depends([installEnv.installPrefix, pc_mod], rtech1)
 

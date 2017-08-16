@@ -3,13 +3,12 @@ exec_prefix=${prefix}
 libdir=${prefix}/lib
 includedir=${prefix}/include
 version=%rtech1_version%
-flags=%flags%
 lib=%lib%
 libs=%libs%
-paths=%libpaths%
 
 Name: ${lib}
 Description: R-Tech1 Library Wrapper Utility
 Version: ${version}
-Libs: -L${libdir} ${paths} -l${lib} ${libs}
-Cflags: -I${includedir} -I${includedir}/r-tech1 ${flags}
+Libs: -L${libdir} -l${lib}
+Cflags: -I${includedir} -I${includedir}/r-tech1
+Requires: ${libs}
