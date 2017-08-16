@@ -35,7 +35,7 @@ Since separating R Tech 1 from [Paintown](https://www.github.com/kazzmir/paintow
 | PCRE           | regular expressions  |Internal  |
 | HQX/XBR        | pixel scaling        |Internal  |
 | DUMB           | mod/s3m/xm/it        |Internal  |
-| GME            | console sound formats, e.g: NES, SNES, etc |
+| GME            | console sound formats, e.g: NES, SNES, etc |Internal  |
 *\* External libraries are linked in using pkg-config after install*
 
 ## How to Build, install and link to R Tech 1
