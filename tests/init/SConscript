@@ -7,7 +7,8 @@ try:
 except:
     use['LIBS'].append(rtech1)
     use['LIBS'].append(env['LIBS'])
-    pass
+    use.ParseConfig('pkg-config zlib --libs --cflags')
+
 init_test = use.Program('init-test', 'main.cpp')
 
 Return('init_test')
