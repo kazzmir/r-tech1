@@ -441,6 +441,7 @@ static DUMB_IT_SIGDATA *it_s3m_load_sigdata(DUMBFILE *f)
 	}
 
 	flags = dumbfile_igetw(f);
+        flags = flags;
 
 	cwtv = dumbfile_igetw(f);
 

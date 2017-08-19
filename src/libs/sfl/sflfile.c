@@ -2356,7 +2356,7 @@ get_tmp_file_name (const char *path, qbyte *index, const char *ext)
     do
       {
         mem_strfree (&filename);
-        sprintf (index_str, "%08lX", *index);
+        sprintf (index_str, "%08u", *index);
         if (path)
             filename = xstrcpy (NULL, path, "/", index_str, ".", ext, NULL);
         else

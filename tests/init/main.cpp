@@ -1,6 +1,7 @@
 #include <r-tech1/init.h>
 #include <r-tech1/debug.h>
 #include <r-tech1/file-system.h>
+#include <r-tech1/graphics/bitmap.h>
 
 Filesystem::AbsolutePath Filesystem::configFile(){
     return Filesystem::AbsolutePath("config");
@@ -20,6 +21,7 @@ int main(int argc, char ** argv){
     
     Global::debug(0) << "Done! Exiting..." << std::endl;
     
+    Graphics::Bitmap::shutdown();
     Global::close();
     
     return 0;

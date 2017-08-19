@@ -35,7 +35,7 @@ if not env['HAVE_ALLEGRO5']:
     Exit(1)
 
 if scons_rtech1.checks.debug():
-    env.Append(CXXFLAGS = ['-g3','-ggdb', '-Werror'])
+    env.Append(CXXFLAGS = ['-g3','-ggdb'])
 
 build_dir = '%s/%s' % (build_dir_root, build_type if not scons_rtech1.checks.debug() else 'debug')
 options = {'networking': False,

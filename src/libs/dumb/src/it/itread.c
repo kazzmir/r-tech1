@@ -856,6 +856,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 	sigdata->n_patterns = dumbfile_igetw(f);
 
 	cwt = dumbfile_igetw(f);
+        cwt = cwt;
 	cmwt = dumbfile_igetw(f);
 
 	sigdata->flags = dumbfile_igetw(f);

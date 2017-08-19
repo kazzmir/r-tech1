@@ -407,7 +407,7 @@ format_dir (
 
     ASSERT (dir != NULL);
     snprintf (buffer, sizeof (buffer), 
-                      "%s %3d %-8.8s %-8.8s %8ld %s %s",
+                      "%s %3lu %-8.8s %-8.8s %8ld %s %s",
                       format_mode (dir),
                       dir-> file_nlink,
                       dir-> owner,
