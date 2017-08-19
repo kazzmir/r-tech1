@@ -841,6 +841,7 @@ possibly_out_of_time:
 	case 0xCB:
 		unsigned data2;
 		data2 = instr [1];
+                data2 = data2;
 		pc++;
 		switch ( data )
 		{

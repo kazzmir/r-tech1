@@ -1475,7 +1475,7 @@ void OptionKey::run(const Menu::Context & context){
             if (color < 0){
                 color = 0;
             }
-            if (color >= colors.size()){
+            if (color >= (int) colors.size()){
                 color = colors.size() - 1;
             }
 
@@ -2879,7 +2879,7 @@ static void runJoystickMenu(int joystickId, const Util::ReferenceCount<Joystick>
                     if (color < 0){
                         color = 0;
                     }
-                    if (color >= colors.size()){
+                    if (color >= (int) colors.size()){
                         color = colors.size() - 1;
                     }
 

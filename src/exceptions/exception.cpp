@@ -114,6 +114,7 @@ void FontException::throwSelf() const {
 }
 
 Base * FontException::copy() const {
+    return nullptr;
 }
 
 }

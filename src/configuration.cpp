@@ -181,7 +181,7 @@ static void updateToken(Token * data, const std::string & path, Token * add){
             if (next == NULL){
                 ostringstream out;
                 bool first = true;
-                for (int from = index; from < paths.size(); from++){
+                for (unsigned int from = index; from < paths.size(); from++){
                     if (!first){
                         out << "/";
                     }
@@ -259,6 +259,7 @@ void Configuration::setDefaultKeys(int config){
     ignore = getAttack5(config);
     ignore = getAttack6(config);
     ignore = getJump(config);
+    ignore = ignore;
 }
 
 /* hopefully this is only used right before setting all the values

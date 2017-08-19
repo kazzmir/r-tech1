@@ -24,6 +24,8 @@ const Util::ReferenceCount<DeviceInput::Touch> & InputManager::getTouch(){
     if (manager != NULL){
         return manager->touch;
     }
+
+    throw 1;
 }
 
 void InputManager::installJoysticks(){
@@ -156,6 +158,8 @@ std::vector<DeviceInput::Touch::Event> InputManager::getTouchEvents(){
     if (touch != NULL){
         return touch->getEvents();
     }
+
+    throw 1;
 }
 
 void InputManager::_poll(){

@@ -724,7 +724,7 @@ bool GridSelect::up(unsigned int cursor){
         return false;
     }
 
-    int place = cursors[cursor].getIndex();
+    unsigned int place = cursors[cursor].getIndex();
     bool ok = moveUp(cursor);
     if (!ok){
         return ok;
@@ -826,7 +826,7 @@ bool GridSelect::down(unsigned int cursor){
         return false;
     }
 
-    int place = cursors[cursor].getIndex();
+    unsigned int place = cursors[cursor].getIndex();
     bool ok = moveDown(cursor);
     if (!ok){
         return ok;
@@ -927,7 +927,7 @@ bool GridSelect::left(unsigned int cursor){
         return false;
     }
 
-    int place = cursors[cursor].getIndex();
+    unsigned int place = cursors[cursor].getIndex();
     bool ok = moveLeft(cursor);
     if (!ok){
         return ok;
@@ -1034,7 +1034,7 @@ bool GridSelect::right(unsigned int cursor){
         return false;
     }
 
-    int place = cursors[cursor].getIndex();
+    unsigned int place = cursors[cursor].getIndex();
     bool ok = moveRight(cursor);
     if (!ok){
         return ok;

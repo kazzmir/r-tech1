@@ -548,7 +548,7 @@ std::vector<Color> blend_palette(const std::vector<BlendPoint> & in){
 
     int here = 0;
 
-    for (int i = 1; i < in.size(); i++){
+    for (unsigned int i = 1; i < in.size(); i++){
         const BlendPoint & start = in[here];
         const BlendPoint & end = in[i];
 
