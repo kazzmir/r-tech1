@@ -34,6 +34,10 @@ env = config.Finish()
 if not env['HAVE_ALLEGRO5']:
     Exit(1)
 
+if scons_rtech1.utils.useLLVM():
+    env['CXX'] = 'clang++'
+    env['CC'] = 'clang'
+
 if scons_rtech1.checks.debug():
     env.Append(CXXFLAGS = ['-g3','-ggdb'])
 

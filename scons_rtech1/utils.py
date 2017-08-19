@@ -152,7 +152,6 @@ useDingoo = makeUseEnvironment('dingoo', False)
 useXenon = makeUseEnvironment('xenon', False)
 usePandora = makeUseEnvironment('pandora', False)
 useWii = makeUseEnvironment('wii', False)
-useLLVM = makeUseEnvironment('llvm', False)
 useNacl = makeUseEnvironment('nacl', False)
 useMpg123 = makeUseEnvironment('mpg123', False)
 useMad = makeUseEnvironment('mad', False)
@@ -162,6 +161,9 @@ enableProfiled = makeUseEnvironment('PROFILE', False)
 showTiming = makeUseEnvironment('timing', False)
 useAllegro4 = makeUseEnvironment('allegro4', False)
 useWii = makeUseEnvironment('wii', False)
+
+def useLLVM():
+    return makeUseEnvironment('llvm', False)
 
 def useAllegro():
     def byEnv():
