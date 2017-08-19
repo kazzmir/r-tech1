@@ -1,13 +1,9 @@
 Import('env', 'rtech1')
-import scons.utils
 
 use = env.Clone()
-try:
-    utils.safeParseConfig(use, 'pkg-config r-tech1 --libs --cflags')
-except:
-    use['LIBS'].append(rtech1)
-    use['LIBS'].append(env['LIBS'])
-    use.ParseConfig('pkg-config zlib --libs --cflags')
+use['LIBS'].append(rtech1)
+use['LIBS'].append(env['LIBS'])
+use.ParseConfig('pkg-config zlib --libs --cflags')
 
 init_test = use.Program('init-test', 'main.cpp')
 
