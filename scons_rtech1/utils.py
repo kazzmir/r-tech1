@@ -140,7 +140,6 @@ def makeUseArgument(key, default):
 useGch = makeUseArgument('gch', True)
 usePrx = makeUseEnvironment('prx', False)
 isVerbose = makeUseArgument('verbose', False)
-isVerbose = makeUseArgument('verbose', False)
 useIntel = makeUseEnvironment('intel', False)
 useMinpspw = makeUseEnvironment('minpspw', False)
 useAndroid = makeUseEnvironment('android', False)
