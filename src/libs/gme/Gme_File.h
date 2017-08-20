@@ -1,6 +1,6 @@
 // Common interface to game music file loading and information
 
-// Game_Music_Emu 0.5.5
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 #ifndef GME_FILE_H
 #define GME_FILE_H
 
@@ -105,7 +105,7 @@ public:
 	Gme_File();
 	virtual ~Gme_File();
 	BLARGG_DISABLE_NOTHROW
-	typedef BOOST::uint8_t byte;
+	typedef uint8_t byte;
 protected:
 	// Services
 	void set_track_count( int n )       { track_count_ = raw_track_count_ = n; }

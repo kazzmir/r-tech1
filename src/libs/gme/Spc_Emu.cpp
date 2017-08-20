@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 
 #include "Spc_Emu.h"
 
@@ -18,6 +18,8 @@ License along with this module; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
+
+// TODO: support Spc_Filter's bass
 
 Spc_Emu::Spc_Emu()
 {
@@ -216,7 +218,7 @@ struct Spc_File : Gme_Info_
 	blargg_err_t load_( Data_Reader& in )
 	{
 		long file_size = in.remain();
-		if ( file_size < Snes_Spc::spc_file_size )
+		if ( file_size < Snes_Spc::spc_min_file_size )
 			return gme_wrong_file_type;
 		RETURN_ERR( in.read( &header, Spc_Emu::header_size ) );
 		RETURN_ERR( check_spc_header( header.tag ) );
@@ -242,20 +244,27 @@ static Music_Emu* new_spc_emu () { return BLARGG_NEW Spc_Emu ; }
 static Music_Emu* new_spc_file() { return BLARGG_NEW Spc_File; }
 
 static gme_type_t_ const gme_spc_type_ = { "Super Nintendo", 1, &new_spc_emu, &new_spc_file, "SPC", 0 };
-gme_type_t const gme_spc_type = &gme_spc_type_;
+BLARGG_EXPORT extern gme_type_t const gme_spc_type = &gme_spc_type_;
 
 
 // Setup
 
 blargg_err_t Spc_Emu::set_sample_rate_( long sample_rate )
 {
-	apu.set_gain( gain() );
+	RETURN_ERR( apu.init() );
+	enable_accuracy( false );
 	if ( sample_rate != native_sample_rate )
 	{
 		RETURN_ERR( resampler.buffer_size( native_sample_rate / 20 * 2 ) );
 		resampler.time_ratio( (double) native_sample_rate / sample_rate, 0.9965 );
 	}
 	return 0;
+}
+
+void Spc_Emu::enable_accuracy_( bool b )
+{
+	Music_Emu::enable_accuracy_( b );
+	filter.enable( b );
 }
 
 void Spc_Emu::mute_voices_( int m )
@@ -270,21 +279,33 @@ blargg_err_t Spc_Emu::load_mem_( byte const* in, long size )
 	file_data = in;
 	file_size = size;
 	set_voice_count( Snes_Spc::voice_count );
-	if ( size < Snes_Spc::spc_file_size )
+	if ( size < Snes_Spc::spc_min_file_size )
 		return gme_wrong_file_type;
 	return check_spc_header( in );
 }
 
 // Emulation
 
-void Spc_Emu::set_tempo_( double t ) { apu.set_tempo( t ); }
+void Spc_Emu::set_tempo_( double t )
+{
+	apu.set_tempo( (int) (t * apu.tempo_unit) );
+}
 
 blargg_err_t Spc_Emu::start_track_( int track )
 {
 	RETURN_ERR( Music_Emu::start_track_( track ) );
 	resampler.clear();
+	filter.clear();
 	RETURN_ERR( apu.load_spc( file_data, file_size ) );
+	filter.set_gain( (int) (gain() * SPC_Filter::gain_unit) );
 	apu.clear_echo();
+	return 0;
+}
+
+blargg_err_t Spc_Emu::play_and_filter( long count, sample_t out [] )
+{
+	RETURN_ERR( apu.play( count, out ) );
+	filter.run( out, count );
 	return 0;
 }
 
@@ -299,7 +320,10 @@ blargg_err_t Spc_Emu::skip_( long count )
 	// TODO: shouldn't skip be adjusted for the 64 samples read afterwards?
 	
 	if ( count > 0 )
+	{
 		RETURN_ERR( apu.skip( count ) );
+		filter.clear();
+	}
 	
 	// eliminate pop due to resampler
 	const int resampler_latency = 64;
@@ -310,7 +334,7 @@ blargg_err_t Spc_Emu::skip_( long count )
 blargg_err_t Spc_Emu::play_( long count, sample_t* out )
 {
 	if ( sample_rate() == native_sample_rate )
-		return apu.play( count, out );
+		return play_and_filter( count, out );
 	
 	long remain = count;
 	while ( remain > 0 )
@@ -319,7 +343,7 @@ blargg_err_t Spc_Emu::play_( long count, sample_t* out )
 		if ( remain > 0 )
 		{
 			long n = resampler.max_write();
-			RETURN_ERR( apu.play( n, resampler.buffer() ) );
+			RETURN_ERR( play_and_filter( n, resampler.buffer() ) );
 			resampler.write( n );
 		}
 	}

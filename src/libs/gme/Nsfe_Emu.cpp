@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 
 #include "Nsfe_Emu.h"
 
@@ -240,7 +240,7 @@ blargg_err_t Nsfe_Info::track_info_( track_info_t* out, int track ) const
 	int remapped = remap_track( track );
 	if ( (unsigned) remapped < track_times.size() )
 	{
-		long length = (BOOST::int32_t) get_le32( track_times [remapped] );
+		long length = (int32_t) get_le32( track_times [remapped] );
 		if ( length > 0 )
 			out->length = length;
 	}
@@ -298,7 +298,7 @@ static Music_Emu* new_nsfe_emu () { return BLARGG_NEW Nsfe_Emu ; }
 static Music_Emu* new_nsfe_file() { return BLARGG_NEW Nsfe_File; }
 
 static gme_type_t_ const gme_nsfe_type_ = { "Nintendo NES", 0, &new_nsfe_emu, &new_nsfe_file, "NSFE", 1 };
-gme_type_t const gme_nsfe_type = &gme_nsfe_type_;
+BLARGG_EXPORT extern gme_type_t const gme_nsfe_type = &gme_nsfe_type_;
 
 
 blargg_err_t Nsfe_Emu::load_( Data_Reader& in )

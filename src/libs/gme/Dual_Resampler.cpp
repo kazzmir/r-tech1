@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 
 #include "Dual_Resampler.h"
 
@@ -20,8 +20,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 unsigned const resampler_extra = 256;
 
-Dual_Resampler::Dual_Resampler():
-sample_buf_size(0){
+Dual_Resampler::Dual_Resampler() :
+	sample_buf_size(0),
+	oversamples_per_frame(-1),
+	buf_pos(-1),
+	resampler_size(0)
+{
 }
 
 Dual_Resampler::~Dual_Resampler() { }
@@ -114,12 +118,12 @@ void Dual_Resampler::mix_samples( Blip_Buffer& blip_buf, dsample_t* out )
 	{
 		int s = sn.read();
 		blargg_long l = (blargg_long) in [0] * 2 + s;
-		if ( (BOOST::int16_t) l != l )
+		if ( (int16_t) l != l )
 			l = 0x7FFF - (l >> 24);
 		
 		sn.next( bass );
 		blargg_long r = (blargg_long) in [1] * 2 + s;
-		if ( (BOOST::int16_t) r != r )
+		if ( (int16_t) r != r )
 			r = 0x7FFF - (r >> 24);
 		
 		in += 2;

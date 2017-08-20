@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu https://bitbucket.org/mpyne/game-music-emu/
 
 #include "Gym_Emu.h"
 
@@ -18,12 +18,12 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-static double const min_tempo = 0.25;
-static double const oversample_factor = 5 / 3.0;
-static double const fm_gain = 3.0;
+double const min_tempo = 0.25;
+double const oversample_factor = 5 / 3.0;
+double const fm_gain = 3.0;
 
-static const long base_clock = 53700300;
-static const long clock_rate = base_clock / 15;
+const long base_clock = 53700300;
+const long clock_rate = base_clock / 15;
 
 Gym_Emu::Gym_Emu()
 {
@@ -162,7 +162,7 @@ static Music_Emu* new_gym_emu () { return BLARGG_NEW Gym_Emu ; }
 static Music_Emu* new_gym_file() { return BLARGG_NEW Gym_File; }
 
 static gme_type_t_ const gme_gym_type_ = { "Sega Genesis", 1, &new_gym_emu, &new_gym_file, "GYM", 0 };
-gme_type_t const gme_gym_type = &gme_gym_type_;
+BLARGG_EXPORT extern gme_type_t const gme_gym_type = &gme_gym_type_;
 
 // Setup
 
