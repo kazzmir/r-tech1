@@ -19,7 +19,8 @@ if scons_rtech1.utils.useAndroidX64():
     
 config = env.Configure(custom_tests = {'CheckAllegro5': scons_rtech1.checks.checkAllegro5(scons_rtech1.checks.debug()),
                                        'CheckFreetype': scons_rtech1.checks.checkFreetype,
-                                       'ConfigChecks': scons_rtech1.checks.configChecks})
+                                       'ConfigChecks': scons_rtech1.checks.configChecks,
+                                       'CheckCXX11': scons_rtech1.checks.checkCXX11,})
 
 if scons_rtech1.utils.useAndroidX64():
     env['HAVE_ALLEGRO5'] = True
@@ -27,6 +28,7 @@ if scons_rtech1.utils.useAndroidX64():
 else:
     config.CheckAllegro5()
     config.CheckFreetype()
+    config.CheckCXX11()
 
 config.ConfigChecks()
 env = config.Finish()
@@ -61,6 +63,8 @@ env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options', 'root'])
 rtech1 = env.StaticLibrary(libname, libs)
 Alias('rtech1', rtech1)
+
+scons_rtech1.utils.cxx11_header(env,build_dir, True if 'HAS_CXX11' in env['CPPDEFINES'] else False)
 
 tests_build_dir = os.path.join(build_dir, 'tests')
 unit_tests = []

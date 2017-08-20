@@ -302,6 +302,16 @@ def less_verbose(env):
     env['PEG_MAKE'] = "%s %s" % (colorize('Creating peg parser', peg_color), colorize('$TARGET', 'light-blue'))
     return env
 
+def cxx11_header(env, build_dir, has_cxx11):
+#    definitions = {
+#        '%has_cxx11%': '1' if has_cxx11 else '0'
+#    }
+#    copy = env.Command(build_dir + '/include/r-tech1/defines.h', 'misc/defines.h.in', Copy('$TARGET', '$SOURCE'))
+#    defines = env.Substfile(build_dir + '/include/r-tech1/defines.h', SUBST_DICT = definitions)
+#    env.AlwaysBuild(copy)
+#    env.Depends(copy, 'rtech1')
+    pass
+
 def pc_install(installEnv, build_dir, debug):
     # allegro 5 libs
     def libs(debug):

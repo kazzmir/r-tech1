@@ -1,6 +1,8 @@
 .scon*
 *.log
 *.pyc
+*.swp
 build
 lib
 bin
+config

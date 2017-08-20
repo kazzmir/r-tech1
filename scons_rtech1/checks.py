@@ -599,3 +599,28 @@ def configChecks(context):
     prefix(env)
     
     return True
+
+def checkCXX11(context):
+    context.Message("Checking if cxx11 is supported by the compiler...")
+
+    tmp = context.env.Clone()
+    env = context.env
+    env.Append(CPPDEFINES = ['HAVE_CXX11'])
+    env.Append(CXXFLAGS = ['-std=c++11'])
+    
+    ret = context.TryLink("""
+    #if __cplusplus <= 199711L
+        #error Not supported
+    #endif
+    int main(int argc, char ** argv){
+        return 0;
+    }
+    """, '.cpp')
+
+    if not ret:
+        context.sconf.env = tmp
+
+
+    context.Result(utils.colorResult(ret))
+    return ret
+
