@@ -140,6 +140,7 @@ def makeUseArgument(key, default):
 useGch = makeUseArgument('gch', True)
 usePrx = makeUseEnvironment('prx', False)
 isVerbose = makeUseArgument('verbose', False)
+isVerbose = makeUseArgument('verbose', False)
 useIntel = makeUseEnvironment('intel', False)
 useMinpspw = makeUseEnvironment('minpspw', False)
 useAndroid = makeUseEnvironment('android', False)
@@ -161,9 +162,7 @@ enableProfiled = makeUseEnvironment('PROFILE', False)
 showTiming = makeUseEnvironment('timing', False)
 useAllegro4 = makeUseEnvironment('allegro4', False)
 useWii = makeUseEnvironment('wii', False)
-
-def useLLVM():
-    return makeUseEnvironment('llvm', False)
+useLLVM = makeUseEnvironment('llvm', False)
 
 def useAllegro():
     def byEnv():
