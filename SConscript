@@ -33,7 +33,7 @@ else:
 config.ConfigChecks()
 env = config.Finish()
 
-if not env['HAVE_ALLEGRO5']:
+if not env['HAVE_ALLEGRO5'] or not env['HAVE_CXX11']:
     Exit(1)
 
 if scons_rtech1.utils.useLLVM():
@@ -63,8 +63,6 @@ env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options', 'root'])
 rtech1 = env.StaticLibrary(libname, libs)
 Alias('rtech1', rtech1)
-
-scons_rtech1.utils.cxx11_header(env,build_dir, True if 'HAS_CXX11' in env['CPPDEFINES'] else False)
 
 tests_build_dir = os.path.join(build_dir, 'tests')
 unit_tests = []

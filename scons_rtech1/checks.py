@@ -618,7 +618,10 @@ def checkCXX11(context):
     """, '.cpp')
 
     if not ret:
+        context.sconf.env['HAVE_CXX11'] = False
         context.sconf.env = tmp
+    else:
+        context.sconf.env['HAVE_CXX11'] = True
 
 
     context.Result(utils.colorResult(ret))
