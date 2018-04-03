@@ -203,8 +203,10 @@ void Allegro5Touch::drawTouchOverlay(const Graphics::Bitmap & bitmap){
 }
 
 Allegro5Touch::~Allegro5Touch(){
-    al_destroy_event_queue(queue);
-    queue = NULL;
+    if (queue != NULL){
+        al_destroy_event_queue(queue);
+        queue = NULL;
+    }
 }
 
 Util::ReferenceCount<Touch> getTouchDevice(){
