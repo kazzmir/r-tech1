@@ -43,10 +43,10 @@ helpers/clickrem.c
 helpers/silence.c
 helpers/memfile.c
 helpers/resample.c
-allegro/alplay.c
 """);
 
 unused = Split("""
+allegro/alplay.c
 allegro/datit.c
 allegro/datxm.c
 allegro/datduh.c

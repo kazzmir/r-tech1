@@ -1,7 +1,9 @@
+project(minizip C)
+
 set(MINIZIP_SRC
-ioapi.c
-unzip.c
-zip.c)
+${CMAKE_CURRENT_SOURCE_DIR}/ioapi.c
+${CMAKE_CURRENT_SOURCE_DIR}/unzip.c
+${CMAKE_CURRENT_SOURCE_DIR}/zip.c PARENT_SCOPE)
 
 # -------------------------------------------------------
 # Include directory
@@ -11,4 +13,4 @@ zip.c)
 # -------------------------------------------------------
 # module
 # -------------------------------------------------------
-add_library (minizip_module ${MINIZIP_SRC})
+#add_library (minizip_module ${MINIZIP_SRC})

@@ -4,25 +4,28 @@
 # Modified by: kazzmir
 # -------------------------------------------------------
 
+project (x7z C CXX)
+
 # -------------------------------------------------------
 # Source directories containing all the necessary .cpp files
 # -------------------------------------------------------
 set(x7Z_SRC
-7zAlloc.c
-7zBuf.c
-7zBuf2.c
-7zCrc.c
-7zCrcOpt.c
-7zDec.c
-7zIn.c
-CpuArch.c
-LzmaDec.c
-Lzma2Dec.c
-Bra.c
-Bra86.c
-Bcj2.c
-7zFile.c
-7zStream.c)
+${CMAKE_CURRENT_SOURCE_DIR}/7zAlloc.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zBuf.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zBuf2.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zCrc.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zCrcOpt.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zDec.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zIn.c
+${CMAKE_CURRENT_SOURCE_DIR}/CpuArch.c
+${CMAKE_CURRENT_SOURCE_DIR}/LzmaDec.c
+${CMAKE_CURRENT_SOURCE_DIR}/Lzma2Dec.c
+${CMAKE_CURRENT_SOURCE_DIR}/Bra.c
+${CMAKE_CURRENT_SOURCE_DIR}/Bra86.c
+${CMAKE_CURRENT_SOURCE_DIR}/Bcj2.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zFile.c
+${CMAKE_CURRENT_SOURCE_DIR}/7zStream.c
+PARENT_SCOPE)
 
 # -------------------------------------------------------
 # Include directory
@@ -32,4 +35,4 @@ Bcj2.c
 # -------------------------------------------------------
 # module
 # -------------------------------------------------------
-add_library (x7z_module ${x7Z_SRC})
+#add_library (x7z_module ${x7Z_SRC})

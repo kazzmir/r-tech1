@@ -25,7 +25,7 @@
 #include "hawknl/sock.h"
 #include "hawknl/serial.h"
 #include "hawknl/parallel.h"
-#include "util/funcs.h"
+#include "r-tech1/funcs.h"
 
 #ifdef PS3
 #include <net/net.h>

@@ -25,7 +25,7 @@
 
 #include "nl.h"
 // #include "hawkthreads.h"
-#include "util/thread.h"
+#include "r-tech1/thread.h"
 
 /* for malloc and free */
 #include <stdlib.h>

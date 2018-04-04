@@ -1,5 +1,5 @@
 #ifdef HAVE_NETWORKING
-#include "libs/hawknl/nl.h"
+#include "libs/hawknl/hawknl/nl.h"
 #endif
 #include "r-tech1/network/network.h"
 #include "r-tech1/debug.h"

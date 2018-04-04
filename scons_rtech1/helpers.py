@@ -23,8 +23,9 @@ def read_cmake_list(name):
                 if line.strip("\t\r\n").endswith(")"):
                     reading = False
                 path = line.strip("( )\t\r\n")
-                if path:
-                    current.append(path)
+                if path and path != 'PARENT_SCOPE':
+                    current.append(path.replace("${CMAKE_CURRENT_SOURCE_DIR}/", ""))
+    
     return lists
 
 def findFile(root, name):

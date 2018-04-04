@@ -2,7 +2,7 @@
 # dumb cmake build script for r-tech1.
 # Written by: juvinious
 # -------------------------------------------------------
-
+project (dumb C)
 # -------------------------------------------------------
 # Set some specific stuff for dumb
 # -------------------------------------------------------
@@ -25,60 +25,64 @@ endif(MSVC)
 # Source directories containing all the necessary .cpp files
 # -------------------------------------------------------
 set(DUMB_SRC
-src/it/itorder.c
-src/it/xmeffect.c
-src/it/itrender.c
-src/it/itread2.c
-src/it/itunload.c
-src/it/loadmod.c
-src/it/loads3m.c
-src/it/loadxm2.c
-src/it/itload2.c
-src/it/readmod2.c
-src/it/reads3m2.c
-src/it/loadmod2.c
-src/it/loadxm.c
-src/it/loads3m2.c
-src/it/itload.c
-src/it/itmisc.c
-src/it/itread.c
-src/it/readxm.c
-src/it/readmod.c
-src/it/reads3m.c
-src/it/readxm2.c
-src/core/makeduh.c
-src/core/unload.c
-src/core/loadduh.c
-src/core/rawsig.c
-src/core/rendduh.c
-src/core/rendsig.c
-src/core/duhlen.c
-src/core/duhtag.c
-src/core/atexit.c
-src/core/readduh.c
-src/core/register.c
-src/core/dumbfile.c
-src/helpers/sampbuf.c
-src/helpers/stdfile.c
-src/helpers/resample.inc
-src/helpers/clickrem.c
-src/helpers/silence.c
-src/helpers/resamp2.inc
-src/helpers/resamp3.inc
-src/helpers/memfile.c
-src/helpers/resample.c
-src/allegro/datit.c
-src/allegro/datxm.c
-src/allegro/datduh.c
-src/allegro/datitq.c
-src/allegro/datmod.c
-src/allegro/dats3m.c
-src/allegro/datxmq.c
-src/allegro/datmodq.c
-src/allegro/dats3mq.c
-src/allegro/datunld.c
-src/allegro/alplay.c
-src/allegro/packfile.c)
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itorder.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/xmeffect.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itrender.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itread2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itunload.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/loadmod.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/loads3m.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/loadxm2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itload2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/readmod2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/reads3m2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/loadmod2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/loadxm.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/loads3m2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itload.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itmisc.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/itread.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/readxm.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/readmod.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/reads3m.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/it/readxm2.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/makeduh.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/unload.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/loadduh.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/rawsig.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/rendduh.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/rendsig.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/duhlen.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/duhtag.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/atexit.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/readduh.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/register.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/core/dumbfile.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/sampbuf.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/stdfile.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/resample.inc
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/clickrem.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/silence.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/resamp2.inc
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/resamp3.inc
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/memfile.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/helpers/resample.c
+PARENT_SCOPE)
+
+set(UNUSED_DUMB_SRC
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datit.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datxm.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datduh.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datitq.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datmod.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/dats3m.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datxmq.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datmodq.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/dats3mq.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/datunld.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/alplay.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/allegro/packfile.c
+PARENT_SCOPE)
 
 # -------------------------------------------------------
 # Include directory
@@ -88,5 +92,5 @@ include_directories(include include/internal)
 # -------------------------------------------------------
 # module
 # -------------------------------------------------------
-add_library (dumb_module ${DUMB_SRC})
+#add_library (dumb_module ${DUMB_SRC})
 

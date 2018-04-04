@@ -150,7 +150,7 @@ typedef int socklen_t;
 #include "hawknl/nlinternal.h"
 #include "hawknl/group.h"
 #include "hawknl/sock.h"
-#include "util/funcs.h"
+#include "r-tech1/funcs.h"
 
 #ifndef IN_MULTICAST
 #define IN_MULTICAST(i) (((unsigned long)(i) & 0xF0000000) == (unsigned long)0xE0000000)

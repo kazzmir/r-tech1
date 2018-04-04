@@ -31,7 +31,7 @@
 #endif
 
 #include "hawknl/nlinternal.h"
-#include "util/funcs.h"
+#include "r-tech1/funcs.h"
 
 #ifdef HL_WINDOWS_APP
 /* Windows systems */
