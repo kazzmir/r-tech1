@@ -27,10 +27,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 
 # -------------------------------------------------------
-# Directory in which extra macros can be found
+# Output directories
 # -------------------------------------------------------
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
+
 
 # -------------------------------------------------------
 # Directory in which extra macros can be found
@@ -231,3 +232,25 @@ add_library(r-tech1 ${SFL_SRC} ${UTIL_SRC} ${PCRE_SRC} ${x7Z_SRC} ${DUMB_SRC} ${
 # Init test
 add_executable(init-test tests/init/main.cpp)
 target_link_libraries(init-test r-tech1 ${REQUIRED_LIBS})
+
+# Install
+install (TARGETS r-tech1 DESTINATION lib)
+install (DIRECTORY ${CMAKE_SOURCE_DIR}/include/r-tech1 DESTINATION include)
+
+# Pkgconfig
+if(UNIX OR LINUX OR CYGWIN OR MINGW)
+    if(DEBUG)
+        set(lib "r-tech1-debug")
+        set(libs
+            "allegro-debug-5 allegro_ttf-debug-5 allegro_memfile-debug-5 allegro_image-debug-5 allegro_primitives-debug-5 allegro_audio-debug-5 allegro_acodec-debug-5 freetype2 zlib")
+    else(DEBUG)
+        set(lib "r-tech1")
+        set(libs
+            "allegro-5 allegro_ttf-5 allegro_memfile-5 allegro_image-5 allegro_primitives-5 allegro_audio-5 allegro_acodec-5 freetype2 zlib")
+    endif(DEBUG)
+    set(prefix ${CMAKE_INSTALL_PREFIX})
+    set(rtech1_version "1")
+    configure_file(${CMAKE_SOURCE_DIR}/misc/r-tech1.pc.in ${LIBRARY_OUTPUT_PATH}/pkgconfig/${lib}.pc @ONLY)
+    install(FILES ${LIBRARY_OUTPUT_PATH}/pkgconfig/${lib}.pc DESTINATION lib/pkgconfig)
+endif(UNIX OR LINUX OR CYGWIN OR MINGW)
+
