@@ -97,8 +97,10 @@ else(DEBUG)
     set(CMAKE_C_FLAGS "-O2 -Wall -Wno-unused-variable -Wno-unused-function -funroll-loops -fexpensive-optimizations")
 endif(DEBUG)
     
-# FIXME: not sure if this is in the right place
-add_definitions(-DHAVE_NETWORKING)
+# Disabled for now
+# add_definitions(-DHAVE_NETWORKING)
+
+add_definitions(-DHAVE_CXX11 -DDUMB_DECLARE_DEPRECATED)
 
 option(USE_ALLEGRO5 "Compile r-tech1 with ALLEGRO 5 instead of SDL or Allegro 4.x?" ON)
 
