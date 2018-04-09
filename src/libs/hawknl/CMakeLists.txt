@@ -44,3 +44,5 @@ PARENT_SCOPE)
 # -------------------------------------------------------
 #add_library (hawknl_module ${HAWKNL_SRC})
 
+# Install
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/hawknl DESTINATION include/r-tech1/libs/hawknl)

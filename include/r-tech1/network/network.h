@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #ifdef HAVE_NETWORKING
-#include "hawknl/nl.h"
+#include "hawknl/hawknl/nl.h"
 #endif
 #include <string>
 #include <vector>

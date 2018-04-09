@@ -44,7 +44,7 @@ if scons_rtech1.checks.debug():
     env.Append(CXXFLAGS = ['-g3','-ggdb'])
 
 build_dir = '%s/%s' % (build_dir_root, build_type if not scons_rtech1.checks.debug() else 'debug')
-options = {'networking': False,
+options = {'networking': True,
            'allegro5': True
           }
 
@@ -57,7 +57,7 @@ def getLibName():
 
 libname = getLibName()
 
-env.Append(CPPPATH = [Dir('include', Dir('.').rel_path(Dir('#' + root)))])
+env.Append(CPPPATH = [Dir('include', Dir('.').rel_path(Dir('#' + root))), Dir('src/libs')])
 
 env.VariantDir(build_dir, 'src')
 libs = env.SConscript('src/SConscript', variant_dir=build_dir, exports=['env', 'options', 'root'])
@@ -81,8 +81,13 @@ if os.access(env.installPrefix, os.W_OK):
     for root, dirs, files in os.walk(include_dir):
         for file in files:
             installEnv.Install(header_prefix + root[len(include_dir):], os.path.join(root, file))
-
-    installEnv.Install(os.path.join(header_prefix, 'lz4'), 'src/libs/lz4/lz4.h')
+            
+    libs_dir = 'src/libs'
+    for root, dirs, files in os.walk(libs_dir):
+        for file in files:
+            if file.endswith('.h'):
+                # print os.path.dirname(os.path.join(root, file)[len('src'):])
+                installEnv.Install(header_prefix + os.path.dirname(os.path.join(root, file)[len('src'):]), os.path.join(root, file))
 
     # pkg-config file create
     pc_mod, pc_install = scons_rtech1.utils.pc_install(installEnv, build_dir, scons_rtech1.checks.debug()) 

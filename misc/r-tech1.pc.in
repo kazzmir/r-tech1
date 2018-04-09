@@ -10,5 +10,5 @@ Name: ${lib}
 Description: R-Tech1 Library Wrapper Utility
 Version: ${version}
 Libs: -L${libdir} -l${lib}
-Cflags: -I${includedir} -I${includedir}/r-tech1
+Cflags: -I${includedir} -I${includedir}/r-tech1 -I${includedir}/r-tech1/libs
 Requires: ${libs}

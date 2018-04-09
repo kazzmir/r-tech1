@@ -49,7 +49,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/input/allegro5/joystick.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/input/touch.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/input/allegro5/touch.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/xenon/xenon.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/libs/lz4/lz4.c
 ${CMAKE_CURRENT_SOURCE_DIR}/system.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/compress.cpp

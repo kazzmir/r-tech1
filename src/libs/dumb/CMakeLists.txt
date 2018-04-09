@@ -94,3 +94,6 @@ include_directories(include include/internal)
 # -------------------------------------------------------
 #add_library (dumb_module ${DUMB_SRC})
 
+# Install
+INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include DESTINATION include/r-tech1/libs/dumb)
+

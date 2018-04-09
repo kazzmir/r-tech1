@@ -19,7 +19,7 @@ src/sock.cpp
 # src/htcondition.cpp
 # src/htmutex.cpp
 
-# env.Append(CPPPATH = 'hawknl')
+env.Append(CPPPATH = ['.', 'hawknl'])
 
 x = []
 for s in source:

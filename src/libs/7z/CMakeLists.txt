@@ -36,3 +36,8 @@ PARENT_SCOPE)
 # module
 # -------------------------------------------------------
 #add_library (x7z_module ${x7Z_SRC})
+
+
+# Install
+file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
+INSTALL(FILES ${files} DESTINATION include/r-tech1/libs/7z)

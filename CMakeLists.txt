@@ -97,8 +97,8 @@ else(DEBUG)
     set(CMAKE_C_FLAGS "-O2 -Wall -Wno-unused-variable -Wno-unused-function -funroll-loops -fexpensive-optimizations")
 endif(DEBUG)
     
-# Disabled for now
-# add_definitions(-DHAVE_NETWORKING)
+# Networking
+add_definitions(-DHAVE_NETWORKING)
 
 add_definitions(-DHAVE_CXX11 -DDUMB_DECLARE_DEPRECATED)
 
@@ -193,7 +193,7 @@ endif(APPLE)
 # -------------------------------------------------------
 # Include directory
 # -------------------------------------------------------
-include_directories(src src/libs/hawknl src/libs/dumb/include include ${GRAPHICS_INCLUDES} ${FREETYPE_INCLUDE_DIR} ${OGG_INCLUDES} ${MP3_INCLUDES})
+include_directories(src src/libs src/libs/hawknl src/libs/dumb/include include ${GRAPHICS_INCLUDES} ${FREETYPE_INCLUDE_DIR} ${OGG_INCLUDES} ${MP3_INCLUDES})
 
 # -------------------------------------------------------
 # Put the linked libraries together
@@ -228,8 +228,11 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/src/libs/gme)
 # PCRE
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/libs/pcre)
 
+# LZ4
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/libs/lz4)
+
 # Create r-tech1 library
-add_library(r-tech1 ${SFL_SRC} ${UTIL_SRC} ${PCRE_SRC} ${x7Z_SRC} ${DUMB_SRC} ${MINIZIP_SRC} ${HAWKNL_SRC} ${GME_SRC})
+add_library(r-tech1 ${SFL_SRC} ${UTIL_SRC} ${PCRE_SRC} ${x7Z_SRC} ${DUMB_SRC} ${MINIZIP_SRC} ${HAWKNL_SRC} ${GME_SRC} ${LZ4_SRC})
 
 # Init test
 add_executable(init-test tests/init/main.cpp)

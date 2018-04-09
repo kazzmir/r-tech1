@@ -61,12 +61,19 @@ def hawknlLibrary(env):
     # if isOSX():
     #    env.Append(CPPDEFINES = 'MACOSX')
     return env.SConscript('libs/hawknl/SConscript', exports = ['env'])
+    
+def lz4Library(env):
+    lz4Env = env.Clone()
+    env = lz4Env
+    return env.SConscript('libs/lz4/SConscript', exports = ['env'])
 
 env.Append(CPPPATH = Dir('src', Dir(Dir('.').rel_path(Dir('#%s' % root)))).abspath)
 
-all = [utilLibrary(env), minizipLibrary(env), gmeLibrary(env), lzmaLibrary7z(env), sflLibrary(env), pcreLibrary(env), dumbLibrary(env)]
+all = [utilLibrary(env), minizipLibrary(env), gmeLibrary(env), lzmaLibrary7z(env), sflLibrary(env), pcreLibrary(env), dumbLibrary(env), lz4Library(env)]
 
 if useNetwork(options):
+    # Have networking
+    env.Append(CPPDEFINES = ['HAVE_NETWORKING'])
     all.append(hawknlLibrary(env))
 
 Return('all')
