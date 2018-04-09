@@ -114,7 +114,7 @@ for myroot, dirs, files in os.walk(root_dir):
         dir = myroot[len(root_dir) + 1:]
         destination = Dir(dir, Dir('headers/r-tech1', Dir(build_dir))).abspath
         
-env['RTECH1_HEADERS'] = [Dir('include', Dir('.').rel_path(Dir('#%s' % root))).abspath]
+env['RTECH1_HEADERS'] = [Dir('include', Dir('.').rel_path(Dir('#%s' % root))).abspath, Dir('include/r-tech1', Dir('.').rel_path(Dir('#%s' % root))).abspath, Dir('src/libs')]
 
 # Unit tests
 env.Alias('tests', unit_tests)
