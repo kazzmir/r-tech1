@@ -6,6 +6,11 @@
 # -------------------------------------------------------
 
 # -------------------------------------------------------
+# project name
+# -------------------------------------------------------
+project (r-tech1 C CXX)
+
+# -------------------------------------------------------
 # Ensure that we are doing an out of source build
 # Prevents any mishaps
 # Also remove the makefile to regenerate the filelist
@@ -32,11 +37,11 @@ endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
-
 # -------------------------------------------------------
 # Directory in which extra macros can be found
 # -------------------------------------------------------
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+#include(UseLLVM)
 
 # -------------------------------------------------------
 # Add in uninstall target
@@ -50,13 +55,9 @@ add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
 # -------------------------------------------------------
-# project name
-# -------------------------------------------------------
-project (r-tech1 C CXX)
-
-# -------------------------------------------------------
 # Including needed macros
 # -------------------------------------------------------
+include(UseLLVM)
 include(CheckCSourceCompiles)
 include(CheckCXXSourceCompiles)
 find_package(ZLIB)
