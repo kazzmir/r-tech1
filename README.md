@@ -1,3 +1,6 @@
+# Archived on 2023-02-11 (February 11, 2023)
+The code is now part of Paintown: https://github.com/kazzmir/paintown
+
 # R Tech 1
 A set of C++ wrappers around existing graphical, music and other misc. libraries. 
 The library historically used to wrap allegro4, SDL 1.2 and subsequently [Allegro5](https://github.com/liballeg/allegro5). This allowed for using SDL to build  [Paintown](https://www.github.com/kazzmir/paintown) on platforms such as the Wii. 
